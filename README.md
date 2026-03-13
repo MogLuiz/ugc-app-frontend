@@ -22,3 +22,4 @@ Bootstrap inicial do frontend do marketplace UGC com React Router Framework Mode
 - `app/hooks`: hooks reutilizaveis
 - `app/lib`: infraestrutura e utilitarios
 - `.specs`: base de desenvolvimento orientado por especificacao
+# ugc-app-frontend
