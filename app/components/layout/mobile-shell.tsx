@@ -12,8 +12,9 @@ const navItems = [
 export function MobileShellLayout() {
   const { pathname } = useLocation();
   const isAuthRoute = pathname.startsWith("/auth/");
+  const isFullscreenRoute = isAuthRoute || pathname === "/empresa" || pathname === "/mapa";
 
-  if (isAuthRoute) {
+  if (isFullscreenRoute) {
     return (
       <div className="min-h-screen bg-[#f6f5f8]">
         <Outlet />
