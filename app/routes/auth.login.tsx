@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
+import { Lock, Mail } from "lucide-react";
 import { toast } from "~/components/ui/toast";
 
 const ASSET_LOGO_ICON =
@@ -29,7 +30,7 @@ export default function AuthLoginRoute() {
   function handleLogin(event: FormEvent) {
     event.preventDefault();
     toast.success("Login simulado com sucesso");
-    navigate(role === "business" ? "/empresa" : "/criadora");
+    navigate("/");
   }
 
   return (
@@ -68,7 +69,7 @@ export default function AuthLoginRoute() {
               onSubmit={handleLogin}
               className="mt-8 space-y-4 lg:mt-10 lg:space-y-5"
             >
-              <div className="flex rounded-full bg-[rgba(137,90,246,0.1)] p-1">
+              <div className="flex rounded-full bg-[rgba(137,90,246,0.05)] p-1">
                 <button
                   type="button"
                   onClick={() => setRole("business")}
@@ -96,45 +97,55 @@ export default function AuthLoginRoute() {
               <div>
                 <label
                   htmlFor="login-email"
-                  className="mb-2 block pl-1 text-sm font-semibold text-[#334155] lg:font-medium"
+                  className="mb-1 block pl-1 text-sm font-semibold text-[#334155]"
                 >
                   E-mail
                 </label>
-                <input
-                  id="login-email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  required
-                  className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white px-5 text-base text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus:border-[#895af6]"
-                />
+                <div className="relative">
+                  <Mail
+                    className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
+                    strokeWidth={2}
+                  />
+                  <input
+                    id="login-email"
+                    type="email"
+                    placeholder="seu@email.com"
+                    required
+                    className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                  />
+                </div>
               </div>
 
               <div>
                 <label
                   htmlFor="login-password"
-                  className="mb-2 block pl-1 text-sm font-semibold text-[#334155] lg:font-medium"
+                  className="mb-1 block pl-1 text-sm font-semibold text-[#334155]"
                 >
                   Senha
                 </label>
                 <div className="relative">
+                  <Lock
+                    className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
+                    strokeWidth={2}
+                  />
                   <input
                     id="login-password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Sua senha"
                     required
-                    className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white px-5 pr-14 text-base text-[#0f172a] outline-none placeholder:text-[#94a3b8] focus:border-[#895af6]"
+                    className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94a3b8] transition hover:text-[#64748b]"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9ca3af] transition hover:text-[#64748b]"
                     aria-label={
                       showPassword ? "Ocultar senha" : "Mostrar senha"
                     }
                   >
                     <svg
                       viewBox="0 0 24 24"
-                      className="h-6 w-6 fill-none stroke-current stroke-2"
+                      className="h-5 w-5 fill-none stroke-current stroke-2"
                     >
                       <path d="M2.25 12S5.25 6.75 12 6.75 21.75 12 21.75 12 18.75 17.25 12 17.25 2.25 12 2.25 12Z" />
                       <circle cx="12" cy="12" r="3" />
@@ -144,10 +155,10 @@ export default function AuthLoginRoute() {
               </div>
 
               <div className="flex items-center justify-between px-1 py-1 text-sm">
-                <label className="flex cursor-pointer items-center gap-2 text-[#475569] lg:text-[#334155]">
+                <label className="flex cursor-pointer items-center gap-2 text-[#475569]">
                   <input
                     type="checkbox"
-                    className="h-5 w-5 rounded-full border border-[#cbd5e1] accent-[#895af6]"
+                    className="h-4 w-4 rounded-full border border-[rgba(137,90,246,0.2)] accent-[#895af6]"
                   />
                   Lembrar de mim
                 </label>

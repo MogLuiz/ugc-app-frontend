@@ -28,7 +28,7 @@ export default function AuthRegisterRoute() {
       return;
     }
     toast.success("Cadastro realizado com sucesso");
-    navigate(role === "business" ? "/empresa" : "/criadora");
+    navigate("/");
   }
 
   return (
@@ -140,7 +140,7 @@ export default function AuthRegisterRoute() {
                     <button
                       type="button"
                       onClick={() => setRole("business")}
-                      className={`flex flex-col items-center justify-center gap-3 rounded-[48px] px-5 py-10 transition lg:h-10 lg:flex-1 lg:flex-row lg:gap-0 lg:py-0 ${
+                      className={`flex flex-col items-center justify-center gap-3 rounded-[48px] px-5 py-10 transition lg:h-11 lg:flex-1 lg:flex-row lg:gap-0 lg:py-0 ${
                         role === "business"
                           ? "border-2 border-[#895af6] bg-[rgba(137,90,246,0.1)] lg:border-0 lg:bg-white lg:shadow-sm"
                           : "border-2 border-transparent bg-[rgba(226,232,240,0.5)] lg:bg-transparent"
@@ -157,7 +157,7 @@ export default function AuthRegisterRoute() {
                     <button
                       type="button"
                       onClick={() => setRole("creator")}
-                      className={`flex flex-col items-center justify-center gap-3 rounded-[48px] px-5 py-10 transition lg:h-10 lg:flex-1 lg:flex-row lg:gap-0 lg:py-0 ${
+                      className={`flex flex-col items-center justify-center gap-3 rounded-[48px] px-5 py-10 transition lg:h-11 lg:flex-1 lg:flex-row lg:gap-0 lg:py-0 ${
                         role === "creator"
                           ? "border-2 border-[#895af6] bg-[rgba(137,90,246,0.1)] lg:border-0 lg:bg-white lg:shadow-sm"
                           : "border-2 border-transparent bg-[rgba(226,232,240,0.5)] lg:bg-transparent"
@@ -185,7 +185,7 @@ export default function AuthRegisterRoute() {
                     </label>
                     <div className="relative">
                       <User
-                        className="absolute left-4 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-[#9ca3af] lg:block"
+                        className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
                         strokeWidth={2}
                       />
                       <input
@@ -193,7 +193,7 @@ export default function AuthRegisterRoute() {
                         type="text"
                         placeholder="Como quer ser chamado?"
                         required
-                        className="h-14 w-full rounded-[16px] border-0 bg-[#f1f5f9] pl-4 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:ring-2 focus:ring-[#895af6] lg:h-11 lg:rounded-[48px] lg:border lg:border-[rgba(137,90,246,0.1)] lg:bg-[rgba(137,90,246,0.05)] lg:pl-10 lg:text-sm"
+                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
                       />
                     </div>
                   </div>
@@ -207,7 +207,7 @@ export default function AuthRegisterRoute() {
                     </label>
                     <div className="relative">
                       <Mail
-                        className="absolute left-4 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-[#9ca3af] lg:block"
+                        className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
                         strokeWidth={2}
                       />
                       <input
@@ -215,7 +215,7 @@ export default function AuthRegisterRoute() {
                         type="email"
                         placeholder="seu@email.com"
                         required
-                        className="h-14 w-full rounded-[16px] border-0 bg-[#f1f5f9] pl-4 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:ring-2 focus:ring-[#895af6] lg:h-11 lg:rounded-[48px] lg:border lg:border-[rgba(137,90,246,0.1)] lg:bg-[rgba(137,90,246,0.05)] lg:pl-10 lg:text-sm"
+                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
                       />
                     </div>
                   </div>
@@ -228,17 +228,17 @@ export default function AuthRegisterRoute() {
                       Senha
                     </label>
                     <div className="relative">
-                        <Lock
-                          className="absolute left-4 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-[#9ca3af] lg:block"
-                          strokeWidth={2}
-                        />
+                      <Lock
+                        className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
+                        strokeWidth={2}
+                      />
                       <input
                         id="register-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Mínimo 8 caracteres"
                         required
                         minLength={8}
-                        className="h-14 w-full rounded-[16px] border-0 bg-[#f1f5f9] pl-4 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:ring-2 focus:ring-[#895af6] lg:h-11 lg:rounded-[48px] lg:border lg:border-[rgba(137,90,246,0.1)] lg:bg-[rgba(137,90,246,0.05)] lg:pl-10 lg:text-sm"
+                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
                       />
                       <button
                         type="button"
@@ -248,7 +248,7 @@ export default function AuthRegisterRoute() {
                       >
                         <svg
                           viewBox="0 0 24 24"
-                          className="h-5 w-5 fill-none stroke-current stroke-2 lg:h-4 lg:w-4"
+                          className="h-5 w-5 fill-none stroke-current stroke-2"
                         >
                           <path d="M2.25 12S5.25 6.75 12 6.75 21.75 12 21.75 12 18.75 17.25 12 17.25 2.25 12 2.25 12Z" />
                           <circle cx="12" cy="12" r="3" />
@@ -266,7 +266,7 @@ export default function AuthRegisterRoute() {
                     </label>
                     <div className="relative">
                       <Lock
-                        className="absolute left-4 top-1/2 hidden h-4 w-4 -translate-y-1/2 text-[#9ca3af] lg:block"
+                        className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]"
                         strokeWidth={2}
                       />
                       <input
@@ -274,7 +274,7 @@ export default function AuthRegisterRoute() {
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirme sua senha"
                         required
-                        className="h-14 w-full rounded-[16px] border-0 bg-[#f1f5f9] pl-4 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:ring-2 focus:ring-[#895af6] lg:h-11 lg:rounded-[48px] lg:border lg:border-[rgba(137,90,246,0.1)] lg:bg-[rgba(137,90,246,0.05)] lg:pl-10 lg:text-sm"
+                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
                       />
                       <button
                         type="button"
@@ -286,7 +286,7 @@ export default function AuthRegisterRoute() {
                       >
                         <svg
                           viewBox="0 0 24 24"
-                          className="h-5 w-5 fill-none stroke-current stroke-2 lg:h-4 lg:w-4"
+                          className="h-5 w-5 fill-none stroke-current stroke-2"
                         >
                           <path d="M2.25 12S5.25 6.75 12 6.75 21.75 12 21.75 12 18.75 17.25 12 17.25 2.25 12 2.25 12Z" />
                           <circle cx="12" cy="12" r="3" />
@@ -323,7 +323,7 @@ export default function AuthRegisterRoute() {
 
                   <button
                     type="submit"
-                    className="h-12 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105 lg:h-11 lg:text-sm"
+                    className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105"
                   >
                     Criar conta
                   </button>
