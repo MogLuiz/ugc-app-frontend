@@ -23,16 +23,19 @@ type Pages = {
   "/mapa": {
     params: {};
   };
+  "/dashboard": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/mapa";
+    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/mapa";
+    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -50,6 +53,10 @@ type RouteFiles = {
     id: "routes/mapa";
     page: "/mapa";
   };
+  "routes/dashboard.tsx": {
+    id: "routes/dashboard";
+    page: "/dashboard";
+  };
 };
 
 type RouteModules = {
@@ -59,4 +66,5 @@ type RouteModules = {
   "routes/auth.login": typeof import("./app/routes/auth.login.tsx");
   "routes/auth.register": typeof import("./app/routes/auth.register.tsx");
   "routes/mapa": typeof import("./app/routes/mapa.tsx");
+  "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
 };
