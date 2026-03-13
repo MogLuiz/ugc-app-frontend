@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { toast } from "~/components/ui/toast";
 
 const ASSET_LOGO_ICON =
@@ -165,13 +165,13 @@ export default function AuthLoginRoute() {
             </form>
 
             <p className="pb-4 pt-4 text-center text-base leading-5 text-[#475569] lg:pb-0 lg:pt-6 lg:text-sm lg:leading-5">
-              Não tem uma conta?
-              <button
-                type="button"
-                className="ml-1 font-bold text-[#895af6] lg:font-semibold"
+              Não tem uma conta?{" "}
+              <Link
+                to="/auth/register"
+                className="font-bold text-[#895af6] hover:underline lg:font-semibold"
               >
                 Cadastre-se grátis
-              </button>
+              </Link>
             </p>
           </div>
         </section>
