@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "skills": {
+    "tlc-spec-driven": {
+      "name": "tlc-spec-driven",
+      "source": "local",
+      "contentHash": "f869d9d91ad0ba14085d084d56d6b9e17a714b3c1f61a37a3c806ed91d0795e8",
+      "installedAt": "2026-03-13T00:07:40.606Z",
+      "updatedAt": "2026-03-13T00:07:40.620Z",
+      "agents": [
+        "windsurf"
+      ],
+      "method": "copy",
+      "global": false
+    },
+    "figma-implement-design": {
+      "name": "figma-implement-design",
+      "source": "local",
+      "contentHash": "6177778eac45026cf58d1f86447fa730e39389e54a99df2c5f35cd6905371b1d",
+      "installedAt": "2026-03-13T00:21:56.477Z",
+      "updatedAt": "2026-03-13T00:21:56.482Z",
+      "agents": [
+        "claude-code"
+      ],
+      "method": "copy",
+      "global": false
+    }
+  }
+}

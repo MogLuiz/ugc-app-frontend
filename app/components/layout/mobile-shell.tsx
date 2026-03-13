@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { Building2, Home, MessageCircle, UserCircle2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 
@@ -10,6 +10,17 @@ const navItems = [
 ];
 
 export function MobileShellLayout() {
+  const { pathname } = useLocation();
+  const isAuthRoute = pathname.startsWith("/auth/");
+
+  if (isAuthRoute) {
+    return (
+      <div className="min-h-screen bg-[#f6f5f8]">
+        <Outlet />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-slate-50">
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 p-4 backdrop-blur">
