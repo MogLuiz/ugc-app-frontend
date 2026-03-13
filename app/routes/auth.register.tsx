@@ -98,10 +98,10 @@ export default function AuthRegisterRoute() {
         </aside>
 
         {/* Right: Form */}
-        <section className="flex w-full flex-1 flex-col bg-white lg:items-center lg:justify-center lg:overflow-y-auto lg:px-16 lg:py-8">
-          <div className="flex w-full max-w-[448px] flex-col lg:mx-auto">
+        <section className="flex w-full flex-1 flex-col items-center justify-center overflow-y-auto bg-white px-4 py-6 lg:px-16 lg:py-8">
+          <div className="flex w-full max-w-[448px] flex-col">
             {/* Mobile: Top nav (Figma 12:102) */}
-            <div className="flex items-center justify-between border-b border-[#e2e8f0] px-4 py-4 lg:hidden">
+            <div className="flex w-full items-center justify-between border-b border-[#e2e8f0] px-4 py-4 lg:hidden">
               <Link
                 to="/auth/login"
                 className="flex h-12 w-12 items-center justify-center text-[#0f172a]"
