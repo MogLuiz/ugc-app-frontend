@@ -21,5 +21,6 @@ Bootstrap inicial do frontend do marketplace UGC com React Router Framework Mode
 - `app/components`: UI compartilhada
 - `app/hooks`: hooks reutilizaveis
 - `app/lib`: infraestrutura e utilitarios
+- `docs/design-system.md`: **padrao de layout** — cores, tipografia, componentes, grid e espacamento (ref. Figma)
 - `.specs`: base de desenvolvimento orientado por especificacao
 # ugc-app-frontend

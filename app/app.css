@@ -1,21 +1,78 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/**
+ * UGC Local Design System - Tokens
+ * Ref: docs/design-system.md
+ * Figma: https://www.figma.com/design/JjJEgzy9OinpEG2tceo1zi?node-id=6-393
+ */
 :root {
   color-scheme: light;
+
+  /* Cores primárias e funcionais */
+  --color-primary: #895af6;
+  --color-secondary: #6366f1;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  /* Cores neutras */
+  --color-text: #1f2937;
+  --color-text-secondary: #4b5563;
+  --color-text-tertiary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-border: #e5e7eb;
+  --color-background: #f3f4f6;
+  --color-background-page: #f9fafb;
+
+  /* Badges / Nichos */
+  --color-badge-beleza-bg: #f3e8ff;
+  --color-badge-beleza-text: #7e22ce;
+  --color-badge-gastronomia-bg: #ffedd5;
+  --color-badge-gastronomia-text: #c2410c;
+  --color-badge-fitness-bg: #dbeafe;
+  --color-badge-fitness-text: #1d4ed8;
+  --color-badge-decor-bg: #dcfce7;
+  --color-badge-decor-text: #15803d;
+
+  /* Tipografia */
+  --font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-size-h1: 3rem; /* 48px */
+  --font-size-h2: 1.875rem; /* 30px */
+  --font-size-h3: 1.25rem; /* 20px */
+  --font-size-h4: 1.125rem; /* 18px */
+  --font-size-body: 1rem; /* 16px */
+  --font-size-body-sm: 0.875rem; /* 14px */
+  --font-size-caption: 0.75rem; /* 12px */
+  --line-height-tight: 1.075;
+  --line-height-body: 1.625; /* 26/16 */
+
+  /* Espaçamento (métrica 4px) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Layout */
+  --container-max: 1280px;
+  --container-padding: 16px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f8fafc;
-  color: #0f172a;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  background: var(--color-background-page);
+  color: var(--color-text);
+  font-family: var(--font-family);
 }
