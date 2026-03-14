@@ -21,7 +21,7 @@ const NAV_ITEMS = [
 
 export function CreatorDashboardSidebar() {
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-slate-200 bg-white">
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col self-start border-r border-slate-200 bg-white">
       <div className="flex gap-3 p-6">
         <div className="flex size-10 items-center justify-center rounded-full bg-[#895af6]">
           <Home className="size-5 text-white" />
