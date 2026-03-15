@@ -1,4 +1,5 @@
 import { Bell, ChevronDown, MapPin, Menu, Search, Sparkles } from "lucide-react";
+import { Link } from "react-router";
 import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { MOCK_CREATORS_BH } from "~/modules/creators-map/data/mock-creators";
@@ -225,7 +226,11 @@ function MobileLayout({ creators, search, onSearch, activeCategory, onCategoryCh
         </div>
         <div className="flex gap-3 overflow-x-auto">
           {creators.map((creator) => (
-            <button key={creator.id} type="button" onClick={() => onSelectCreator(creator.id)} className={`flex w-[288px] shrink-0 gap-3 rounded-2xl border border-slate-100 bg-white p-3 text-left shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1)] ${selectedCreator?.id === creator.id ? "ring-2 ring-[#895af6]" : ""}`}>
+            <Link
+              key={creator.id}
+              to={`/criador/${creator.id}`}
+              className={`flex w-[288px] shrink-0 gap-3 rounded-2xl border border-slate-100 bg-white p-3 text-left shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1)] transition ${selectedCreator?.id === creator.id ? "ring-2 ring-[#895af6]" : ""}`}
+            >
               <img src={creator.avatarUrl} alt={creator.name} className="h-20 w-20 rounded-full object-cover" />
               <div className="flex flex-1 flex-col justify-between py-1">
                 <div>
@@ -238,7 +243,7 @@ function MobileLayout({ creators, search, onSearch, activeCategory, onCategoryCh
                   <strong className="text-xl text-[#7c56f3]">R$ {creator.priceFrom}</strong>
                 </div>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       </div>
@@ -255,8 +260,15 @@ function CreatorDesktopCard({ creator, selected, onSelect }: { creator: CreatorM
           <h4 className="mt-1 text-[32px] font-bold leading-8 text-slate-900">{creator.name}</h4>
           <p className="mt-1 text-xs uppercase text-slate-500">{creator.specialty} • {creator.region}</p>
           <div className="mt-4 flex items-center gap-2">
-            <Button className="h-8 rounded-full bg-[#7c56f3] px-6 text-sm" onClick={() => onSelect(creator.id)}>Contratar</Button>
-            <button type="button" onClick={() => onSelect(creator.id)} className="h-8 rounded-full px-4 text-sm font-semibold text-[#7c56f3]">Ver Perfil</button>
+            <Link to={`/criador/${creator.id}`}>
+              <Button className="h-8 rounded-full bg-[#7c56f3] px-6 text-sm">Contratar</Button>
+            </Link>
+            <Link
+              to={`/criador/${creator.id}`}
+              className="h-8 rounded-full px-4 text-sm font-semibold text-[#7c56f3] hover:underline"
+            >
+              Ver Perfil
+            </Link>
           </div>
         </div>
         <img src={creator.avatarUrl} alt={creator.name} className="h-24 w-24 rounded-full object-cover" />

@@ -26,16 +26,21 @@ type Pages = {
   "/dashboard": {
     params: {};
   };
+  "/criador/:creatorId": {
+    params: {
+      "creatorId": string;
+    };
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard";
+    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard";
+    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -57,6 +62,10 @@ type RouteFiles = {
     id: "routes/dashboard";
     page: "/dashboard";
   };
+  "routes/criador.$creatorId.tsx": {
+    id: "routes/criador.$creatorId";
+    page: "/criador/:creatorId";
+  };
 };
 
 type RouteModules = {
@@ -67,4 +76,5 @@ type RouteModules = {
   "routes/auth.register": typeof import("./app/routes/auth.register.tsx");
   "routes/mapa": typeof import("./app/routes/mapa.tsx");
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
+  "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
 };
