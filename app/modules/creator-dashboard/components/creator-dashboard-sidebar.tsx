@@ -1,9 +1,11 @@
 import { useState } from "react";
 import {
   Briefcase,
+  Calendar,
   ChevronRight,
   CreditCard,
   Home,
+  MessageCircle,
   Settings,
   User
 } from "lucide-react";
@@ -13,9 +15,11 @@ const AVATAR_FALLBACK = "LM";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: Home, active: true },
-  { id: "jobs", label: "Meus Jobs", icon: Briefcase },
-  { id: "pagamentos", label: "Pagamentos", icon: CreditCard },
+  { id: "ofertas", label: "Ofertas", icon: Briefcase },
+  { id: "calendario", label: "Calendário", icon: Calendar },
   { id: "perfil", label: "Perfil", icon: User },
+  { id: "pagamentos", label: "Pagamentos", icon: CreditCard },
+  { id: "mensagens", label: "Mensagens", icon: MessageCircle },
   { id: "configuracoes", label: "Configurações", icon: Settings }
 ];
 
