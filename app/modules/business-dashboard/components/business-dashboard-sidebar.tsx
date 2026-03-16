@@ -5,7 +5,7 @@ import {
   MessageCircle,
   Rocket,
   Settings,
-  Users
+  Users,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -14,11 +14,11 @@ const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: BarChart3, active: true },
   { id: "campanhas", label: "Campanhas", icon: Briefcase },
   { id: "criadores", label: "Criadores", icon: Users },
-  { id: "mapa", label: "Mapa de Criadores", icon: MapPin },
+  { id: "mapa", label: "Marketplace de Criadores", icon: MapPin },
   { id: "relatorios", label: "Relatórios", icon: BarChart3 },
   { id: "chat", label: "Chat", icon: MessageCircle },
   { id: "perfil", label: "Perfil da Empresa", icon: Users },
-  { id: "configuracoes", label: "Configurações", icon: Settings }
+  { id: "configuracoes", label: "Configurações", icon: Settings },
 ];
 
 export function BusinessDashboardSidebar() {
@@ -30,8 +30,12 @@ export function BusinessDashboardSidebar() {
             <Rocket className="size-5 text-white" />
           </div>
           <div>
-            <p className="text-xl font-bold tracking-[-0.5px] text-slate-900">UGC Local</p>
-            <p className="text-xs font-medium text-[#895af6]">Painel de Negócios</p>
+            <p className="text-xl font-bold tracking-[-0.5px] text-slate-900">
+              UGC Local
+            </p>
+            <p className="text-xs font-medium text-[#895af6]">
+              Painel de Negócios
+            </p>
           </div>
         </div>
 
@@ -46,7 +50,7 @@ export function BusinessDashboardSidebar() {
                   "flex items-center gap-3 rounded-[48px] px-4 py-3 text-sm font-medium transition-colors",
                   item.active
                     ? "bg-[#895af6] text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2),0px_4px_6px_-4px_rgba(137,90,246,0.2)]"
-                    : "text-slate-600 hover:bg-slate-50"
+                    : "text-slate-600 hover:bg-slate-50",
                 )}
               >
                 <Icon className="size-[18px]" />
@@ -59,7 +63,9 @@ export function BusinessDashboardSidebar() {
 
       <div className="flex flex-col gap-4">
         <div className="rounded-2xl border border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.05)] p-4">
-          <p className="text-xs font-semibold uppercase text-[#895af6]">Suporte Premium</p>
+          <p className="text-xs font-semibold uppercase text-[#895af6]">
+            Suporte Premium
+          </p>
           <p className="mt-2 text-xs leading-4 text-slate-500">
             Precisa de ajuda com sua estratégia de conteúdo?
           </p>
