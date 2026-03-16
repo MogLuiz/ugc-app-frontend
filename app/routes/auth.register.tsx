@@ -58,7 +58,7 @@ export default function AuthRegisterRoute() {
 
     setLoading(true);
     try {
-      const { data, error } = await signUp(email, password, { name });
+      const { data, error } = await signUp(email, password, { name, role });
       if (error) {
         const msg =
           error.message?.toLowerCase().includes("already registered") ||

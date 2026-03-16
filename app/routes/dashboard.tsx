@@ -8,10 +8,10 @@ export default function DashboardRoute() {
 
   return (
     <AuthGuard>
-      {user?.role === "business" ? (
-        <BusinessDashboardScreen />
-      ) : (
+      {user?.role === "creator" ? (
         <CreatorDashboardScreen />
+      ) : (
+        <BusinessDashboardScreen />
       )}
     </AuthGuard>
   );

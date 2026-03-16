@@ -1,11 +1,16 @@
 import { supabase } from "~/lib/supabase";
 import { httpClient } from "~/lib/http/client";
 import type {
+  BackendRole,
   BootstrapPayload,
   SessionResponse,
   UserRole,
 } from "~/modules/auth/types";
-import { bootstrapToAuthUser, toBackendRole } from "~/modules/auth/types";
+import {
+  bootstrapToAuthUser,
+  toBackendRole,
+  toFrontendRole,
+} from "~/modules/auth/types";
 import { HttpError } from "~/lib/http/errors";
 
 export async function updateProfile(
@@ -59,7 +64,14 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
     };
   } catch (err) {
     if (err instanceof HttpError && err.status === 404) {
-      const role = getStoredRole() ?? "business";
+      const metadataRole = session.user?.user_metadata?.role as
+        | BackendRole
+        | undefined;
+      const roleFromMetadata =
+        metadataRole === "COMPANY" || metadataRole === "CREATOR"
+          ? toFrontendRole(metadataRole)
+          : null;
+      const role = roleFromMetadata ?? getStoredRole() ?? "business";
       const bootstrapPayload = await bootstrapUser(role, token);
       return {
         authenticated: true,
@@ -101,13 +113,16 @@ export async function signIn(email: string, password: string) {
 export async function signUp(
   email: string,
   password: string,
-  options?: { name?: string }
+  options?: { name?: string; role?: UserRole }
 ) {
+  const data: Record<string, string> = {};
+  if (options?.name) data.name = options.name;
+  if (options?.role) data.role = toBackendRole(options.role);
   return supabase.auth.signUp({
     email,
     password,
     options: {
-      data: options?.name ? { name: options.name } : undefined,
+      data: Object.keys(data).length > 0 ? data : undefined,
     },
   });
 }
