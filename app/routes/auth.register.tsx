@@ -2,6 +2,14 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { Building2, ChevronLeft, Lock, Mail, User, Video } from "lucide-react";
 import { toast } from "~/components/ui/toast";
+import { useAuthContext } from "~/modules/auth/context";
+import {
+  signUp,
+  bootstrapUser,
+  setStoredRole,
+  updateProfile,
+} from "~/modules/auth/service";
+import type { UserRole } from "~/modules/auth/types";
 
 const ASSET_LEFT_VISUAL =
   "https://www.figma.com/api/mcp/asset/2704f17a-e3bd-4784-9b30-3d7841a12d77";
@@ -16,19 +24,75 @@ const ASSET_AVATAR_3 =
 
 export default function AuthRegisterRoute() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<"business" | "creator">("business");
+  const { refreshSession } = useAuthContext();
+  const [role, setRole] = useState<UserRole>("business");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  function handleRegister(event: FormEvent) {
+  async function handleRegister(event: FormEvent) {
     event.preventDefault();
     if (!acceptTerms) {
       toast.error("Aceite os Termos e Condições para continuar");
       return;
     }
-    toast.success("Cadastro realizado com sucesso");
-    navigate("/");
+
+    const form = event.currentTarget as HTMLFormElement;
+    const name = (form.elements.namedItem("register-name") as HTMLInputElement)
+      ?.value;
+    const email = (form.elements.namedItem("register-email") as HTMLInputElement)
+      ?.value;
+    const password = (
+      form.elements.namedItem("register-password") as HTMLInputElement
+    )?.value;
+    const confirmPassword = (
+      form.elements.namedItem("register-confirm-password") as HTMLInputElement
+    )?.value;
+
+    if (!name || !email || !password || !confirmPassword) return;
+    if (password !== confirmPassword) {
+      toast.error("As senhas não coincidem");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await signUp(email, password, { name });
+      if (error) {
+        const msg =
+          error.message?.toLowerCase().includes("already registered") ||
+          error.message?.toLowerCase().includes("already exists")
+            ? "Este e-mail já está cadastrado. Faça login ou recupere sua senha."
+            : error.message ?? "Erro ao criar conta. Tente novamente.";
+        toast.error(msg);
+        return;
+      }
+
+      if (data.session) {
+        setStoredRole(role);
+        await bootstrapUser(role);
+        if (name?.trim()) {
+          await updateProfile({ name: name.trim() });
+        }
+        await refreshSession();
+        toast.success("Cadastro realizado com sucesso");
+        navigate("/");
+      } else {
+        toast.success(
+          "Conta criada! Verifique seu e-mail para ativar sua conta."
+        );
+        navigate("/auth/login");
+      }
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "Erro ao criar conta. Tente novamente."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -323,9 +387,10 @@ export default function AuthRegisterRoute() {
 
                   <button
                     type="submit"
-                    className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105"
+                    disabled={loading}
+                    className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    Criar conta
+                    {loading ? "Criando conta..." : "Criar conta"}
                   </button>
                 </div>
               </form>

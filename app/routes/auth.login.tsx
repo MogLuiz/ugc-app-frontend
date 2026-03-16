@@ -2,6 +2,13 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { Lock, Mail } from "lucide-react";
 import { toast } from "~/components/ui/toast";
+import { useAuthContext } from "~/modules/auth/context";
+import {
+  signIn,
+  bootstrapUser,
+  setStoredRole,
+} from "~/modules/auth/service";
+import type { UserRole } from "~/modules/auth/types";
 
 const ASSET_LOGO_ICON =
   "https://www.figma.com/api/mcp/asset/ae5bd879-fa0c-42e9-b9a6-2bf79ffd38c5";
@@ -24,13 +31,40 @@ const ASSET_APPLE_MOBILE =
 
 export default function AuthLoginRoute() {
   const navigate = useNavigate();
-  const [role, setRole] = useState("business");
+  const { refreshSession } = useAuthContext();
+  const [role, setRole] = useState<UserRole>("business");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  function handleLogin(event: FormEvent) {
+  async function handleLogin(event: FormEvent) {
     event.preventDefault();
-    toast.success("Login simulado com sucesso");
-    navigate("/");
+    const form = event.currentTarget as HTMLFormElement;
+    const email = (form.elements.namedItem("login-email") as HTMLInputElement)
+      ?.value;
+    const password = (
+      form.elements.namedItem("login-password") as HTMLInputElement
+    )?.value;
+    if (!email || !password) return;
+
+    setLoading(true);
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast.error(error.message ?? "Credenciais inválidas. Tente novamente.");
+        return;
+      }
+      setStoredRole(role);
+      await bootstrapUser(role);
+      await refreshSession();
+      toast.success("Login realizado com sucesso");
+      navigate("/");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Erro ao fazer login. Tente novamente."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -169,9 +203,10 @@ export default function AuthLoginRoute() {
 
               <button
                 type="submit"
-                className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.2),0_4px_6px_-4px_rgba(137,90,246,0.2)] transition hover:brightness-105"
+                disabled={loading}
+                className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.2),0_4px_6px_-4px_rgba(137,90,246,0.2)] transition hover:brightness-105 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Entrar
+                {loading ? "Entrando..." : "Entrar"}
               </button>
             </form>
 

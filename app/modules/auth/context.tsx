@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getSession, logout } from "~/modules/auth/service";
+import { supabase } from "~/lib/supabase";
 import type { AuthUser } from "~/modules/auth/types";
 
 type AuthContextValue = {
@@ -35,6 +36,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void refreshSession();
+  }, []);
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        void refreshSession();
+      } else {
+        setUser(null);
+      }
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const value = useMemo(

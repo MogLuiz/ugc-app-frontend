@@ -8,6 +8,8 @@ type HttpRequestOptions = {
   body?: unknown;
   headers?: HeadersInit;
   signal?: AbortSignal;
+  /** Bearer token para requisições autenticadas (Supabase access_token) */
+  token?: string;
 };
 
 type ErrorPayload = {
@@ -16,13 +18,17 @@ type ErrorPayload = {
 
 export async function httpClient<TResponse>(path: string, options: HttpRequestOptions = {}): Promise<TResponse> {
   const url = new URL(path, getApiBaseUrl());
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...options.headers
+  };
+  if (options.token) {
+    (headers as Record<string, string>)["Authorization"] = `Bearer ${options.token}`;
+  }
   const response = await fetch(url, {
     method: options.method ?? "GET",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers
-    },
+    headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
     signal: options.signal
   });
