@@ -12,7 +12,6 @@ Bootstrap inicial do frontend do marketplace UGC com React Router Framework Mode
 - `pnpm start`: serve build
 - `pnpm typecheck`: validacao de tipos
 - `pnpm test`: testes unitarios/componentes
-- `pnpm storybook`: Storybook local
 - `pnpm e2e`: testes E2E com Playwright
 
 ## Estrutura
@@ -21,6 +20,6 @@ Bootstrap inicial do frontend do marketplace UGC com React Router Framework Mode
 - `app/components`: UI compartilhada
 - `app/hooks`: hooks reutilizaveis
 - `app/lib`: infraestrutura e utilitarios
-- `docs/design-system.md`: **padrao de layout** — cores, tipografia, componentes, grid e espacamento (ref. Figma)
+- `.specs/design-system.md`: **padrao de layout** — cores, tipografia, componentes, grid e espacamento (ref. Figma)
 - `.specs`: base de desenvolvimento orientado por especificacao
 # ugc-app-frontend

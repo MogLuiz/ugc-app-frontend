@@ -1,9 +1,5 @@
 import { useRef } from "react";
-import type {
-  FormEventHandler,
-  ReactElement,
-  ReactNode,
-} from "react";
+import type { FormEventHandler, ReactElement, ReactNode } from "react";
 import { cloneElement } from "react";
 import type { FieldErrors, UseFormRegister } from "react-hook-form";
 import type { LucideIcon } from "lucide-react";
@@ -23,7 +19,7 @@ import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import type { AuthUser } from "~/modules/auth/types";
 import type { CompanyProfileForm } from "../../schemas/company-profile";
-import { CompanyPortfolioSection } from "../company-portfolio-section";
+import { CompanyPortfolioSection } from "./company-portfolio-section";
 
 type Density = "compact" | "comfortable";
 
@@ -103,7 +99,9 @@ function getCompanyItems(user: AuthUser): ViewItem[] {
 function getAddress(profile: AuthUser["profile"]) {
   return (
     [
-      [profile?.addressStreet, profile?.addressNumber].filter(Boolean).join(", "),
+      [profile?.addressStreet, profile?.addressNumber]
+        .filter(Boolean)
+        .join(", "),
       profile?.addressCity
         ? profile?.addressState
           ? `${profile.addressCity}/${profile.addressState}`
@@ -154,7 +152,7 @@ export function CompanyProfileFormSection({
         <div
           className={cn(
             "flex shrink-0 flex-col items-center",
-            compact ? "gap-1.5" : "gap-2"
+            compact ? "gap-1.5" : "gap-2",
           )}
         >
           <ProfileAvatar
@@ -181,17 +179,33 @@ export function CompanyProfileFormSection({
             onClick={() => fileInputRef.current?.click()}
           >
             <Camera className={compact ? "size-3" : "size-3.5"} />
-            {isUploadingAvatar ? (compact ? "…" : "Enviando…") : compact ? "Alterar" : "Alterar foto"}
+            {isUploadingAvatar
+              ? compact
+                ? "…"
+                : "Enviando…"
+              : compact
+                ? "Alterar"
+                : "Alterar foto"}
           </Button>
         </div>
 
-        <div className={cn("flex flex-1 flex-col", compact ? "gap-3" : "gap-4")}>
+        <div
+          className={cn("flex flex-1 flex-col", compact ? "gap-3" : "gap-4")}
+        >
           <FormField
             error={errors.name?.message}
-            errorClassName={compact ? "mt-0.5 text-xs text-red-500" : "mt-1 text-xs text-red-500"}
+            errorClassName={
+              compact
+                ? "mt-0.5 text-xs text-red-500"
+                : "mt-1 text-xs text-red-500"
+            }
             inputClassName={errors.name ? "border-red-500" : undefined}
             label="Nome"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input {...register("name")} placeholder="Seu nome" />
           </FormField>
@@ -201,7 +215,7 @@ export function CompanyProfileFormSection({
               className={cn(
                 compact
                   ? "mb-0.5 block text-xs font-medium text-slate-600"
-                  : "mb-1 block text-sm font-medium text-slate-600"
+                  : "mb-1 block text-sm font-medium text-slate-600",
               )}
             >
               Sobre a empresa
@@ -225,15 +239,23 @@ export function CompanyProfileFormSection({
       >
         <div
           className={cn(
-            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2"
+            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2",
           )}
         >
           <FormField
             error={errors.companyName?.message}
-            errorClassName={compact ? "mt-0.5 text-xs text-red-500" : "mt-1 text-xs text-red-500"}
+            errorClassName={
+              compact
+                ? "mt-0.5 text-xs text-red-500"
+                : "mt-1 text-xs text-red-500"
+            }
             inputClassName={errors.companyName ? "border-red-500" : undefined}
             label="Nome da empresa"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
             wrapperClassName={compact ? undefined : "sm:col-span-2"}
           >
             <Input
@@ -244,17 +266,27 @@ export function CompanyProfileFormSection({
 
           <FormField
             label="Cargo"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input
               {...register("jobTitle")}
-              placeholder={compact ? "Ex: CEO" : "Ex: CEO, Gerente de Marketing"}
+              placeholder={
+                compact ? "Ex: CEO" : "Ex: CEO, Gerente de Marketing"
+              }
             />
           </FormField>
 
           <FormField
             label={compact ? "Nicho" : "Nicho de atuação"}
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input
               {...register("businessNiche")}
@@ -264,14 +296,22 @@ export function CompanyProfileFormSection({
 
           <FormField
             label="Telefone"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input {...register("phone")} placeholder="(00) 00000-0000" />
           </FormField>
 
           <FormField
             label="Tipo de documento"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Select {...register("documentType")}>
               <option value="">Selecione</option>
@@ -282,12 +322,25 @@ export function CompanyProfileFormSection({
 
           <FormField
             error={errors.documentNumber?.message}
-            errorClassName={compact ? "mt-0.5 text-xs text-red-500" : "mt-1 text-xs text-red-500"}
-            inputClassName={errors.documentNumber ? "border-red-500" : undefined}
+            errorClassName={
+              compact
+                ? "mt-0.5 text-xs text-red-500"
+                : "mt-1 text-xs text-red-500"
+            }
+            inputClassName={
+              errors.documentNumber ? "border-red-500" : undefined
+            }
             label="Número do documento"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
-            <Input {...register("documentNumber")} placeholder="Somente números" />
+            <Input
+              {...register("documentNumber")}
+              placeholder="Somente números"
+            />
           </FormField>
         </div>
       </CompanyProfileSection>
@@ -295,12 +348,16 @@ export function CompanyProfileFormSection({
       <CompanyProfileSection density={density} icon={MapPin} title="Endereço">
         <div
           className={cn(
-            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2"
+            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2",
           )}
         >
           <FormField
             label="Rua"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
             wrapperClassName={compact ? undefined : "sm:col-span-2"}
           >
             <Input {...register("addressStreet")} placeholder="Nome da rua" />
@@ -308,28 +365,44 @@ export function CompanyProfileFormSection({
 
           <FormField
             label="Número"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input {...register("addressNumber")} placeholder="Número" />
           </FormField>
 
           <FormField
             label="CEP"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input {...register("addressZipCode")} placeholder="00000-000" />
           </FormField>
 
           <FormField
             label="Cidade"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input {...register("addressCity")} placeholder="Cidade" />
           </FormField>
 
           <FormField
             label="Estado"
-            labelClassName={compact ? "mb-0.5 block text-xs font-medium text-slate-600" : "mb-1 block text-sm font-medium text-slate-600"}
+            labelClassName={
+              compact
+                ? "mb-0.5 block text-xs font-medium text-slate-600"
+                : "mb-1 block text-sm font-medium text-slate-600"
+            }
           >
             <Input {...register("addressState")} placeholder="UF" />
           </FormField>
@@ -345,12 +418,7 @@ export function CompanyProfileFormSection({
         isRemoving={isRemovingPortfolio}
       />
 
-      <div
-        className={cn(
-          "flex",
-          compact ? "gap-2 pt-2" : "justify-end gap-2"
-        )}
-      >
+      <div className={cn("flex", compact ? "gap-2 pt-2" : "justify-end gap-2")}>
         <Button
           type="button"
           variant="outline"
@@ -395,11 +463,13 @@ export function CompanyProfileSummarySection({
           photoUrl={profile?.photoUrl}
         />
 
-        <div className={cn("flex flex-1 flex-col", compact ? "gap-0.5" : "gap-1")}>
+        <div
+          className={cn("flex flex-1 flex-col", compact ? "gap-0.5" : "gap-1")}
+        >
           <h2
             className={cn(
               "font-bold text-[#0f172a]",
-              compact ? "text-lg" : "text-xl"
+              compact ? "text-lg" : "text-xl",
             )}
           >
             {displayName}
@@ -417,7 +487,7 @@ export function CompanyProfileSummarySection({
       >
         <div
           className={cn(
-            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2"
+            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2",
           )}
         >
           {companyItems.map((item) => (
@@ -511,10 +581,14 @@ function CompanyProfileSection({
       <h3
         className={cn(
           "flex items-center gap-2 font-bold text-[#0f172a]",
-          compact ? "mb-3 text-sm" : "mb-4 text-lg"
+          compact ? "mb-3 text-sm" : "mb-4 text-lg",
         )}
       >
-        <Icon className={compact ? "size-4 text-[#895af6]" : "size-5 text-[#895af6]"} />
+        <Icon
+          className={
+            compact ? "size-4 text-[#895af6]" : "size-5 text-[#895af6]"
+          }
+        />
         {title}
       </h3>
       {children}
@@ -539,7 +613,7 @@ function ProfileAvatar({
     <div
       className={cn(
         "flex shrink-0 items-center justify-center overflow-hidden rounded-full border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.1)]",
-        compact ? "size-16 border-2" : "size-24 border-4"
+        compact ? "size-16 border-2" : "size-24 border-4",
       )}
     >
       {photoUrl ? (
@@ -552,7 +626,7 @@ function ProfileAvatar({
         <span
           className={cn(
             "font-bold text-[#895af6]",
-            compact ? "text-xl" : "text-2xl"
+            compact ? "text-xl" : "text-2xl",
           )}
         >
           {initials}
@@ -582,7 +656,9 @@ function FormField({
   return (
     <div className={wrapperClassName}>
       <label className={labelClassName}>{label}</label>
-      {inputClassName ? cloneElement(children, { className: inputClassName }) : children}
+      {inputClassName
+        ? cloneElement(children, { className: inputClassName })
+        : children}
       {error ? <p className={errorClassName}>{error}</p> : null}
     </div>
   );
@@ -607,25 +683,27 @@ function InfoItem({
     <div
       className={cn(
         "flex items-center gap-3",
-        !compact && fullWidth && "sm:col-span-2"
+        !compact && fullWidth && "sm:col-span-2",
       )}
     >
       <div
         className={cn(
           "flex items-center justify-center bg-[rgba(137,90,246,0.1)]",
-          compact ? "size-9 rounded-lg" : "size-10 rounded-xl"
+          compact ? "size-9 rounded-lg" : "size-10 rounded-xl",
         )}
       >
         <Icon className={cn("text-[#895af6]", compact ? "size-4" : "size-5")} />
       </div>
       <div>
-        <p className={cn("text-slate-500", compact ? "text-[10px]" : "text-xs")}>
+        <p
+          className={cn("text-slate-500", compact ? "text-[10px]" : "text-xs")}
+        >
           {label}
         </p>
         <p
           className={cn(
             "font-medium text-slate-900",
-            compact ? "text-sm" : undefined
+            compact ? "text-sm" : undefined,
           )}
         >
           {value}
