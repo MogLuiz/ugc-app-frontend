@@ -1,9 +1,12 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
 import { Lock, Mail } from "lucide-react";
 import { toast } from "~/components/ui/toast";
 import { signIn, getStoredRole } from "~/modules/auth/service";
 import { useBootstrapMutation } from "~/modules/auth/mutations";
+import { loginSchema, type LoginForm } from "~/modules/auth/schemas/login";
 
 const ASSET_LOGO_ICON =
   "https://www.figma.com/api/mcp/asset/ae5bd879-fa0c-42e9-b9a6-2bf79ffd38c5";
@@ -24,25 +27,45 @@ const ASSET_GOOGLE_MOBILE =
 const ASSET_APPLE_MOBILE =
   "https://www.figma.com/api/mcp/asset/78bf9190-b564-483a-98f0-4b87eda0802b";
 
+function getFriendlyLoginError(rawMessage?: string | null): string {
+  if (!rawMessage?.trim()) return "Não foi possível entrar. Tente novamente.";
+  const lower = rawMessage.toLowerCase();
+  if (
+    lower.includes("invalid login credentials") ||
+    lower.includes("invalid_credentials") ||
+    lower.includes("wrong password") ||
+    lower.includes("incorrect password")
+  ) {
+    return "E-mail ou senha incorretos. Verifique seus dados e tente novamente.";
+  }
+  if (lower.includes("user not found") || lower.includes("email not found")) {
+    return "Nenhuma conta encontrada com este e-mail. Cadastre-se ou verifique o endereço.";
+  }
+  if (lower.includes("too many requests") || lower.includes("rate limit")) {
+    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+  }
+  return rawMessage;
+}
+
 export default function AuthLoginRoute() {
   const navigate = useNavigate();
   const bootstrapMutation = useBootstrapMutation();
   const [showPassword, setShowPassword] = useState(false);
 
-  async function handleLogin(event: FormEvent) {
-    event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const email = (form.elements.namedItem("login-email") as HTMLInputElement)
-      ?.value;
-    const password = (
-      form.elements.namedItem("login-password") as HTMLInputElement
-    )?.value;
-    if (!email || !password) return;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+  });
 
+  async function onSubmit(data: LoginForm) {
     try {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(data.email, data.password);
       if (error) {
-        toast.error(error.message ?? "Credenciais inválidas. Tente novamente.");
+        const msg = getFriendlyLoginError(error.message);
+        toast.error(msg);
         return;
       }
       const role = getStoredRole() ?? "business";
@@ -50,9 +73,9 @@ export default function AuthLoginRoute() {
       toast.success("Login realizado com sucesso");
       navigate("/dashboard");
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : "Erro ao fazer login. Tente novamente."
-      );
+      const msg =
+        err instanceof Error ? getFriendlyLoginError(err.message) : "Erro ao fazer login. Tente novamente.";
+      toast.error(msg);
     }
   }
 
@@ -89,7 +112,7 @@ export default function AuthLoginRoute() {
             </div>
 
             <form
-              onSubmit={handleLogin}
+              onSubmit={handleSubmit(onSubmit)}
               className="mt-8 space-y-4 lg:mt-10 lg:space-y-5"
             >
               <div>
@@ -108,10 +131,20 @@ export default function AuthLoginRoute() {
                     id="login-email"
                     type="email"
                     placeholder="seu@email.com"
-                    required
-                    className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                    {...register("email")}
+                    aria-invalid={!!errors.email}
+                    className={`h-14 w-full rounded-[48px] border bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6] ${
+                      errors.email
+                        ? "border-red-500"
+                        : "border-[#e2e8f0]"
+                    }`}
                   />
                 </div>
+                {errors.email && (
+                  <p className="mt-1 pl-1 text-sm text-red-600">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -130,8 +163,13 @@ export default function AuthLoginRoute() {
                     id="login-password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Sua senha"
-                    required
-                    className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                    {...register("password")}
+                    aria-invalid={!!errors.password}
+                    className={`h-14 w-full rounded-[48px] border bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6] ${
+                      errors.password
+                        ? "border-red-500"
+                        : "border-[#e2e8f0]"
+                    }`}
                   />
                   <button
                     type="button"
@@ -150,6 +188,11 @@ export default function AuthLoginRoute() {
                     </svg>
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="mt-1 pl-1 text-sm text-red-600">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between px-1 py-1 text-sm">
@@ -168,7 +211,7 @@ export default function AuthLoginRoute() {
               <button
                 type="submit"
                 disabled={bootstrapMutation.isPending}
-                className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.2),0_4px_6px_-4px_rgba(137,90,246,0.2)] transition hover:brightness-105 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="h-14 w-full cursor-pointer rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.2),0_4px_6px_-4px_rgba(137,90,246,0.2)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {bootstrapMutation.isPending ? "Entrando..." : "Entrar"}
               </button>
