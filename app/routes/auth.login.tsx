@@ -6,9 +6,8 @@ import { useAuthContext } from "~/modules/auth/context";
 import {
   signIn,
   bootstrapUser,
-  setStoredRole,
+  getStoredRole,
 } from "~/modules/auth/service";
-import type { UserRole } from "~/modules/auth/types";
 
 const ASSET_LOGO_ICON =
   "https://www.figma.com/api/mcp/asset/ae5bd879-fa0c-42e9-b9a6-2bf79ffd38c5";
@@ -32,7 +31,6 @@ const ASSET_APPLE_MOBILE =
 export default function AuthLoginRoute() {
   const navigate = useNavigate();
   const { refreshSession } = useAuthContext();
-  const [role, setRole] = useState<UserRole>("business");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -53,11 +51,11 @@ export default function AuthLoginRoute() {
         toast.error(error.message ?? "Credenciais inválidas. Tente novamente.");
         return;
       }
-      setStoredRole(role);
+      const role = getStoredRole() ?? "business";
       await bootstrapUser(role);
       await refreshSession();
       toast.success("Login realizado com sucesso");
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Erro ao fazer login. Tente novamente."
@@ -103,31 +101,6 @@ export default function AuthLoginRoute() {
               onSubmit={handleLogin}
               className="mt-8 space-y-4 lg:mt-10 lg:space-y-5"
             >
-              <div className="flex rounded-full bg-[rgba(137,90,246,0.05)] p-1">
-                <button
-                  type="button"
-                  onClick={() => setRole("business")}
-                  className={`h-11 flex-1 rounded-full text-sm font-semibold transition ${
-                    role === "business"
-                      ? "bg-white text-[#895af6] shadow-sm"
-                      : "text-[#64748b]"
-                  }`}
-                >
-                  Empresa
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole("creator")}
-                  className={`h-11 flex-1 rounded-full text-sm font-semibold transition ${
-                    role === "creator"
-                      ? "bg-white text-[#895af6] shadow-sm"
-                      : "text-[#64748b] lg:text-[#0f172a]"
-                  }`}
-                >
-                  Criador
-                </button>
-              </div>
-
               <div>
                 <label
                   htmlFor="login-email"

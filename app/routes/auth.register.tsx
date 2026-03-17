@@ -77,7 +77,7 @@ export default function AuthRegisterRoute() {
         }
         await refreshSession();
         toast.success("Cadastro realizado com sucesso");
-        navigate("/");
+        navigate("/dashboard");
       } else {
         toast.success(
           "Conta criada! Verifique seu e-mail para ativar sua conta."
