@@ -1,10 +1,34 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
 import { Building2, ChevronLeft, Lock, Mail, User, Video } from "lucide-react";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
-import { useBootstrapMutation, useUpdateProfileMutation } from "~/modules/auth/mutations";
+import {
+  useBootstrapMutation,
+  useUpdateProfileMutation,
+} from "~/modules/auth/mutations";
+import {
+  registerSchema,
+  type RegisterForm,
+} from "~/modules/auth/schemas/register";
 import type { UserRole } from "~/modules/auth/types";
+
+function getFriendlyRegisterError(rawMessage?: string | null): string {
+  if (!rawMessage?.trim()) return "Erro ao criar conta. Tente novamente.";
+  const lower = rawMessage.toLowerCase();
+  if (
+    lower.includes("already registered") ||
+    lower.includes("already exists")
+  ) {
+    return "Este e-mail já está cadastrado. Faça login ou recupere sua senha.";
+  }
+  if (lower.includes("too many requests") || lower.includes("rate limit")) {
+    return "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+  }
+  return rawMessage;
+}
 
 const ASSET_LEFT_VISUAL =
   "https://www.figma.com/api/mcp/asset/2704f17a-e3bd-4784-9b30-3d7841a12d77";
@@ -24,66 +48,60 @@ export default function AuthRegisterRoute() {
   const [role, setRole] = useState<UserRole>("business");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const isSubmitting =
     bootstrapMutation.isPending || updateProfileMutation.isPending;
 
-  async function handleRegister(event: FormEvent) {
-    event.preventDefault();
-    if (!acceptTerms) {
-      toast.error("Aceite os Termos e Condições para continuar");
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      acceptTerms: false,
+    },
+  });
 
-    const form = event.currentTarget as HTMLFormElement;
-    const name = (form.elements.namedItem("register-name") as HTMLInputElement)
-      ?.value;
-    const email = (form.elements.namedItem("register-email") as HTMLInputElement)
-      ?.value;
-    const password = (
-      form.elements.namedItem("register-password") as HTMLInputElement
-    )?.value;
-    const confirmPassword = (
-      form.elements.namedItem("register-confirm-password") as HTMLInputElement
-    )?.value;
-
-    if (!name || !email || !password || !confirmPassword) return;
-    if (password !== confirmPassword) {
-      toast.error("As senhas não coincidem");
-      return;
-    }
-
+  async function onSubmit(data: RegisterForm) {
     try {
-      const { data, error } = await signUp(email, password, { name, role });
+      const { data: signUpData, error } = await signUp(
+        data.email,
+        data.password,
+        {
+          name: data.name,
+          role,
+        },
+      );
       if (error) {
-        const msg =
-          error.message?.toLowerCase().includes("already registered") ||
-          error.message?.toLowerCase().includes("already exists")
-            ? "Este e-mail já está cadastrado. Faça login ou recupere sua senha."
-            : error.message ?? "Erro ao criar conta. Tente novamente.";
-        toast.error(msg);
+        toast.error(getFriendlyRegisterError(error.message));
         return;
       }
 
-      if (data.session) {
+      if (signUpData.session) {
         setStoredRole(role);
         await bootstrapMutation.mutateAsync({ role });
-        if (name?.trim()) {
-          await updateProfileMutation.mutateAsync({ data: { name: name.trim() } });
+        if (data.name?.trim()) {
+          await updateProfileMutation.mutateAsync({
+            data: { name: data.name.trim() },
+          });
         }
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
         toast.success(
-          "Conta criada! Verifique seu e-mail para ativar sua conta."
+          "Conta criada! Verifique seu e-mail para ativar sua conta.",
         );
         navigate("/auth/login");
       }
     } catch (err) {
       toast.error(
         err instanceof Error
-          ? err.message
-          : "Erro ao criar conta. Tente novamente."
+          ? getFriendlyRegisterError(err.message)
+          : "Erro ao criar conta. Tente novamente.",
       );
     }
   }
@@ -124,8 +142,8 @@ export default function AuthRegisterRoute() {
                 Conectando marcas a criadores locais.
               </h2>
               <p className="text-base leading-6 text-[#e2e8f0]">
-                A maior plataforma de conteúdo gerado pelo usuário para
-                empresas que buscam autenticidade e resultados reais.
+                A maior plataforma de conteúdo gerado pelo usuário para empresas
+                que buscam autenticidade e resultados reais.
               </p>
             </div>
 
@@ -187,7 +205,10 @@ export default function AuthRegisterRoute() {
                 </p>
               </div>
 
-              <form onSubmit={handleRegister} className="space-y-4 lg:space-y-3">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="space-y-4 lg:space-y-3"
+              >
                 {/* Role selection - Mobile: cards (Figma 12:116) | Desktop: pills */}
                 <div>
                   <p className="mb-4 text-lg font-bold tracking-[-0.27px] text-[#0f172a] lg:sr-only lg:mb-0">
@@ -208,7 +229,9 @@ export default function AuthRegisterRoute() {
                       />
                       <span className="text-base font-bold lg:text-sm lg:font-semibold">
                         <span className="lg:hidden">Empresa</span>
-                        <span className="hidden lg:inline">Sou uma Empresa</span>
+                        <span className="hidden lg:inline">
+                          Sou uma Empresa
+                        </span>
                       </span>
                     </button>
                     <button
@@ -249,10 +272,18 @@ export default function AuthRegisterRoute() {
                         id="register-name"
                         type="text"
                         placeholder="Como quer ser chamado?"
-                        required
-                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                        {...register("name")}
+                        aria-invalid={!!errors.name}
+                        className={`h-14 w-full rounded-[48px] border bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6] ${
+                          errors.name ? "border-red-500" : "border-[#e2e8f0]"
+                        }`}
                       />
                     </div>
+                    {errors.name && (
+                      <p className="mt-1 pl-1 text-sm text-red-600">
+                        {errors.name.message}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -271,10 +302,18 @@ export default function AuthRegisterRoute() {
                         id="register-email"
                         type="email"
                         placeholder="seu@email.com"
-                        required
-                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                        {...register("email")}
+                        aria-invalid={!!errors.email}
+                        className={`h-14 w-full rounded-[48px] border bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6] ${
+                          errors.email ? "border-red-500" : "border-[#e2e8f0]"
+                        }`}
                       />
                     </div>
+                    {errors.email && (
+                      <p className="mt-1 pl-1 text-sm text-red-600">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -293,15 +332,21 @@ export default function AuthRegisterRoute() {
                         id="register-password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Mínimo 8 caracteres"
-                        required
-                        minLength={8}
-                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                        {...register("password")}
+                        aria-invalid={!!errors.password}
+                        className={`h-14 w-full rounded-[48px] border bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6] ${
+                          errors.password
+                            ? "border-red-500"
+                            : "border-[#e2e8f0]"
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword((p) => !p)}
                         className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9ca3af] transition hover:text-[#64748b]"
-                        aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        aria-label={
+                          showPassword ? "Ocultar senha" : "Mostrar senha"
+                        }
                       >
                         <svg
                           viewBox="0 0 24 24"
@@ -312,6 +357,11 @@ export default function AuthRegisterRoute() {
                         </svg>
                       </button>
                     </div>
+                    {errors.password && (
+                      <p className="mt-1 pl-1 text-sm text-red-600">
+                        {errors.password.message}
+                      </p>
+                    )}
                   </div>
 
                   <div>
@@ -330,15 +380,22 @@ export default function AuthRegisterRoute() {
                         id="register-confirm-password"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Confirme sua senha"
-                        required
-                        className="h-14 w-full rounded-[48px] border border-[#e2e8f0] bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6]"
+                        {...register("confirmPassword")}
+                        aria-invalid={!!errors.confirmPassword}
+                        className={`h-14 w-full rounded-[48px] border bg-white pl-10 pr-12 text-base text-[#0f172a] outline-none placeholder:text-[#6b7280] focus:border-[#895af6] ${
+                          errors.confirmPassword
+                            ? "border-red-500"
+                            : "border-[#e2e8f0]"
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword((p) => !p)}
                         className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9ca3af] transition hover:text-[#64748b]"
                         aria-label={
-                          showConfirmPassword ? "Ocultar senha" : "Mostrar senha"
+                          showConfirmPassword
+                            ? "Ocultar senha"
+                            : "Mostrar senha"
                         }
                       >
                         <svg
@@ -350,38 +407,49 @@ export default function AuthRegisterRoute() {
                         </svg>
                       </button>
                     </div>
+                    {errors.confirmPassword && (
+                      <p className="mt-1 pl-1 text-sm text-red-600">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
                   </div>
 
-                  <label className="flex cursor-pointer items-start gap-3 py-1 lg:py-0">
-                    <input
-                      type="checkbox"
-                      checked={acceptTerms}
-                      onChange={(e) => setAcceptTerms(e.target.checked)}
-                      className="mt-1 h-4 w-4 shrink-0 rounded-full border border-[rgba(137,90,246,0.2)] accent-[#895af6] lg:mt-0.5 lg:h-4"
-                    />
-                    <span className="text-sm leading-5 text-[#475569] lg:text-xs">
-                      Eu aceito os{" "}
-                      <button
-                        type="button"
-                        className="font-semibold text-[#895af6] hover:underline"
-                      >
-                        Termos e Condições
-                      </button>{" "}
-                      e a{" "}
-                      <button
-                        type="button"
-                        className="font-semibold text-[#895af6] hover:underline"
-                      >
-                        Política de Privacidade
-                      </button>{" "}
-                      do UGC Local.
-                    </span>
-                  </label>
+                  <div>
+                    <label className="flex cursor-pointer items-start gap-3 py-1 lg:py-0">
+                      <input
+                        type="checkbox"
+                        {...register("acceptTerms")}
+                        className="mt-1 h-4 w-4 shrink-0 rounded-full border border-[rgba(137,90,246,0.2)] accent-[#895af6] lg:mt-0.5 lg:h-4"
+                      />
+                      <span className="text-sm leading-5 text-[#475569] lg:text-xs">
+                        Eu aceito os{" "}
+                        <button
+                          type="button"
+                          className="font-semibold text-[#895af6] hover:underline"
+                        >
+                          Termos e Condições
+                        </button>{" "}
+                        e a{" "}
+                        <button
+                          type="button"
+                          className="font-semibold text-[#895af6] hover:underline"
+                        >
+                          Política de Privacidade
+                        </button>{" "}
+                        do UGC Local.
+                      </span>
+                    </label>
+                    {errors.acceptTerms && (
+                      <p className="mt-1 pl-1 text-sm text-red-600">
+                        {errors.acceptTerms.message}
+                      </p>
+                    )}
+                  </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105 disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="h-14 w-full cursor-pointer rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {isSubmitting ? "Criando conta..." : "Criar conta"}
                   </button>
