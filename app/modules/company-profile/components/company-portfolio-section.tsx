@@ -134,7 +134,8 @@ function MediaCard({
         <video
           src={source}
           className="size-full object-cover"
-          muted
+          controls={readOnly}
+          muted={!readOnly}
           playsInline
           preload="metadata"
         />

@@ -30,6 +30,11 @@ import {
 } from "../schemas/company-profile";
 import { toast } from "~/components/ui/toast";
 import { CompanyPortfolioSection } from "./company-portfolio-section";
+import {
+  getCompanyProfileErrorMessage,
+  getCompanyProfileSuccessMessage,
+  validatePortfolioFile,
+} from "../lib/feedback";
 
 type CompanyProfileMobileProps = {
   user: AuthUser;
@@ -96,9 +101,9 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
     if (!file) return;
     try {
       await uploadAvatarMutation.mutateAsync({ file });
-      toast.success("Foto atualizada com sucesso");
-    } catch {
-      toast.error("Erro ao enviar foto. Tente novamente.");
+      toast.success(getCompanyProfileSuccessMessage("avatar_upload"));
+    } catch (error) {
+      toast.error(getCompanyProfileErrorMessage(error, "avatar_upload"));
     }
     e.target.value = "";
   }
@@ -133,27 +138,33 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
         }),
       ]);
       setIsEditing(false);
-      toast.success("Perfil atualizado com sucesso");
-    } catch {
-      toast.error("Erro ao atualizar perfil. Tente novamente.");
+      toast.success(getCompanyProfileSuccessMessage("profile_update"));
+    } catch (error) {
+      toast.error(getCompanyProfileErrorMessage(error, "profile_update"));
     }
   }
 
   async function handlePortfolioUpload(file: File) {
+    const validationError = validatePortfolioFile(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
     try {
       await uploadPortfolioMediaMutation.mutateAsync({ file });
-      toast.success("Mídia adicionada ao portfólio");
-    } catch {
-      toast.error("Erro ao enviar mídia. Tente novamente.");
+      toast.success(getCompanyProfileSuccessMessage("portfolio_upload"));
+    } catch (error) {
+      toast.error(getCompanyProfileErrorMessage(error, "portfolio_upload"));
     }
   }
 
   async function handlePortfolioRemove(mediaId: string) {
     try {
       await deletePortfolioMediaMutation.mutateAsync({ mediaId });
-      toast.success("Mídia removida do portfólio");
-    } catch {
-      toast.error("Erro ao remover mídia. Tente novamente.");
+      toast.success(getCompanyProfileSuccessMessage("portfolio_remove"));
+    } catch (error) {
+      toast.error(getCompanyProfileErrorMessage(error, "portfolio_remove"));
     }
   }
 
