@@ -1,33 +1,49 @@
-import { BusinessDashboardDesktop } from "./business-dashboard-desktop";
-import { BusinessDashboardMobile } from "./business-dashboard-mobile";
+import { BusinessDashboardSidebar } from "./business-dashboard-sidebar";
+import { useBusinessDashboardController } from "../hooks/use-business-dashboard-controller";
 import {
-  MOCK_BUSINESS_STATS,
-  MOCK_BUSINESS_STATS_MOBILE,
-  MOCK_CAMPAIGN_JOBS,
-  MOCK_CAMPAIGNS_MOBILE,
-  MOCK_RECOMMENDED_CREATORS,
-  MOCK_RECOMMENDED_CREATORS_MOBILE
-} from "../data/mock-business-dashboard";
+  BusinessDashboardBottomNav,
+  BusinessDashboardHeader,
+  BusinessDashboardJobs,
+  BusinessDashboardQuickActions,
+  BusinessDashboardRecommended,
+  BusinessDashboardSpendChart,
+  BusinessDashboardStats,
+  BusinessDashboardWelcome,
+} from "./sections/business-dashboard-sections";
 
 export function BusinessDashboardScreen() {
+  const controller = useBusinessDashboardController();
+
   return (
-    <>
-      <div className="hidden min-h-screen lg:block">
-        <BusinessDashboardDesktop
-          stats={MOCK_BUSINESS_STATS}
-          jobs={MOCK_CAMPAIGN_JOBS}
-          recommendedCreators={MOCK_RECOMMENDED_CREATORS}
-        />
+    <div className="min-h-screen bg-[#f6f5f8] lg:flex">
+      <div className="hidden lg:block">
+        <BusinessDashboardSidebar />
       </div>
-      <div className="lg:hidden">
-        <BusinessDashboardMobile
-          companyName="Lumina Studio"
-          investimento={MOCK_BUSINESS_STATS_MOBILE.investimento}
-          jobsPendentes={MOCK_BUSINESS_STATS_MOBILE.jobsPendentes}
-          campaigns={MOCK_CAMPAIGNS_MOBILE}
-          recommendedCreators={MOCK_RECOMMENDED_CREATORS_MOBILE}
+
+      <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 pb-24 lg:gap-8 lg:p-8">
+        <BusinessDashboardHeader
+          companyName={controller.viewModel.companyName}
+          planName={controller.viewModel.planName}
+          search={controller.viewModel.search}
+          onSearchChange={controller.actions.setSearch}
         />
-      </div>
-    </>
+        <BusinessDashboardWelcome />
+        <BusinessDashboardStats stats={controller.viewModel.stats} />
+        <BusinessDashboardQuickActions />
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="flex flex-col gap-6 lg:col-span-2 lg:gap-8">
+            <BusinessDashboardSpendChart />
+            <BusinessDashboardJobs jobs={controller.viewModel.jobs} />
+          </div>
+
+          <BusinessDashboardRecommended
+            recommendedCreators={controller.viewModel.recommendedCreators}
+          />
+        </div>
+      </main>
+
+      <BusinessDashboardBottomNav />
+    </div>
   );
 }

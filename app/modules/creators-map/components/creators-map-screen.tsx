@@ -1,13 +1,13 @@
 import { Bell, ChevronDown, MapPin, Menu, Search, Sparkles } from "lucide-react";
 import { Link } from "react-router";
-import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { MOCK_CREATORS_BH } from "~/modules/creators-map/data/mock-creators";
 import { GoogleCreatorsMap } from "~/modules/creators-map/components/google-creators-map";
 import type { CreatorCategory, CreatorMapModel } from "~/modules/creators-map/types";
-
-type SortTab = "relevantes" | "novidades";
-type CategoryFilter = "all" | CreatorCategory;
+import {
+  useCreatorsMapController,
+  type CategoryFilter,
+  type SortTab,
+} from "../hooks/use-creators-map-controller";
 
 const CATEGORIES: Array<{ id: CategoryFilter; label: string }> = [
   { id: "all", label: "Beleza" },
@@ -17,66 +17,31 @@ const CATEGORIES: Array<{ id: CategoryFilter; label: string }> = [
 ];
 
 export function CreatorsMapScreen() {
-  const [search, setSearch] = useState("");
-  const [activeSortTab, setActiveSortTab] = useState<SortTab>("relevantes");
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("all");
-  const [selectedCreatorId, setSelectedCreatorId] = useState<string>(MOCK_CREATORS_BH[0]?.id ?? "");
-
-  const filteredCreators = useMemo(() => {
-    const normalizedSearch = search.trim().toLowerCase();
-
-    const byCategory = MOCK_CREATORS_BH.filter((creator) => {
-      if (activeCategory === "all") {
-        return true;
-      }
-      return creator.category === activeCategory;
-    });
-
-    const bySearch = byCategory.filter((creator) => {
-      if (!normalizedSearch) {
-        return true;
-      }
-
-      return (
-        creator.name.toLowerCase().includes(normalizedSearch) ||
-        creator.specialty.toLowerCase().includes(normalizedSearch) ||
-        creator.region.toLowerCase().includes(normalizedSearch)
-      );
-    });
-
-    const sorted = [...bySearch].sort((a, b) =>
-      activeSortTab === "relevantes" ? b.rating - a.rating : b.jobs - a.jobs
-    );
-
-    return sorted;
-  }, [activeCategory, activeSortTab, search]);
-
-  const selectedCreator =
-    filteredCreators.find((creator) => creator.id === selectedCreatorId) ?? filteredCreators[0] ?? null;
+  const controller = useCreatorsMapController();
 
   return (
     <div className="min-h-screen bg-[#f6f5f8]">
       <DesktopLayout
-        creators={filteredCreators}
-        search={search}
-        onSearch={setSearch}
-        activeSortTab={activeSortTab}
-        onSortTabChange={setActiveSortTab}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        selectedCreator={selectedCreator}
-        selectedCreatorId={selectedCreatorId}
-        onSelectCreator={setSelectedCreatorId}
+        creators={controller.viewModel.creators}
+        search={controller.viewModel.search}
+        onSearch={controller.actions.setSearch}
+        activeSortTab={controller.viewModel.activeSortTab}
+        onSortTabChange={controller.actions.setActiveSortTab}
+        activeCategory={controller.viewModel.activeCategory}
+        onCategoryChange={controller.actions.setActiveCategory}
+        selectedCreator={controller.viewModel.selectedCreator}
+        selectedCreatorId={controller.viewModel.selectedCreatorId}
+        onSelectCreator={controller.actions.setSelectedCreatorId}
       />
       <MobileLayout
-        creators={filteredCreators}
-        search={search}
-        onSearch={setSearch}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        selectedCreator={selectedCreator}
-        selectedCreatorId={selectedCreatorId}
-        onSelectCreator={setSelectedCreatorId}
+        creators={controller.viewModel.creators}
+        search={controller.viewModel.search}
+        onSearch={controller.actions.setSearch}
+        activeCategory={controller.viewModel.activeCategory}
+        onCategoryChange={controller.actions.setActiveCategory}
+        selectedCreator={controller.viewModel.selectedCreator}
+        selectedCreatorId={controller.viewModel.selectedCreatorId}
+        onSelectCreator={controller.actions.setSelectedCreatorId}
       />
     </div>
   );

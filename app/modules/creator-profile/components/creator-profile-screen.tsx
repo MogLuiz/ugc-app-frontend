@@ -1,12 +1,19 @@
-import { useState } from "react";
 import { Link, useParams } from "react-router";
-import { CreatorProfileDesktop } from "./creator-profile-desktop";
-import { CreatorProfileMobile } from "./creator-profile-mobile";
 import { MOCK_CREATOR_PROFILES } from "../data/mock-creator-profile";
+import {
+  CreatorLocationSection,
+  CreatorPortfolioSection,
+  CreatorProfileHeroSection,
+  CreatorQuickActions,
+  CreatorServicesSection,
+  CreatorStickyCta,
+  CreatorTestimonialsSection,
+} from "./sections/creator-profile-sections";
+import { useCreatorProfileController } from "../hooks/use-creator-profile-controller";
+import { ArrowRight } from "lucide-react";
 
 export function CreatorProfileScreen() {
   const { creatorId } = useParams<{ creatorId: string }>();
-  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
 
   const profile = creatorId ? MOCK_CREATOR_PROFILES[creatorId] : null;
 
@@ -22,22 +29,51 @@ export function CreatorProfileScreen() {
       </div>
     );
   }
-
-  const defaultService = profile.services[0]?.id ?? "";
-  const effectiveService = selectedServiceId || defaultService;
+  const controller = useCreatorProfileController(profile);
 
   return (
-    <>
-      <div className="hidden lg:block">
-        <CreatorProfileDesktop
-          profile={profile}
-          selectedServiceId={effectiveService}
-          onSelectService={setSelectedServiceId}
-        />
-      </div>
-      <div className="lg:hidden">
-        <CreatorProfileMobile profile={profile} />
-      </div>
-    </>
+    <div className="relative min-h-screen bg-[#f6f5f8] pb-24 lg:px-6 lg:pb-6 lg:pt-6">
+      <header className="sticky top-0 z-30 flex items-center gap-4 bg-[rgba(246,245,248,0.8)] px-4 py-4 backdrop-blur-md lg:static lg:mx-auto lg:w-full lg:max-w-[1200px] lg:justify-between lg:bg-transparent lg:px-4 lg:py-0 lg:backdrop-blur-0">
+        <Link
+          to="/mapa"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(137,90,246,0.1)] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] lg:h-auto lg:w-auto lg:gap-2 lg:rounded-full lg:border-[#e2e8f0] lg:px-5 lg:py-2.5 lg:text-sm lg:font-semibold lg:text-[#0f172a]"
+        >
+          <ArrowRight className="h-4 w-4 rotate-180 text-[#895af6] lg:h-3.5 lg:w-3.5 lg:text-current" />
+          <span className="hidden lg:inline">Voltar para busca</span>
+        </Link>
+        <h1 className="text-lg font-bold text-[#0f172a] lg:hidden">
+          Perfil do Criador
+        </h1>
+        <div className="hidden lg:flex lg:items-center lg:gap-3">
+          <div className="flex h-9 w-9 items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-[#895af6]/20" />
+          </div>
+          <span className="text-2xl font-bold tracking-tight text-[#0f172a]">
+            UGC Local
+          </span>
+        </div>
+      </header>
+
+      <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 pt-4 lg:grid lg:grid-cols-3 lg:pt-6">
+        <div className="flex flex-col gap-8 lg:col-span-2">
+          <CreatorProfileHeroSection profile={controller.profile} />
+          <CreatorQuickActions />
+          <CreatorPortfolioSection profile={controller.profile} />
+          <CreatorLocationSection profile={controller.profile} />
+          <CreatorTestimonialsSection profile={controller.profile} />
+        </div>
+
+        <aside className="lg:col-span-1">
+          <CreatorServicesSection
+            availability={controller.availability}
+            profile={controller.profile}
+            selectedServiceId={controller.selectedServiceId}
+            onSelectService={controller.setSelectedServiceId}
+          />
+        </aside>
+      </main>
+
+      <CreatorStickyCta />
+    </div>
   );
 }

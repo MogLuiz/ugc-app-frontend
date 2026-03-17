@@ -1,24 +1,30 @@
-import { CreatorDashboardDesktop } from "./creator-dashboard-desktop";
-import { CreatorDashboardMobile } from "./creator-dashboard-mobile";
+import { CreatorDashboardSidebar } from "./creator-dashboard-sidebar";
+import { useCreatorDashboardController } from "../hooks/use-creator-dashboard-controller";
 import {
-  MOCK_OFFERS,
-  MOCK_OFFERS_MOBILE,
-  MOCK_STATS,
-  MOCK_STATS_MOBILE
-} from "../data/mock-dashboard";
+  CreatorDashboardBottomNav,
+  CreatorDashboardHeader,
+  CreatorDashboardIntro,
+  CreatorDashboardOffers,
+  CreatorDashboardStats,
+} from "./sections/creator-dashboard-sections";
 
 export function CreatorDashboardScreen() {
+  const controller = useCreatorDashboardController();
+
   return (
-    <>
-      <div className="hidden min-h-screen lg:block">
-        <CreatorDashboardDesktop stats={MOCK_STATS} offers={MOCK_OFFERS} />
+    <div className="min-h-screen bg-[#f6f5f8] lg:flex">
+      <div className="hidden lg:block">
+        <CreatorDashboardSidebar />
       </div>
-      <div className="lg:hidden">
-        <CreatorDashboardMobile
-          stats={MOCK_STATS_MOBILE}
-          offers={MOCK_OFFERS_MOBILE}
-        />
-      </div>
-    </>
+
+      <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-24 pt-6 lg:gap-8 lg:p-8">
+        <CreatorDashboardHeader creatorName={controller.viewModel.creatorName} />
+        <CreatorDashboardIntro creatorName={controller.viewModel.creatorName} />
+        <CreatorDashboardStats stats={controller.viewModel.stats} />
+        <CreatorDashboardOffers offers={controller.viewModel.offers} />
+      </main>
+
+      <CreatorDashboardBottomNav />
+    </div>
   );
 }

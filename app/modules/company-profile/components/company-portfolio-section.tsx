@@ -9,7 +9,7 @@ type CompanyPortfolioSectionProps = {
   onRemove?: (mediaId: string) => void | Promise<void>;
   isUploading?: boolean;
   isRemoving?: boolean;
-  mobile?: boolean;
+  density?: "compact" | "comfortable";
   readOnly?: boolean;
 };
 
@@ -19,10 +19,11 @@ export function CompanyPortfolioSection({
   onRemove,
   isUploading = false,
   isRemoving = false,
-  mobile = false,
+  density = "comfortable",
   readOnly = false,
 }: CompanyPortfolioSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const compact = density === "compact";
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -31,10 +32,10 @@ export function CompanyPortfolioSection({
     event.target.value = "";
   }
 
-  const uploadLabel = mobile ? "Adicionar" : "Adicionar Mídia";
+  const uploadLabel = compact ? "Adicionar" : "Adicionar Mídia";
 
   return (
-    <section className={cn("border-t border-slate-100 pt-6", mobile && "pt-5")}>
+    <section className={cn("border-t border-slate-100 pt-6", compact && "pt-5")}>
       <input
         ref={fileInputRef}
         type="file"
@@ -45,9 +46,9 @@ export function CompanyPortfolioSection({
 
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <ImagePlus className={cn("text-[#895af6]", mobile ? "size-5" : "size-5")} />
-          <h3 className={cn("font-bold text-[#0f172a]", mobile ? "text-[20px]" : "text-xl")}>
-            {mobile ? "Portfólio & Mídia" : "Portfólio (Imagens e Vídeos)"}
+          <ImagePlus className="size-5 text-[#895af6]" />
+          <h3 className={cn("font-bold text-[#0f172a]", compact ? "text-[20px]" : "text-xl")}>
+            {compact ? "Portfólio & Mídia" : "Portfólio (Imagens e Vídeos)"}
           </h3>
         </div>
         {!readOnly ? (
@@ -65,13 +66,13 @@ export function CompanyPortfolioSection({
         )}
       </div>
 
-      {mobile ? (
+      {compact ? (
         <div className="flex gap-4 overflow-x-auto pb-2">
           {media.map((item) => (
             <MediaCard
               key={item.id}
               item={item}
-              mobile
+              compact
               readOnly={readOnly}
               isRemoving={isRemoving}
               onRemove={onRemove}
@@ -79,7 +80,7 @@ export function CompanyPortfolioSection({
           ))}
           {!readOnly ? (
             <UploadCard
-              mobile
+              compact
               isUploading={isUploading}
               onClick={() => fileInputRef.current?.click()}
             />
@@ -112,13 +113,13 @@ function MediaCard({
   item,
   onRemove,
   isRemoving,
-  mobile = false,
+  compact = false,
   readOnly = false,
 }: {
   item: PortfolioMediaPayload;
   onRemove?: (mediaId: string) => void | Promise<void>;
   isRemoving: boolean;
-  mobile?: boolean;
+  compact?: boolean;
   readOnly?: boolean;
 }) {
   const source = item.thumbnailUrl || item.url;
@@ -127,7 +128,7 @@ function MediaCard({
     <div
       className={cn(
         "group relative overflow-hidden rounded-[48px] bg-[#f1f5f9] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)]",
-        mobile ? "h-44 min-w-32" : "h-[195px]"
+        compact ? "h-44 min-w-32" : "h-[195px]"
       )}
     >
       {item.type === "VIDEO" ? (
@@ -148,7 +149,7 @@ function MediaCard({
           type="button"
           className={cn(
             "absolute right-2 top-2 inline-flex size-7 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition",
-            !mobile && "opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
+            !compact && "opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
           )}
           onClick={() => onRemove && void onRemove(item.id)}
           disabled={isRemoving}
@@ -164,26 +165,26 @@ function MediaCard({
 function UploadCard({
   onClick,
   isUploading,
-  mobile = false,
+  compact = false,
 }: {
   onClick: () => void;
   isUploading: boolean;
-  mobile?: boolean;
+  compact?: boolean;
 }) {
   return (
     <button
       type="button"
       className={cn(
         "flex items-center justify-center rounded-[48px] border-2 border-dashed border-[rgba(137,90,246,0.25)] bg-[rgba(137,90,246,0.04)] text-center",
-        mobile ? "h-44 min-w-32" : "h-[195px]"
+        compact ? "h-44 min-w-32" : "h-[195px]"
       )}
       onClick={onClick}
       disabled={isUploading}
     >
       <div className="flex flex-col items-center gap-2 text-[rgba(137,90,246,0.7)]">
-        <UploadCloud className={mobile ? "size-5" : "size-7"} />
-        <span className={cn("font-bold uppercase tracking-[1px]", mobile ? "text-xs" : "text-[10px]")}>
-          {isUploading ? "Enviando..." : mobile ? "Novo" : "Fazer Upload"}
+        <UploadCloud className={compact ? "size-5" : "size-7"} />
+        <span className={cn("font-bold uppercase tracking-[1px]", compact ? "text-xs" : "text-[10px]")}>
+          {isUploading ? "Enviando..." : compact ? "Novo" : "Fazer Upload"}
         </span>
       </div>
     </button>
