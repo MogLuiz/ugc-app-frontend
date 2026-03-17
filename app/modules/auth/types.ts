@@ -41,7 +41,19 @@ export type BootstrapPayload = {
     updatedAt: string;
   };
   creatorProfile?: Record<string, unknown>;
-  companyProfile?: Record<string, unknown>;
+  companyProfile?: CompanyProfilePayload | null;
+};
+
+/** Perfil da empresa retornado por GET /profiles/me */
+export type CompanyProfilePayload = {
+  userId: string;
+  documentType?: "CPF" | "CNPJ" | null;
+  documentNumber?: string | null;
+  companyName?: string | null;
+  jobTitle?: string | null;
+  businessNiche?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 /** Usuário autenticado no contexto (mapeado para uso no frontend) */

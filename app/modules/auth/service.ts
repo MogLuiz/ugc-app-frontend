@@ -13,8 +13,13 @@ import {
 } from "~/modules/auth/types";
 import { HttpError } from "~/lib/http/errors";
 
+export type UpdateProfileData = {
+  name?: string;
+  bio?: string;
+};
+
 export async function updateProfile(
-  data: { name?: string },
+  data: UpdateProfileData,
   token?: string
 ): Promise<BootstrapPayload> {
   const session = token
@@ -23,6 +28,30 @@ export async function updateProfile(
   const accessToken = session?.access_token;
   if (!accessToken) throw new Error("Usuário não autenticado");
   return httpClient<BootstrapPayload>("/profiles/me", {
+    method: "PATCH",
+    body: data,
+    token: accessToken,
+  });
+}
+
+export type UpdateCompanyProfileData = {
+  documentType?: "CPF" | "CNPJ";
+  documentNumber?: string;
+  companyName?: string;
+  jobTitle?: string;
+  businessNiche?: string;
+};
+
+export async function updateCompanyProfile(
+  data: UpdateCompanyProfileData,
+  token?: string
+): Promise<BootstrapPayload> {
+  const session = token
+    ? { access_token: token }
+    : (await supabase.auth.getSession()).data.session;
+  const accessToken = session?.access_token;
+  if (!accessToken) throw new Error("Usuário não autenticado");
+  return httpClient<BootstrapPayload>("/profiles/me/company", {
     method: "PATCH",
     body: data,
     token: accessToken,

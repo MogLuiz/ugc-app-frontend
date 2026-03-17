@@ -7,6 +7,7 @@ export default [
     route("auth/register", "routes/auth.register.tsx"),
     route("mapa", "routes/mapa.tsx"),
     route("dashboard", "routes/dashboard.tsx"),
+    route("perfil", "routes/perfil.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx")
   ])
 ] satisfies RouteConfig;

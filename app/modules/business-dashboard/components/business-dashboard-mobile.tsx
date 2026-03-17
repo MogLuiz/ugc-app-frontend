@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import {
   BarChart3,
   Bell,
@@ -141,18 +142,34 @@ export function BusinessDashboardMobile({
         <section className="mb-6 grid grid-cols-4 gap-4">
           {QUICK_NAV_ITEMS.map((item) => {
             const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className="flex flex-col items-center gap-2"
-              >
+            const content = (
+              <>
                 <div className="flex size-12 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm">
                   <Icon className="size-5 text-slate-600" />
                 </div>
                 <span className="text-[10px] font-bold uppercase text-slate-500">
                   {item.label}
                 </span>
+              </>
+            );
+            if (item.id === "perfil") {
+              return (
+                <Link
+                  key={item.id}
+                  to="/perfil"
+                  className="flex flex-col items-center gap-2"
+                >
+                  {content}
+                </Link>
+              );
+            }
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className="flex flex-col items-center gap-2"
+              >
+                {content}
               </button>
             );
           })}

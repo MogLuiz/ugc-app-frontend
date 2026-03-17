@@ -3,6 +3,7 @@ import { authKeys } from "~/lib/query/query-keys";
 import {
   bootstrapUser,
   updateProfile,
+  updateCompanyProfile,
 } from "~/modules/auth/service";
 import type { UserRole } from "~/modules/auth/types";
 
@@ -26,9 +27,32 @@ export function useUpdateProfileMutation() {
       data,
       token,
     }: {
-      data: { name?: string };
+      data: { name?: string; bio?: string };
       token?: string;
     }) => updateProfile(data, token),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: authKeys.session() });
+    },
+  });
+}
+
+export function useUpdateCompanyProfileMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      data,
+      token,
+    }: {
+      data: {
+        documentType?: "CPF" | "CNPJ";
+        documentNumber?: string;
+        companyName?: string;
+        jobTitle?: string;
+        businessNiche?: string;
+      };
+      token?: string;
+    }) => updateCompanyProfile(data, token),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },
