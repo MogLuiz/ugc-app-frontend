@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme {
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1f2937;
+  --color-accent: #f3f4f6;
+  --color-accent-foreground: #1f2937;
+  --color-muted: #f3f4f6;
+}
+
 /**
  * UGC Local Design System - Tokens
  * Ref: .specs/design-system.md

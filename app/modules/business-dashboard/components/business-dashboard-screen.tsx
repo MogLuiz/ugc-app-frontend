@@ -22,8 +22,6 @@ export function BusinessDashboardScreen() {
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 pb-24 lg:gap-8 lg:p-8">
         <BusinessDashboardHeader
-          companyName={controller.viewModel.companyName}
-          planName={controller.viewModel.planName}
           search={controller.viewModel.search}
           onSearchChange={controller.actions.setSearch}
         />

@@ -13,9 +13,7 @@ export function useBusinessDashboardController() {
       setSearch,
     },
     viewModel: {
-      companyName: "Lumina Studio",
       jobs: MOCK_CAMPAIGN_JOBS,
-      planName: "Plano Enterprise",
       recommendedCreators: MOCK_RECOMMENDED_CREATORS,
       search,
       stats: MOCK_BUSINESS_STATS,

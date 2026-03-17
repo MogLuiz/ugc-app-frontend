@@ -6,6 +6,7 @@ import {
   ChevronRight,
   CreditCard,
   Home,
+  LogOut,
   MapPin,
   MessageCircle,
   Rocket,
@@ -15,7 +16,14 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { cn } from "~/lib/utils";
+import { useAuth } from "~/hooks/use-auth";
 import type { UserRole } from "~/modules/auth/types";
 
 type AppSidebarProps = {
@@ -128,6 +136,19 @@ export function AppSidebar({ variant }: AppSidebarProps) {
 }
 
 function BusinessFooter() {
+  const { user, logout } = useAuth();
+
+  if (!user) return null;
+
+  const displayName = user.profile?.name ?? user.name ?? "Empresa";
+  const firstName = displayName.split(" ")[0] ?? displayName;
+  const initials = displayName
+    .split(" ")
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+  const photoUrl = user.profile?.photoUrl;
+
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-2xl border border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.05)] p-4">
@@ -144,10 +165,69 @@ function BusinessFooter() {
           Falar com Consultor
         </Button>
       </div>
-      <Button variant="purple" className="w-full rounded-[48px] py-3">
-        Nova Campanha
-      </Button>
+      <BusinessUserMenu
+        firstName={firstName}
+        initials={initials}
+        onLogout={logout}
+        photoUrl={photoUrl}
+      />
     </div>
+  );
+}
+
+function BusinessUserMenu({
+  firstName,
+  initials,
+  onLogout,
+  photoUrl,
+}: {
+  firstName: string;
+  initials: string;
+  onLogout: () => Promise<void>;
+  photoUrl?: string;
+}) {
+  const [avatarError, setAvatarError] = useState(false);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-slate-50"
+        >
+          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[#895af6] bg-[rgba(137,90,246,0.2)]">
+            {photoUrl && !avatarError ? (
+              <img
+                src={photoUrl}
+                alt={firstName}
+                className="size-full object-cover"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <span className="text-xs font-bold text-slate-600">{initials}</span>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-bold text-slate-900">
+              {firstName}
+            </p>
+          </div>
+          <ChevronRight className="size-[18px] shrink-0 text-slate-400" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-[12rem]">
+        <DropdownMenuItem
+          className="cursor-pointer text-red-600 focus:text-red-600"
+          onSelect={(e) => {
+            e.preventDefault();
+            void onLogout();
+          }}
+        >
+          <LogOut className="size-4" />
+          Sair
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

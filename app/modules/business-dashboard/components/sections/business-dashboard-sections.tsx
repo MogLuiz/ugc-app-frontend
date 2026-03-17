@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   BarChart3,
   Bell,
@@ -52,20 +51,12 @@ const BOTTOM_NAV_ITEMS = [
 const maxChartValue = Math.max(...CHART_DATA.map((item) => item.value));
 
 export function BusinessDashboardHeader({
-  companyName,
   onSearchChange,
-  planName,
   search,
 }: {
-  companyName: string;
   onSearchChange: (value: string) => void;
-  planName: string;
   search: string;
 }) {
-  const [avatarError, setAvatarError] = useState(false);
-  const avatarUrl =
-    "https://www.figma.com/api/mcp/asset/4136090e-0ea3-4b5e-93ca-1a47bc822621";
-
   return (
     <>
       <header className="hidden items-center justify-between lg:flex">
@@ -88,26 +79,6 @@ export function BusinessDashboardHeader({
             <Bell className="size-5 text-slate-600" />
             <span className="absolute right-2 top-2 size-2 rounded-full border-2 border-white bg-red-500" />
           </button>
-          <div className="flex items-center gap-3 border-l border-[rgba(137,90,246,0.1)] pl-4">
-            <div className="text-right">
-              <p className="text-sm font-bold text-slate-900">{companyName}</p>
-              <p className="text-xs text-slate-500">{planName}</p>
-            </div>
-            <div className="flex size-10 items-center justify-center overflow-hidden rounded-full border-2 border-[#895af6] bg-[rgba(137,90,246,0.2)]">
-              {!avatarError ? (
-                <img
-                  src={avatarUrl}
-                  alt="Avatar"
-                  className="size-full object-cover"
-                  onError={() => setAvatarError(true)}
-                />
-              ) : (
-                <span className="text-xs font-bold text-slate-600">
-                  {companyName.slice(0, 2).toUpperCase()}
-                </span>
-              )}
-            </div>
-          </div>
         </div>
       </header>
 
@@ -120,20 +91,6 @@ export function BusinessDashboardHeader({
           >
             <Menu className="size-5 text-slate-600" />
           </button>
-          <div className="flex size-12 items-center justify-center overflow-hidden rounded-full border-2 border-[#895af6] bg-[rgba(137,90,246,0.2)]">
-            {!avatarError ? (
-              <img
-                src={avatarUrl}
-                alt="Logo"
-                className="size-full object-cover"
-                onError={() => setAvatarError(true)}
-              />
-            ) : (
-              <span className="text-lg font-bold text-[#895af6]">
-                {companyName.slice(0, 2).toUpperCase()}
-              </span>
-            )}
-          </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -155,7 +112,7 @@ export function BusinessDashboardHeader({
         <div>
           <p className="text-sm font-medium text-slate-500">Bem-vindo de volta,</p>
           <h1 className="text-[30px] font-bold leading-tight text-slate-900">
-            Olá, {companyName}
+            Olá
           </h1>
         </div>
       </header>
