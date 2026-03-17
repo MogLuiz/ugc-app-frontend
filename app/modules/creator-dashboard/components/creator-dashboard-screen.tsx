@@ -1,4 +1,4 @@
-import { CreatorDashboardSidebar } from "./creator-dashboard-sidebar";
+import { AppSidebar } from "~/components/app-sidebar";
 import { useCreatorDashboardController } from "../hooks/use-creator-dashboard-controller";
 import {
   CreatorDashboardBottomNav,
@@ -14,7 +14,7 @@ export function CreatorDashboardScreen() {
   return (
     <div className="min-h-screen bg-[#f6f5f8] lg:flex">
       <div className="hidden lg:block">
-        <CreatorDashboardSidebar />
+        <AppSidebar variant="creator" />
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-24 pt-6 lg:gap-8 lg:p-8">

@@ -2,7 +2,7 @@ import { useAuth } from "~/hooks/use-auth";
 import { Link } from "react-router";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { BusinessDashboardSidebar } from "~/modules/business-dashboard/components/business-dashboard-sidebar";
+import { AppSidebar } from "~/components/app-sidebar";
 import { useCompanyProfileController } from "../hooks/use-company-profile-controller";
 import {
   CompanyProfileCardHeader,
@@ -22,7 +22,7 @@ export function CompanyProfileScreen() {
   return (
     <div className="min-h-screen bg-[#f6f5f8] lg:flex">
       <div className="hidden lg:block">
-        <BusinessDashboardSidebar />
+        <AppSidebar variant="business" />
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
