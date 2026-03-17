@@ -2,12 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { Lock, Mail } from "lucide-react";
 import { toast } from "~/components/ui/toast";
-import { useAuthContext } from "~/modules/auth/context";
-import {
-  signIn,
-  bootstrapUser,
-  getStoredRole,
-} from "~/modules/auth/service";
+import { signIn, getStoredRole } from "~/modules/auth/service";
+import { useBootstrapMutation } from "~/modules/auth/mutations";
 
 const ASSET_LOGO_ICON =
   "https://www.figma.com/api/mcp/asset/ae5bd879-fa0c-42e9-b9a6-2bf79ffd38c5";
@@ -30,9 +26,8 @@ const ASSET_APPLE_MOBILE =
 
 export default function AuthLoginRoute() {
   const navigate = useNavigate();
-  const { refreshSession } = useAuthContext();
+  const bootstrapMutation = useBootstrapMutation();
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   async function handleLogin(event: FormEvent) {
     event.preventDefault();
@@ -44,7 +39,6 @@ export default function AuthLoginRoute() {
     )?.value;
     if (!email || !password) return;
 
-    setLoading(true);
     try {
       const { error } = await signIn(email, password);
       if (error) {
@@ -52,16 +46,13 @@ export default function AuthLoginRoute() {
         return;
       }
       const role = getStoredRole() ?? "business";
-      await bootstrapUser(role);
-      await refreshSession();
+      await bootstrapMutation.mutateAsync({ role });
       toast.success("Login realizado com sucesso");
       navigate("/dashboard");
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Erro ao fazer login. Tente novamente."
       );
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -176,10 +167,10 @@ export default function AuthLoginRoute() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={bootstrapMutation.isPending}
                 className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.2),0_4px_6px_-4px_rgba(137,90,246,0.2)] transition hover:brightness-105 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {loading ? "Entrando..." : "Entrar"}
+                {bootstrapMutation.isPending ? "Entrando..." : "Entrar"}
               </button>
             </form>
 

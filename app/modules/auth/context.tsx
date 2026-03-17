@@ -1,7 +1,19 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { getSession, logout } from "~/modules/auth/service";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "~/lib/supabase";
+import { authKeys } from "~/lib/query/query-keys";
+import { logout } from "~/modules/auth/service";
+import { useSessionQuery } from "~/modules/auth/queries";
 import type { AuthUser } from "~/modules/auth/types";
+import type { Session } from "@supabase/supabase-js";
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -13,52 +25,61 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const [supabaseSession, setSupabaseSession] = useState<
+    Session | null | undefined
+  >(undefined);
 
-  async function refreshSession() {
-    setLoading(true);
+  const { data: sessionResponse, isLoading, refetch } = useSessionQuery(
+    supabaseSession ?? null
+  );
 
-    try {
-      const session = await getSession();
-      setUser(session.authenticated ? session.user : null);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const user: AuthUser | null =
+    supabaseSession === null || supabaseSession === undefined
+      ? null
+      : sessionResponse?.authenticated
+        ? sessionResponse.user
+        : null;
 
-  async function handleLogout() {
+  const loading =
+    supabaseSession === undefined || (!!supabaseSession && isLoading);
+
+  const refreshSession = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
+
+  const handleLogout = useCallback(async () => {
     await logout();
-    setUser(null);
-  }
+    setSupabaseSession(null);
+    void queryClient.removeQueries({ queryKey: authKeys.session() });
+  }, [queryClient]);
 
   useEffect(() => {
-    void refreshSession();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSupabaseSession(session ?? null);
+    });
   }, []);
 
   useEffect(() => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSupabaseSession(session ?? null);
       if (session) {
-        void refreshSession();
-      } else {
-        setUser(null);
+        void queryClient.invalidateQueries({ queryKey: authKeys.session() });
       }
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [queryClient]);
 
   const value = useMemo(
     () => ({
       user,
       loading,
       refreshSession,
-      logout: handleLogout
+      logout: handleLogout,
     }),
-    [user, loading]
+    [user, loading, refreshSession, handleLogout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

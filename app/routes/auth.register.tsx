@@ -2,13 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router";
 import { Building2, ChevronLeft, Lock, Mail, User, Video } from "lucide-react";
 import { toast } from "~/components/ui/toast";
-import { useAuthContext } from "~/modules/auth/context";
-import {
-  signUp,
-  bootstrapUser,
-  setStoredRole,
-  updateProfile,
-} from "~/modules/auth/service";
+import { signUp, setStoredRole } from "~/modules/auth/service";
+import { useBootstrapMutation, useUpdateProfileMutation } from "~/modules/auth/mutations";
 import type { UserRole } from "~/modules/auth/types";
 
 const ASSET_LEFT_VISUAL =
@@ -24,12 +19,14 @@ const ASSET_AVATAR_3 =
 
 export default function AuthRegisterRoute() {
   const navigate = useNavigate();
-  const { refreshSession } = useAuthContext();
+  const bootstrapMutation = useBootstrapMutation();
+  const updateProfileMutation = useUpdateProfileMutation();
   const [role, setRole] = useState<UserRole>("business");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const isSubmitting =
+    bootstrapMutation.isPending || updateProfileMutation.isPending;
 
   async function handleRegister(event: FormEvent) {
     event.preventDefault();
@@ -56,7 +53,6 @@ export default function AuthRegisterRoute() {
       return;
     }
 
-    setLoading(true);
     try {
       const { data, error } = await signUp(email, password, { name, role });
       if (error) {
@@ -71,11 +67,10 @@ export default function AuthRegisterRoute() {
 
       if (data.session) {
         setStoredRole(role);
-        await bootstrapUser(role);
+        await bootstrapMutation.mutateAsync({ role });
         if (name?.trim()) {
-          await updateProfile({ name: name.trim() });
+          await updateProfileMutation.mutateAsync({ data: { name: name.trim() } });
         }
-        await refreshSession();
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
@@ -90,8 +85,6 @@ export default function AuthRegisterRoute() {
           ? err.message
           : "Erro ao criar conta. Tente novamente."
       );
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -387,10 +380,10 @@ export default function AuthRegisterRoute() {
 
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={isSubmitting}
                     className="h-14 w-full rounded-[48px] bg-[#895af6] text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25),0_4px_6px_-4px_rgba(137,90,246,0.25)] transition hover:brightness-105 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    {loading ? "Criando conta..." : "Criar conta"}
+                    {isSubmitting ? "Criando conta..." : "Criar conta"}
                   </button>
                 </div>
               </form>

@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { AppToaster } from "~/components/ui/toast";
-import { AuthProvider } from "~/modules/auth/context";
 import "./app.css";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -14,7 +13,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        {children}
         <AppToaster />
         <ScrollRestoration />
         <Scripts />
