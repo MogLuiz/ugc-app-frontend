@@ -49,15 +49,20 @@ export type UpdateCompanyProfileData = {
   businessNiche?: string;
 };
 
-export async function updateCompanyProfile(
-  data: UpdateCompanyProfileData,
-  token?: string
-): Promise<BootstrapPayload> {
+async function getAccessToken(token?: string): Promise<string> {
   const session = token
     ? { access_token: token }
     : (await supabase.auth.getSession()).data.session;
   const accessToken = session?.access_token;
   if (!accessToken) throw new Error("Usuário não autenticado");
+  return accessToken;
+}
+
+export async function updateCompanyProfile(
+  data: UpdateCompanyProfileData,
+  token?: string
+): Promise<BootstrapPayload> {
+  const accessToken = await getAccessToken(token);
   return httpClient<BootstrapPayload>("/profiles/me/company", {
     method: "PATCH",
     body: data,
@@ -69,11 +74,7 @@ export async function uploadAvatar(
   file: File,
   token?: string
 ): Promise<BootstrapPayload> {
-  const session = token
-    ? { access_token: token }
-    : (await supabase.auth.getSession()).data.session;
-  const accessToken = session?.access_token;
-  if (!accessToken) throw new Error("Usuário não autenticado");
+  const accessToken = await getAccessToken(token);
 
   const formData = new FormData();
   formData.append("file", file);
@@ -97,6 +98,47 @@ export async function uploadAvatar(
   }
 
   return response.json() as Promise<BootstrapPayload>;
+}
+
+export async function uploadPortfolioMedia(
+  file: File,
+  token?: string
+): Promise<BootstrapPayload> {
+  const accessToken = await getAccessToken(token);
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const url = `${getApiBaseUrl()}/uploads/portfolio-media`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const message =
+      typeof payload === "object" && payload !== null && "message" in payload
+        ? String((payload as { message?: string }).message)
+        : "Erro no upload";
+    throw new Error(message);
+  }
+
+  return response.json() as Promise<BootstrapPayload>;
+}
+
+export async function deletePortfolioMedia(
+  mediaId: string,
+  token?: string
+): Promise<BootstrapPayload> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<BootstrapPayload>(`/profiles/me/portfolio/media/${mediaId}`, {
+    method: "DELETE",
+    token: accessToken,
+  });
 }
 
 const ROLE_STORAGE_KEY = "ugc_role";

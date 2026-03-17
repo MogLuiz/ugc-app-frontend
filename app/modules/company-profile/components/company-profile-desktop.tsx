@@ -19,10 +19,13 @@ import {
   useUpdateProfileMutation,
   useUpdateCompanyProfileMutation,
   useUploadAvatarMutation,
+  useUploadPortfolioMediaMutation,
+  useDeletePortfolioMediaMutation,
 } from "~/modules/auth/mutations";
 import type { AuthUser } from "~/modules/auth/types";
 import { companyProfileSchema, type CompanyProfileForm } from "../schemas/company-profile";
 import { toast } from "~/components/ui/toast";
+import { CompanyPortfolioSection } from "./company-portfolio-section";
 
 type CompanyProfileDesktopProps = {
   user: AuthUser;
@@ -34,9 +37,12 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
   const updateProfileMutation = useUpdateProfileMutation();
   const updateCompanyProfileMutation = useUpdateCompanyProfileMutation();
   const uploadAvatarMutation = useUploadAvatarMutation();
+  const uploadPortfolioMediaMutation = useUploadPortfolioMediaMutation();
+  const deletePortfolioMediaMutation = useDeletePortfolioMediaMutation();
 
   const profile = user.profile;
   const company = user.companyProfile;
+  const portfolioMedia = user.portfolio?.media ?? [];
 
   const {
     register,
@@ -126,6 +132,24 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
       toast.success("Perfil atualizado com sucesso");
     } catch {
       toast.error("Erro ao atualizar perfil. Tente novamente.");
+    }
+  }
+
+  async function handlePortfolioUpload(file: File) {
+    try {
+      await uploadPortfolioMediaMutation.mutateAsync({ file });
+      toast.success("Mídia adicionada ao portfólio");
+    } catch {
+      toast.error("Erro ao enviar mídia. Tente novamente.");
+    }
+  }
+
+  async function handlePortfolioRemove(mediaId: string) {
+    try {
+      await deletePortfolioMediaMutation.mutateAsync({ mediaId });
+      toast.success("Mídia removida do portfólio");
+    } catch {
+      toast.error("Erro ao remover mídia. Tente novamente.");
     }
   }
 
@@ -365,6 +389,14 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
                   </div>
                 </div>
 
+                <CompanyPortfolioSection
+                  media={portfolioMedia}
+                  onUpload={handlePortfolioUpload}
+                  onRemove={handlePortfolioRemove}
+                  isUploading={uploadPortfolioMediaMutation.isPending}
+                  isRemoving={deletePortfolioMediaMutation.isPending}
+                />
+
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"
@@ -515,6 +547,11 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
                     </div>
                   </div>
                 )}
+
+                <CompanyPortfolioSection
+                  media={portfolioMedia}
+                  readOnly
+                />
               </div>
             )}
           </section>

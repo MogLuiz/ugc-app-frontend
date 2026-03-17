@@ -42,6 +42,26 @@ export type BootstrapPayload = {
   };
   creatorProfile?: Record<string, unknown>;
   companyProfile?: CompanyProfilePayload | null;
+  portfolio?: PortfolioPayload | null;
+};
+
+export type PortfolioMediaPayload = {
+  id: string;
+  type: "IMAGE" | "VIDEO";
+  url: string;
+  thumbnailUrl?: string | null;
+  sortOrder: number;
+  status: "PROCESSING" | "READY" | "FAILED";
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PortfolioPayload = {
+  id: string;
+  userId: string;
+  media: PortfolioMediaPayload[];
+  createdAt: string;
+  updatedAt: string;
 };
 
 /** Perfil da empresa retornado por GET /profiles/me */
@@ -67,6 +87,7 @@ export type AuthUser = {
   profile?: BootstrapPayload["profile"];
   creatorProfile?: BootstrapPayload["creatorProfile"];
   companyProfile?: BootstrapPayload["companyProfile"];
+  portfolio?: BootstrapPayload["portfolio"];
 };
 
 /** Converte payload do bootstrap para AuthUser */
@@ -81,6 +102,7 @@ export function bootstrapToAuthUser(payload: BootstrapPayload): AuthUser {
     profile: payload.profile,
     creatorProfile: payload.creatorProfile,
     companyProfile: payload.companyProfile,
+    portfolio: payload.portfolio,
   };
 }
 

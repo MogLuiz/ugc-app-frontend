@@ -5,6 +5,8 @@ import {
   updateProfile,
   updateCompanyProfile,
   uploadAvatar,
+  uploadPortfolioMedia,
+  deletePortfolioMedia,
 } from "~/modules/auth/service";
 import type { UpdateProfileData } from "~/modules/auth/service";
 import type { UserRole } from "~/modules/auth/types";
@@ -67,6 +69,30 @@ export function useUploadAvatarMutation() {
   return useMutation({
     mutationFn: ({ file, token }: { file: File; token?: string }) =>
       uploadAvatar(file, token),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: authKeys.session() });
+    },
+  });
+}
+
+export function useUploadPortfolioMediaMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ file, token }: { file: File; token?: string }) =>
+      uploadPortfolioMedia(file, token),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: authKeys.session() });
+    },
+  });
+}
+
+export function useDeletePortfolioMediaMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ mediaId, token }: { mediaId: string; token?: string }) =>
+      deletePortfolioMedia(mediaId, token),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },
