@@ -4,6 +4,7 @@ import {
   bootstrapUser,
   updateProfile,
   updateCompanyProfile,
+  uploadAvatar,
 } from "~/modules/auth/service";
 import type { UpdateProfileData } from "~/modules/auth/service";
 import type { UserRole } from "~/modules/auth/types";
@@ -54,6 +55,18 @@ export function useUpdateCompanyProfileMutation() {
       };
       token?: string;
     }) => updateCompanyProfile(data, token),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: authKeys.session() });
+    },
+  });
+}
+
+export function useUploadAvatarMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ file, token }: { file: File; token?: string }) =>
+      uploadAvatar(file, token),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },

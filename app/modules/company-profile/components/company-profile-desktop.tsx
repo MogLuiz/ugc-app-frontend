@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Camera,
   Pencil,
   Building2,
   Briefcase,
   FileText,
   MapPin,
+  Phone,
   User,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -16,6 +18,7 @@ import { BusinessDashboardSidebar } from "~/modules/business-dashboard/component
 import {
   useUpdateProfileMutation,
   useUpdateCompanyProfileMutation,
+  useUploadAvatarMutation,
 } from "~/modules/auth/mutations";
 import type { AuthUser } from "~/modules/auth/types";
 import { companyProfileSchema, type CompanyProfileForm } from "../schemas/company-profile";
@@ -27,8 +30,10 @@ type CompanyProfileDesktopProps = {
 
 export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const updateProfileMutation = useUpdateProfileMutation();
   const updateCompanyProfileMutation = useUpdateCompanyProfileMutation();
+  const uploadAvatarMutation = useUploadAvatarMutation();
 
   const profile = user.profile;
   const company = user.companyProfile;
@@ -46,6 +51,7 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
       companyName: company?.companyName ?? "",
       jobTitle: company?.jobTitle ?? "",
       businessNiche: company?.businessNiche ?? "",
+      phone: user.phone ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
       addressStreet: profile?.addressStreet ?? "",
@@ -63,6 +69,7 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
       companyName: company?.companyName ?? "",
       jobTitle: company?.jobTitle ?? "",
       businessNiche: company?.businessNiche ?? "",
+      phone: user.phone ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
       addressStreet: profile?.addressStreet ?? "",
@@ -74,6 +81,18 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
     setIsEditing(true);
   }
 
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await uploadAvatarMutation.mutateAsync({ file });
+      toast.success("Foto atualizada com sucesso");
+    } catch {
+      toast.error("Erro ao enviar foto. Tente novamente.");
+    }
+    e.target.value = "";
+  }
+
   async function onSubmit(data: CompanyProfileForm) {
     try {
       await Promise.all([
@@ -81,6 +100,7 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
           data: {
             name: data.name,
             bio: data.bio || undefined,
+            phone: data.phone || undefined,
             addressStreet: data.addressStreet || undefined,
             addressNumber: data.addressNumber || undefined,
             addressCity: data.addressCity || undefined,
@@ -152,18 +172,38 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
             {isEditing ? (
               <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
                 <div className="flex gap-6">
-                  <div className="flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.1)]">
-                    {profile?.photoUrl ? (
-                      <img
-                        src={profile.photoUrl}
-                        alt={displayName}
-                        className="size-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-2xl font-bold text-[#895af6]">
-                        {initials}
-                      </span>
-                    )}
+                  <div className="relative flex shrink-0 flex-col items-center gap-2">
+                    <div className="flex size-24 items-center justify-center overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.1)]">
+                      {profile?.photoUrl ? (
+                        <img
+                          src={profile.photoUrl}
+                          alt={displayName}
+                          className="size-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl font-bold text-[#895af6]">
+                          {initials}
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarChange}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="gap-1.5 text-xs"
+                      disabled={uploadAvatarMutation.isPending}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Camera className="size-3.5" />
+                      {uploadAvatarMutation.isPending ? "Enviando…" : "Alterar foto"}
+                    </Button>
                   </div>
                   <div className="flex flex-1 flex-col gap-4">
                     <div>
@@ -232,6 +272,15 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
                       <Input
                         {...register("businessNiche")}
                         placeholder="Ex: Moda, Tecnologia"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-600">
+                        Telefone
+                      </label>
+                      <Input
+                        {...register("phone")}
+                        placeholder="(00) 00000-0000"
                       />
                     </div>
                     <div>
@@ -401,6 +450,19 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
                         </p>
                       </div>
                     </div>
+                    {user.phone && (
+                      <div className="flex items-center gap-3 sm:col-span-2">
+                        <div className="flex size-10 items-center justify-center rounded-xl bg-[rgba(137,90,246,0.1)]">
+                          <Phone className="size-5 text-[#895af6]" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500">Telefone</p>
+                          <p className="font-medium text-slate-900">
+                            {user.phone}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     {(company?.documentType || company?.documentNumber) && (
                       <div className="flex items-center gap-3 sm:col-span-2">
                         <div className="flex size-10 items-center justify-center rounded-xl bg-[rgba(137,90,246,0.1)]">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
@@ -6,9 +6,11 @@ import {
   ArrowLeft,
   Building2,
   Briefcase,
+  Camera,
   FileText,
   MapPin,
   Pencil,
+  Phone,
   User,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -17,6 +19,7 @@ import { Select } from "~/components/ui/select";
 import {
   useUpdateProfileMutation,
   useUpdateCompanyProfileMutation,
+  useUploadAvatarMutation,
 } from "~/modules/auth/mutations";
 import type { AuthUser } from "~/modules/auth/types";
 import {
@@ -31,8 +34,10 @@ type CompanyProfileMobileProps = {
 
 export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const updateProfileMutation = useUpdateProfileMutation();
   const updateCompanyProfileMutation = useUpdateCompanyProfileMutation();
+  const uploadAvatarMutation = useUploadAvatarMutation();
 
   const profile = user.profile;
   const company = user.companyProfile;
@@ -50,6 +55,7 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
       companyName: company?.companyName ?? "",
       jobTitle: company?.jobTitle ?? "",
       businessNiche: company?.businessNiche ?? "",
+      phone: user.phone ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
       addressStreet: profile?.addressStreet ?? "",
@@ -67,6 +73,7 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
       companyName: company?.companyName ?? "",
       jobTitle: company?.jobTitle ?? "",
       businessNiche: company?.businessNiche ?? "",
+      phone: user.phone ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
       addressStreet: profile?.addressStreet ?? "",
@@ -78,6 +85,18 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
     setIsEditing(true);
   }
 
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await uploadAvatarMutation.mutateAsync({ file });
+      toast.success("Foto atualizada com sucesso");
+    } catch {
+      toast.error("Erro ao enviar foto. Tente novamente.");
+    }
+    e.target.value = "";
+  }
+
   async function onSubmit(data: CompanyProfileForm) {
     try {
       await Promise.all([
@@ -85,6 +104,7 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
           data: {
             name: data.name,
             bio: data.bio || undefined,
+            phone: data.phone || undefined,
             addressStreet: data.addressStreet || undefined,
             addressNumber: data.addressNumber || undefined,
             addressCity: data.addressCity || undefined,
@@ -167,18 +187,38 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
           {isEditing ? (
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
               <div className="flex gap-4">
-                <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-[rgba(137,90,246,0.2)] bg-[rgba(137,90,246,0.1)]">
-                  {profile?.photoUrl ? (
-                    <img
-                      src={profile.photoUrl}
-                      alt={displayName}
-                      className="size-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-xl font-bold text-[#895af6]">
-                      {initials}
-                    </span>
-                  )}
+                <div className="flex shrink-0 flex-col items-center gap-1.5">
+                  <div className="flex size-16 items-center justify-center overflow-hidden rounded-full border-2 border-[rgba(137,90,246,0.2)] bg-[rgba(137,90,246,0.1)]">
+                    {profile?.photoUrl ? (
+                      <img
+                        src={profile.photoUrl}
+                        alt={displayName}
+                        className="size-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xl font-bold text-[#895af6]">
+                        {initials}
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1 text-[10px]"
+                    disabled={uploadAvatarMutation.isPending}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Camera className="size-3" />
+                    {uploadAvatarMutation.isPending ? "…" : "Alterar"}
+                  </Button>
                 </div>
                 <div className="flex flex-1 flex-col gap-3">
                   <div>
@@ -247,6 +287,15 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
                     <Input
                       {...register("businessNiche")}
                       placeholder="Ex: Moda, Tecnologia"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-0.5 block text-xs font-medium text-slate-600">
+                      Telefone
+                    </label>
+                    <Input
+                      {...register("phone")}
+                      placeholder="(00) 00000-0000"
                     />
                   </div>
                   <div>
@@ -418,6 +467,19 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
                       </p>
                     </div>
                   </div>
+                  {user.phone && (
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-[rgba(137,90,246,0.1)]">
+                        <Phone className="size-4 text-[#895af6]" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-500">Telefone</p>
+                        <p className="text-sm font-medium text-slate-900">
+                          {user.phone}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   {(company?.documentType || company?.documentNumber) && (
                     <div className="flex items-center gap-3">
                       <div className="flex size-9 items-center justify-center rounded-lg bg-[rgba(137,90,246,0.1)]">

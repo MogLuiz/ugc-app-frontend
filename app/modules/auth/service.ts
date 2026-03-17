@@ -1,5 +1,6 @@
 import { supabase } from "~/lib/supabase";
 import { httpClient } from "~/lib/http/client";
+import { getApiBaseUrl } from "~/lib/config/env";
 import type {
   BackendRole,
   BootstrapPayload,
@@ -16,6 +17,7 @@ import { HttpError } from "~/lib/http/errors";
 export type UpdateProfileData = {
   name?: string;
   bio?: string;
+  phone?: string;
   addressStreet?: string;
   addressNumber?: string;
   addressCity?: string;
@@ -61,6 +63,40 @@ export async function updateCompanyProfile(
     body: data,
     token: accessToken,
   });
+}
+
+export async function uploadAvatar(
+  file: File,
+  token?: string
+): Promise<BootstrapPayload> {
+  const session = token
+    ? { access_token: token }
+    : (await supabase.auth.getSession()).data.session;
+  const accessToken = session?.access_token;
+  if (!accessToken) throw new Error("Usuário não autenticado");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const url = `${getApiBaseUrl()}/uploads/avatar`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    const message =
+      typeof payload === "object" && payload !== null && "message" in payload
+        ? String((payload as { message?: string }).message)
+        : "Erro no upload";
+    throw new Error(message);
+  }
+
+  return response.json() as Promise<BootstrapPayload>;
 }
 
 const ROLE_STORAGE_KEY = "ugc_role";

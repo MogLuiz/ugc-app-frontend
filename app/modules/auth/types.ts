@@ -62,6 +62,7 @@ export type AuthUser = {
   authUserId: string;
   name: string;
   email: string;
+  phone?: string;
   role: UserRole;
   profile?: BootstrapPayload["profile"];
   creatorProfile?: BootstrapPayload["creatorProfile"];
@@ -75,6 +76,7 @@ export function bootstrapToAuthUser(payload: BootstrapPayload): AuthUser {
     authUserId: payload.authUserId,
     name: payload.profile?.name ?? payload.email?.split("@")[0] ?? "Usuário",
     email: payload.email,
+    phone: payload.phone,
     role: toFrontendRole(payload.role),
     profile: payload.profile,
     creatorProfile: payload.creatorProfile,

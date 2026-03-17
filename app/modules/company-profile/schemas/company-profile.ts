@@ -11,6 +11,7 @@ export const companyProfileSchema = z
     companyName: z.string().min(1, "Nome da empresa é obrigatório").max(255),
     jobTitle: z.string().max(100),
     businessNiche: z.string().max(255),
+    phone: z.string().max(50),
     documentType: z.enum(["CPF", "CNPJ", ""]),
     documentNumber: z.string(),
     addressStreet: z.string().max(255),
