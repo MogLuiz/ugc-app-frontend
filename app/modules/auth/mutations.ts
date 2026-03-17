@@ -5,6 +5,7 @@ import {
   updateProfile,
   updateCompanyProfile,
 } from "~/modules/auth/service";
+import type { UpdateProfileData } from "~/modules/auth/service";
 import type { UserRole } from "~/modules/auth/types";
 
 export function useBootstrapMutation() {
@@ -27,7 +28,7 @@ export function useUpdateProfileMutation() {
       data,
       token,
     }: {
-      data: { name?: string; bio?: string };
+      data: UpdateProfileData;
       token?: string;
     }) => updateProfile(data, token),
     onSuccess: () => {

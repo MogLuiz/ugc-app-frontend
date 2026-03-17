@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil, Building2, Briefcase, FileText, User } from "lucide-react";
+import {
+  Pencil,
+  Building2,
+  Briefcase,
+  FileText,
+  MapPin,
+  User,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
@@ -41,6 +48,11 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
       businessNiche: company?.businessNiche ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
+      addressStreet: profile?.addressStreet ?? "",
+      addressNumber: profile?.addressNumber ?? "",
+      addressCity: profile?.addressCity ?? "",
+      addressState: profile?.addressState ?? "",
+      addressZipCode: profile?.addressZipCode ?? "",
     },
   });
 
@@ -53,6 +65,11 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
       businessNiche: company?.businessNiche ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
+      addressStreet: profile?.addressStreet ?? "",
+      addressNumber: profile?.addressNumber ?? "",
+      addressCity: profile?.addressCity ?? "",
+      addressState: profile?.addressState ?? "",
+      addressZipCode: profile?.addressZipCode ?? "",
     });
     setIsEditing(true);
   }
@@ -64,6 +81,11 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
           data: {
             name: data.name,
             bio: data.bio || undefined,
+            addressStreet: data.addressStreet || undefined,
+            addressNumber: data.addressNumber || undefined,
+            addressCity: data.addressCity || undefined,
+            addressState: data.addressState || undefined,
+            addressZipCode: data.addressZipCode || undefined,
           },
         }),
         updateCompanyProfileMutation.mutateAsync({
@@ -240,6 +262,60 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
                   </div>
                 </div>
 
+                <div className="border-t border-slate-100 pt-6">
+                  <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-[#0f172a]">
+                    <MapPin className="size-5 text-[#895af6]" />
+                    Endereço
+                  </h2>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className="mb-1 block text-sm font-medium text-slate-600">
+                        Rua
+                      </label>
+                      <Input
+                        {...register("addressStreet")}
+                        placeholder="Nome da rua"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-600">
+                        Número
+                      </label>
+                      <Input
+                        {...register("addressNumber")}
+                        placeholder="Número"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-600">
+                        CEP
+                      </label>
+                      <Input
+                        {...register("addressZipCode")}
+                        placeholder="00000-000"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-600">
+                        Cidade
+                      </label>
+                      <Input
+                        {...register("addressCity")}
+                        placeholder="Cidade"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-slate-600">
+                        Estado
+                      </label>
+                      <Input
+                        {...register("addressState")}
+                        placeholder="UF"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"
@@ -341,6 +417,42 @@ export function CompanyProfileDesktop({ user }: CompanyProfileDesktopProps) {
                     )}
                   </div>
                 </div>
+
+                {(profile?.addressStreet ||
+                  profile?.addressCity ||
+                  profile?.addressZipCode) && (
+                  <div className="border-t border-slate-100 pt-6">
+                    <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-[#0f172a]">
+                      <MapPin className="size-5 text-[#895af6]" />
+                      Endereço
+                    </h2>
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-[rgba(137,90,246,0.1)]">
+                        <MapPin className="size-5 text-[#895af6]" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Endereço</p>
+                        <p className="font-medium text-slate-900">
+                          {[
+                            [profile?.addressStreet, profile?.addressNumber]
+                              .filter(Boolean)
+                              .join(", "),
+                            profile?.addressCity
+                              ? profile?.addressState
+                                ? `${profile.addressCity}/${profile.addressState}`
+                                : profile.addressCity
+                              : null,
+                            profile?.addressZipCode
+                              ? `CEP ${profile.addressZipCode}`
+                              : null,
+                          ]
+                            .filter(Boolean)
+                            .join(" — ") || "—"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </section>

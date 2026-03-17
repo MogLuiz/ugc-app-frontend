@@ -7,6 +7,7 @@ import {
   Building2,
   Briefcase,
   FileText,
+  MapPin,
   Pencil,
   User,
 } from "lucide-react";
@@ -51,6 +52,11 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
       businessNiche: company?.businessNiche ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
+      addressStreet: profile?.addressStreet ?? "",
+      addressNumber: profile?.addressNumber ?? "",
+      addressCity: profile?.addressCity ?? "",
+      addressState: profile?.addressState ?? "",
+      addressZipCode: profile?.addressZipCode ?? "",
     },
   });
 
@@ -63,6 +69,11 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
       businessNiche: company?.businessNiche ?? "",
       documentType: (company?.documentType as "CPF" | "CNPJ") ?? "",
       documentNumber: company?.documentNumber ?? "",
+      addressStreet: profile?.addressStreet ?? "",
+      addressNumber: profile?.addressNumber ?? "",
+      addressCity: profile?.addressCity ?? "",
+      addressState: profile?.addressState ?? "",
+      addressZipCode: profile?.addressZipCode ?? "",
     });
     setIsEditing(true);
   }
@@ -74,6 +85,11 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
           data: {
             name: data.name,
             bio: data.bio || undefined,
+            addressStreet: data.addressStreet || undefined,
+            addressNumber: data.addressNumber || undefined,
+            addressCity: data.addressCity || undefined,
+            addressState: data.addressState || undefined,
+            addressZipCode: data.addressZipCode || undefined,
           },
         }),
         updateCompanyProfileMutation.mutateAsync({
@@ -261,6 +277,60 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
                 </div>
               </div>
 
+              <div className="border-t border-slate-100 pt-4">
+                <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#0f172a]">
+                  <MapPin className="size-4 text-[#895af6]" />
+                  Endereço
+                </h3>
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <label className="mb-0.5 block text-xs font-medium text-slate-600">
+                      Rua
+                    </label>
+                    <Input
+                      {...register("addressStreet")}
+                      placeholder="Nome da rua"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-0.5 block text-xs font-medium text-slate-600">
+                      Número
+                    </label>
+                    <Input
+                      {...register("addressNumber")}
+                      placeholder="Número"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-0.5 block text-xs font-medium text-slate-600">
+                      CEP
+                    </label>
+                    <Input
+                      {...register("addressZipCode")}
+                      placeholder="00000-000"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-0.5 block text-xs font-medium text-slate-600">
+                      Cidade
+                    </label>
+                    <Input
+                      {...register("addressCity")}
+                      placeholder="Cidade"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-0.5 block text-xs font-medium text-slate-600">
+                      Estado
+                    </label>
+                    <Input
+                      {...register("addressState")}
+                      placeholder="UF"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-2 pt-2">
                 <Button
                   type="button"
@@ -366,6 +436,42 @@ export function CompanyProfileMobile({ user }: CompanyProfileMobileProps) {
                   )}
                 </div>
               </div>
+
+              {(profile?.addressStreet ||
+                profile?.addressCity ||
+                profile?.addressZipCode) && (
+                <div className="border-t border-slate-100 pt-4">
+                  <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#0f172a]">
+                    <MapPin className="size-4 text-[#895af6]" />
+                    Endereço
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-[rgba(137,90,246,0.1)]">
+                      <MapPin className="size-4 text-[#895af6]" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] text-slate-500">Endereço</p>
+                      <p className="text-sm font-medium text-slate-900">
+                        {[
+                          [profile?.addressStreet, profile?.addressNumber]
+                            .filter(Boolean)
+                            .join(", "),
+                          profile?.addressCity
+                            ? profile?.addressState
+                              ? `${profile.addressCity}/${profile.addressState}`
+                              : profile.addressCity
+                            : null,
+                          profile?.addressZipCode
+                            ? `CEP ${profile.addressZipCode}`
+                            : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" — ") || "—"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>

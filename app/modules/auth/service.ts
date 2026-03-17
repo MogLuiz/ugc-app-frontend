@@ -16,6 +16,11 @@ import { HttpError } from "~/lib/http/errors";
 export type UpdateProfileData = {
   name?: string;
   bio?: string;
+  addressStreet?: string;
+  addressNumber?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZipCode?: string;
 };
 
 export async function updateProfile(

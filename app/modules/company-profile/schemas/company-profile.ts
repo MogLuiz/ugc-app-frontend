@@ -13,6 +13,11 @@ export const companyProfileSchema = z
     businessNiche: z.string().max(255),
     documentType: z.enum(["CPF", "CNPJ", ""]),
     documentNumber: z.string(),
+    addressStreet: z.string().max(255),
+    addressNumber: z.string().max(50),
+    addressCity: z.string().max(100),
+    addressState: z.string().max(50),
+    addressZipCode: z.string().max(20),
   })
   .refine(
     (data) => {
