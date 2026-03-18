@@ -123,13 +123,13 @@ export function useCreatorProfileEditController(user: AuthUser) {
 
   const displayNameFromUser = user.profile?.name ?? user.name ?? "";
   const username =
-    creatorProfile?.instagramUsername ??
+    user.name ??
     user.email?.split("@")[0] ??
     "usuario";
   const location =
     user.profile?.addressCity && user.profile?.addressState
       ? `${user.profile.addressCity}, ${user.profile.addressState}`
-      : "São Paulo, SP";
+      : ""
   const portfolioMedia = user.portfolio?.media ?? [];
 
   const toggleDay = useCallback((day: DayOfWeek) => {
