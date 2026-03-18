@@ -74,7 +74,7 @@ const SIDEBAR_CONFIG: Record<
       { id: "dashboard", label: "Dashboard", icon: Home, to: "/dashboard" },
       { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "#" },
       { id: "calendario", label: "Calendário", icon: Calendar, to: "#" },
-      { id: "perfil", label: "Meu Perfil", icon: User, to: "#" },
+      { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },
       { id: "pagamentos", label: "Pagamentos", icon: CreditCard, to: "#" },
       { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "#" },
       { id: "configuracoes", label: "Configurações", icon: Settings, to: "#" },

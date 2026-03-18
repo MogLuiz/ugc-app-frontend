@@ -1,7 +1,7 @@
 import { AppSidebar } from "~/components/app-sidebar";
+import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { useCreatorDashboardController } from "../hooks/use-creator-dashboard-controller";
 import {
-  CreatorDashboardBottomNav,
   CreatorDashboardHeader,
   CreatorDashboardIntro,
   CreatorDashboardOffers,
@@ -24,7 +24,7 @@ export function CreatorDashboardScreen() {
         <CreatorDashboardOffers offers={controller.viewModel.offers} />
       </main>
 
-      <CreatorDashboardBottomNav />
+      <CreatorBottomNav />
     </div>
   );
 }
