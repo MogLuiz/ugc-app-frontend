@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   BarChart3,
   Briefcase,
-  Calendar,
+  CalendarDays,
   ChevronRight,
   CreditCard,
   Home,
@@ -78,7 +78,7 @@ const SIDEBAR_CONFIG: Record<
     navItems: [
       { id: "dashboard", label: "Dashboard", icon: Home, to: "/dashboard" },
       { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "#" },
-      { id: "calendario", label: "Calendário", icon: Calendar, to: "#" },
+      { id: "calendario", label: "Calendário", icon: CalendarDays, to: "/agenda" },
       { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },
       { id: "pagamentos", label: "Pagamentos", icon: CreditCard, to: "#" },
       { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "#" },

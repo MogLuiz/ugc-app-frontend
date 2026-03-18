@@ -1,9 +1,10 @@
-import { Home, MessageCircle, User } from "lucide-react";
+import { CalendarDays, Home, MessageCircle, User } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "~/lib/utils";
 
 const BOTTOM_NAV_ITEMS = [
   { id: "inicio", label: "Início", icon: Home, to: "/dashboard" },
+  { id: "agenda", label: "Agenda", icon: CalendarDays, to: "/agenda" },
   { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "#" },
   { id: "perfil", label: "Perfil", icon: User, to: "/perfil" },
 ];
@@ -19,6 +20,8 @@ export function CreatorBottomNav() {
           const isActive =
             item.id === "perfil"
               ? location.pathname === "/perfil"
+              : item.id === "agenda"
+                ? location.pathname === "/agenda"
               : location.pathname === item.to;
 
           const content = (
