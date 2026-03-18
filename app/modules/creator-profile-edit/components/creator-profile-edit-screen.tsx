@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Camera } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -12,6 +13,77 @@ import {
   CreatorServicesSection,
   CreatorPortfolioSection,
 } from "./sections/creator-profile-edit-sections";
+
+function MobileProfileHeader({
+  displayName,
+  initials,
+  photoUrl,
+  username,
+  onAvatarChange,
+  isUploading,
+}: {
+  displayName: string;
+  initials: string;
+  photoUrl?: string;
+  username: string;
+  onAvatarChange: (file: File) => void;
+  isUploading: boolean;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) onAvatarChange(file);
+    e.target.value = "";
+  }
+
+  return (
+    <div className="mb-8 flex flex-col items-center py-8 lg:hidden">
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={isUploading}
+        className="relative"
+      >
+        <div className="size-32 overflow-hidden rounded-full border-4 border-white bg-slate-200 shadow-lg">
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={displayName}
+              className="size-full object-cover"
+            />
+          ) : (
+            <div className="flex size-full items-center justify-center">
+              <span className="text-3xl font-bold text-slate-600">
+                {initials}
+              </span>
+            </div>
+          )}
+        </div>
+        <div className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full border-2 border-white bg-[#895af6] shadow-md">
+          <Camera className="size-5 text-white" />
+        </div>
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      <h2 className="mt-4 text-2xl font-bold text-[#0f172a]">{displayName}</h2>
+      <p className="text-sm font-medium text-[#895af6]">@{username}</p>
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={isUploading}
+        className="mt-2 text-sm font-semibold text-[#895af6] hover:underline disabled:opacity-50"
+      >
+        {isUploading ? "Enviando..." : "Alterar foto de perfil"}
+      </button>
+    </div>
+  );
+}
 
 export function CreatorProfileEditScreen() {
   const { user } = useAuth();
@@ -50,47 +122,23 @@ export function CreatorProfileEditScreen() {
           <Button
             variant="ghost"
             className="rounded-[32px] px-2 py-1 text-base font-bold text-[#895af6]"
+            disabled={controller.isSaving}
+            onClick={() => controller.handleSubmit()}
           >
-            Salvar
+            {controller.isSaving ? "Salvando..." : "Salvar"}
           </Button>
         </header>
 
         <main className="flex-1 px-4 py-6 pb-32 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
           {/* Mobile: profile header section */}
-        <div className="mb-8 flex flex-col items-center py-8 lg:hidden">
-          <div className="relative">
-            <div className="size-32 overflow-hidden rounded-full border-4 border-white bg-slate-200 shadow-lg">
-              {user.profile?.photoUrl ? (
-                <img
-                  src={user.profile.photoUrl}
-                  alt={displayName}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <div className="flex size-full items-center justify-center">
-                  <span className="text-3xl font-bold text-slate-600">
-                    {initials}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full border-2 border-white bg-[#895af6] shadow-md">
-              <Camera className="size-5 text-white" />
-            </div>
-          </div>
-          <h2 className="mt-4 text-2xl font-bold text-[#0f172a]">
-            {displayName}
-          </h2>
-          <p className="text-sm font-medium text-[#895af6]">
-            @{controller.username}
-          </p>
-          <button
-            type="button"
-            className="mt-2 text-sm font-semibold text-[#895af6] hover:underline"
-          >
-            Alterar foto de perfil
-          </button>
-        </div>
+        <MobileProfileHeader
+          displayName={displayName}
+          initials={initials}
+          photoUrl={user.profile?.photoUrl}
+          username={controller.username}
+          onAvatarChange={controller.handleAvatarChange}
+          isUploading={controller.isUploadingAvatar}
+        />
 
           {/* Desktop header */}
           <div className="mb-8 hidden flex-col gap-2 lg:flex">
@@ -126,6 +174,7 @@ export function CreatorProfileEditScreen() {
                   onRemoveNiche={controller.removeNiche}
                   photoUrl={user.profile?.photoUrl}
                   initials={initials}
+                  onAvatarChange={controller.handleAvatarChange}
                   compact
                 />
               </div>
@@ -148,6 +197,7 @@ export function CreatorProfileEditScreen() {
                   onRemoveNiche={controller.removeNiche}
                   photoUrl={user.profile?.photoUrl}
                   initials={initials}
+                  onAvatarChange={controller.handleAvatarChange}
                 />
               </div>
               <CreatorAddressSection
@@ -178,20 +228,30 @@ export function CreatorProfileEditScreen() {
                 services={controller.services}
                 onRemoveService={controller.removeService}
               />
-              <CreatorPortfolioSection media={controller.portfolioMedia} />
+              <CreatorPortfolioSection
+                media={controller.portfolioMedia}
+                onUpload={controller.handlePortfolioUpload}
+                onRemove={controller.handlePortfolioRemove}
+                isUploading={controller.isUploadingPortfolio}
+                isRemoving={controller.isRemovingPortfolio}
+              />
 
               {/* Desktop footer actions */}
               <div className="hidden items-center justify-end gap-4 lg:flex">
                 <Button
                   variant="ghost"
                   className="rounded-[48px] px-6 py-3 text-base font-bold text-[#64748b]"
+                  disabled={controller.isSaving}
+                  onClick={() => controller.resetToUser()}
                 >
                   Descartar
                 </Button>
                 <Button
                   className="rounded-[48px] bg-[#895af6] px-10 py-3 text-base font-bold text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.3)] hover:bg-[#7c4aeb]"
+                  disabled={controller.isSaving}
+                  onClick={() => controller.handleSubmit()}
                 >
-                  Salvar Alterações
+                  {controller.isSaving ? "Salvando..." : "Salvar Alterações"}
                 </Button>
               </div>
             </div>

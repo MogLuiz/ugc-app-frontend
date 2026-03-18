@@ -83,41 +83,41 @@ export function CreatorProfileInfoSection({
   return (
     <section className="flex flex-col gap-6 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
       {!compact && (
-      <div className="flex flex-col items-center">
-        <div className="relative">
-          <div className="size-24 overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.2)]">
-            {photoUrl ? (
-              <img
-                src={photoUrl}
-                alt={displayName}
-                className="size-full object-cover"
-              />
-            ) : (
-              <div className="flex size-full items-center justify-center bg-slate-200">
-                <span className="text-2xl font-bold text-slate-600">
-                  {initials}
-                </span>
-              </div>
-            )}
+        <div className="flex flex-col items-center">
+          <div className="relative">
+            <div className="size-24 overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.2)]">
+              {photoUrl ? (
+                <img
+                  src={photoUrl}
+                  alt={displayName}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-slate-200">
+                  <span className="text-2xl font-bold text-slate-600">
+                    {initials}
+                  </span>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full bg-[#895af6] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)]"
+            >
+              <Camera className="size-5 text-white" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 flex size-10 items-center justify-center rounded-full bg-[#895af6] shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1)]"
-          >
-            <Camera className="size-5 text-white" />
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleFileChange}
-          />
+          <p className="mt-4 text-lg font-bold text-[#0f172a]">{username}</p>
+          <p className="text-sm text-[#64748b]">{location}</p>
         </div>
-        <p className="mt-4 text-lg font-bold text-[#0f172a]">@{username}</p>
-        <p className="text-sm text-[#64748b]">{location}</p>
-      </div>
       )}
 
       <div className="flex flex-col gap-4">
@@ -350,7 +350,7 @@ export function CreatorAvailabilitySection({
               "rounded-[32px] px-3 py-2 text-[10px] font-bold transition-colors",
               availableDays.has(day)
                 ? "bg-[#895af6] text-white"
-                : "bg-[#f1f5f9] text-[#94a3b8]"
+                : "bg-[#f1f5f9] text-[#94a3b8]",
             )}
           >
             {DAY_LABELS[day]}
@@ -459,12 +459,16 @@ type PortfolioSectionProps = {
   media: PortfolioMediaPayload[];
   onUpload?: (file: File) => void;
   onRemove?: (mediaId: string) => void;
+  isUploading?: boolean;
+  isRemoving?: boolean;
 };
 
 export function CreatorPortfolioSection({
   media,
   onUpload,
   onRemove,
+  isUploading = false,
+  isRemoving = false,
 }: PortfolioSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -491,10 +495,11 @@ export function CreatorPortfolioSection({
           <Button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="gap-2 rounded-full bg-[#895af6] px-4 py-2 text-xs font-bold text-white hover:bg-[#7c4aeb]"
+            disabled={isUploading}
+            className="gap-2 rounded-full bg-[#895af6] px-4 py-2 text-xs font-bold text-white hover:bg-[#7c4aeb] disabled:opacity-50"
           >
             <Upload className="size-3.5" />
-            Upload
+            {isUploading ? "Enviando..." : "Upload"}
           </Button>
         </div>
         <input
@@ -533,7 +538,8 @@ export function CreatorPortfolioSection({
               <button
                 type="button"
                 onClick={() => onRemove(item.id)}
-                className="absolute right-2 top-2 rounded-full bg-red-500/80 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                disabled={isRemoving}
+                className="absolute right-2 top-2 rounded-full bg-red-500/80 p-2 text-white opacity-0 transition-opacity group-hover:opacity-100 disabled:opacity-50"
               >
                 <Trash2 className="size-3" />
               </button>
@@ -543,7 +549,8 @@ export function CreatorPortfolioSection({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex aspect-square flex-col items-center justify-center gap-1 rounded-[32px] border-2 border-dashed border-[rgba(137,90,246,0.2)] bg-[rgba(137,90,246,0.05)] text-[#895af6] hover:border-[#895af6]"
+          disabled={isUploading}
+          className="flex aspect-square flex-col items-center justify-center gap-1 rounded-[32px] border-2 border-dashed border-[rgba(137,90,246,0.2)] bg-[rgba(137,90,246,0.05)] text-[#895af6] hover:border-[#895af6] disabled:opacity-50"
         >
           <Plus className="size-6" />
           <span className="text-[10px] font-bold uppercase">Adicionar</span>

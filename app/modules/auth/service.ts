@@ -16,6 +16,7 @@ import { HttpError } from "~/lib/http/errors";
 
 export type UpdateProfileData = {
   name?: string;
+  birthDate?: string;
   bio?: string;
   phone?: string;
   addressStreet?: string;
@@ -23,6 +24,14 @@ export type UpdateProfileData = {
   addressCity?: string;
   addressState?: string;
   addressZipCode?: string;
+};
+
+export type UpdateCreatorProfileData = {
+  instagramUsername?: string;
+  tiktokUsername?: string;
+  cpf?: string;
+  referralSource?: string;
+  portfolioUrl?: string;
 };
 
 export async function updateProfile(
@@ -64,6 +73,18 @@ export async function updateCompanyProfile(
 ): Promise<BootstrapPayload> {
   const accessToken = await getAccessToken(token);
   return httpClient<BootstrapPayload>("/profiles/me/company", {
+    method: "PATCH",
+    body: data,
+    token: accessToken,
+  });
+}
+
+export async function updateCreatorProfile(
+  data: UpdateCreatorProfileData,
+  token?: string
+): Promise<BootstrapPayload> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<BootstrapPayload>("/profiles/me/creator", {
     method: "PATCH",
     body: data,
     token: accessToken,
