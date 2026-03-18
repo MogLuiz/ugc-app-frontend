@@ -1,5 +1,24 @@
 import type { MarketplaceCreator } from "../types";
 
+/**
+ * Pool de imagens de perfil realistas (fotos) para manter consistência visual.
+ * Reutilizadas entre criadores até integração com backend.
+ */
+const CREATOR_PHOTOS = [
+  "https://www.figma.com/api/mcp/asset/06afc4cb-b5d5-4d6a-b5cd-cb7f2360dcea",
+  "https://www.figma.com/api/mcp/asset/0c101091-8d75-4ff7-9fb0-3422c5bed2e8",
+  "https://www.figma.com/api/mcp/asset/55472a47-c471-4bd5-b739-4cdd3bdf8df3",
+  "https://www.figma.com/api/mcp/asset/e7ba08dd-eeb9-4077-bcbb-f482feb62844",
+  "https://www.figma.com/api/mcp/asset/444bd767-9e8f-4dc8-a297-82bcb64772ab",
+  "https://www.figma.com/api/mcp/asset/250f5def-9dfa-4283-8cb6-02da1f6c5770",
+  "https://www.figma.com/api/mcp/asset/3cd41252-817a-41b7-aa18-d822032357ae",
+  "https://www.figma.com/api/mcp/asset/ac6e5075-a416-4a18-90d8-50b79d5f65a7",
+] as const;
+
+function getCreatorPhoto(index: number): string {
+  return CREATOR_PHOTOS[index % CREATOR_PHOTOS.length]!;
+}
+
 /** Mock de criadores para o marketplace até integração com backend */
 export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
   {
@@ -8,8 +27,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Moda & Lifestyle",
     location: "Savassi, Belo Horizonte",
     rating: 4.9,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/06afc4cb-b5d5-4d6a-b5cd-cb7f2360dcea",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/0c101091-8d75-4ff7-9fb0-3422c5bed2e8",
+    avatarUrl: getCreatorPhoto(0),
+    coverImageUrl: getCreatorPhoto(1),
     tags: ["Vídeo Presencial", "Unboxing", "TikTok Ads", "Reviews"],
   },
   {
@@ -18,8 +37,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Tech & Gadgets",
     location: "Pinheiros, São Paulo",
     rating: 4.8,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/55472a47-c471-4bd5-b739-4cdd3bdf8df3",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/e7ba08dd-eeb9-4077-bcbb-f482feb62844",
+    avatarUrl: getCreatorPhoto(2),
+    coverImageUrl: getCreatorPhoto(3),
     tags: ["Review Tech", "Tutorial"],
   },
   {
@@ -28,8 +47,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Fitness & Saúde",
     location: "Copacabana, Rio de Janeiro",
     rating: 5.0,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/444bd767-9e8f-4dc8-a297-82bcb64772ab",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/250f5def-9dfa-4283-8cb6-02da1f6c5770",
+    avatarUrl: getCreatorPhoto(4),
+    coverImageUrl: getCreatorPhoto(5),
     tags: ["Demo Exercício", "Dieta"],
   },
   {
@@ -38,8 +57,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Beleza & Skincare",
     location: "Moinhos de Vento, Porto Alegre",
     rating: 4.7,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/40256463-315a-4c3b-ab10-26d5efcde65e",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/5d1bc905-a95c-40f4-a152-87be636c276a",
+    avatarUrl: getCreatorPhoto(6),
+    coverImageUrl: getCreatorPhoto(6),
     tags: ["Get Ready With Me", "Review"],
   },
   {
@@ -48,8 +67,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Lifestyle & Viagens",
     location: "Asa Sul, Brasília",
     rating: 5.0,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/ac6e5075-a416-4a18-90d8-50b79d5f65a7",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/9d60f038-34c6-4f1a-9e30-4c3a695631dc",
+    avatarUrl: getCreatorPhoto(7),
+    coverImageUrl: getCreatorPhoto(7),
     tags: ["Vlog", "Hotel Review"],
   },
   {
@@ -58,8 +77,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Educação & Carreira",
     location: "Batel, Curitiba",
     rating: 4.6,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/0d9d4935-d14b-4904-b5d2-360a7929fd7f",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/fe16b09f-a13a-4d48-8fac-95b99a33e9c0",
+    avatarUrl: getCreatorPhoto(0),
+    coverImageUrl: getCreatorPhoto(0),
     tags: ["Talking Head", "Dicas"],
   },
   {
@@ -68,8 +87,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Gastronomia",
     location: "Itaigara, Salvador",
     rating: 4.9,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/039e4ed7-1f5b-43e8-9ade-4f2c7a4c36fd",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/304d04f4-a4cf-465c-99e5-17b7259f4db9",
+    avatarUrl: getCreatorPhoto(1),
+    coverImageUrl: getCreatorPhoto(1),
     tags: ["Receitas", "Review Restaurante"],
   },
   {
@@ -78,8 +97,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Esportes & Ação",
     location: "Meireles, Fortaleza",
     rating: 4.8,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/62ce99e3-ea53-4b89-aee5-ae6bced6dc95",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/4e0a439f-e931-4b47-acbb-397ad74786eb",
+    avatarUrl: getCreatorPhoto(2),
+    coverImageUrl: getCreatorPhoto(2),
     tags: ["GoPro Footage", "Outdoor"],
   },
   {
@@ -88,8 +107,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Beleza & Skincare",
     location: "Lourdes, Belo Horizonte",
     rating: 4.9,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/3cd41252-817a-41b7-aa18-d822032357ae",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/3cd41252-817a-41b7-aa18-d822032357ae",
+    avatarUrl: getCreatorPhoto(3),
+    coverImageUrl: getCreatorPhoto(3),
     tags: ["Unboxing", "Reviews", "TikTok Ads"],
   },
   {
@@ -98,8 +117,8 @@ export const MOCK_MARKETPLACE_CREATORS: MarketplaceCreator[] = [
     niche: "Lifestyle & Home",
     location: "Ipanema, Rio de Janeiro",
     rating: 5.0,
-    avatarUrl: "https://www.figma.com/api/mcp/asset/b3c7907b-105b-4d27-b8b3-94c8e3bd5762",
-    coverImageUrl: "https://www.figma.com/api/mcp/asset/b3c7907b-105b-4d27-b8b3-94c8e3bd5762",
+    avatarUrl: getCreatorPhoto(4),
+    coverImageUrl: getCreatorPhoto(4),
     tags: ["Vlogs", "ASMR"],
   },
 ];

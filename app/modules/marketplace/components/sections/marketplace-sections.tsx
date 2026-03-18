@@ -194,8 +194,8 @@ export function MarketplaceCreatorCardDesktop({
   const img = creator.coverImageUrl ?? creator.avatarUrl;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-shadow hover:shadow-lg">
-      <div className="relative h-64 w-full overflow-hidden">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-shadow hover:shadow-lg">
+      <div className="relative h-64 shrink-0 w-full overflow-hidden">
         <img
           src={img}
           alt=""
@@ -206,7 +206,7 @@ export function MarketplaceCreatorCardDesktop({
           <span className="text-sm font-bold text-slate-900">{creator.rating}</span>
         </div>
       </div>
-      <div className="flex flex-col gap-1 p-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 px-6 pb-8 pt-6">
         <h3 className="text-xl font-bold leading-7 text-slate-900">
           {creator.name}
         </h3>
@@ -215,32 +215,32 @@ export function MarketplaceCreatorCardDesktop({
           <MapPin className="size-3.5 text-slate-400" />
           <span className="text-xs text-slate-500">{creator.location}</span>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-1 flex-wrap content-start gap-2">
           {creator.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-[#f6f5f8] px-3 py-1 text-xs font-medium text-slate-600"
+              className="inline-flex shrink-0 items-center rounded-full bg-[#f6f5f8] px-3 py-1 text-xs font-medium text-slate-600"
             >
               {tag}
             </span>
           ))}
           {creator.tags.length > 3 && (
-            <span className="rounded-full bg-[#f6f5f8] px-3 py-1 text-xs font-medium text-slate-600">
+            <span className="inline-flex shrink-0 items-center rounded-full bg-[#f6f5f8] px-3 py-1 text-xs font-medium text-slate-600">
               +{creator.tags.length - 3}
             </span>
           )}
         </div>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-auto flex h-10 shrink-0 gap-2 pt-4">
           <Link
             to={`/criador/${creator.id}`}
-            className="flex flex-1 items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            className="flex min-h-10 flex-1 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
           >
             Ver Perfil
           </Link>
           <Button
             variant="purple"
             size="sm"
-            className="flex-1 rounded-full"
+            className="h-10 min-h-10 flex-1 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               onHire(creator);
@@ -307,17 +307,17 @@ export function MarketplaceCreatorCardMobile({
           </div>
         </div>
       </div>
-      <div className="flex gap-3">
+      <div className="flex h-11 shrink-0 gap-3">
         <Link
           to={`/criador/${creator.id}`}
-          className="flex flex-1 items-center justify-center rounded-full border border-slate-200 bg-slate-50 py-2.5 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100"
+          className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100"
         >
           Ver Perfil
         </Link>
         <Button
           variant="purple"
           size="md"
-          className="flex-1 rounded-full"
+          className="h-11 min-h-11 flex-1 rounded-full"
           onClick={() => onHire(creator)}
         >
           Contratar

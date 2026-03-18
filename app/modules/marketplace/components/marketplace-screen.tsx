@@ -32,8 +32,8 @@ export function MarketplaceScreen() {
             onSortByChange={actions.setSortBy}
           />
 
-          {/* Desktop: grid 4 colunas */}
-          <section className="hidden gap-6 lg:grid lg:grid-cols-2 lg:gap-6 xl:grid-cols-4">
+          {/* Desktop: grid 4 colunas - items-stretch para cards terem mesma altura */}
+          <section className="hidden gap-6 lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6 xl:grid-cols-4">
             {viewModel.creators.map((creator) => (
               <MarketplaceCreatorCardDesktop
                 key={creator.id}
