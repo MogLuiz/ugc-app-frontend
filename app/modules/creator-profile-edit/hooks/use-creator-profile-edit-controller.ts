@@ -31,9 +31,41 @@ const DEFAULT_SERVICES: CreatorService[] = [
 
 const DEFAULT_DAYS: DayOfWeek[] = ["mon", "tue", "wed", "thu", "fri"];
 
+type CreatorProfileExt = {
+  instagramUsername?: string;
+  tiktokUsername?: string;
+};
+
 export function useCreatorProfileEditController(user: AuthUser) {
+  const creatorProfile = user.creatorProfile as CreatorProfileExt | undefined;
+
   const [displayName, setDisplayName] = useState(
     user.profile?.name ?? user.name ?? ""
+  );
+  const [birthDate, setBirthDate] = useState(
+    user.profile?.birthDate?.slice(0, 10) ?? ""
+  );
+  const [phone, setPhone] = useState(user.phone ?? "");
+  const [instagramUsername, setInstagramUsername] = useState(
+    creatorProfile?.instagramUsername ?? ""
+  );
+  const [tiktokUsername, setTiktokUsername] = useState(
+    creatorProfile?.tiktokUsername ?? ""
+  );
+  const [addressStreet, setAddressStreet] = useState(
+    user.profile?.addressStreet ?? ""
+  );
+  const [addressNumber, setAddressNumber] = useState(
+    user.profile?.addressNumber ?? ""
+  );
+  const [addressCity, setAddressCity] = useState(
+    user.profile?.addressCity ?? ""
+  );
+  const [addressState, setAddressState] = useState(
+    user.profile?.addressState ?? ""
+  );
+  const [addressZipCode, setAddressZipCode] = useState(
+    user.profile?.addressZipCode ?? ""
   );
   const [niches, setNiches] = useState<string[]>(["Beleza", "Food", "Lifestyle"]);
   const [availableDays, setAvailableDays] =
@@ -44,8 +76,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
 
   const displayNameFromUser = user.profile?.name ?? user.name ?? "";
   const username =
-    (user.creatorProfile as { instagramUsername?: string } | undefined)
-      ?.instagramUsername ??
+    creatorProfile?.instagramUsername ??
     user.email?.split("@")[0] ??
     "usuario";
   const location =
@@ -80,6 +111,24 @@ export function useCreatorProfileEditController(user: AuthUser) {
   return {
     displayName,
     setDisplayName,
+    birthDate,
+    setBirthDate,
+    phone,
+    setPhone,
+    instagramUsername,
+    setInstagramUsername,
+    tiktokUsername,
+    setTiktokUsername,
+    addressStreet,
+    setAddressStreet,
+    addressNumber,
+    setAddressNumber,
+    addressCity,
+    setAddressCity,
+    addressState,
+    setAddressState,
+    addressZipCode,
+    setAddressZipCode,
     niches,
     addNiche,
     removeNiche,

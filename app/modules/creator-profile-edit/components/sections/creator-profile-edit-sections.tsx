@@ -4,6 +4,7 @@ import {
   Camera,
   ChevronDown,
   Image,
+  MapPin,
   Plus,
   Tag,
   Trash2,
@@ -30,6 +31,14 @@ const DAY_ORDER: DayOfWeek[] = [
 type ProfileInfoSectionProps = {
   displayName: string;
   onDisplayNameChange: (value: string) => void;
+  birthDate: string;
+  onBirthDateChange: (value: string) => void;
+  phone: string;
+  onPhoneChange: (value: string) => void;
+  instagramUsername: string;
+  onInstagramUsernameChange: (value: string) => void;
+  tiktokUsername: string;
+  onTiktokUsernameChange: (value: string) => void;
   username: string;
   location: string;
   niches: string[];
@@ -38,11 +47,21 @@ type ProfileInfoSectionProps = {
   photoUrl?: string;
   initials: string;
   onAvatarChange?: (file: File) => void;
+  /** Oculta avatar e username no topo (para layout mobile com header separado) */
+  compact?: boolean;
 };
 
 export function CreatorProfileInfoSection({
   displayName,
   onDisplayNameChange,
+  birthDate,
+  onBirthDateChange,
+  phone,
+  onPhoneChange,
+  instagramUsername,
+  onInstagramUsernameChange,
+  tiktokUsername,
+  onTiktokUsernameChange,
   username,
   location,
   niches,
@@ -51,6 +70,7 @@ export function CreatorProfileInfoSection({
   photoUrl,
   initials,
   onAvatarChange,
+  compact = false,
 }: ProfileInfoSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,6 +82,7 @@ export function CreatorProfileInfoSection({
 
   return (
     <section className="flex flex-col gap-6 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+      {!compact && (
       <div className="flex flex-col items-center">
         <div className="relative">
           <div className="size-24 overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.2)]">
@@ -97,6 +118,7 @@ export function CreatorProfileInfoSection({
         <p className="mt-4 text-lg font-bold text-[#0f172a]">@{username}</p>
         <p className="text-sm text-[#64748b]">{location}</p>
       </div>
+      )}
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
@@ -106,6 +128,51 @@ export function CreatorProfileInfoSection({
           <Input
             value={displayName}
             onChange={(e) => onDisplayNameChange(e.target.value)}
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold uppercase text-[#94a3b8]">
+            Data de Nascimento
+          </label>
+          <Input
+            type="date"
+            value={birthDate}
+            onChange={(e) => onBirthDateChange(e.target.value)}
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold uppercase text-[#94a3b8]">
+            Telefone
+          </label>
+          <Input
+            type="tel"
+            value={phone}
+            onChange={(e) => onPhoneChange(e.target.value)}
+            placeholder="(00) 00000-0000"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold uppercase text-[#94a3b8]">
+            Instagram
+          </label>
+          <Input
+            value={instagramUsername}
+            onChange={(e) => onInstagramUsernameChange(e.target.value)}
+            placeholder="@usuario"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold uppercase text-[#94a3b8]">
+            TikTok
+          </label>
+          <Input
+            value={tiktokUsername}
+            onChange={(e) => onTiktokUsernameChange(e.target.value)}
+            placeholder="@usuario"
             className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
           />
         </div>
@@ -140,6 +207,106 @@ export function CreatorProfileInfoSection({
               <Plus className="size-3" />
               Adicionar
             </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+type AddressSectionProps = {
+  street: string;
+  onStreetChange: (value: string) => void;
+  number: string;
+  onNumberChange: (value: string) => void;
+  city: string;
+  onCityChange: (value: string) => void;
+  state: string;
+  onStateChange: (value: string) => void;
+  zipCode: string;
+  onZipCodeChange: (value: string) => void;
+};
+
+export function CreatorAddressSection({
+  street,
+  onStreetChange,
+  number,
+  onNumberChange,
+  city,
+  onCityChange,
+  state,
+  onStateChange,
+  zipCode,
+  onZipCodeChange,
+}: AddressSectionProps) {
+  return (
+    <section className="flex flex-col gap-4 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+      <div className="flex items-center gap-2">
+        <div className="flex size-10 items-center justify-center rounded-full bg-[rgba(137,90,246,0.1)]">
+          <MapPin className="size-5 text-[#895af6]" />
+        </div>
+        <h3 className="text-base font-bold text-[#0f172a]">Endereço</h3>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold uppercase text-[#94a3b8]">
+            Rua
+          </label>
+          <Input
+            value={street}
+            onChange={(e) => onStreetChange(e.target.value)}
+            placeholder="Nome da rua"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold uppercase text-[#94a3b8]">
+              Número
+            </label>
+            <Input
+              value={number}
+              onChange={(e) => onNumberChange(e.target.value)}
+              placeholder="Nº"
+              className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold uppercase text-[#94a3b8]">
+              CEP
+            </label>
+            <Input
+              value={zipCode}
+              onChange={(e) => onZipCodeChange(e.target.value)}
+              placeholder="00000-000"
+              className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold uppercase text-[#94a3b8]">
+              Cidade
+            </label>
+            <Input
+              value={city}
+              onChange={(e) => onCityChange(e.target.value)}
+              placeholder="Cidade"
+              className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold uppercase text-[#94a3b8]">
+              Estado
+            </label>
+            <Input
+              value={state}
+              onChange={(e) => onStateChange(e.target.value)}
+              placeholder="UF"
+              maxLength={2}
+              className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 uppercase"
+            />
           </div>
         </div>
       </div>

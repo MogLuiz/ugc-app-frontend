@@ -7,6 +7,7 @@ import { useAuth } from "~/hooks/use-auth";
 import { useCreatorProfileEditController } from "../hooks/use-creator-profile-edit-controller";
 import {
   CreatorProfileInfoSection,
+  CreatorAddressSection,
   CreatorAvailabilitySection,
   CreatorServicesSection,
   CreatorPortfolioSection,
@@ -106,10 +107,40 @@ export function CreatorProfileEditScreen() {
           <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-3">
             {/* Left column - 1/3 on desktop, full width on mobile */}
             <div className="flex flex-col gap-8 lg:col-span-1">
+              <div className="lg:hidden">
+                <CreatorProfileInfoSection
+                  displayName={controller.displayName}
+                  onDisplayNameChange={controller.setDisplayName}
+                  birthDate={controller.birthDate}
+                  onBirthDateChange={controller.setBirthDate}
+                  phone={controller.phone}
+                  onPhoneChange={controller.setPhone}
+                  instagramUsername={controller.instagramUsername}
+                  onInstagramUsernameChange={controller.setInstagramUsername}
+                  tiktokUsername={controller.tiktokUsername}
+                  onTiktokUsernameChange={controller.setTiktokUsername}
+                  username={controller.username}
+                  location={controller.location}
+                  niches={controller.niches}
+                  onAddNiche={controller.addNiche}
+                  onRemoveNiche={controller.removeNiche}
+                  photoUrl={user.profile?.photoUrl}
+                  initials={initials}
+                  compact
+                />
+              </div>
               <div className="hidden lg:block">
                 <CreatorProfileInfoSection
                   displayName={controller.displayName}
                   onDisplayNameChange={controller.setDisplayName}
+                  birthDate={controller.birthDate}
+                  onBirthDateChange={controller.setBirthDate}
+                  phone={controller.phone}
+                  onPhoneChange={controller.setPhone}
+                  instagramUsername={controller.instagramUsername}
+                  onInstagramUsernameChange={controller.setInstagramUsername}
+                  tiktokUsername={controller.tiktokUsername}
+                  onTiktokUsernameChange={controller.setTiktokUsername}
                   username={controller.username}
                   location={controller.location}
                   niches={controller.niches}
@@ -119,6 +150,18 @@ export function CreatorProfileEditScreen() {
                   initials={initials}
                 />
               </div>
+              <CreatorAddressSection
+                street={controller.addressStreet}
+                onStreetChange={controller.setAddressStreet}
+                number={controller.addressNumber}
+                onNumberChange={controller.setAddressNumber}
+                city={controller.addressCity}
+                onCityChange={controller.setAddressCity}
+                state={controller.addressState}
+                onStateChange={controller.setAddressState}
+                zipCode={controller.addressZipCode}
+                onZipCodeChange={controller.setAddressZipCode}
+              />
               <CreatorAvailabilitySection
                 availableDays={controller.availableDays}
                 onToggleDay={controller.toggleDay}
