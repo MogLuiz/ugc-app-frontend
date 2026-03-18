@@ -23,6 +23,9 @@ type Pages = {
   "/mapa": {
     params: {};
   };
+  "/marketplace": {
+    params: {};
+  };
   "/dashboard": {
     params: {};
   };
@@ -39,11 +42,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/marketplace" | "/dashboard" | "/perfil" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/dashboard" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/mapa" | "/marketplace" | "/dashboard" | "/perfil" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -60,6 +63,10 @@ type RouteFiles = {
   "routes/mapa.tsx": {
     id: "routes/mapa";
     page: "/mapa";
+  };
+  "routes/marketplace.tsx": {
+    id: "routes/marketplace";
+    page: "/marketplace";
   };
   "routes/dashboard.tsx": {
     id: "routes/dashboard";
@@ -82,6 +89,7 @@ type RouteModules = {
   "routes/auth.login": typeof import("./app/routes/auth.login.tsx");
   "routes/auth.register": typeof import("./app/routes/auth.register.tsx");
   "routes/mapa": typeof import("./app/routes/mapa.tsx");
+  "routes/marketplace": typeof import("./app/routes/marketplace.tsx");
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");

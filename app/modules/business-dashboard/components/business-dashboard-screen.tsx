@@ -1,7 +1,7 @@
 import { AppSidebar } from "~/components/app-sidebar";
+import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useBusinessDashboardController } from "../hooks/use-business-dashboard-controller";
 import {
-  BusinessDashboardBottomNav,
   BusinessDashboardHeader,
   BusinessDashboardJobs,
   BusinessDashboardQuickActions,
@@ -41,7 +41,7 @@ export function BusinessDashboardScreen() {
         </div>
       </main>
 
-      <BusinessDashboardBottomNav />
+      <BusinessBottomNav />
     </div>
   );
 }

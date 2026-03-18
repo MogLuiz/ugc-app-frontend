@@ -51,10 +51,15 @@ const SIDEBAR_CONFIG: Record<
     subtitle: "Painel de Negócios",
     footer: "business",
     navItems: [
-      { id: "dashboard", label: "Dashboard", icon: BarChart3, to: "/dashboard" },
+      {
+        id: "dashboard",
+        label: "Dashboard",
+        icon: BarChart3,
+        to: "/dashboard",
+      },
       { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "#" },
-      { id: "criadores", label: "Criadores", icon: Users, to: "#" },
-      { id: "mapa", label: "Marketplace de Criadores", icon: MapPin, to: "/mapa" },
+      { id: "criadores", label: "Marketplace", icon: Users, to: "/marketplace" },
+      { id: "mapa", label: "Mapa de Criadores", icon: MapPin, to: "/mapa" },
       { id: "relatorios", label: "Relatórios", icon: BarChart3, to: "#" },
       { id: "chat", label: "Chat", icon: MessageCircle, to: "#" },
       { id: "perfil", label: "Perfil da Empresa", icon: Users, to: "/perfil" },
@@ -108,7 +113,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
               "flex items-center gap-3 rounded-[48px] px-4 py-3 text-sm font-medium transition-colors",
               isActive
                 ? "bg-[#895af6] text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2),0px_4px_6px_-4px_rgba(137,90,246,0.2)]"
-                : "text-slate-600 hover:bg-slate-50"
+                : "text-slate-600 hover:bg-slate-50",
             );
 
             if (item.to === "#") {
@@ -204,7 +209,9 @@ function BusinessUserMenu({
                 onError={() => setAvatarError(true)}
               />
             ) : (
-              <span className="text-xs font-bold text-slate-600">{initials}</span>
+              <span className="text-xs font-bold text-slate-600">
+                {initials}
+              </span>
             )}
           </div>
           <div className="min-w-0 flex-1">
@@ -240,9 +247,7 @@ function CreatorFooter() {
           <p className="truncate text-xs font-bold text-slate-900">
             Lucas Mendes
           </p>
-          <p className="truncate text-[10px] text-slate-500">
-            Premium Creator
-          </p>
+          <p className="truncate text-[10px] text-slate-500">Premium Creator</p>
         </div>
         <ChevronRight className="size-[18px] shrink-0 text-slate-400" />
       </div>

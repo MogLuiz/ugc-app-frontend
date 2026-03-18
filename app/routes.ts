@@ -6,6 +6,7 @@ export default [
     route("auth/login", "routes/auth.login.tsx"),
     route("auth/register", "routes/auth.register.tsx"),
     route("mapa", "routes/mapa.tsx"),
+    route("marketplace", "routes/marketplace.tsx"),
     route("dashboard", "routes/dashboard.tsx"),
     route("perfil", "routes/perfil.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx")
