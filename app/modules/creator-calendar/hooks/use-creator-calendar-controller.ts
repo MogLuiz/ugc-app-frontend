@@ -190,8 +190,8 @@ export function useCreatorCalendarController() {
         days: availabilityDays.map((day) => ({
           dayOfWeek: day.dayOfWeek,
           isActive: day.enabled,
-          startTime: day.enabled ? day.start : undefined,
-          endTime: day.enabled ? day.end : undefined,
+          startTime: day.enabled ? day.start : null,
+          endTime: day.enabled ? day.end : null,
         })),
       });
       setAvailabilityDays(mapAvailabilityDays(response));

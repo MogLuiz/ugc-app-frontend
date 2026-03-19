@@ -35,8 +35,8 @@ export type UpdateCreatorAvailabilityInput = {
   days: Array<{
     dayOfWeek: AvailabilityDayOfWeek;
     isActive: boolean;
-    startTime?: string;
-    endTime?: string;
+    startTime?: string | null;
+    endTime?: string | null;
   }>;
 };
 
