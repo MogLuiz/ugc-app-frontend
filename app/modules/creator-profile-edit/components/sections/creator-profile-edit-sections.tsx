@@ -14,7 +14,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import type { CreatorService } from "../../types";
+import type { CreatorJobTypeItem } from "~/modules/creator-job-types/types";
 import { AvailabilitySwitch, TimeSelectField } from "~/modules/creator-calendar/components/sections/creator-calendar-controls";
 import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 import type { PortfolioMediaPayload } from "~/modules/auth/types";
@@ -396,69 +396,97 @@ export function CreatorAvailabilitySection({
   );
 }
 
+const JOB_MODE_LABELS: Record<CreatorJobTypeItem["mode"], string> = {
+  REMOTE: "Remoto",
+  PRESENTIAL: "Presencial",
+  HYBRID: "Híbrido",
+};
+
 type ServicesSectionProps = {
-  services: CreatorService[];
-  onRemoveService: (id: string) => void;
-  onAddService?: () => void;
+  jobTypes: CreatorJobTypeItem[];
+  onToggleJobType: (id: string) => void;
+  isLoading?: boolean;
 };
 
 export function CreatorServicesSection({
-  services,
-  onRemoveService,
-  onAddService,
+  jobTypes,
+  onToggleJobType,
+  isLoading = false,
 }: ServicesSectionProps) {
   return (
     <section className="flex flex-col gap-6 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Tag className="size-5 text-[#895af6]" />
-          <h3 className="text-base font-bold text-[#0f172a]">
-            Serviços e Preços
-          </h3>
-        </div>
-        <button
-          type="button"
-          onClick={onAddService}
-          className="text-sm font-bold text-[#895af6] hover:underline"
-        >
-          Novo Serviço
-        </button>
+      <div className="flex items-center gap-2">
+        <Tag className="size-5 text-[#895af6]" />
+        <h3 className="text-base font-bold text-[#0f172a]">
+          Tipos de Trabalho
+        </h3>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {services.map((service) => (
-          <div
-            key={service.id}
-            className="flex items-center gap-4 rounded-[48px] border border-[#f1f5f9] p-4"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="font-bold text-[#0f172a]">{service.title}</p>
-              <p className="text-xs text-[#94a3b8]">{service.description}</p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2 rounded-[32px] bg-[#f1f5f9] px-3 py-2">
-              <span className="text-sm font-bold text-[#94a3b8]">R$</span>
-              <span className="text-base font-black text-[#895af6]">
-                {service.price}
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={() => onRemoveService(service.id)}
-              className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="size-6 animate-spin rounded-full border-2 border-[#895af6] border-t-transparent" />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {jobTypes.map((jt) => (
+            <div
+              key={jt.id}
+              className={cn(
+                "flex items-center gap-4 rounded-[24px] p-4 transition-colors",
+                jt.selected ? "bg-[#faf9fd] shadow-sm" : "bg-transparent opacity-80",
+              )}
             >
-              <Trash2 className="size-4" />
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={onAddService}
-          className="flex items-center justify-center gap-2 rounded-[48px] border-2 border-dashed border-[rgba(137,90,246,0.3)] py-4 text-sm font-bold text-[#895af6] hover:border-[#895af6]"
-        >
-          <Plus className="size-4" />
-          Novo Serviço
-        </button>
-      </div>
+              <div className="min-w-0 flex-1">
+                <p
+                  className={cn(
+                    "font-bold",
+                    jt.selected ? "text-[#0f172a]" : "text-slate-400",
+                  )}
+                >
+                  {jt.name}
+                </p>
+                <div className="mt-1 flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                      jt.selected
+                        ? "bg-[rgba(137,90,246,0.1)] text-[#895af6]"
+                        : "bg-slate-100 text-slate-400",
+                    )}
+                  >
+                    {JOB_MODE_LABELS[jt.mode]}
+                  </span>
+                  <span className="text-xs text-[#94a3b8]">
+                    {jt.durationMinutes} min
+                  </span>
+                </div>
+              </div>
+              <div
+                className={cn(
+                  "flex shrink-0 items-center gap-1 rounded-[32px] px-3 py-1.5",
+                  jt.selected ? "bg-[#f1f5f9]" : "bg-slate-50",
+                )}
+              >
+                <span className="text-xs font-bold text-[#94a3b8]">R$</span>
+                <span
+                  className={cn(
+                    "text-sm font-black",
+                    jt.selected ? "text-[#895af6]" : "text-slate-400",
+                  )}
+                >
+                  {jt.price.toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+              <AvailabilitySwitch
+                checked={jt.selected}
+                onChange={() => onToggleJobType(jt.id)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -13,38 +13,15 @@ import {
   getCreatorProfileSuccessMessage,
   validatePortfolioFile,
 } from "../lib/feedback";
-import type { CreatorService } from "../types";
 import { useCreatorAvailabilityQuery, useReplaceCreatorAvailabilityMutation } from "~/modules/creator-calendar/queries";
 import { mapAvailabilityDays } from "~/modules/creator-calendar/lib/calendar-mappers";
 import { buildHalfHourOptions } from "~/modules/creator-calendar/lib/calendar-date";
 import type { AvailabilityDay } from "~/modules/creator-calendar/types";
-
-const DEFAULT_SERVICES: CreatorService[] = [
-  {
-    id: "1",
-    title: "Vídeo 30s",
-    description: "Edição inclusa, formato Reels/TikTok",
-    price: 150,
-  },
-  {
-    id: "2",
-    title: "Vídeo 60s",
-    description: "Ideal para review completo de produto",
-    price: 250,
-  },
-  {
-    id: "3",
-    title: "Unboxing & Estético",
-    description: "Clipe cinematográfico sem fala",
-    price: 180,
-  },
-  {
-    id: "4",
-    title: "Diária Presencial",
-    description: "Evento ou gravação em loja física",
-    price: 600,
-  },
-];
+import {
+  useCreatorJobTypesQuery,
+  useReplaceCreatorJobTypesMutation,
+} from "~/modules/creator-job-types/queries";
+import type { CreatorJobTypeItem } from "~/modules/creator-job-types/types";
 
 type CreatorProfileExt = {
   instagramUsername?: string;
@@ -103,7 +80,26 @@ export function useCreatorProfileEditController(user: AuthUser) {
     getInitialState(user).addressZipCode
   );
   const [niches, setNiches] = useState<string[]>(["Beleza", "Food", "Lifestyle"]);
-  const [services, setServices] = useState<CreatorService[]>(DEFAULT_SERVICES);
+
+  const jobTypesQuery = useCreatorJobTypesQuery();
+  const replaceJobTypesMutation = useReplaceCreatorJobTypesMutation();
+  const [selectedJobTypeIds, setSelectedJobTypeIds] = useState<Set<string>>(new Set());
+  const [isJobTypesDirty, setIsJobTypesDirty] = useState(false);
+
+  useEffect(() => {
+    if (!jobTypesQuery.data || isJobTypesDirty) return;
+    setSelectedJobTypeIds(
+      new Set(jobTypesQuery.data.filter((jt) => jt.selected).map((jt) => jt.id)),
+    );
+  }, [jobTypesQuery.data, isJobTypesDirty]);
+
+  const jobTypes: CreatorJobTypeItem[] = useMemo(() => {
+    if (!jobTypesQuery.data) return [];
+    return jobTypesQuery.data.map((jt) => ({
+      ...jt,
+      selected: selectedJobTypeIds.has(jt.id),
+    }));
+  }, [jobTypesQuery.data, selectedJobTypeIds]);
 
   const availabilityQuery = useCreatorAvailabilityQuery();
   const replaceAvailabilityMutation = useReplaceCreatorAvailabilityMutation();
@@ -181,8 +177,17 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setNiches((prev) => prev.filter((n) => n !== niche));
   }, []);
 
-  const removeService = useCallback((id: string) => {
-    setServices((prev) => prev.filter((s) => s.id !== id));
+  const toggleJobType = useCallback((id: string) => {
+    setIsJobTypesDirty(true);
+    setSelectedJobTypeIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   }, []);
 
   const resetToUser = useCallback(() => {
@@ -199,7 +204,13 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setAddressZipCode(init.addressZipCode);
     setAvailabilityDays(serverAvailabilityDays);
     setIsAvailabilityDirty(false);
-  }, [user, serverAvailabilityDays]);
+    if (jobTypesQuery.data) {
+      setSelectedJobTypeIds(
+        new Set(jobTypesQuery.data.filter((jt) => jt.selected).map((jt) => jt.id)),
+      );
+    }
+    setIsJobTypesDirty(false);
+  }, [user, serverAvailabilityDays, jobTypesQuery.data]);
 
   async function handleAvatarChange(file: File) {
     try {
@@ -267,6 +278,12 @@ export function useCreatorProfileEditController(user: AuthUser) {
         setAvailabilityDays(mapAvailabilityDays(response));
         setIsAvailabilityDirty(false);
       }
+      if (isJobTypesDirty) {
+        await replaceJobTypesMutation.mutateAsync(
+          Array.from(selectedJobTypeIds),
+        );
+        setIsJobTypesDirty(false);
+      }
       toast.success(getCreatorProfileSuccessMessage("profile_update"));
     } catch (error) {
       toast.error(getCreatorProfileErrorMessage(error, "profile_update"));
@@ -301,8 +318,9 @@ export function useCreatorProfileEditController(user: AuthUser) {
     timeOptions: buildHalfHourOptions(),
     updateAvailabilityDay,
     syncWeekdays,
-    services,
-    removeService,
+    jobTypes,
+    toggleJobType,
+    isLoadingJobTypes: jobTypesQuery.isLoading,
     displayNameFromUser,
     username,
     location,
@@ -315,7 +333,8 @@ export function useCreatorProfileEditController(user: AuthUser) {
     isSaving:
       updateProfileMutation.isPending ||
       updateCreatorProfileMutation.isPending ||
-      replaceAvailabilityMutation.isPending,
+      replaceAvailabilityMutation.isPending ||
+      replaceJobTypesMutation.isPending,
     isUploadingAvatar: uploadAvatarMutation.isPending,
     isUploadingPortfolio: uploadPortfolioMediaMutation.isPending,
     isRemovingPortfolio: deletePortfolioMediaMutation.isPending,

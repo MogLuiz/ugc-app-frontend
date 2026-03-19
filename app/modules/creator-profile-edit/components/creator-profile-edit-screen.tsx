@@ -230,8 +230,9 @@ export function CreatorProfileEditScreen() {
                 onSyncWeekdays={controller.syncWeekdays}
               />
               <CreatorServicesSection
-                services={controller.services}
-                onRemoveService={controller.removeService}
+                jobTypes={controller.jobTypes}
+                onToggleJobType={controller.toggleJobType}
+                isLoading={controller.isLoadingJobTypes}
               />
 
               {/* Desktop footer actions */}
