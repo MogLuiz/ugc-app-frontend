@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import {
+  ArrowLeft,
   Calendar,
   Camera,
-  ChevronDown,
   Image,
   MapPin,
   Plus,
@@ -14,19 +14,10 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import type { CreatorService, DayOfWeek } from "../../types";
-import { DAY_LABELS } from "../../types";
+import type { CreatorService } from "../../types";
+import { AvailabilitySwitch, TimeSelectField } from "~/modules/creator-calendar/components/sections/creator-calendar-controls";
+import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 import type { PortfolioMediaPayload } from "~/modules/auth/types";
-
-const DAY_ORDER: DayOfWeek[] = [
-  "mon",
-  "tue",
-  "wed",
-  "thu",
-  "fri",
-  "sat",
-  "sun",
-];
 
 type ProfileInfoSectionProps = {
   displayName: string;
@@ -315,21 +306,21 @@ export function CreatorAddressSection({
 }
 
 type AvailabilitySectionProps = {
-  availableDays: Set<DayOfWeek>;
-  onToggleDay: (day: DayOfWeek) => void;
-  startTime: string;
-  onStartTimeChange: (value: string) => void;
-  endTime: string;
-  onEndTimeChange: (value: string) => void;
+  availabilityDays: AvailabilityDay[];
+  timeOptions: string[];
+  onUpdateDay: (
+    dayId: string,
+    field: "enabled" | "start" | "end",
+    value: boolean | string
+  ) => void;
+  onSyncWeekdays: () => void;
 };
 
 export function CreatorAvailabilitySection({
-  availableDays,
-  onToggleDay,
-  startTime,
-  onStartTimeChange,
-  endTime,
-  onEndTimeChange,
+  availabilityDays,
+  timeOptions,
+  onUpdateDay,
+  onSyncWeekdays,
 }: AvailabilitySectionProps) {
   return (
     <section className="flex flex-col gap-4 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
@@ -340,49 +331,66 @@ export function CreatorAvailabilitySection({
         <h3 className="text-base font-bold text-[#0f172a]">Disponibilidade</h3>
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
-        {DAY_ORDER.map((day) => (
-          <button
-            key={day}
-            type="button"
-            onClick={() => onToggleDay(day)}
+      <button
+        type="button"
+        onClick={onSyncWeekdays}
+        className="flex w-full items-center justify-between rounded-[24px] bg-[#efe6ff] px-5 py-4 text-left transition-colors hover:bg-[#e6dcff]"
+      >
+        <div>
+          <p className="text-sm font-bold text-[#6d3ad8]">Sincronizar Semana</p>
+          <p className="text-xs text-[#6d3ad8]/70">
+            Replicar horários para todos os dias ativos
+          </p>
+        </div>
+        <ArrowLeft className="size-4 rotate-180 text-[#895af6]" />
+      </button>
+
+      {/* Cards empilhados - funciona em mobile e desktop (coluna estreita) */}
+      <div className="space-y-4">
+        {availabilityDays.map((day) => (
+          <article
+            key={day.id}
             className={cn(
-              "rounded-[32px] px-3 py-2 text-[10px] font-bold transition-colors",
-              availableDays.has(day)
-                ? "bg-[#895af6] text-white"
-                : "bg-[#f1f5f9] text-[#94a3b8]",
+              "rounded-[24px] p-5",
+              day.enabled ? "bg-[#faf9fd] shadow-sm" : "bg-transparent opacity-80"
             )}
           >
-            {DAY_LABELS[day]}
-          </button>
+            <div className="flex items-center justify-between">
+              <h3
+                className={cn(
+                  "text-lg font-bold tracking-[-0.03em]",
+                  day.enabled ? "text-slate-900" : "text-slate-400"
+                )}
+              >
+                {day.label}
+              </h3>
+              <AvailabilitySwitch
+                checked={day.enabled}
+                onChange={(checked) => onUpdateDay(day.id, "enabled", checked)}
+              />
+            </div>
+            {day.enabled ? (
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <TimeSelectField
+                  label="Início"
+                  value={day.start}
+                  options={timeOptions}
+                  onChange={(value) => onUpdateDay(day.id, "start", value)}
+                />
+                <TimeSelectField
+                  label="Fim"
+                  value={day.end}
+                  options={timeOptions}
+                  onChange={(value) => onUpdateDay(day.id, "end", value)}
+                />
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-slate-400">
+                Indisponível para este dia
+              </p>
+            )}
+          </article>
         ))}
-      </div>
-
-      <div className="flex flex-col gap-3 pt-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#64748b]">Horário Inicial</span>
-          <div className="flex items-center gap-2 rounded-[32px] bg-[#f8fafc] px-3 py-2">
-            <input
-              type="time"
-              value={startTime}
-              onChange={(e) => onStartTimeChange(e.target.value)}
-              className="w-20 border-0 bg-transparent text-sm text-[#0f172a] outline-none"
-            />
-            <ChevronDown className="size-4 text-slate-400" />
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-[#64748b]">Horário Final</span>
-          <div className="flex items-center gap-2 rounded-[32px] bg-[#f8fafc] px-3 py-2">
-            <input
-              type="time"
-              value={endTime}
-              onChange={(e) => onEndTimeChange(e.target.value)}
-              className="w-20 border-0 bg-transparent text-sm text-[#0f172a] outline-none"
-            />
-            <ChevronDown className="size-4 text-slate-400" />
-          </div>
-        </div>
       </div>
     </section>
   );

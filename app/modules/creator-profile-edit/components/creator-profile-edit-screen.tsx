@@ -213,12 +213,10 @@ export function CreatorProfileEditScreen() {
                 onZipCodeChange={controller.setAddressZipCode}
               />
               <CreatorAvailabilitySection
-                availableDays={controller.availableDays}
-                onToggleDay={controller.toggleDay}
-                startTime={controller.startTime}
-                onStartTimeChange={controller.setStartTime}
-                endTime={controller.endTime}
-                onEndTimeChange={controller.setEndTime}
+                availabilityDays={controller.availabilityDays}
+                timeOptions={controller.timeOptions}
+                onUpdateDay={controller.updateAvailabilityDay}
+                onSyncWeekdays={controller.syncWeekdays}
               />
             </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
 import {
   useUpdateProfileMutation,
   useUpdateCreatorProfileMutation,
@@ -13,7 +13,11 @@ import {
   getCreatorProfileSuccessMessage,
   validatePortfolioFile,
 } from "../lib/feedback";
-import type { CreatorService, DayOfWeek } from "../types";
+import type { CreatorService } from "../types";
+import { useCreatorAvailabilityQuery, useReplaceCreatorAvailabilityMutation } from "~/modules/creator-calendar/queries";
+import { mapAvailabilityDays } from "~/modules/creator-calendar/lib/calendar-mappers";
+import { buildHalfHourOptions } from "~/modules/creator-calendar/lib/calendar-date";
+import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 
 const DEFAULT_SERVICES: CreatorService[] = [
   {
@@ -41,8 +45,6 @@ const DEFAULT_SERVICES: CreatorService[] = [
     price: 600,
   },
 ];
-
-const DEFAULT_DAYS: DayOfWeek[] = ["mon", "tue", "wed", "thu", "fri"];
 
 type CreatorProfileExt = {
   instagramUsername?: string;
@@ -101,11 +103,23 @@ export function useCreatorProfileEditController(user: AuthUser) {
     getInitialState(user).addressZipCode
   );
   const [niches, setNiches] = useState<string[]>(["Beleza", "Food", "Lifestyle"]);
-  const [availableDays, setAvailableDays] =
-    useState<Set<DayOfWeek>>(new Set(DEFAULT_DAYS));
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("18:00");
   const [services, setServices] = useState<CreatorService[]>(DEFAULT_SERVICES);
+
+  const availabilityQuery = useCreatorAvailabilityQuery();
+  const replaceAvailabilityMutation = useReplaceCreatorAvailabilityMutation();
+  const serverAvailabilityDays = useMemo(
+    () => mapAvailabilityDays(availabilityQuery.data),
+    [availabilityQuery.data]
+  );
+  const [availabilityDays, setAvailabilityDays] = useState<AvailabilityDay[]>(
+    () => mapAvailabilityDays(undefined)
+  );
+  const [isAvailabilityDirty, setIsAvailabilityDirty] = useState(false);
+
+  useEffect(() => {
+    if (!availabilityQuery.data || isAvailabilityDirty) return;
+    setAvailabilityDays(serverAvailabilityDays);
+  }, [availabilityQuery.data, isAvailabilityDirty, serverAvailabilityDays]);
 
   useEffect(() => {
     const init = getInitialState(user);
@@ -132,14 +146,28 @@ export function useCreatorProfileEditController(user: AuthUser) {
       : ""
   const portfolioMedia = user.portfolio?.media ?? [];
 
-  const toggleDay = useCallback((day: DayOfWeek) => {
-    setAvailableDays((prev) => {
-      const next = new Set(prev);
-      if (next.has(day)) next.delete(day);
-      else next.add(day);
-      return next;
-    });
-  }, []);
+  const updateAvailabilityDay = useCallback(
+    (dayId: string, field: "enabled" | "start" | "end", value: boolean | string) => {
+      setIsAvailabilityDirty(true);
+      setAvailabilityDays((current) =>
+        current.map((day) =>
+          day.id === dayId ? { ...day, [field]: value } : day
+        )
+      );
+    },
+    []
+  );
+
+  const syncWeekdays = useCallback(() => {
+    const sourceDay = availabilityDays.find((day) => day.enabled) ?? availabilityDays[0];
+    if (!sourceDay) return;
+    setIsAvailabilityDirty(true);
+    setAvailabilityDays((current) =>
+      current.map((day) =>
+        day.enabled ? { ...day, start: sourceDay.start, end: sourceDay.end } : day
+      )
+    );
+  }, [availabilityDays]);
 
   const addNiche = useCallback((niche: string) => {
     if (niche.trim()) {
@@ -169,7 +197,9 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setAddressCity(init.addressCity);
     setAddressState(init.addressState);
     setAddressZipCode(init.addressZipCode);
-  }, [user]);
+    setAvailabilityDays(serverAvailabilityDays);
+    setIsAvailabilityDirty(false);
+  }, [user, serverAvailabilityDays]);
 
   async function handleAvatarChange(file: File) {
     try {
@@ -225,6 +255,18 @@ export function useCreatorProfileEditController(user: AuthUser) {
           },
         }),
       ]);
+      if (isAvailabilityDirty) {
+        const response = await replaceAvailabilityMutation.mutateAsync({
+          days: availabilityDays.map((day) => ({
+            dayOfWeek: day.dayOfWeek,
+            isActive: day.enabled,
+            startTime: day.enabled ? day.start : null,
+            endTime: day.enabled ? day.end : null,
+          })),
+        });
+        setAvailabilityDays(mapAvailabilityDays(response));
+        setIsAvailabilityDirty(false);
+      }
       toast.success(getCreatorProfileSuccessMessage("profile_update"));
     } catch (error) {
       toast.error(getCreatorProfileErrorMessage(error, "profile_update"));
@@ -255,12 +297,10 @@ export function useCreatorProfileEditController(user: AuthUser) {
     niches,
     addNiche,
     removeNiche,
-    availableDays,
-    toggleDay,
-    startTime,
-    setStartTime,
-    endTime,
-    setEndTime,
+    availabilityDays,
+    timeOptions: buildHalfHourOptions(),
+    updateAvailabilityDay,
+    syncWeekdays,
     services,
     removeService,
     displayNameFromUser,
@@ -273,7 +313,9 @@ export function useCreatorProfileEditController(user: AuthUser) {
     handleSubmit,
     resetToUser,
     isSaving:
-      updateProfileMutation.isPending || updateCreatorProfileMutation.isPending,
+      updateProfileMutation.isPending ||
+      updateCreatorProfileMutation.isPending ||
+      replaceAvailabilityMutation.isPending,
     isUploadingAvatar: uploadAvatarMutation.isPending,
     isUploadingPortfolio: uploadPortfolioMediaMutation.isPending,
     isRemovingPortfolio: deletePortfolioMediaMutation.isPending,
