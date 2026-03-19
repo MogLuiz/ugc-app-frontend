@@ -58,7 +58,7 @@ export type UpdateCompanyProfileData = {
   businessNiche?: string;
 };
 
-async function getAccessToken(token?: string): Promise<string> {
+export async function getAccessToken(token?: string): Promise<string> {
   const session = token
     ? { access_token: token }
     : (await supabase.auth.getSession()).data.session;

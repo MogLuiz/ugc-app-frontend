@@ -17,7 +17,7 @@ export function MobileAvailabilitySection({
         <div className="flex items-center justify-between gap-4">
           <button
             type="button"
-            onClick={() => controller.actions.setIsMobileAvailabilityOpen(false)}
+            onClick={controller.actions.cancelMobileAvailability}
             className="rounded-full p-2 text-slate-700"
           >
             <ArrowLeft className="size-5" />
@@ -26,9 +26,10 @@ export function MobileAvailabilitySection({
           <Button
             variant="purple"
             className="rounded-full px-5"
-            onClick={controller.actions.saveMobileAvailability}
+            onClick={() => void controller.actions.saveMobileAvailability()}
+            disabled={controller.state.isSavingAvailability}
           >
-            Salvar
+            {controller.state.isSavingAvailability ? "Salvando..." : "Salvar"}
           </Button>
         </div>
       </div>

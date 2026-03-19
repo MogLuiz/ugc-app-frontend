@@ -63,14 +63,14 @@ export function AvailabilitySwitch({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-6 w-11 rounded-full transition-colors",
+        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors",
         checked ? "bg-[#895af6]" : "bg-slate-200"
       )}
     >
       <span
         className={cn(
-          "absolute top-0.5 size-5 rounded-full bg-white shadow-sm transition-transform",
-          checked ? "translate-x-5" : "translate-x-0.5"
+          "block size-5 rounded-full bg-white shadow-sm transition-transform",
+          checked ? "translate-x-5" : "translate-x-0"
         )}
       />
     </button>
@@ -84,6 +84,11 @@ export function TimeSelectField({
   disabled,
   onChange,
 }: TimeSelectFieldProps) {
+  const normalizedValue = normalizeTimeValue(value);
+  const selectOptions = normalizedValue && !options.includes(normalizedValue)
+    ? [normalizedValue, ...options]
+    : options;
+
   return (
     <label className="flex w-full flex-col gap-1.5">
       <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
@@ -96,12 +101,12 @@ export function TimeSelectField({
         )}
       >
         <select
-          value={value}
+          value={normalizedValue}
           disabled={disabled}
           onChange={(event) => onChange(event.target.value)}
           className="h-12 w-full appearance-none bg-transparent px-4 pr-10 text-sm font-semibold text-slate-900 outline-none disabled:cursor-not-allowed"
         >
-          {options.map((option) => (
+          {selectOptions.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
@@ -111,4 +116,9 @@ export function TimeSelectField({
       </div>
     </label>
   );
+}
+
+function normalizeTimeValue(value: string): string {
+  const [hours = "00", minutes = "00"] = value.split(":");
+  return `${hours}:${minutes}`;
 }

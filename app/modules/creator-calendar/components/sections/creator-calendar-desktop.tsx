@@ -40,38 +40,51 @@ export function CreatorCalendarDesktopSection({
             <Button
               variant="outline"
               className="rounded-full px-5"
-              onClick={() => actions.setIsDesktopSettingsExpanded(false)}
+              onClick={actions.cancelDesktopSettings}
+              disabled={state.isSavingAvailability}
             >
               Cancelar
             </Button>
             <Button
               variant="purple"
               className="rounded-full px-5"
-              onClick={actions.saveDesktopSettings}
+              onClick={() => void actions.saveDesktopSettings()}
+              disabled={state.isSavingAvailability}
             >
-              Salvar Alteracoes
+              {state.isSavingAvailability ? "Salvando..." : "Salvar Alteracoes"}
             </Button>
           </div>
         </div>
 
-        <div className="mt-8 space-y-3">
+        <div className="mt-8">
+          <div className="mb-3 grid grid-cols-[minmax(0,1.7fr)_96px_minmax(140px,1fr)_minmax(140px,1fr)_minmax(160px,1.1fr)] items-center gap-4 px-5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+            <span>Dia da Semana</span>
+            <span className="text-center">Status</span>
+            <span>Inicio</span>
+            <span>Fim</span>
+            <span>Resumo</span>
+          </div>
+
+          <div className="space-y-3">
           {viewModel.availabilityDays.map((day) => (
             <div
               key={day.id}
               className={cn(
-                "grid grid-cols-[1.4fr_1fr_1fr_0.9fr] items-center gap-4 rounded-[28px] border px-5 py-4",
+                "grid grid-cols-[minmax(0,1.7fr)_96px_minmax(140px,1fr)_minmax(140px,1fr)_minmax(160px,1.1fr)] items-center gap-4 rounded-[28px] border px-5 py-4",
                 day.enabled
                   ? "border-[rgba(137,90,246,0.08)] bg-[#faf9fd]"
                   : "border-dashed border-slate-200 bg-[#fcfcfd] opacity-80"
               )}
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 self-center">
                 <div>
                   <p className="text-sm font-bold text-slate-900">{day.label}</p>
                   <p className="mt-1 text-xs text-slate-500">
                     {day.enabled ? "Disponivel" : "Indisponivel"}
                   </p>
                 </div>
+              </div>
+              <div className="flex items-center justify-center self-center">
                 <AvailabilitySwitch
                   checked={day.enabled}
                   onChange={(checked) =>
@@ -79,29 +92,34 @@ export function CreatorCalendarDesktopSection({
                   }
                 />
               </div>
-              <TimeSelectField
-                label="Inicio"
-                value={day.start}
-                options={viewModel.timeOptions}
-                disabled={!day.enabled}
-                onChange={(value) =>
-                  actions.updateAvailabilityDay(day.id, "start", value)
-                }
-              />
-              <TimeSelectField
-                label="Fim"
-                value={day.end}
-                options={viewModel.timeOptions}
-                disabled={!day.enabled}
-                onChange={(value) =>
-                  actions.updateAvailabilityDay(day.id, "end", value)
-                }
-              />
-              <div className="rounded-[24px] bg-[#f6f5f8] px-4 py-3 text-sm font-semibold text-slate-600">
+              <div className="self-center">
+                <TimeSelectField
+                  label="Inicio"
+                  value={day.start}
+                  options={viewModel.timeOptions}
+                  disabled={!day.enabled}
+                  onChange={(value) =>
+                    actions.updateAvailabilityDay(day.id, "start", value)
+                  }
+                />
+              </div>
+              <div className="self-center">
+                <TimeSelectField
+                  label="Fim"
+                  value={day.end}
+                  options={viewModel.timeOptions}
+                  disabled={!day.enabled}
+                  onChange={(value) =>
+                    actions.updateAvailabilityDay(day.id, "end", value)
+                  }
+                />
+              </div>
+              <div className="self-center rounded-[24px] bg-[#f6f5f8] px-4 py-3 text-center text-sm font-semibold text-slate-600">
                 {day.enabled ? `${day.start} - ${day.end}` : "Folga"}
               </div>
             </div>
           ))}
+          </div>
         </div>
       </section>
     );
@@ -126,7 +144,7 @@ export function CreatorCalendarDesktopSection({
         <Button
           variant="secondary"
           className="rounded-full bg-[#f6f5f8] px-5 text-slate-900"
-          onClick={() => actions.setIsDesktopSettingsExpanded(true)}
+          onClick={actions.openDesktopSettings}
         >
           Ver Configuracoes
         </Button>
@@ -136,23 +154,29 @@ export function CreatorCalendarDesktopSection({
         <div className="flex items-center justify-between gap-4 border-b border-[rgba(137,90,246,0.06)] px-6 py-5">
           <div className="flex items-center gap-3">
             <h2 className="text-[32px] font-black tracking-[-0.04em] text-slate-900">
-              Janeiro 2024
+              {viewModel.monthTitle}
             </h2>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 className="flex size-9 items-center justify-center rounded-full bg-[#f6f5f8] text-slate-700"
+                onClick={actions.goToPreviousWeek}
               >
                 <ChevronLeft className="size-4" />
               </button>
               <button
                 type="button"
                 className="flex size-9 items-center justify-center rounded-full bg-[#f6f5f8] text-slate-700"
+                onClick={actions.goToNextWeek}
               >
                 <ChevronRight className="size-4" />
               </button>
             </div>
-            <Button variant="outline" className="rounded-full px-4">
+            <Button
+              variant="outline"
+              className="rounded-full px-4"
+              onClick={actions.goToToday}
+            >
               Hoje
             </Button>
           </div>
@@ -193,6 +217,11 @@ export function CreatorCalendarDesktopSection({
               />
             ))}
           </div>
+          {!viewModel.hasCalendarBookings ? (
+            <div className="mt-4 rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500">
+              Nenhum booking encontrado para esta semana.
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -212,16 +241,24 @@ export function CreatorCalendarDesktopSection({
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
             Proxima Sessao
           </p>
-          <h3 className="mt-3 text-[28px] font-black tracking-[-0.04em] text-slate-900">
-            Workshop de Cores
-          </h3>
-          <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
-            <Clock3 className="size-4 text-slate-400" />
-            Hoje, as 16:00
-          </div>
-          <Button variant="secondary" className="mt-8 w-full rounded-full bg-[#f6f5f8]">
-            Preparar Sala
-          </Button>
+          {viewModel.nextSession ? (
+            <>
+              <h3 className="mt-3 text-[28px] font-black tracking-[-0.04em] text-slate-900">
+                {viewModel.nextSession.title}
+              </h3>
+              <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
+                <Clock3 className="size-4 text-slate-400" />
+                {viewModel.nextSession.schedule}
+              </div>
+              <Button variant="secondary" className="mt-8 w-full rounded-full bg-[#f6f5f8]">
+                Ver detalhes
+              </Button>
+            </>
+          ) : (
+            <p className="mt-3 text-sm text-slate-500">
+              Nenhuma sessao futura bloqueando agenda.
+            </p>
+          )}
         </div>
       </section>
     </div>
@@ -237,6 +274,8 @@ function DesktopGridRow({
   rowIndex: number;
   slot: string;
 }) {
+  const slotHour = Number(slot.split(":")[0] ?? 0);
+
   return (
     <>
       <div className="border-t border-r border-[rgba(137,90,246,0.04)] px-4 py-8 text-xs font-medium text-slate-400">
@@ -245,11 +284,11 @@ function DesktopGridRow({
       {controller.viewModel.desktopWeekDays.map((day, dayIndex) => (
         <div
           key={`${day.id}-${slot}`}
-          className="relative min-h-[124px] border-l border-t border-[rgba(137,90,246,0.04)]"
+          className="relative min-h-[104px] border-l border-t border-[rgba(137,90,246,0.04)]"
         >
           {controller.viewModel.desktopEvents
             .filter(
-              (event) => event.dayIndex === dayIndex && event.startHour === rowIndex + 8
+              (event) => event.dayIndex === dayIndex && event.startHour === slotHour
             )
             .map((event) => (
               <div
@@ -258,9 +297,14 @@ function DesktopGridRow({
                   "absolute left-2 right-2 top-2 rounded-[24px] p-4 text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.25),0px_4px_6px_-4px_rgba(137,90,246,0.25)]",
                   event.tone === "indigo"
                     ? "bg-[#6366f1]"
-                    : "bg-[linear-gradient(180deg,#8b5cf6_0%,#7c4aed_100%)]"
+                    : event.tone === "muted"
+                      ? "bg-slate-400"
+                      : "bg-[linear-gradient(180deg,#8b5cf6_0%,#7c4aed_100%)]"
                 )}
-                style={{ height: `${event.durationHours * 88}px` }}
+                style={{
+                  top: `${8 + (event.startMinuteOffset / 60) * 104}px`,
+                  height: `${Math.max((event.durationMinutes / 60) * 104 - 12, 48)}px`,
+                }}
               >
                 <p className="text-xs font-bold">{`${event.startLabel} - ${event.endLabel}`}</p>
                 <p className="mt-2 max-w-[140px] text-sm font-bold leading-5">
