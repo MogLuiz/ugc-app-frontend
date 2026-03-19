@@ -151,9 +151,9 @@ export function CreatorProfileEditScreen() {
             </p>
           </div>
 
-          {/* Desktop: 2-column grid - Left: Info + Availability, Right: Services + Portfolio */}
-          <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-3">
-            {/* Left column - 1/3 on desktop, full width on mobile */}
+          {/* Desktop: 2-column grid - Left: Info + Address, Right: Services + Portfolio + Availability */}
+          <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-3 lg:items-start">
+            {/* Left column - 1/3: Profile e Endereço */}
             <div className="flex flex-col gap-8 lg:col-span-1">
               <div className="lg:hidden">
                 <CreatorProfileInfoSection
@@ -212,26 +212,26 @@ export function CreatorProfileEditScreen() {
                 zipCode={controller.addressZipCode}
                 onZipCodeChange={controller.setAddressZipCode}
               />
-              <CreatorAvailabilitySection
-                availabilityDays={controller.availabilityDays}
-                timeOptions={controller.timeOptions}
-                onUpdateDay={controller.updateAvailabilityDay}
-                onSyncWeekdays={controller.syncWeekdays}
-              />
             </div>
 
-            {/* Right column - 2/3 */}
+            {/* Right column - 2/3: Portfólio, Disponibilidade e Serviços */}
             <div className="flex flex-col gap-8 lg:col-span-2">
-              <CreatorServicesSection
-                services={controller.services}
-                onRemoveService={controller.removeService}
-              />
               <CreatorPortfolioSection
                 media={controller.portfolioMedia}
                 onUpload={controller.handlePortfolioUpload}
                 onRemove={controller.handlePortfolioRemove}
                 isUploading={controller.isUploadingPortfolio}
                 isRemoving={controller.isRemovingPortfolio}
+              />
+              <CreatorAvailabilitySection
+                availabilityDays={controller.availabilityDays}
+                timeOptions={controller.timeOptions}
+                onUpdateDay={controller.updateAvailabilityDay}
+                onSyncWeekdays={controller.syncWeekdays}
+              />
+              <CreatorServicesSection
+                services={controller.services}
+                onRemoveService={controller.removeService}
               />
 
               {/* Desktop footer actions */}
