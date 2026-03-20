@@ -33,3 +33,9 @@ export const marketplaceKeys = {
     ] as const,
   serviceTypes: () => [...marketplaceKeys.all, "service-types"] as const,
 };
+
+export const creatorProfileKeys = {
+  all: ["creator-profile"] as const,
+  detail: (creatorId: string) =>
+    [...creatorProfileKeys.all, "detail", creatorId] as const,
+};

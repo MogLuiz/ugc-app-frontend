@@ -1,6 +1,4 @@
 import { Link, useLocation, useParams } from "react-router";
-import { MOCK_CREATOR_PROFILES } from "../data/mock-creator-profile";
-import type { CreatorProfile } from "../types";
 import {
   CreatorLocationSection,
   CreatorPortfolioSection,
@@ -11,76 +9,41 @@ import {
   CreatorTestimonialsSection,
 } from "./sections/creator-profile-sections";
 import { useCreatorProfileController } from "../hooks/use-creator-profile-controller";
+import { useCreatorProfileQuery } from "../queries";
 import { ArrowRight } from "lucide-react";
 import type { MarketplaceCreator } from "~/modules/marketplace/types";
-
-function toCreatorProfileFallback(creator: MarketplaceCreator): CreatorProfile {
-  const [city = "", state = ""] =
-    creator.location.toLowerCase().includes("informad")
-      ? ["", ""]
-      : creator.location.split("/");
-  const services = (creator.tags.length > 0 ? creator.tags : [creator.niche]).map(
-    (serviceName, index) => ({
-      id: `${creator.id}-${index}`,
-      name: serviceName,
-      price:
-        index === 0 && creator.minPrice != null
-          ? Math.round(creator.minPrice)
-          : creator.minPrice != null
-            ? Math.round(creator.minPrice)
-            : 0,
-    })
-  );
-
-  return {
-    id: creator.id,
-    name: creator.name,
-    specialty: creator.niche,
-    avatarUrl: creator.avatarUrl ?? creator.coverImageUrl ?? "",
-    isVerified: false,
-    isOnline: false,
-    rating: creator.rating,
-    jobsCount: 0,
-    responseTime: "Resposta em breve",
-    location: {
-      city: city || "Nao informado",
-      state: state || "BR",
-      description:
-        creator.bio ??
-        "Mais informacoes deste creator serao exibidas aqui assim que o perfil completo for integrado.",
-      distanceKm: 0,
-    },
-    portfolio: [],
-    testimonials: [],
-    services,
-    availability: [],
-  };
-}
 
 export function CreatorProfileScreen() {
   const { creatorId } = useParams<{ creatorId: string }>();
   const location = useLocation();
+  const creatorProfileQuery = useCreatorProfileQuery(creatorId);
   const marketplaceCreator = (
     location.state as { marketplaceCreator?: MarketplaceCreator } | null
   )?.marketplaceCreator;
 
-  const profile =
-    creatorId == null
-      ? null
-      : MOCK_CREATOR_PROFILES[creatorId] ??
-        (marketplaceCreator?.id === creatorId
-          ? toCreatorProfileFallback(marketplaceCreator)
-          : null);
+  const profile = creatorProfileQuery.data ?? null;
   const backHref = marketplaceCreator ? "/marketplace" : "/mapa";
   const backLabel = marketplaceCreator
     ? "Voltar para marketplace"
     : "Voltar para busca";
 
+  if (creatorProfileQuery.isLoading && creatorId != null && !profile) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8]">
+        <p className="text-lg text-[#64748b]">Carregando perfil do criador...</p>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8]">
         <div className="text-center">
-          <p className="text-lg text-[#64748b]">Criador não encontrado.</p>
+          <p className="text-lg text-[#64748b]">
+            {creatorProfileQuery.error instanceof Error
+              ? creatorProfileQuery.error.message
+              : "Criador não encontrado."}
+          </p>
           <Link
             to={backHref}
             className="mt-4 inline-block text-[#895af6] hover:underline"
@@ -127,7 +90,11 @@ export function CreatorProfileScreen() {
 
         <aside className="lg:col-span-1">
           <CreatorServicesSection
-            availability={controller.availability}
+            availabilityDays={controller.availabilityDays}
+            availabilityTimeSlots={controller.availabilityTimeSlots}
+            selectedAvailableDay={controller.selectedAvailableDay}
+            onSelectAvailableDay={controller.setSelectedAvailableDay}
+            workingHours={controller.workingHours}
             profile={controller.profile}
             selectedServiceId={controller.selectedServiceId}
             onSelectService={controller.setSelectedServiceId}

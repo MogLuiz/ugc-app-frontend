@@ -16,6 +16,9 @@ export type CreatorProfileTestimonial = {
 export type CreatorProfilePortfolioItem = {
   id: string;
   imageUrl: string;
+  mediaType?: "image" | "video";
+  videoUrl?: string;
+  thumbnailUrl?: string;
   views?: string;
 };
 
@@ -39,4 +42,61 @@ export type CreatorProfile = {
   testimonials: CreatorProfileTestimonial[];
   services: CreatorProfileService[];
   availability: string[];
+  availabilitySlotsByDay?: Record<string, string[]>;
+  workingHours: {
+    start: string;
+    end: string;
+    slotDurationMinutes: number;
+  };
+};
+
+export type AvailabilityDayOfWeek =
+  | "SUNDAY"
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY";
+
+export type CreatorProfileDetailsResponse = {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  coverImageUrl: string | null;
+  rating: number;
+  location: string;
+  bio: string | null;
+  tags: string[];
+  niche: string;
+  minPrice: number | null;
+  portfolio: {
+    id: string;
+    userId: string;
+    media: Array<{
+      id: string;
+      type: "IMAGE" | "VIDEO";
+      url: string;
+      thumbnailUrl: string | null;
+      sortOrder: number;
+      status: "PROCESSING" | "READY" | "FAILED";
+      createdAt: string;
+      updatedAt: string;
+    }>;
+    createdAt: string;
+    updatedAt: string;
+  } | null;
+  availability: {
+    timezone: string;
+    workingHours: {
+      start: string;
+      end: string;
+    };
+    days: Array<{
+      dayOfWeek: AvailabilityDayOfWeek;
+      isActive: boolean;
+      startTime: string | null;
+      endTime: string | null;
+    }>;
+  };
 };
