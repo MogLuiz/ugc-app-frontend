@@ -64,11 +64,24 @@ export function CreatorProfileHeroSection({
               <Clock className="h-3.5 w-3.5" />
               {profile.responseTime}
             </div>
-            <div className="flex items-center gap-1 sm:hidden">
-              <MapPin className="h-3.5 w-3.5" />
-              {profile.location.city}, {profile.location.state}
+            <div className="flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span>
+                {profile.location.city}, {profile.location.state}
+              </span>
+            </div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#f1f5f9] px-3 py-1.5">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#64748b]" />
+              <span className="text-sm font-semibold text-[#0f172a]">
+                {profile.location.distanceKm} km do seu negócio
+              </span>
             </div>
           </div>
+          {profile.location.description ? (
+            <p className="text-sm leading-5 text-[#64748b]">
+              {profile.location.description}
+            </p>
+          ) : null}
         </div>
       </div>
     </section>

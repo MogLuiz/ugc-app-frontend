@@ -59,9 +59,7 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     location: {
       city,
       state,
-      description:
-        data.bio ??
-        "Mais informacoes deste creator serao exibidas aqui assim que o perfil completo for integrado.",
+      description: data.bio ?? "",
       distanceKm: 0,
     },
     portfolio,

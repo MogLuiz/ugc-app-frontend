@@ -1,6 +1,5 @@
 import { Link, useLocation, useParams } from "react-router";
 import {
-  CreatorLocationSection,
   CreatorPortfolioSection,
   CreatorProfileHeroSection,
   CreatorQuickActions,
@@ -11,6 +10,7 @@ import {
 import { useCreatorProfileController } from "../hooks/use-creator-profile-controller";
 import { useCreatorProfileQuery } from "../queries";
 import { ArrowRight } from "lucide-react";
+import type { CreatorProfile } from "../types";
 import type { MarketplaceCreator } from "~/modules/marketplace/types";
 
 export function CreatorProfileScreen() {
@@ -54,6 +54,25 @@ export function CreatorProfileScreen() {
       </div>
     );
   }
+
+  return (
+    <CreatorProfileContent
+      profile={profile}
+      backHref={backHref}
+      backLabel={backLabel}
+    />
+  );
+}
+
+function CreatorProfileContent({
+  profile,
+  backHref,
+  backLabel,
+}: {
+  profile: CreatorProfile;
+  backHref: string;
+  backLabel: string;
+}) {
   const controller = useCreatorProfileController(profile);
 
   return (
@@ -84,7 +103,6 @@ export function CreatorProfileScreen() {
           <CreatorProfileHeroSection profile={controller.profile} />
           <CreatorQuickActions />
           <CreatorPortfolioSection profile={controller.profile} />
-          <CreatorLocationSection profile={controller.profile} />
           <CreatorTestimonialsSection profile={controller.profile} />
         </div>
 
