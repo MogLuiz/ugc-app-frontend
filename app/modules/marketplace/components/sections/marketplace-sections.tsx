@@ -4,21 +4,11 @@ import { Link } from "react-router";
 import type {
   MarketplaceCreator,
   MarketplaceServiceTypeOption,
-  MarketplaceSortBy,
 } from "../../types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-
-const SORT_OPTIONS = [
-  { value: "relevancia", label: "Mais relevantes" },
-  { value: "avaliacao", label: "Melhor avaliacao" },
-  { value: "preco", label: "Menor preco" },
-] as const satisfies ReadonlyArray<{
-  value: MarketplaceSortBy;
-  label: string;
-}>;
 
 const FIELD_SHADOW = "shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]";
 
@@ -57,7 +47,7 @@ function SelectPill({
         className={cn(
           "h-12 min-h-12 w-full cursor-pointer appearance-none rounded-full border-0 bg-white py-0 pl-4 pr-11 text-sm text-slate-900",
           FIELD_SHADOW,
-          className
+          className,
         )}
         {...props}
       >
@@ -91,7 +81,7 @@ function CreatorImageFallback({
     <div
       className={cn(
         "flex items-center justify-center bg-[rgba(137,90,246,0.12)] font-bold text-[#895af6]",
-        className
+        className,
       )}
     >
       {getCreatorInitials(name)}
@@ -142,8 +132,6 @@ export function MarketplaceSearchAndFilters({
   onSearchChange,
   serviceTypeId,
   onServiceTypeChange,
-  sortBy,
-  onSortByChange,
   serviceTypes,
   isServiceTypesLoading = false,
 }: {
@@ -151,19 +139,17 @@ export function MarketplaceSearchAndFilters({
   onSearchChange: (value: string) => void;
   serviceTypeId: string;
   onServiceTypeChange: (value: string) => void;
-  sortBy: MarketplaceSortBy;
-  onSortByChange: (value: MarketplaceSortBy) => void;
   serviceTypes: MarketplaceServiceTypeOption[];
   isServiceTypesLoading?: boolean;
 }) {
   const searchTrimmed = search.trim();
-  const selectedServiceLabel = serviceTypes.find((s) => s.id === serviceTypeId)?.label;
-  const sortLabel = SORT_OPTIONS.find((o) => o.value === sortBy)?.label;
+  const selectedServiceLabel = serviceTypes.find(
+    (s) => s.id === serviceTypeId,
+  )?.label;
 
   const showSearchTag = searchTrimmed.length > 0;
   const showServiceTag = Boolean(serviceTypeId && selectedServiceLabel);
-  const showSortTag = sortBy !== "relevancia";
-  const showActiveTags = showSearchTag || showServiceTag || showSortTag;
+  const showActiveTags = showSearchTag || showServiceTag;
 
   return (
     <div className="flex flex-col gap-4">
@@ -178,35 +164,25 @@ export function MarketplaceSearchAndFilters({
             placeholder="Buscar por nome, nicho ou palavra-chave..."
             className={cn(
               "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
-              FIELD_SHADOW
+              FIELD_SHADOW,
             )}
           />
         </div>
-        <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-stretch xl:w-auto xl:shrink-0 xl:gap-3">
+        <div className="flex w-full min-w-0 xl:w-auto xl:shrink-0">
           <SelectPill
             value={serviceTypeId}
             onChange={(e) => onServiceTypeChange(e.target.value)}
             aria-label="Tipo de serviço"
-            className="sm:min-w-0 sm:flex-1 xl:w-52 xl:flex-none"
+            className="w-full xl:w-52"
           >
             <option value="">
-              {isServiceTypesLoading ? "Carregando servicos..." : "Todos os servicos"}
+              {isServiceTypesLoading
+                ? "Carregando servicos..."
+                : "Todos os servicos"}
             </option>
             {serviceTypes.map((serviceType) => (
               <option key={serviceType.id} value={serviceType.id}>
                 {serviceType.label}
-              </option>
-            ))}
-          </SelectPill>
-          <SelectPill
-            value={sortBy}
-            onChange={(e) => onSortByChange(e.target.value as MarketplaceSortBy)}
-            aria-label="Ordenação"
-            className="sm:min-w-0 sm:flex-1 xl:w-52 xl:flex-none"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
               </option>
             ))}
           </SelectPill>
@@ -228,18 +204,20 @@ export function MarketplaceSearchAndFilters({
               placeholder="Buscar por nome, nicho ou palavra-chave..."
               className={cn(
                 "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
-                FIELD_SHADOW
+                FIELD_SHADOW,
               )}
             />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
           <SelectPill
             value={serviceTypeId}
             onChange={(e) => onServiceTypeChange(e.target.value)}
             aria-label="Tipo de serviço"
+            className="w-full"
           >
             <option value="">
-              {isServiceTypesLoading ? "Carregando servicos..." : "Todos os servicos"}
+              {isServiceTypesLoading
+                ? "Carregando servicos..."
+                : "Todos os servicos"}
             </option>
             {serviceTypes.map((serviceType) => (
               <option key={serviceType.id} value={serviceType.id}>
@@ -247,23 +225,15 @@ export function MarketplaceSearchAndFilters({
               </option>
             ))}
           </SelectPill>
-          <SelectPill
-            value={sortBy}
-            onChange={(e) => onSortByChange(e.target.value as MarketplaceSortBy)}
-            aria-label="Ordenação"
-          >
-            {SORT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </SelectPill>
-          </div>
         </div>
       </div>
 
       {showActiveTags ? (
-        <div className="flex flex-wrap gap-2" role="list" aria-label="Filtros ativos">
+        <div
+          className="flex flex-wrap gap-2"
+          role="list"
+          aria-label="Filtros ativos"
+        >
           {showSearchTag ? (
             <span key="search" role="listitem">
               <FilterRemovableTag
@@ -279,15 +249,6 @@ export function MarketplaceSearchAndFilters({
                 label={`Serviço: ${selectedServiceLabel}`}
                 onRemove={() => onServiceTypeChange("")}
                 removeAriaLabel="Remover filtro de serviço"
-              />
-            </span>
-          ) : null}
-          {showSortTag && sortLabel ? (
-            <span key="sort" role="listitem">
-              <FilterRemovableTag
-                label={`Ordenação: ${sortLabel}`}
-                onRemove={() => onSortByChange("relevancia")}
-                removeAriaLabel="Remover ordenação personalizada"
               />
             </span>
           ) : null}
@@ -323,14 +284,15 @@ export function MarketplaceCreatorCardDesktop({
         )}
         <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 shadow-sm backdrop-blur-sm">
           <Star className="size-4 fill-amber-400 text-amber-400" />
-          <span className="text-sm font-bold text-slate-900">{creator.rating}</span>
+          <span className="text-sm font-bold text-slate-900">
+            {creator.rating}
+          </span>
         </div>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-1 px-6 pb-8 pt-6">
         <h3 className="text-xl font-bold leading-7 text-slate-900">
           {creator.name}
         </h3>
-        <p className="text-sm font-semibold text-[#895af6]">{creator.niche}</p>
         <div className="flex items-center gap-1.5 pt-1">
           <MapPin className="size-3.5 text-slate-400" />
           <span className="text-xs text-slate-500">{creator.location}</span>
@@ -422,9 +384,6 @@ export function MarketplaceCreatorCardMobile({
               </span>
             </div>
           </div>
-          <p className="mt-1 text-sm font-semibold text-[#895af6]">
-            {creator.niche}
-          </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {creator.tags.map((tag) => (
               <span
@@ -505,7 +464,10 @@ export function MarketplacePagination({
       <div className="flex items-center gap-2">
         {pages.map((p, i) =>
           p === "ellipsis" ? (
-            <span key={`ellipsis-${i}`} className="px-1 text-base text-slate-400">
+            <span
+              key={`ellipsis-${i}`}
+              className="px-1 text-base text-slate-400"
+            >
               ...
             </span>
           ) : (
@@ -517,12 +479,12 @@ export function MarketplacePagination({
                 "flex size-10 items-center justify-center rounded-full text-sm font-bold transition-colors",
                 currentPage === p
                   ? "bg-[#895af6] text-white"
-                  : "text-slate-600 hover:bg-slate-100"
+                  : "text-slate-600 hover:bg-slate-100",
               )}
             >
               {p}
             </button>
-          )
+          ),
         )}
       </div>
       <button

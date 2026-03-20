@@ -22,7 +22,6 @@ export const marketplaceKeys = {
     limit: number;
     search?: string;
     serviceTypeId?: string;
-    sortBy: string;
   }) =>
     [
       ...marketplaceKeys.all,
@@ -31,7 +30,6 @@ export const marketplaceKeys = {
       params.limit,
       params.search ?? "",
       params.serviceTypeId ?? "",
-      params.sortBy,
     ] as const,
   serviceTypes: () => [...marketplaceKeys.all, "service-types"] as const,
 };

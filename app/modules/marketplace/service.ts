@@ -3,7 +3,6 @@ import { getAccessToken } from "~/modules/auth/service";
 import type {
   MarketplaceCreatorsResponse,
   MarketplaceServiceTypeOption,
-  MarketplaceSortBy,
 } from "./types";
 
 type JobTypeResponse = {
@@ -16,14 +15,13 @@ export async function getMarketplaceCreators(params: {
   limit: number;
   search?: string;
   serviceTypeId?: string;
-  sortBy: MarketplaceSortBy;
   token?: string;
 }): Promise<MarketplaceCreatorsResponse> {
   const accessToken = await getAccessToken(params.token);
   const searchParams = new URLSearchParams({
     page: String(params.page),
     limit: String(params.limit),
-    sortBy: params.sortBy,
+    sortBy: "relevancia",
   });
 
   if (params.search) {

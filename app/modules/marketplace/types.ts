@@ -16,11 +16,6 @@ export type MarketplaceServiceTypeOption = {
   label: string;
 };
 
-export type MarketplaceSortBy =
-  | "relevancia"
-  | "preco"
-  | "avaliacao";
-
 export type MarketplaceCreatorsResponse = {
   items: MarketplaceCreator[];
   pagination: {

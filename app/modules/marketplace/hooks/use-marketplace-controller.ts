@@ -3,7 +3,7 @@ import {
   useMarketplaceCreatorsQuery,
   useMarketplaceServiceTypesQuery,
 } from "../queries";
-import type { MarketplaceCreator, MarketplaceSortBy } from "../types";
+import type { MarketplaceCreator } from "../types";
 
 const ITEMS_PER_PAGE = 8;
 const SEARCH_DEBOUNCE_MS = 300;
@@ -12,7 +12,6 @@ export function useMarketplaceController() {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [serviceTypeId, setServiceTypeId] = useState("");
-  const [sortBy, setSortBy] = useState<MarketplaceSortBy>("relevancia");
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -29,7 +28,6 @@ export function useMarketplaceController() {
     limit: ITEMS_PER_PAGE,
     search: debouncedSearch || undefined,
     serviceTypeId: serviceTypeId || undefined,
-    sortBy,
   });
   const serviceTypesQuery = useMarketplaceServiceTypesQuery();
 
@@ -50,26 +48,18 @@ export function useMarketplaceController() {
     setCurrentPage(1);
   };
 
-  const handleSortByChange = (value: MarketplaceSortBy) => {
-    setSortBy(value);
-    setCurrentPage(1);
-  };
-
   const isInitialLoading =
     (creatorsQuery.isLoading && !creatorsQuery.data) ||
     (serviceTypesQuery.isLoading && !serviceTypesQuery.data);
   const isRefreshing =
     creatorsQuery.isFetching || serviceTypesQuery.isFetching;
 
-  const hasActiveFilters = Boolean(
-    debouncedSearch || serviceTypeId || sortBy !== "relevancia"
-  );
+  const hasActiveFilters = Boolean(debouncedSearch || serviceTypeId);
 
   return {
     viewModel: {
       search,
       serviceTypeId,
-      sortBy,
       creators,
       currentPage,
       totalPages,
@@ -83,7 +73,6 @@ export function useMarketplaceController() {
     actions: {
       setSearch,
       setServiceTypeId: handleServiceTypeChange,
-      setSortBy: handleSortByChange,
       setCurrentPage,
       onHire: (_creator: MarketplaceCreator) => {
         // TODO: integrar fluxo de contratação

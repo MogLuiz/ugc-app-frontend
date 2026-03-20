@@ -32,8 +32,6 @@ export function MarketplaceScreen() {
             onSearchChange={actions.setSearch}
             serviceTypeId={viewModel.serviceTypeId}
             onServiceTypeChange={actions.setServiceTypeId}
-            sortBy={viewModel.sortBy}
-            onSortByChange={actions.setSortBy}
             serviceTypes={viewModel.serviceTypes}
             isServiceTypesLoading={viewModel.isInitialLoading}
           />
