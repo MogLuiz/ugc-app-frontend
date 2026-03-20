@@ -1,5 +1,6 @@
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { MOCK_CREATOR_PROFILES } from "../data/mock-creator-profile";
+import type { CreatorProfile } from "../types";
 import {
   CreatorLocationSection,
   CreatorPortfolioSection,
@@ -11,19 +12,80 @@ import {
 } from "./sections/creator-profile-sections";
 import { useCreatorProfileController } from "../hooks/use-creator-profile-controller";
 import { ArrowRight } from "lucide-react";
+import type { MarketplaceCreator } from "~/modules/marketplace/types";
+
+function toCreatorProfileFallback(creator: MarketplaceCreator): CreatorProfile {
+  const [city = "", state = ""] =
+    creator.location.toLowerCase().includes("informad")
+      ? ["", ""]
+      : creator.location.split("/");
+  const services = (creator.tags.length > 0 ? creator.tags : [creator.niche]).map(
+    (serviceName, index) => ({
+      id: `${creator.id}-${index}`,
+      name: serviceName,
+      price:
+        index === 0 && creator.minPrice != null
+          ? Math.round(creator.minPrice)
+          : creator.minPrice != null
+            ? Math.round(creator.minPrice)
+            : 0,
+    })
+  );
+
+  return {
+    id: creator.id,
+    name: creator.name,
+    specialty: creator.niche,
+    avatarUrl: creator.avatarUrl ?? creator.coverImageUrl ?? "",
+    isVerified: false,
+    isOnline: false,
+    rating: creator.rating,
+    jobsCount: 0,
+    responseTime: "Resposta em breve",
+    location: {
+      city: city || "Nao informado",
+      state: state || "BR",
+      description:
+        creator.bio ??
+        "Mais informacoes deste creator serao exibidas aqui assim que o perfil completo for integrado.",
+      distanceKm: 0,
+    },
+    portfolio: [],
+    testimonials: [],
+    services,
+    availability: [],
+  };
+}
 
 export function CreatorProfileScreen() {
   const { creatorId } = useParams<{ creatorId: string }>();
+  const location = useLocation();
+  const marketplaceCreator = (
+    location.state as { marketplaceCreator?: MarketplaceCreator } | null
+  )?.marketplaceCreator;
 
-  const profile = creatorId ? MOCK_CREATOR_PROFILES[creatorId] : null;
+  const profile =
+    creatorId == null
+      ? null
+      : MOCK_CREATOR_PROFILES[creatorId] ??
+        (marketplaceCreator?.id === creatorId
+          ? toCreatorProfileFallback(marketplaceCreator)
+          : null);
+  const backHref = marketplaceCreator ? "/marketplace" : "/mapa";
+  const backLabel = marketplaceCreator
+    ? "Voltar para marketplace"
+    : "Voltar para busca";
 
   if (!profile) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8]">
         <div className="text-center">
           <p className="text-lg text-[#64748b]">Criador não encontrado.</p>
-          <Link to="/mapa" className="mt-4 inline-block text-[#895af6] hover:underline">
-            Voltar para o mapa
+          <Link
+            to={backHref}
+            className="mt-4 inline-block text-[#895af6] hover:underline"
+          >
+            Voltar
           </Link>
         </div>
       </div>
@@ -35,11 +97,11 @@ export function CreatorProfileScreen() {
     <div className="relative min-h-screen bg-[#f6f5f8] pb-24 lg:px-6 lg:pb-6 lg:pt-6">
       <header className="sticky top-0 z-30 flex items-center gap-4 bg-[rgba(246,245,248,0.8)] px-4 py-4 backdrop-blur-md lg:static lg:mx-auto lg:w-full lg:max-w-[1200px] lg:justify-between lg:bg-transparent lg:px-4 lg:py-0 lg:backdrop-blur-0">
         <Link
-          to="/mapa"
+          to={backHref}
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(137,90,246,0.1)] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] lg:h-auto lg:w-auto lg:gap-2 lg:rounded-full lg:border-[#e2e8f0] lg:px-5 lg:py-2.5 lg:text-sm lg:font-semibold lg:text-[#0f172a]"
         >
           <ArrowRight className="h-4 w-4 rotate-180 text-[#895af6] lg:h-3.5 lg:w-3.5 lg:text-current" />
-          <span className="hidden lg:inline">Voltar para busca</span>
+          <span className="hidden lg:inline">{backLabel}</span>
         </Link>
         <h1 className="text-lg font-bold text-[#0f172a] lg:hidden">
           Perfil do Criador

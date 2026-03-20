@@ -29,6 +29,15 @@ type CreatorServicesSectionProps = {
   onSelectService: (id: string) => void;
 };
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
 export function CreatorProfileHeroSection({
   profile,
 }: CreatorProfileHeaderSectionProps) {
@@ -37,11 +46,17 @@ export function CreatorProfileHeroSection({
       <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left lg:gap-6">
         <div className="relative shrink-0">
           <div className="overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.1)] shadow-lg ring-4 ring-[rgba(137,90,246,0.08)] lg:h-32 lg:w-32">
-            <img
-              src={profile.avatarUrl}
-              alt={profile.name}
-              className="h-28 w-28 object-cover lg:h-32 lg:w-32"
-            />
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt={profile.name}
+                className="h-28 w-28 object-cover lg:h-32 lg:w-32"
+              />
+            ) : (
+              <div className="flex h-28 w-28 items-center justify-center bg-[rgba(137,90,246,0.12)] text-2xl font-bold text-[#895af6] lg:h-32 lg:w-32">
+                {getInitials(profile.name)}
+              </div>
+            )}
           </div>
           {profile.isOnline ? (
             <div className="absolute bottom-1 right-1 h-6 w-6 rounded-full border-4 border-white bg-[#22c55e]" />

@@ -30,6 +30,7 @@ export type BootstrapPayload = {
     birthDate?: string;
     gender?: string;
     photoUrl?: string;
+    rating?: number;
     addressStreet?: string;
     addressNumber?: string;
     addressCity?: string;

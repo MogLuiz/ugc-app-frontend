@@ -4,22 +4,29 @@ export type MarketplaceCreator = {
   niche: string;
   location: string;
   rating: number;
-  avatarUrl: string;
-  coverImageUrl?: string;
+  avatarUrl?: string | null;
+  coverImageUrl?: string | null;
+  bio?: string | null;
   tags: string[];
+  minPrice?: number | null;
 };
 
-export type MarketplaceFilterNiche =
-  | "todos"
-  | "beleza"
-  | "tecnologia"
-  | "lifestyle"
-  | "fitness"
-  | "gastronomia"
-  | "educacao";
+export type MarketplaceServiceTypeOption = {
+  id: string;
+  label: string;
+};
 
 export type MarketplaceSortBy =
   | "relevancia"
   | "preco"
-  | "avaliacao"
-  | "proximidade";
+  | "avaliacao";
+
+export type MarketplaceCreatorsResponse = {
+  items: MarketplaceCreator[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+};

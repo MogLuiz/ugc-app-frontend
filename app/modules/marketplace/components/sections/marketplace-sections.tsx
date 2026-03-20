@@ -1,64 +1,116 @@
-import {
-  Bell,
-  ChevronDown,
-  LayoutGrid,
-  MapPin,
-  Menu,
-  Search,
-  SlidersHorizontal,
-  Star,
-  DollarSign,
-} from "lucide-react";
+import { ChevronDown, MapPin, Menu, Search, Star, X } from "lucide-react";
+import type { ComponentProps } from "react";
 import { Link } from "react-router";
 import type {
   MarketplaceCreator,
-  MarketplaceFilterNiche,
+  MarketplaceServiceTypeOption,
   MarketplaceSortBy,
 } from "../../types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 
-const MOBILE_FILTER_OPTIONS = [
-  { id: "beleza", label: "Beleza" },
-  { id: "tecnologia", label: "Tecnologia" },
-  { id: "proximidade", label: "Mais Próximos" },
-] as const;
+const SORT_OPTIONS = [
+  { value: "relevancia", label: "Mais relevantes" },
+  { value: "avaliacao", label: "Melhor avaliacao" },
+  { value: "preco", label: "Menor preco" },
+] as const satisfies ReadonlyArray<{
+  value: MarketplaceSortBy;
+  label: string;
+}>;
 
-const DESKTOP_FILTER_OPTIONS = [
-  { id: "nicho", label: "Nicho", icon: LayoutGrid },
-  { id: "preco", label: "Preço", icon: DollarSign },
-  { id: "avaliacao", label: "Avaliação", icon: Star },
-] as const;
+const FIELD_SHADOW = "shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]";
+
+function FilterRemovableTag({
+  label,
+  onRemove,
+  removeAriaLabel,
+}: {
+  label: string;
+  onRemove: () => void;
+  removeAriaLabel: string;
+}) {
+  return (
+    <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-slate-200/80 bg-white px-3 py-1.5 text-sm text-slate-700 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+      <span className="min-w-0 truncate">{label}</span>
+      <button
+        type="button"
+        onClick={onRemove}
+        className="flex size-7 shrink-0 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+        aria-label={removeAriaLabel}
+      >
+        <X className="size-3.5" strokeWidth={2.25} />
+      </button>
+    </span>
+  );
+}
+
+function SelectPill({
+  className,
+  children,
+  ...props
+}: ComponentProps<typeof Select>) {
+  return (
+    <div className="relative min-w-0">
+      <Select
+        className={cn(
+          "h-12 min-h-12 w-full cursor-pointer appearance-none rounded-full border-0 bg-white py-0 pl-4 pr-11 text-sm text-slate-900",
+          FIELD_SHADOW,
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </Select>
+      <ChevronDown
+        className="pointer-events-none absolute right-3.5 top-1/2 size-[18px] -translate-y-1/2 text-slate-400"
+        aria-hidden
+      />
+    </div>
+  );
+}
+
+function getCreatorInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function CreatorImageFallback({
+  name,
+  className,
+}: {
+  name: string;
+  className: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-center bg-[rgba(137,90,246,0.12)] font-bold text-[#895af6]",
+        className
+      )}
+    >
+      {getCreatorInitials(name)}
+    </div>
+  );
+}
 
 export function MarketplaceHeader() {
   return (
     <>
       {/* Desktop header */}
-      <header className="hidden items-end justify-between gap-8 lg:flex">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-[36px] font-black leading-10 tracking-[-0.9px] text-slate-900">
-            Marketplace de Criadores
-          </h1>
-          <p className="text-lg text-slate-500">
-            Encontre os melhores criadores de conteúdo UGC para impulsionar sua
-            marca.
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white p-2 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
-          <button
-            type="button"
-            className="flex size-9 items-center justify-center rounded-full"
-            aria-label="Notificações"
-          >
-            <Bell className="size-5 text-slate-600" />
-          </button>
-          <div className="h-8 w-px bg-slate-200" />
-          <div className="flex items-center gap-2">
-            <div className="size-8 overflow-hidden rounded-full bg-slate-200" />
-            <ChevronDown className="size-4 text-slate-400" />
-          </div>
-        </div>
+      <header className="hidden flex-col gap-2 lg:flex">
+        <h1 className="text-[36px] font-black leading-10 tracking-[-0.9px] text-slate-900">
+          Marketplace de Criadores
+        </h1>
+        <p className="text-lg text-slate-500">
+          Encontre os melhores criadores de conteúdo UGC para impulsionar sua
+          marca.
+        </p>
       </header>
 
       {/* Mobile header */}
@@ -88,98 +140,159 @@ export function MarketplaceHeader() {
 export function MarketplaceSearchAndFilters({
   search,
   onSearchChange,
-  nicheFilter,
-  onNicheFilterChange,
+  serviceTypeId,
+  onServiceTypeChange,
   sortBy,
   onSortByChange,
+  serviceTypes,
+  isServiceTypesLoading = false,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
-  nicheFilter: MarketplaceFilterNiche;
-  onNicheFilterChange: (value: MarketplaceFilterNiche) => void;
+  serviceTypeId: string;
+  onServiceTypeChange: (value: string) => void;
   sortBy: MarketplaceSortBy;
   onSortByChange: (value: MarketplaceSortBy) => void;
+  serviceTypes: MarketplaceServiceTypeOption[];
+  isServiceTypesLoading?: boolean;
 }) {
-  const handleMobileFilterClick = (id: string) => {
-    if (id === "proximidade") {
-      onNicheFilterChange("todos");
-      onSortByChange("proximidade" as MarketplaceSortBy);
-    } else {
-      onNicheFilterChange(id as MarketplaceFilterNiche);
-      onSortByChange("relevancia");
-    }
-  };
+  const searchTrimmed = search.trim();
+  const selectedServiceLabel = serviceTypes.find((s) => s.id === serviceTypeId)?.label;
+  const sortLabel = SORT_OPTIONS.find((o) => o.value === sortBy)?.label;
+
+  const showSearchTag = searchTrimmed.length > 0;
+  const showServiceTag = Boolean(serviceTypeId && selectedServiceLabel);
+  const showSortTag = sortBy !== "relevancia";
+  const showActiveTags = showSearchTag || showServiceTag || showSortTag;
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Desktop: barra única com search + filtros */}
-      <div className="hidden rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] lg:flex lg:items-center lg:gap-4">
-        <div className="relative min-w-[300px] flex-1">
-          <Search className="absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
+      {/* Desktop: fundo da página (#f6f5f8); campos brancos com sombra (Figma Search and Filter) */}
+      <div className="hidden w-full flex-col gap-3 lg:flex xl:flex-row xl:items-center xl:gap-3">
+        <div className="relative min-h-12 w-full max-w-xl shrink-0">
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
           <Input
             type="search"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Buscar por nome, nicho ou palavra-chave..."
-            className="rounded-full border-0 bg-[#f6f5f8] pl-12"
+            className={cn(
+              "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
+              FIELD_SHADOW
+            )}
           />
         </div>
-        <div className="flex items-center gap-2">
-          {DESKTOP_FILTER_OPTIONS.map((opt) => {
-            const Icon = opt.icon;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                className="flex items-center gap-2 rounded-full border-0 bg-[#f6f5f8] px-4 py-3 text-sm font-medium text-slate-900"
-              >
-                <Icon className="size-4 text-slate-500" />
-                {opt.label}
-                <ChevronDown className="size-3.5 text-slate-400" />
-              </button>
-            );
-          })}
-          <Button
-            variant="purple"
-            size="md"
-            className="rounded-full border-0 p-3"
-            aria-label="Mais filtros"
+        <div className="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-stretch xl:w-auto xl:shrink-0 xl:gap-3">
+          <SelectPill
+            value={serviceTypeId}
+            onChange={(e) => onServiceTypeChange(e.target.value)}
+            aria-label="Tipo de serviço"
+            className="sm:min-w-0 sm:flex-1 xl:w-52 xl:flex-none"
           >
-            <SlidersHorizontal className="size-5" />
-          </Button>
+            <option value="">
+              {isServiceTypesLoading ? "Carregando servicos..." : "Todos os servicos"}
+            </option>
+            {serviceTypes.map((serviceType) => (
+              <option key={serviceType.id} value={serviceType.id}>
+                {serviceType.label}
+              </option>
+            ))}
+          </SelectPill>
+          <SelectPill
+            value={sortBy}
+            onChange={(e) => onSortByChange(e.target.value as MarketplaceSortBy)}
+            aria-label="Ordenação"
+            className="sm:min-w-0 sm:flex-1 xl:w-52 xl:flex-none"
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </SelectPill>
         </div>
       </div>
 
-      {/* Mobile: título + chips de filtro */}
-      <div className="flex flex-col gap-4 lg:hidden">
+      {/* Mobile: busca branca + sombra; mesmo placeholder do Figma */}
+      <div className="flex flex-col gap-6 lg:hidden">
         <h2 className="text-2xl font-bold leading-8 tracking-[-0.6px] text-slate-900">
           Marketplace de Criadores
         </h2>
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {MOBILE_FILTER_OPTIONS.map((opt) => {
-            const isActive =
-              opt.id === "proximidade"
-                ? sortBy === "proximidade"
-                : nicheFilter === opt.id;
-            return (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => handleMobileFilterClick(opt.id)}
-                className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-[#895af6] text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2)]"
-                    : "border border-slate-200 bg-white text-slate-900"
-                )}
-              >
-                {opt.label}
-                <ChevronDown className="size-3.5" />
-              </button>
-            );
-          })}
+        <div className="flex flex-col gap-3">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
+            <Input
+              type="search"
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Buscar por nome, nicho ou palavra-chave..."
+              className={cn(
+                "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
+                FIELD_SHADOW
+              )}
+            />
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+          <SelectPill
+            value={serviceTypeId}
+            onChange={(e) => onServiceTypeChange(e.target.value)}
+            aria-label="Tipo de serviço"
+          >
+            <option value="">
+              {isServiceTypesLoading ? "Carregando servicos..." : "Todos os servicos"}
+            </option>
+            {serviceTypes.map((serviceType) => (
+              <option key={serviceType.id} value={serviceType.id}>
+                {serviceType.label}
+              </option>
+            ))}
+          </SelectPill>
+          <SelectPill
+            value={sortBy}
+            onChange={(e) => onSortByChange(e.target.value as MarketplaceSortBy)}
+            aria-label="Ordenação"
+          >
+            {SORT_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </SelectPill>
+          </div>
         </div>
       </div>
+
+      {showActiveTags ? (
+        <div className="flex flex-wrap gap-2" role="list" aria-label="Filtros ativos">
+          {showSearchTag ? (
+            <span key="search" role="listitem">
+              <FilterRemovableTag
+                label={`Busca: "${searchTrimmed}"`}
+                onRemove={() => onSearchChange("")}
+                removeAriaLabel="Remover busca"
+              />
+            </span>
+          ) : null}
+          {showServiceTag && selectedServiceLabel ? (
+            <span key="service" role="listitem">
+              <FilterRemovableTag
+                label={`Serviço: ${selectedServiceLabel}`}
+                onRemove={() => onServiceTypeChange("")}
+                removeAriaLabel="Remover filtro de serviço"
+              />
+            </span>
+          ) : null}
+          {showSortTag && sortLabel ? (
+            <span key="sort" role="listitem">
+              <FilterRemovableTag
+                label={`Ordenação: ${sortLabel}`}
+                onRemove={() => onSortByChange("relevancia")}
+                removeAriaLabel="Remover ordenação personalizada"
+              />
+            </span>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -196,11 +309,18 @@ export function MarketplaceCreatorCardDesktop({
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-shadow hover:shadow-lg">
       <div className="relative h-64 shrink-0 w-full overflow-hidden">
-        <img
-          src={img}
-          alt=""
-          className="h-full w-full object-cover"
-        />
+        {img ? (
+          <img
+            src={img}
+            alt={creator.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <CreatorImageFallback
+            name={creator.name}
+            className="h-full w-full text-4xl"
+          />
+        )}
         <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 shadow-sm backdrop-blur-sm">
           <Star className="size-4 fill-amber-400 text-amber-400" />
           <span className="text-sm font-bold text-slate-900">{creator.rating}</span>
@@ -233,6 +353,7 @@ export function MarketplaceCreatorCardDesktop({
         <div className="mt-auto flex h-10 shrink-0 gap-2 pt-4">
           <Link
             to={`/criador/${creator.id}`}
+            state={{ marketplaceCreator: creator }}
             className="flex min-h-10 flex-1 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
           >
             Ver Perfil
@@ -265,12 +386,21 @@ export function MarketplaceCreatorCardMobile({
     <article className="flex flex-col gap-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
       <div className="flex gap-4">
         <div className="relative size-20 shrink-0 overflow-hidden rounded-2xl">
-          <img
-            src={creator.avatarUrl}
-            alt={creator.name}
-            className="size-full object-cover"
-          />
-          <div className="absolute inset-0 rounded-2xl shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]" />
+          {creator.avatarUrl ? (
+            <>
+              <img
+                src={creator.avatarUrl}
+                alt={creator.name}
+                className="size-full object-cover"
+              />
+              <div className="absolute inset-0 rounded-2xl shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]" />
+            </>
+          ) : (
+            <CreatorImageFallback
+              name={creator.name}
+              className="size-full rounded-2xl text-xl"
+            />
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
@@ -310,6 +440,7 @@ export function MarketplaceCreatorCardMobile({
       <div className="flex h-11 shrink-0 gap-3">
         <Link
           to={`/criador/${creator.id}`}
+          state={{ marketplaceCreator: creator }}
           className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100"
         >
           Ver Perfil

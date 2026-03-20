@@ -1,73 +1,89 @@
-import { useMemo, useState } from "react";
-import { MOCK_MARKETPLACE_CREATORS } from "../data/mock-marketplace-creators";
-import type {
-  MarketplaceCreator,
-  MarketplaceFilterNiche,
-  MarketplaceSortBy,
-} from "../types";
+import { useEffect, useMemo, useState } from "react";
+import {
+  useMarketplaceCreatorsQuery,
+  useMarketplaceServiceTypesQuery,
+} from "../queries";
+import type { MarketplaceCreator, MarketplaceSortBy } from "../types";
 
 const ITEMS_PER_PAGE = 8;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export function useMarketplaceController() {
   const [search, setSearch] = useState("");
-  const [nicheFilter, setNicheFilter] = useState<MarketplaceFilterNiche>("todos");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [serviceTypeId, setServiceTypeId] = useState("");
   const [sortBy, setSortBy] = useState<MarketplaceSortBy>("relevancia");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredAndSortedCreators = useMemo(() => {
-    let result = [...MOCK_MARKETPLACE_CREATORS];
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setCurrentPage(1);
+    }, SEARCH_DEBOUNCE_MS);
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (c) =>
-          c.name.toLowerCase().includes(q) ||
-          c.niche.toLowerCase().includes(q) ||
-          c.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    }
+    return () => window.clearTimeout(timeoutId);
+  }, [search]);
 
-    if (nicheFilter !== "todos") {
-      result = result.filter((c) =>
-        c.niche.toLowerCase().includes(nicheFilter.toLowerCase())
-      );
-    }
+  const creatorsQuery = useMarketplaceCreatorsQuery({
+    page: currentPage,
+    limit: ITEMS_PER_PAGE,
+    search: debouncedSearch || undefined,
+    serviceTypeId: serviceTypeId || undefined,
+    sortBy,
+  });
+  const serviceTypesQuery = useMarketplaceServiceTypesQuery();
 
-    if (sortBy === "avaliacao") {
-      result.sort((a, b) => b.rating - a.rating);
-    } else if (sortBy === "preco") {
-      result.sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortBy === "proximidade") {
-      // Por ora mantém ordem; futuramente ordenar por distância do usuário
-      result.sort((a, b) => a.name.localeCompare(b.name));
-    }
+  const creators = creatorsQuery.data?.items ?? [];
+  const pagination = creatorsQuery.data?.pagination;
+  const totalPages = pagination?.totalPages ?? 1;
+  const totalCreators = pagination?.total ?? 0;
 
-    return result;
-  }, [search, nicheFilter, sortBy]);
+  const errorMessage = useMemo(() => {
+    const error = creatorsQuery.error ?? serviceTypesQuery.error;
+    if (!error) return null;
+    if (error instanceof Error) return error.message;
+    return "Nao foi possivel carregar o marketplace.";
+  }, [creatorsQuery.error, serviceTypesQuery.error]);
 
-  const paginatedCreators = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredAndSortedCreators.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredAndSortedCreators, currentPage]);
+  const handleServiceTypeChange = (value: string) => {
+    setServiceTypeId(value);
+    setCurrentPage(1);
+  };
 
-  const totalPages = Math.ceil(
-    filteredAndSortedCreators.length / ITEMS_PER_PAGE
+  const handleSortByChange = (value: MarketplaceSortBy) => {
+    setSortBy(value);
+    setCurrentPage(1);
+  };
+
+  const isInitialLoading =
+    (creatorsQuery.isLoading && !creatorsQuery.data) ||
+    (serviceTypesQuery.isLoading && !serviceTypesQuery.data);
+  const isRefreshing =
+    creatorsQuery.isFetching || serviceTypesQuery.isFetching;
+
+  const hasActiveFilters = Boolean(
+    debouncedSearch || serviceTypeId || sortBy !== "relevancia"
   );
 
   return {
     viewModel: {
       search,
-      nicheFilter,
+      serviceTypeId,
       sortBy,
-      creators: paginatedCreators,
+      creators,
       currentPage,
       totalPages,
-      totalCreators: filteredAndSortedCreators.length,
+      totalCreators,
+      serviceTypes: serviceTypesQuery.data ?? [],
+      isInitialLoading,
+      isRefreshing,
+      hasActiveFilters,
+      errorMessage,
     },
     actions: {
       setSearch,
-      setNicheFilter,
-      setSortBy,
+      setServiceTypeId: handleServiceTypeChange,
+      setSortBy: handleSortByChange,
       setCurrentPage,
       onHire: (_creator: MarketplaceCreator) => {
         // TODO: integrar fluxo de contratação

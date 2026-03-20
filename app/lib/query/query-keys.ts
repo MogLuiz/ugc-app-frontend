@@ -14,3 +14,24 @@ export const creatorJobTypesKeys = {
   all: ["creator-job-types"] as const,
   list: () => [...creatorJobTypesKeys.all, "list"] as const,
 };
+
+export const marketplaceKeys = {
+  all: ["marketplace"] as const,
+  creators: (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    serviceTypeId?: string;
+    sortBy: string;
+  }) =>
+    [
+      ...marketplaceKeys.all,
+      "creators",
+      params.page,
+      params.limit,
+      params.search ?? "",
+      params.serviceTypeId ?? "",
+      params.sortBy,
+    ] as const,
+  serviceTypes: () => [...marketplaceKeys.all, "service-types"] as const,
+};

@@ -12,6 +12,10 @@ import {
 export function MarketplaceScreen() {
   const controller = useMarketplaceController();
   const { viewModel, actions } = controller;
+  const showEmptyState =
+    !viewModel.isInitialLoading &&
+    !viewModel.errorMessage &&
+    viewModel.creators.length === 0;
 
   return (
     <div className="min-h-screen bg-[#f6f5f8] lg:flex">
@@ -26,33 +30,74 @@ export function MarketplaceScreen() {
           <MarketplaceSearchAndFilters
             search={viewModel.search}
             onSearchChange={actions.setSearch}
-            nicheFilter={viewModel.nicheFilter}
-            onNicheFilterChange={actions.setNicheFilter}
+            serviceTypeId={viewModel.serviceTypeId}
+            onServiceTypeChange={actions.setServiceTypeId}
             sortBy={viewModel.sortBy}
             onSortByChange={actions.setSortBy}
+            serviceTypes={viewModel.serviceTypes}
+            isServiceTypesLoading={viewModel.isInitialLoading}
           />
 
-          {/* Desktop: grid 4 colunas - items-stretch para cards terem mesma altura */}
-          <section className="hidden gap-6 lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6 xl:grid-cols-4">
-            {viewModel.creators.map((creator) => (
-              <MarketplaceCreatorCardDesktop
-                key={creator.id}
-                creator={creator}
-                onHire={actions.onHire}
-              />
-            ))}
-          </section>
+          {viewModel.errorMessage ? (
+            <section className="rounded-3xl border border-rose-100 bg-white p-6 text-center text-sm text-rose-500 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+              {viewModel.errorMessage}
+            </section>
+          ) : null}
 
-          {/* Mobile: lista vertical */}
-          <section className="flex flex-col gap-4 lg:hidden">
-            {viewModel.creators.map((creator) => (
-              <MarketplaceCreatorCardMobile
-                key={creator.id}
-                creator={creator}
-                onHire={actions.onHire}
-              />
-            ))}
-          </section>
+          {viewModel.isInitialLoading ? (
+            <section className="rounded-3xl border border-[rgba(137,90,246,0.05)] bg-white p-8 text-center text-sm text-slate-500 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+              Carregando creators...
+            </section>
+          ) : null}
+
+          {showEmptyState ? (
+            <section className="rounded-3xl border border-[rgba(137,90,246,0.05)] bg-white p-8 text-center shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
+              <h3 className="text-lg font-bold text-slate-900">
+                Nenhum creator encontrado
+              </h3>
+              <p className="mt-2 text-sm text-slate-500">
+                Ajuste a busca ou troque o tipo de servico para ampliar os
+                resultados.
+              </p>
+            </section>
+          ) : null}
+
+          {!viewModel.isInitialLoading && !viewModel.errorMessage && viewModel.creators.length > 0 ? (
+            <>
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-slate-500">
+                  {viewModel.totalCreators} creator
+                  {viewModel.totalCreators === 1 ? "" : "es"} encontrado
+                  {viewModel.totalCreators === 1 ? "" : "s"}
+                </p>
+                {viewModel.isRefreshing ? (
+                  <span className="text-xs font-medium text-slate-400">
+                    Atualizando...
+                  </span>
+                ) : null}
+              </div>
+
+              <section className="hidden gap-6 lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6 xl:grid-cols-4">
+                {viewModel.creators.map((creator) => (
+                  <MarketplaceCreatorCardDesktop
+                    key={creator.id}
+                    creator={creator}
+                    onHire={actions.onHire}
+                  />
+                ))}
+              </section>
+
+              <section className="flex flex-col gap-4 lg:hidden">
+                {viewModel.creators.map((creator) => (
+                  <MarketplaceCreatorCardMobile
+                    key={creator.id}
+                    creator={creator}
+                    onHire={actions.onHire}
+                  />
+                ))}
+              </section>
+            </>
+          ) : null}
 
           <MarketplacePagination
             currentPage={viewModel.currentPage}
