@@ -170,7 +170,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
               </div>
             </div>
 
-            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a] text-center">
               Horário disponível
             </p>
             {flow.availabilityTimeSlots.length > 0 ? (
@@ -204,23 +204,21 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         </section>
 
         <section>
-          <SectionHeader title="Endereço do job" />
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
+              Endereço de gravação
+            </h3>
+            {flow.companyAddress ? (
+              <button
+                type="button"
+                onClick={() => flow.setIsEditingAddress(true)}
+                className="text-sm font-semibold text-[#895af6]"
+              >
+                Alterar
+              </button>
+            ) : null}
+          </div>
           <div className="mt-2.5 rounded-[24px] bg-white p-3.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
-                Local do job
-              </p>
-              {flow.companyAddress ? (
-                <button
-                  type="button"
-                  onClick={() => flow.setIsEditingAddress(true)}
-                  className="text-sm font-semibold text-[#895af6]"
-                >
-                  Alterar
-                </button>
-              ) : null}
-            </div>
-
             {!flow.formState.isEditingAddress && flow.companyAddress ? (
               <div className="rounded-[20px] border border-[#e2e8f0] bg-[#f8fafc] p-3.5">
                 <div className="flex items-start gap-3">
