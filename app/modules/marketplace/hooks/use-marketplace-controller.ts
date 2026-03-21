@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import {
   useMarketplaceCreatorsQuery,
   useMarketplaceServiceTypesQuery,
@@ -9,6 +10,7 @@ const ITEMS_PER_PAGE = 8;
 const SEARCH_DEBOUNCE_MS = 300;
 
 export function useMarketplaceController() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [serviceTypeId, setServiceTypeId] = useState("");
@@ -74,8 +76,10 @@ export function useMarketplaceController() {
       setSearch,
       setServiceTypeId: handleServiceTypeChange,
       setCurrentPage,
-      onHire: (_creator: MarketplaceCreator) => {
-        // TODO: integrar fluxo de contratação
+      onHire: (creator: MarketplaceCreator) => {
+        void navigate(`/criador/${creator.id}/contratar`, {
+          state: { marketplaceCreator: creator },
+        });
       },
     },
   };

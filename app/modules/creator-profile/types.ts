@@ -1,7 +1,11 @@
 export type CreatorProfileService = {
   id: string;
+  jobTypeId: string;
   name: string;
   price: number;
+  durationMinutes: number;
+  mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
+  currency: string;
 };
 
 export type CreatorProfileTestimonial = {
@@ -70,6 +74,14 @@ export type CreatorProfileDetailsResponse = {
   tags: string[];
   niche: string;
   minPrice: number | null;
+  services: Array<{
+    jobTypeId: string;
+    name: string;
+    mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
+    durationMinutes: number;
+    basePrice: number;
+    currency: string;
+  }>;
   portfolio: {
     id: string;
     userId: string;

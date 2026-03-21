@@ -7,6 +7,11 @@ import type {
   CreatorProfilePortfolioItem,
 } from "./types";
 
+type CreatorProfileMediaItem = NonNullable<
+  CreatorProfileDetailsResponse["portfolio"]
+>["media"][number];
+type CreatorAvailabilityItem = CreatorProfileDetailsResponse["availability"]["days"][number];
+
 const DAY_OF_WEEK_TO_JS: Record<AvailabilityDayOfWeek, number> = {
   SUNDAY: 0,
   MONDAY: 1,
@@ -38,13 +43,17 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
   const { availabilityDays, availabilitySlotsByDay } = mapAvailability(
     data.availability.days
   );
-  const services = (data.tags.length > 0 ? data.tags : [data.niche]).map(
-    (serviceName, index) => ({
-      id: `${data.id}-${index}`,
-      name: serviceName,
-      price: data.minPrice != null ? Math.round(data.minPrice) : 0,
-    })
-  );
+  const services = data.services
+    .filter((service) => service.mode === "PRESENTIAL")
+    .map((service) => ({
+      id: service.jobTypeId,
+      jobTypeId: service.jobTypeId,
+      name: service.name,
+      price: Math.round(service.basePrice),
+      durationMinutes: service.durationMinutes,
+      mode: service.mode,
+      currency: service.currency,
+    }));
 
   return {
     id: data.id,
@@ -76,9 +85,7 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
 }
 
 function mapPortfolio(
-  media: CreatorProfileDetailsResponse["portfolio"] extends { media: infer T }
-    ? T
-    : never
+  media: CreatorProfileMediaItem[]
 ): CreatorProfilePortfolioItem[] {
   return media
     .filter((item) => item.status === "READY")
@@ -88,7 +95,9 @@ function mapPortfolio(
       return {
         id: item.id,
         imageUrl: isVideo ? item.thumbnailUrl ?? "" : item.url,
-        mediaType: isVideo ? "video" : "image",
+        mediaType: isVideo
+          ? ("video" as const)
+          : ("image" as const),
         videoUrl: isVideo ? item.url : undefined,
         thumbnailUrl: item.thumbnailUrl ?? undefined,
       };
@@ -96,7 +105,7 @@ function mapPortfolio(
     .filter((item) => (item.mediaType === "video" ? Boolean(item.videoUrl) : Boolean(item.imageUrl)));
 }
 
-function mapAvailability(days: CreatorProfileDetailsResponse["availability"]["days"]) {
+function mapAvailability(days: CreatorAvailabilityItem[]) {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();

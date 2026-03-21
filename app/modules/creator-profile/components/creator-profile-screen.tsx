@@ -1,13 +1,13 @@
+import { useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import {
   CreatorPortfolioSection,
+  CreatorHirePanel,
   CreatorProfileHeroSection,
   CreatorQuickActions,
-  CreatorServicesSection,
   CreatorStickyCta,
   CreatorTestimonialsSection,
 } from "./sections/creator-profile-sections";
-import { useCreatorProfileController } from "../hooks/use-creator-profile-controller";
 import { useCreatorProfileQuery } from "../queries";
 import { ArrowRight } from "lucide-react";
 import type { CreatorProfile } from "../types";
@@ -73,7 +73,8 @@ function CreatorProfileContent({
   backHref: string;
   backLabel: string;
 }) {
-  const controller = useCreatorProfileController(profile);
+  const [hirePanelOpen, setHirePanelOpen] = useState(false);
+  const hasServices = profile.services.length > 0;
 
   return (
     <div className="relative min-h-screen bg-[#f6f5f8] pb-24 lg:px-6 lg:pb-6 lg:pt-6">
@@ -100,27 +101,26 @@ function CreatorProfileContent({
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 pt-4 lg:grid lg:grid-cols-3 lg:pt-6">
         <div className="flex flex-col gap-8 lg:col-span-2">
-          <CreatorProfileHeroSection profile={controller.profile} />
-          <CreatorQuickActions />
-          <CreatorPortfolioSection profile={controller.profile} />
-          <CreatorTestimonialsSection profile={controller.profile} />
-        </div>
-
-        <aside className="lg:col-span-1">
-          <CreatorServicesSection
-            availabilityDays={controller.availabilityDays}
-            availabilityTimeSlots={controller.availabilityTimeSlots}
-            selectedAvailableDay={controller.selectedAvailableDay}
-            onSelectAvailableDay={controller.setSelectedAvailableDay}
-            workingHours={controller.workingHours}
-            profile={controller.profile}
-            selectedServiceId={controller.selectedServiceId}
-            onSelectService={controller.setSelectedServiceId}
+          <CreatorProfileHeroSection
+            profile={profile}
+            onHire={() => setHirePanelOpen(true)}
+            canHire={hasServices}
           />
-        </aside>
+          <CreatorQuickActions />
+          <CreatorPortfolioSection profile={profile} />
+          <CreatorTestimonialsSection profile={profile} />
+        </div>
       </main>
 
-      <CreatorStickyCta />
+      <CreatorStickyCta
+        onHire={() => setHirePanelOpen(true)}
+        disabled={!hasServices}
+      />
+      <CreatorHirePanel
+        open={hirePanelOpen}
+        onOpenChange={setHirePanelOpen}
+        profile={profile}
+      />
     </div>
   );
 }

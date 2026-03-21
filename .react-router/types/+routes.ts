@@ -32,6 +32,12 @@ type Pages = {
   "/dashboard": {
     params: {};
   };
+  "/campanhas": {
+    params: {};
+  };
+  "/ofertas": {
+    params: {};
+  };
   "/perfil": {
     params: {};
   };
@@ -45,11 +51,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/perfil" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/perfil" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -79,6 +85,14 @@ type RouteFiles = {
     id: "routes/dashboard";
     page: "/dashboard";
   };
+  "routes/campanhas.tsx": {
+    id: "routes/campanhas";
+    page: "/campanhas";
+  };
+  "routes/ofertas.tsx": {
+    id: "routes/ofertas";
+    page: "/ofertas";
+  };
   "routes/perfil.tsx": {
     id: "routes/perfil";
     page: "/perfil";
@@ -99,6 +113,8 @@ type RouteModules = {
   "routes/mapa": typeof import("./app/routes/mapa.tsx");
   "routes/marketplace": typeof import("./app/routes/marketplace.tsx");
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
+  "routes/campanhas": typeof import("./app/routes/campanhas.tsx");
+  "routes/ofertas": typeof import("./app/routes/ofertas.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
 };

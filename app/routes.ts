@@ -9,6 +9,8 @@ export default [
     route("mapa", "routes/mapa.tsx"),
     route("marketplace", "routes/marketplace.tsx"),
     route("dashboard", "routes/dashboard.tsx"),
+    route("campanhas", "routes/campanhas.tsx"),
+    route("ofertas", "routes/ofertas.tsx"),
     route("perfil", "routes/perfil.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx")
   ])

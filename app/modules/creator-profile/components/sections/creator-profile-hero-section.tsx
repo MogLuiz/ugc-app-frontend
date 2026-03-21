@@ -1,8 +1,11 @@
 import { Check, Clock, MapPin, Star } from "lucide-react";
+import { Button } from "~/components/ui/button";
 import type { CreatorProfile } from "../../types";
 
 type CreatorProfileHeaderSectionProps = {
   profile: CreatorProfile;
+  onHire?: () => void;
+  canHire?: boolean;
 };
 
 function getInitials(name: string) {
@@ -16,6 +19,8 @@ function getInitials(name: string) {
 
 export function CreatorProfileHeroSection({
   profile,
+  onHire,
+  canHire = true,
 }: CreatorProfileHeaderSectionProps) {
   return (
     <section className="rounded-[32px] border border-[#f1f5f9] bg-white p-5 shadow-sm lg:rounded-[48px] lg:p-6 lg:shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
@@ -40,17 +45,36 @@ export function CreatorProfileHeroSection({
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col gap-2">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-3">
-            <h2 className="text-2xl font-bold text-[#0f172a] lg:text-[30px] lg:leading-9">
-              {profile.name}
-            </h2>
-            {profile.isVerified ? (
-              <Check className="h-5 w-5 shrink-0 text-[#895af6]" strokeWidth={2.5} />
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex min-w-0 flex-col gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-3">
+                <h2 className="text-2xl font-bold text-[#0f172a] lg:text-[30px] lg:leading-9">
+                  {profile.name}
+                </h2>
+                {profile.isVerified ? (
+                  <Check
+                    className="h-5 w-5 shrink-0 text-[#895af6]"
+                    strokeWidth={2.5}
+                  />
+                ) : null}
+              </div>
+              <p className="text-base font-medium text-[#895af6] lg:text-[#64748b]">
+                {profile.specialty}
+              </p>
+            </div>
+            {onHire ? (
+              <div className="hidden lg:block">
+                <Button
+                  variant="purple"
+                  className="h-12 rounded-full px-6 text-sm font-bold"
+                  onClick={onHire}
+                  disabled={!canHire}
+                >
+                  Contratar Creator
+                </Button>
+              </div>
             ) : null}
           </div>
-          <p className="text-base font-medium text-[#895af6] lg:text-[#64748b]">
-            {profile.specialty}
-          </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-[#475569] sm:justify-start lg:gap-4">
             <div className="flex items-center gap-1 rounded-full bg-[rgba(137,90,246,0.1)] px-3 py-1">
               <Star className="h-3.5 w-3.5 fill-[#895af6] text-[#895af6]" />
@@ -80,6 +104,11 @@ export function CreatorProfileHeroSection({
           {profile.location.description ? (
             <p className="text-sm leading-5 text-[#64748b]">
               {profile.location.description}
+            </p>
+          ) : null}
+          {onHire && !canHire ? (
+            <p className="hidden text-sm text-[#64748b] lg:block">
+              Este creator ainda não possui serviços presenciais contratáveis.
             </p>
           ) : null}
         </div>

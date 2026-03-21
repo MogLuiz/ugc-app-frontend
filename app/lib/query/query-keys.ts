@@ -39,3 +39,10 @@ export const creatorProfileKeys = {
   detail: (creatorId: string) =>
     [...creatorProfileKeys.all, "detail", creatorId] as const,
 };
+
+export const contractRequestKeys = {
+  all: ["contract-requests"] as const,
+  companyList: (status?: string) =>
+    [...contractRequestKeys.all, "company", status ?? "all"] as const,
+  creatorPending: () => [...contractRequestKeys.all, "creator", "pending"] as const,
+};

@@ -20,6 +20,7 @@ import type {
   BusinessDashboardStat,
   RecommendedCreator,
 } from "../../types";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 
@@ -268,9 +269,9 @@ export function BusinessDashboardJobs({
         <h3 className="text-lg font-bold text-slate-900">
           Jobs Ativos em Campanha
         </h3>
-        <a href="#" className="text-xs font-bold text-[#895af6]">
+        <Link to="/campanhas" className="text-xs font-bold text-[#895af6]">
           Ver todos
-        </a>
+        </Link>
       </div>
       <div className="flex flex-col gap-4">
         {jobs.map((job) => (

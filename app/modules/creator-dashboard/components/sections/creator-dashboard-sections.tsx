@@ -13,6 +13,7 @@ import {
   User,
   UtensilsCrossed,
 } from "lucide-react";
+import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { DashboardStat, JobOffer } from "../../types";
@@ -181,9 +182,9 @@ export function CreatorDashboardOffers({
             Ofertas Recentes
           </h2>
         </div>
-        <a href="#" className="text-sm font-bold text-[#895af6] hover:underline">
+        <Link to="/ofertas" className="text-sm font-bold text-[#895af6] hover:underline">
           Ver todas
-        </a>
+        </Link>
       </div>
 
       <div className="flex flex-col gap-4">

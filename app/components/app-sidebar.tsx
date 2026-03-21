@@ -57,7 +57,7 @@ const SIDEBAR_CONFIG: Record<
         icon: BarChart3,
         to: "/dashboard",
       },
-      { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "#" },
+      { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "/campanhas" },
       {
         id: "criadores",
         label: "Marketplace",
@@ -77,7 +77,7 @@ const SIDEBAR_CONFIG: Record<
     footer: "creator",
     navItems: [
       { id: "dashboard", label: "Dashboard", icon: Home, to: "/dashboard" },
-      { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "#" },
+      { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "/ofertas" },
       { id: "calendario", label: "Calendário", icon: CalendarDays, to: "/agenda" },
       { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },
       { id: "pagamentos", label: "Pagamentos", icon: CreditCard, to: "#" },
