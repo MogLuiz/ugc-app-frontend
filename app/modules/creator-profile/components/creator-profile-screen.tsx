@@ -4,7 +4,6 @@ import {
   CreatorPortfolioSection,
   CreatorHirePanel,
   CreatorProfileHeroSection,
-  CreatorQuickActions,
   CreatorStickyCta,
   CreatorTestimonialsSection,
 } from "./sections/creator-profile-sections";
@@ -113,7 +112,6 @@ function CreatorProfileContent({
             onHire={() => setHirePanelOpen(true)}
             canHire={hasServices}
           />
-          <CreatorQuickActions />
           <CreatorPortfolioSection profile={profile} />
           <CreatorTestimonialsSection profile={profile} />
         </main>

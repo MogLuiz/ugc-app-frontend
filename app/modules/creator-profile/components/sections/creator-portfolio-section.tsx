@@ -5,21 +5,15 @@ type CreatorPortfolioSectionProps = {
   profile: CreatorProfile;
 };
 
-export function CreatorPortfolioSection({ profile }: CreatorPortfolioSectionProps) {
+export function CreatorPortfolioSection({
+  profile,
+}: CreatorPortfolioSectionProps) {
   if (profile.portfolio.length === 0) {
     return null;
   }
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-[#0f172a] lg:text-xl">
-          Portfólio em Destaque
-        </h3>
-        <button type="button" className="text-sm font-semibold text-[#895af6]">
-          Ver tudo
-        </button>
-      </div>
       <div className="flex gap-4 overflow-x-auto pb-2 lg:grid lg:grid-cols-3 lg:overflow-visible">
         {profile.portfolio.map((item) => {
           const isVideo = item.mediaType === "video" && Boolean(item.videoUrl);
