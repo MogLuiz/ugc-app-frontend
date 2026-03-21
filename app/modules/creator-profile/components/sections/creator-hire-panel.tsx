@@ -48,7 +48,7 @@ export function CreatorHirePanel({
         onClick={() => onOpenChange(false)}
       />
 
-      <div className="absolute inset-y-0 hidden w-full max-w-[520px] lg:block lg:right-[max(24px,calc((100vw-1740px)/2))]">
+      <div className="absolute inset-y-0 right-0 hidden w-full max-w-[520px] lg:block">
         <PanelContainer onClose={() => onOpenChange(false)} desktop open={open}>
           <CreatorHireForm profile={profile} flow={flow} />
         </PanelContainer>
@@ -79,10 +79,10 @@ function PanelContainer({
       aria-modal="true"
       role="dialog"
       className={cn(
-        "relative flex bg-white shadow-[0px_24px_80px_rgba(15,23,42,0.28)] transition-transform duration-300 ease-out",
+        "relative flex overflow-hidden bg-white shadow-[0px_24px_80px_rgba(15,23,42,0.28)] transition-transform duration-300 ease-out",
         desktop
           ? cn(
-              "h-full border-l border-[#e2e8f0]",
+              "h-full w-full border-l border-[#e2e8f0]",
               open ? "translate-x-0" : "translate-x-full",
             )
           : cn(

@@ -13,8 +13,8 @@ type CreatorHireFormProps = {
 
 export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 pb-5 pt-5 sm:px-5 lg:px-5">
+    <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
+      <div className="flex-1 space-y-5 overflow-x-hidden overflow-y-auto px-4 pb-5 pt-5 sm:px-5 lg:px-5">
         <section className="pr-12">
           <h2 className="text-[28px] font-bold tracking-tight text-[#0f172a]">
             Contratar {profile.name}
@@ -31,7 +31,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
             meta={`${profile.services.length} disponíveis`}
           />
           {flow.hasServices ? (
-            <div className="mt-2.5 space-y-2.5">
+            <div className="mt-2.5 min-w-0 space-y-2.5">
               {profile.services.map((service) => {
                 const isSelected =
                   flow.formState.selectedServiceId === service.jobTypeId;
@@ -42,7 +42,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                     type="button"
                     onClick={() => flow.setSelectedServiceId(service.jobTypeId)}
                     className={cn(
-                      "flex w-full items-start gap-3 rounded-[24px] border bg-white p-3.5 text-left transition",
+                      "flex w-full min-w-0 items-start gap-3 rounded-[24px] border bg-white p-3.5 text-left transition",
                       isSelected
                         ? "border-[#895af6] shadow-[0px_12px_30px_rgba(137,90,246,0.14)]"
                         : "border-[#e2e8f0] hover:border-[#cbd5e1]",
@@ -81,7 +81,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         <section>
           <SectionHeader title="Data e Horário" meta={flow.monthLabel} />
           <div className="mt-2.5 rounded-[24px] bg-white p-3.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
-            <div className="flex gap-2.5 overflow-x-auto pb-1 pr-2">
+            <div className="flex max-w-full gap-2.5 overflow-x-auto pb-1 pr-2">
               {flow.availabilityDayOptions.map((day) => {
                 const isSelected =
                   flow.formState.selectedAvailableDay === day.value;
@@ -111,7 +111,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
               Horário disponível
             </p>
             {flow.availabilityTimeSlots.length > 0 ? (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex max-w-full flex-wrap gap-2">
                 {flow.availabilityTimeSlots.map((slot) => {
                   const isSelected = flow.formState.selectedTimeSlot === slot;
 
@@ -224,13 +224,13 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         </label>
       </div>
 
-      <div className="border-t border-[#e2e8f0] bg-white px-4 py-4 sm:px-5 lg:px-5">
+      <div className="min-w-0 border-t border-[#e2e8f0] bg-white px-4 py-4 sm:px-5 lg:px-5">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#94a3b8]">
               Serviço selecionado
             </p>
-            <p className="mt-1 text-[13px] font-semibold text-[#0f172a]">
+            <p className="mt-1 truncate text-[13px] font-semibold text-[#0f172a]">
               {flow.selectedService?.name ?? "Selecione um serviço"}
             </p>
           </div>
