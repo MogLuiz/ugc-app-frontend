@@ -2,6 +2,7 @@ export type CreatorProfileService = {
   id: string;
   jobTypeId: string;
   name: string;
+  description?: string | null;
   price: number;
   durationMinutes: number;
   mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
@@ -81,6 +82,7 @@ export type CreatorProfileDetailsResponse = {
   services: Array<{
     jobTypeId: string;
     name: string;
+    description?: string | null;
     mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
     durationMinutes: number;
     basePrice: number;

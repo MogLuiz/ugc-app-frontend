@@ -50,6 +50,7 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
       id: service.jobTypeId,
       jobTypeId: service.jobTypeId,
       name: service.name,
+      description: service.description ?? null,
       price: Math.round(service.basePrice),
       durationMinutes: service.durationMinutes,
       mode: service.mode,

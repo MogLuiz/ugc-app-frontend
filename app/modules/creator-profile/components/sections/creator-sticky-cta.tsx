@@ -17,7 +17,7 @@ export function CreatorStickyCta({
         disabled={disabled}
       >
         <ArrowRight className="h-5 w-5" />
-        Contratar Creator
+        Agendar Gravação
       </Button>
     </div>
   );

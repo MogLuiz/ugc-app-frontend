@@ -70,7 +70,7 @@ export function CreatorProfileHeroSection({
                   onClick={onHire}
                   disabled={!canHire}
                 >
-                  Contratar Creator
+                  Agendar Gravação
                 </Button>
               </div>
             ) : null}

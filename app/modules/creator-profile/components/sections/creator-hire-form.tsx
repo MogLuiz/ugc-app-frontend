@@ -1,10 +1,10 @@
 import {
-  CheckCircle2,
+  Check,
   ChevronLeft,
   ChevronRight,
+  Clapperboard,
   MapPin,
   Video,
-  XCircle,
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -23,18 +23,14 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
     <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
       <div className="flex-1 space-y-5 overflow-x-hidden overflow-y-auto px-4 pb-5 pt-5 sm:px-5 lg:px-5">
         <section className="pr-12">
-          <h2 className="text-[28px] font-bold tracking-tight text-[#0f172a]">
-            Contratar {profile.name}
+          <h2 className="text-[20px] font-bold tracking-tight text-[#0f172a]">
+            Agendar com {profile.name}
           </h2>
-          <p className="mt-1.5 text-[13px] leading-5 text-[#64748b]">
-            Escolha serviço, disponibilidade e envie o briefing sem sair desta
-            tela.
-          </p>
         </section>
 
         <section>
           <SectionHeader
-            title="Selecionar Serviço"
+            title="Selecione o serviço"
             meta={`${profile.services.length} disponíveis`}
           />
           {flow.hasServices ? (
@@ -55,26 +51,51 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                         : "border-[#e2e8f0] hover:border-[#cbd5e1]",
                     )}
                   >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(137,90,246,0.12)] text-[#895af6]">
-                      <Video className="h-4.5 w-4.5" />
+                    <span
+                      className={cn(
+                        "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                        isSelected
+                          ? "bg-[#895af6] text-white shadow-[0px_4px_12px_rgba(137,90,246,0.28)]"
+                          : "bg-[#f1f5f9] text-[#64748b]",
+                      )}
+                    >
+                      {isSelected ? (
+                        <Video className="h-4.5 w-4.5" />
+                      ) : (
+                        <Clapperboard className="h-4.5 w-4.5" />
+                      )}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[15px] font-semibold text-[#0f172a]">
+                      <span className="block text-[15px] font-bold text-[#111827]">
                         {service.name}
                       </span>
-                      <span className="mt-1 block text-[13px] text-[#64748b]">
-                        {service.durationMinutes} min
-                      </span>
-                      <span className="mt-2 block text-[15px] font-bold text-[#0f172a]">
+                      {service.description ? (
+                        <span className="mt-1 block text-[13px] font-normal text-[#64748b]">
+                          {service.description}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="flex shrink-0 flex-col items-end gap-2 self-stretch">
+                      <span
+                        className={cn(
+                          "text-[15px] font-bold",
+                          isSelected ? "text-[#895af6]" : "text-[#111827]",
+                        )}
+                      >
                         {formatCurrency(service.price, service.currency)}
                       </span>
-                    </span>
-                    <span className="shrink-0 pt-1">
-                      {isSelected ? (
-                        <CheckCircle2 className="h-5 w-5 text-[#895af6]" />
-                      ) : (
-                        <XCircle className="h-5 w-5 text-[#cbd5e1]" />
-                      )}
+                      <span
+                        className={cn(
+                          "mt-auto flex h-5 w-5 items-center justify-center rounded-full",
+                          isSelected
+                            ? "bg-[#895af6] text-white"
+                            : "border-2 border-[#e2e8f0]",
+                        )}
+                      >
+                        {isSelected ? (
+                          <Check className="h-3 w-3" strokeWidth={3} />
+                        ) : null}
+                      </span>
                     </span>
                   </button>
                 );
@@ -86,7 +107,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         </section>
 
         <section>
-          <SectionHeader title="Escolha a Data" />
+          <SectionHeader title="Escolha a data" />
           <div className="mt-2.5 rounded-[20px] bg-white p-2.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
             <div className="flex items-center justify-between gap-2">
               <button
@@ -149,7 +170,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
               </div>
             </div>
 
-            <p className="mt-3 text-[12px] font-semibold text-[#334155]">
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
               Horário disponível
             </p>
             {flow.availabilityTimeSlots.length > 0 ? (
@@ -163,7 +184,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                       type="button"
                       onClick={() => flow.setSelectedTimeSlot(slot)}
                       className={cn(
-                      "rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition",
+                        "rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition",
                         isSelected
                           ? "border-[#895af6] bg-[#895af6] text-white"
                           : "border-[#e2e8f0] bg-[#f8fafc] text-[#334155]",
@@ -183,10 +204,10 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         </section>
 
         <section>
-          <SectionHeader title="Endereço da Gravação" />
+          <SectionHeader title="Endereço do job" />
           <div className="mt-2.5 rounded-[24px] bg-white p-3.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-[13px] font-semibold text-[#334155]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
                 Local do job
               </p>
               {flow.companyAddress ? (
@@ -220,7 +241,9 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
               <div className="space-y-3">
                 <Input
                   value={flow.formState.locationAddress}
-                  onChange={(event) => flow.setLocationAddress(event.target.value)}
+                  onChange={(event) =>
+                    flow.setLocationAddress(event.target.value)
+                  }
                   placeholder="Rua, número, bairro, cidade e estado"
                   className="h-11 rounded-2xl border-[#dbe3ef] px-4 text-[13px]"
                 />
@@ -240,7 +263,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         </section>
 
         <section>
-          <SectionHeader title="Briefing do Projeto" />
+          <SectionHeader title="Briefing do projeto" />
           <div className="mt-2.5 rounded-[24px] bg-white p-3.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
             <textarea
               value={flow.formState.description}
@@ -269,7 +292,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
       <div className="min-w-0 border-t border-[#e2e8f0] bg-white px-4 py-4 sm:px-5 lg:px-5">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-[#94a3b8]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
               Serviço selecionado
             </p>
             <p className="mt-1 truncate text-[13px] font-semibold text-[#0f172a]">
@@ -292,25 +315,21 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
           onClick={flow.submit}
           disabled={!flow.canSubmit || flow.isSubmitting || !flow.hasServices}
         >
-          {flow.isSubmitting ? "Enviando..." : "Contratar Creator"}
+          {flow.isSubmitting ? "Enviando..." : "Agendar Gravação"}
         </Button>
       </div>
     </div>
   );
 }
 
-function SectionHeader({
-  title,
-  meta,
-}: {
-  title: string;
-  meta?: string;
-}) {
+function SectionHeader({ title, meta }: { title: string; meta?: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <h3 className="text-[15px] font-bold text-[#0f172a]">{title}</h3>
+      <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
+        {title}
+      </h3>
       {meta ? (
-        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[#94a3b8]">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#94a3b8]">
           {meta}
         </span>
       ) : null}
