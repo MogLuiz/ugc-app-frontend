@@ -65,7 +65,6 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     isOnline: false,
     rating: data.rating,
     jobsCount: 0,
-    responseTime: "Resposta em breve",
     location: {
       city,
       state,

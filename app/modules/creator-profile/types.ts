@@ -35,7 +35,6 @@ export type CreatorProfile = {
   isOnline: boolean;
   rating: number;
   jobsCount: number;
-  responseTime: string;
   location: {
     city: string;
     state: string;

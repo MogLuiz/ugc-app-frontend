@@ -85,10 +85,6 @@ export function CreatorProfileHeroSection({
               {profile.jobsCount} jobs realizados
             </div>
             <div className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              {profile.responseTime}
-            </div>
-            <div className="flex items-center gap-1">
               <MapPin className="h-3.5 w-3.5 shrink-0" />
               <span>
                 {profile.location.city}, {profile.location.state}

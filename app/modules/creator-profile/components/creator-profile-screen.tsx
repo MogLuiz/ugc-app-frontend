@@ -86,7 +86,7 @@ function CreatorProfileContent({
             "lg:max-w-[1740px] lg:origin-top-left lg:pr-[544px] lg:scale-[0.975] lg:opacity-95",
         )}
       >
-        <header className="sticky top-0 z-30 flex items-center gap-4 bg-[rgba(246,245,248,0.8)] px-4 py-4 backdrop-blur-md lg:w-full lg:max-w-[1200px] lg:justify-between lg:bg-transparent lg:px-4 lg:py-0 lg:backdrop-blur-0">
+        <header className="flex items-center gap-4 px-4 py-4 lg:w-full lg:max-w-[1200px] lg:justify-between lg:px-4 lg:py-0">
           <Link
             to={backHref}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(137,90,246,0.1)] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] lg:h-auto lg:w-auto lg:gap-2 lg:rounded-full lg:border-[#e2e8f0] lg:px-5 lg:py-2.5 lg:text-sm lg:font-semibold lg:text-[#0f172a]"
