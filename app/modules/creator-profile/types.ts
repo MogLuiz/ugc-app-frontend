@@ -47,6 +47,11 @@ export type CreatorProfile = {
   services: CreatorProfileService[];
   availability: string[];
   availabilitySlotsByDay?: Record<string, string[]>;
+  availabilityRules: Array<{
+    dayOfWeek: AvailabilityDayOfWeek;
+    startTime: string;
+    endTime: string;
+  }>;
   workingHours: {
     start: string;
     end: string;

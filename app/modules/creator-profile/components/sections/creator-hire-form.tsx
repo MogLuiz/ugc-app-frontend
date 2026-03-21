@@ -1,4 +1,11 @@
-import { CheckCircle2, MapPin, Video, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Video,
+  XCircle,
+} from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -79,35 +86,70 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
         </section>
 
         <section>
-          <SectionHeader title="Data e Horário" meta={flow.monthLabel} />
-          <div className="mt-2.5 rounded-[24px] bg-white p-3.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
-            <div className="flex max-w-full gap-2.5 overflow-x-auto pb-1 pr-2">
-              {flow.availabilityDayOptions.map((day) => {
-                const isSelected =
-                  flow.formState.selectedAvailableDay === day.value;
-
-                return (
-                  <button
-                    key={day.value}
-                    type="button"
-                    onClick={() => flow.setSelectedAvailableDay(day.value)}
-                    className={cn(
-                      "flex min-w-[68px] flex-col items-center rounded-[20px] border px-3 py-2.5 text-center transition",
-                      isSelected
-                        ? "border-[#895af6] bg-[#895af6] text-white"
-                        : "border-[#e2e8f0] bg-white text-[#0f172a]",
-                    )}
-                  >
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em]">
-                      {day.weekdayLabel}
-                    </span>
-                    <span className="mt-1 text-lg font-bold">{day.dayLabel}</span>
-                  </button>
-                );
-              })}
+          <SectionHeader title="Escolha a Data" />
+          <div className="mt-2.5 rounded-[20px] bg-white p-2.5 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={flow.goToPreviousMonth}
+                disabled={!flow.canGoToPreviousMonth}
+                className={cn(
+                  "flex h-7 w-7 items-center justify-center rounded-full border transition",
+                  flow.canGoToPreviousMonth
+                    ? "border-[#e2e8f0] text-[#0f172a] hover:bg-[#f8fafc]"
+                    : "cursor-not-allowed border-[#e2e8f0] text-[#cbd5e1]",
+                )}
+              >
+                <ChevronLeft className="h-3 w-3" />
+              </button>
+              <span className="text-sm font-bold text-[#895af6]">
+                {flow.monthLabel}
+              </span>
+              <button
+                type="button"
+                onClick={flow.goToNextMonth}
+                className="flex h-7 w-7 items-center justify-center rounded-full border border-[#e2e8f0] text-[#0f172a] transition hover:bg-[#f8fafc]"
+              >
+                <ChevronRight className="h-3 w-3" />
+              </button>
             </div>
 
-            <p className="mt-4 text-[13px] font-semibold text-[#334155]">
+            <div className="mt-2.5 rounded-[20px] bg-[#f8f7fc] p-2.5">
+              <div className="grid grid-cols-7 gap-y-2">
+                {flow.weekDayLabels.map((label, index) => (
+                  <span
+                    key={`${label}-${index}`}
+                    className="text-center text-[8px] font-semibold uppercase tracking-[0.06em] text-[#94a3b8]"
+                  >
+                    {label}
+                  </span>
+                ))}
+                {flow.calendarDays.map((day) => (
+                  <button
+                    key={day.isoDate}
+                    type="button"
+                    disabled={!day.isCurrentMonth || !day.isAvailable}
+                    onClick={() => flow.setSelectedAvailableDate(day.isoDate)}
+                    className={cn(
+                      "mx-auto flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold transition",
+                      !day.isCurrentMonth && "cursor-default text-[#cbd5e1]",
+                      day.isCurrentMonth &&
+                        !day.isAvailable &&
+                        "cursor-not-allowed text-[#cbd5e1]",
+                      day.isCurrentMonth &&
+                        day.isAvailable &&
+                        "text-[#0f172a] hover:bg-[rgba(137,90,246,0.08)]",
+                      day.isSelected &&
+                        "bg-[#895af6] text-white shadow-[0px_12px_24px_rgba(137,90,246,0.28)]",
+                    )}
+                  >
+                    {day.dayLabel}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-3 text-[12px] font-semibold text-[#334155]">
               Horário disponível
             </p>
             {flow.availabilityTimeSlots.length > 0 ? (

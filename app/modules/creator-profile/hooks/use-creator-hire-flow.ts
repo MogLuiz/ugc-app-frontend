@@ -6,8 +6,12 @@ import { useCreateContractRequestMutation } from "~/modules/contract-requests/qu
 import type { ContractRequestPayload } from "~/modules/contract-requests/types";
 import type { CreatorProfile } from "../types";
 import {
-  buildHireDayOptions,
+  addMonths,
   buildHireTimeSlots,
+  buildHireMonthDays,
+  canNavigateToPreviousMonth,
+  getCalendarWeekDayLabels,
+  getFirstAvailableDateIso,
   getHireMonthLabel,
 } from "../utils/hire-availability";
 
@@ -38,13 +42,13 @@ function formatProfileAddress(
   );
 }
 
-function buildStartsAt(dayNumber: string, time: string) {
-  const today = new Date();
+function buildStartsAt(isoDate: string, time: string) {
+  const [year = "0", month = "1", day = "1"] = isoDate.split("-");
   const [hour = "0", minute = "0"] = time.split(":");
   const date = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    Number.parseInt(dayNumber, 10),
+    Number.parseInt(year, 10),
+    Number.parseInt(month, 10) - 1,
+    Number.parseInt(day, 10),
     Number.parseInt(hour, 10),
     Number.parseInt(minute, 10),
   );
@@ -54,7 +58,7 @@ function buildStartsAt(dayNumber: string, time: string) {
 
 type CreatorHireFormState = {
   selectedServiceId: string;
-  selectedAvailableDay: string | null;
+  selectedAvailableDate: string | null;
   selectedTimeSlot: string | null;
   locationAddress: string;
   description: string;
@@ -66,13 +70,20 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const createMutation = useCreateContractRequestMutation();
+  const [displayedMonth, setDisplayedMonth] = useState(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+  );
   const companyAddress = useMemo(
     () => formatProfileAddress(user?.profile),
     [user?.profile],
   );
+  const initialAvailableDate = useMemo(
+    () => getFirstAvailableDateIso(profile, displayedMonth),
+    [profile, displayedMonth],
+  );
   const [formState, setFormState] = useState<CreatorHireFormState>({
     selectedServiceId: profile.services[0]?.jobTypeId ?? "",
-    selectedAvailableDay: profile.availability[0] ?? null,
+    selectedAvailableDate: initialAvailableDate,
     selectedTimeSlot: null,
     locationAddress: companyAddress,
     description: "",
@@ -87,15 +98,20 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     profile.services[0] ??
     null;
 
-  const availabilityDayOptions = useMemo(
-    () => buildHireDayOptions(profile.availability),
-    [profile.availability],
+  const calendarDays = useMemo(
+    () => buildHireMonthDays(profile, displayedMonth, formState.selectedAvailableDate),
+    [displayedMonth, formState.selectedAvailableDate, profile],
   );
   const availabilityTimeSlots = useMemo(
-    () => buildHireTimeSlots(profile, formState.selectedAvailableDay),
-    [formState.selectedAvailableDay, profile],
+    () => buildHireTimeSlots(profile, formState.selectedAvailableDate),
+    [formState.selectedAvailableDate, profile],
   );
-  const monthLabel = useMemo(() => getHireMonthLabel(), []);
+  const monthLabel = useMemo(() => getHireMonthLabel(displayedMonth), [displayedMonth]);
+  const weekDayLabels = useMemo(() => getCalendarWeekDayLabels(), []);
+  const canGoToPreviousMonth = useMemo(
+    () => canNavigateToPreviousMonth(displayedMonth),
+    [displayedMonth],
+  );
 
   useEffect(() => {
     if (!profile.services.some((service) => service.jobTypeId === formState.selectedServiceId)) {
@@ -108,17 +124,22 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
 
   useEffect(() => {
     if (
-      formState.selectedAvailableDay &&
-      profile.availability.includes(formState.selectedAvailableDay)
+      formState.selectedAvailableDate &&
+      calendarDays.some(
+        (day) =>
+          day.isoDate === formState.selectedAvailableDate &&
+          day.isCurrentMonth &&
+          day.isAvailable,
+      )
     ) {
       return;
     }
 
     setFormState((current) => ({
       ...current,
-      selectedAvailableDay: profile.availability[0] ?? null,
+      selectedAvailableDate: getFirstAvailableDateIso(profile, displayedMonth),
     }));
-  }, [formState.selectedAvailableDay, profile.availability]);
+  }, [calendarDays, displayedMonth, formState.selectedAvailableDate, profile]);
 
   useEffect(() => {
     if (
@@ -148,7 +169,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
 
   const canSubmit =
     Boolean(selectedService) &&
-    Boolean(formState.selectedAvailableDay) &&
+    Boolean(formState.selectedAvailableDate) &&
     Boolean(formState.selectedTimeSlot) &&
     Boolean(formState.locationAddress.trim()) &&
     Boolean(formState.description.trim()) &&
@@ -169,7 +190,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
   const buildPayload = (): ContractRequestPayload | null => {
     if (
       !selectedService ||
-      !formState.selectedAvailableDay ||
+      !formState.selectedAvailableDate ||
       !formState.selectedTimeSlot
     ) {
       return null;
@@ -180,7 +201,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
       jobTypeId: selectedService.jobTypeId,
       description: formState.description.trim(),
       startsAt: buildStartsAt(
-        formState.selectedAvailableDay,
+        formState.selectedAvailableDate,
         formState.selectedTimeSlot,
       ),
       durationMinutes: selectedService.durationMinutes,
@@ -210,20 +231,28 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
   };
 
   return {
-    availabilityDayOptions,
+    calendarDays,
+    canGoToPreviousMonth,
     availabilityTimeSlots,
     canSubmit,
     companyAddress,
+    displayedMonth,
     formState,
     hasServices: profile.services.length > 0,
     isSubmitting: createMutation.isPending,
     monthLabel,
     selectedService,
+    weekDayLabels,
+    goToNextMonth: () => setDisplayedMonth((current) => addMonths(current, 1)),
+    goToPreviousMonth: () =>
+      setDisplayedMonth((current) =>
+        canNavigateToPreviousMonth(current) ? addMonths(current, -1) : current,
+      ),
     setDescription: (value: string) => updateField("description", value),
     setIsEditingAddress: (value: boolean) => updateField("isEditingAddress", value),
     setLocationAddress: (value: string) => updateField("locationAddress", value),
-    setSelectedAvailableDay: (value: string) =>
-      updateField("selectedAvailableDay", value),
+    setSelectedAvailableDate: (value: string) =>
+      updateField("selectedAvailableDate", value),
     setSelectedServiceId: (value: string) =>
       updateField("selectedServiceId", value),
     setSelectedTimeSlot: (value: string) => updateField("selectedTimeSlot", value),

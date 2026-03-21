@@ -40,6 +40,7 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     ? data.location.split("/")
     : [data.location || "Nao informado", "BR"];
   const portfolio = mapPortfolio(data.portfolio?.media ?? []);
+  const availabilityRules = mapAvailabilityRules(data.availability.days);
   const { availabilityDays, availabilitySlotsByDay } = mapAvailability(
     data.availability.days
   );
@@ -76,12 +77,23 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     services,
     availability: availabilityDays,
     availabilitySlotsByDay,
+    availabilityRules,
     workingHours: {
       start: data.availability.workingHours.start,
       end: data.availability.workingHours.end,
       slotDurationMinutes: 60,
     },
   };
+}
+
+function mapAvailabilityRules(days: CreatorAvailabilityItem[]) {
+  return days
+    .filter((day) => day.isActive && day.startTime != null && day.endTime != null)
+    .map((day) => ({
+      dayOfWeek: day.dayOfWeek,
+      startTime: day.startTime ?? "09:00",
+      endTime: day.endTime ?? "18:00",
+    }));
 }
 
 function mapPortfolio(
