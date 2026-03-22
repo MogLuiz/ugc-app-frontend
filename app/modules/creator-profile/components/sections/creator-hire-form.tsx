@@ -288,22 +288,64 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
       </div>
 
       <div className="min-w-0 border-t border-[#e2e8f0] bg-white px-4 py-4 sm:px-5 lg:px-5">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
-              Serviço selecionado
-            </p>
-            <p className="mt-1 truncate text-[13px] font-semibold text-[#0f172a]">
-              {flow.selectedService?.name ?? "Selecione um serviço"}
-            </p>
-          </div>
+        <div className="mb-3 rounded-2xl border border-[#e2e8f0] bg-[#f8fafc] p-3">
           {flow.selectedService ? (
-            <p className="text-[15px] font-bold text-[#895af6]">
-              {formatCurrency(
-                flow.selectedService.price,
-                flow.selectedService.currency,
-              )}
-            </p>
+            <>
+              <div className="mt-2 space-y-1.5 text-[13px]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748b]">Serviço</span>
+                  <span className="font-semibold text-[#0f172a]">
+                    {formatCurrency(
+                      flow.selectedService.price,
+                      flow.selectedService.currency,
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#64748b]">Transporte</span>
+                  <span className="font-semibold text-[#0f172a]">
+                    {flow.previewResult
+                      ? flow.previewResult.transport.formatted
+                      : "—"}
+                  </span>
+                </div>
+                <div className="mt-1 flex items-center justify-between border-t border-dashed border-[#dbe3ef] pt-2">
+                  <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#71717a]">
+                    Total
+                  </span>
+                  <span className="text-[15px] font-bold text-[#895af6]">
+                    {flow.previewResult
+                      ? formatCurrency(
+                          flow.previewResult.totalAmount,
+                          flow.previewResult.currency,
+                        )
+                      : formatCurrency(
+                          flow.selectedService.price,
+                          flow.selectedService.currency,
+                        )}
+                  </span>
+                </div>
+                {flow.previewResult?.transport.isMinimumApplied ? (
+                  <p className="pt-1 text-[11px] text-[#64748b]">
+                    Taxa minima de deslocamento aplicada.
+                  </p>
+                ) : flow.previewResult ? (
+                  <p className="pt-1 text-[11px] text-[#64748b]">
+                    Baseado na distancia ate o local.
+                  </p>
+                ) : null}
+                {flow.isPreviewLoading ? (
+                  <p className="pt-1 text-[11px] text-[#64748b]">
+                    Recalculando distancia e transporte...
+                  </p>
+                ) : null}
+                {flow.previewError ? (
+                  <p className="pt-1 text-[11px] text-[#b91c1c]">
+                    {flow.previewError}
+                  </p>
+                ) : null}
+              </div>
+            </>
           ) : null}
         </div>
         <Button

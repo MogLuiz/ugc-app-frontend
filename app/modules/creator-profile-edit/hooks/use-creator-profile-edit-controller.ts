@@ -246,7 +246,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
 
   async function handleSubmit() {
     try {
-      await Promise.all([
+      const [profileResult] = await Promise.all([
         updateProfileMutation.mutateAsync({
           data: {
             name: displayName || undefined,
@@ -285,6 +285,9 @@ export function useCreatorProfileEditController(user: AuthUser) {
         setIsJobTypesDirty(false);
       }
       toast.success(getCreatorProfileSuccessMessage("profile_update"));
+      if (profileResult.warnings?.length) {
+        toast.warning(profileResult.warnings[0]);
+      }
     } catch (error) {
       toast.error(getCreatorProfileErrorMessage(error, "profile_update"));
     }

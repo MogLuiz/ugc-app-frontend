@@ -90,12 +90,14 @@ export function CreatorProfileHeroSection({
                 {profile.location.city}, {profile.location.state}
               </span>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#f1f5f9] px-3 py-1.5">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#64748b]" />
-              <span className="text-sm font-semibold text-[#0f172a]">
-                {profile.location.distanceKm} km do seu negócio
-              </span>
-            </div>
+            {profile.distance.formatted ? (
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#f1f5f9] px-3 py-1.5">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-[#64748b]" />
+                <span className="text-sm font-semibold text-[#0f172a]">
+                  {profile.distance.formatted} do seu negócio
+                </span>
+              </div>
+            ) : null}
           </div>
           {profile.location.description ? (
             <p className="text-sm leading-5 text-[#64748b]">

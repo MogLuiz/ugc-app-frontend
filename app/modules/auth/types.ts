@@ -15,6 +15,33 @@ export function toBackendRole(frontendRole: UserRole): BackendRole {
 }
 
 /** Payload retornado por POST /users/bootstrap e GET /profiles/me */
+export type GeocodingStatus = "valid" | "invalid" | "pending";
+
+export type ProfilePayload = {
+  userId: string;
+  name?: string;
+  birthDate?: string;
+  gender?: string;
+  photoUrl?: string;
+  rating?: number;
+  addressStreet?: string;
+  addressNumber?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZipCode?: string;
+  formattedAddress?: string | null;
+  addressHash?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  geocodingStatus?: GeocodingStatus;
+  geocodedAt?: string | null;
+  hasValidCoordinates?: boolean;
+  bio?: string;
+  onboardingStep?: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type BootstrapPayload = {
   id: string;
   authUserId: string;
@@ -24,26 +51,11 @@ export type BootstrapPayload = {
   status: string;
   createdAt: string;
   updatedAt: string;
-  profile?: {
-    userId: string;
-    name?: string;
-    birthDate?: string;
-    gender?: string;
-    photoUrl?: string;
-    rating?: number;
-    addressStreet?: string;
-    addressNumber?: string;
-    addressCity?: string;
-    addressState?: string;
-    addressZipCode?: string;
-    bio?: string;
-    onboardingStep?: number;
-    createdAt: string;
-    updatedAt: string;
-  };
+  profile?: ProfilePayload;
   creatorProfile?: Record<string, unknown>;
   companyProfile?: CompanyProfilePayload | null;
   portfolio?: PortfolioPayload | null;
+  warnings?: string[];
 };
 
 export type PortfolioMediaPayload = {
@@ -85,7 +97,7 @@ export type AuthUser = {
   email: string;
   phone?: string;
   role: UserRole;
-  profile?: BootstrapPayload["profile"];
+  profile?: ProfilePayload;
   creatorProfile?: BootstrapPayload["creatorProfile"];
   companyProfile?: BootstrapPayload["companyProfile"];
   portfolio?: BootstrapPayload["portfolio"];

@@ -20,14 +20,26 @@ export type ContractRequestItem = {
   termsAcceptedAt: string;
   startsAt: string;
   durationMinutes: number;
-  locationAddress: string;
-  locationLat: number;
-  locationLng: number;
-  distanceKm: number;
+  jobAddress: string;
+  jobFormattedAddress: string | null;
+  jobLatitude: number;
+  jobLongitude: number;
+  creatorDistance: {
+    km: number | null;
+    formatted: string | null;
+    isWithinServiceRadius: boolean | null;
+    effectiveServiceRadiusKm: number | null;
+  };
+  transport: {
+    price: number;
+    formatted: string;
+    isMinimumApplied: boolean;
+  };
   transportFee: number;
   creatorBasePrice: number;
   platformFee: number;
   totalPrice: number;
+  totalAmount: number;
   transportPricePerKmUsed: number;
   transportMinimumFeeUsed: number;
   creatorNameSnapshot: string;
@@ -43,6 +55,6 @@ export type ContractRequestPayload = {
   description: string;
   startsAt: string;
   durationMinutes: number;
-  locationAddress: string;
+  jobAddress: string;
   termsAccepted: boolean;
 };

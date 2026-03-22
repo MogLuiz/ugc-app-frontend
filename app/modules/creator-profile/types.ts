@@ -40,7 +40,13 @@ export type CreatorProfile = {
     city: string;
     state: string;
     description: string;
-    distanceKm: number;
+    formattedAddress?: string | null;
+  };
+  distance: {
+    km: number | null;
+    formatted: string | null;
+    isWithinServiceRadius: boolean | null;
+    effectiveServiceRadiusKm: number | null;
   };
   portfolio: CreatorProfilePortfolioItem[];
   testimonials: CreatorProfileTestimonial[];
@@ -75,6 +81,12 @@ export type CreatorProfileDetailsResponse = {
   coverImageUrl: string | null;
   rating: number;
   location: string;
+  distance: {
+    km: number | null;
+    formatted: string | null;
+    isWithinServiceRadius: boolean | null;
+    effectiveServiceRadiusKm: number | null;
+  };
   bio: string | null;
   tags: string[];
   niche: string;

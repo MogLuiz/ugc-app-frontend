@@ -74,7 +74,7 @@ export function useCompanyProfileController(user: AuthUser) {
 
   async function handleSubmit(data: CompanyProfileForm) {
     try {
-      await Promise.all([
+      const [profileResult] = await Promise.all([
         updateProfileMutation.mutateAsync({
           data: {
             name: data.name,
@@ -104,6 +104,9 @@ export function useCompanyProfileController(user: AuthUser) {
 
       setIsEditing(false);
       toast.success(getCompanyProfileSuccessMessage("profile_update"));
+      if (profileResult.warnings?.length) {
+        toast.warning(profileResult.warnings[0]);
+      }
     } catch (error) {
       toast.error(getCompanyProfileErrorMessage(error, "profile_update"));
     }

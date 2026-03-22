@@ -5,6 +5,7 @@ import {
   createContractRequest,
   getMyCompanyContractRequests,
   getMyCreatorPendingContractRequests,
+  previewContractRequest,
   rejectContractRequest,
 } from "./service";
 import type { ContractRequestPayload, ContractRequestStatus } from "./types";
@@ -31,6 +32,12 @@ export function useCreateContractRequestMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
     },
+  });
+}
+
+export function usePreviewContractRequestMutation() {
+  return useMutation({
+    mutationFn: (payload: ContractRequestPayload) => previewContractRequest(payload),
   });
 }
 

@@ -1,9 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "~/components/ui/toast";
 import { useAuthContext } from "~/modules/auth/context";
-import { useCreateContractRequestMutation } from "~/modules/contract-requests/queries";
-import type { ContractRequestPayload } from "~/modules/contract-requests/types";
+import {
+  useCreateContractRequestMutation,
+  usePreviewContractRequestMutation,
+} from "~/modules/contract-requests/queries";
+import type {
+  ContractRequestItem,
+  ContractRequestPayload,
+} from "~/modules/contract-requests/types";
 import type { CreatorProfile } from "../types";
 import {
   addMonths,
@@ -70,6 +76,13 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
   const navigate = useNavigate();
   const { user } = useAuthContext();
   const createMutation = useCreateContractRequestMutation();
+  const previewMutation = usePreviewContractRequestMutation();
+  const previewRequestSeq = useRef(0);
+  const [previewResult, setPreviewResult] = useState<ContractRequestItem | null>(
+    null,
+  );
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [displayedMonth, setDisplayedMonth] = useState(
     new Date(new Date().getFullYear(), new Date().getMonth(), 1),
   );
@@ -205,10 +218,80 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
         formState.selectedTimeSlot,
       ),
       durationMinutes: selectedService.durationMinutes,
-      locationAddress: formState.locationAddress.trim(),
+      jobAddress: formState.locationAddress.trim(),
       termsAccepted: formState.termsAccepted,
     };
   };
+
+  const buildPreviewPayload = (): ContractRequestPayload | null => {
+    if (
+      !selectedService ||
+      !formState.selectedAvailableDate ||
+      !formState.selectedTimeSlot ||
+      !formState.locationAddress.trim()
+    ) {
+      return null;
+    }
+
+    return {
+      creatorId: profile.id,
+      jobTypeId: selectedService.jobTypeId,
+      description: formState.description.trim() || "Solicitação presencial",
+      startsAt: buildStartsAt(
+        formState.selectedAvailableDate,
+        formState.selectedTimeSlot,
+      ),
+      durationMinutes: selectedService.durationMinutes,
+      jobAddress: formState.locationAddress.trim(),
+      // Preview é apenas simulação de preço/distância.
+      termsAccepted: true,
+    };
+  };
+
+  useEffect(() => {
+    const payload = buildPreviewPayload();
+    if (!payload) {
+      setPreviewResult(null);
+      setPreviewError(null);
+      setIsPreviewLoading(false);
+      return;
+    }
+
+    const currentRequest = ++previewRequestSeq.current;
+    setIsPreviewLoading(true);
+    setPreviewError(null);
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await previewMutation.mutateAsync(payload);
+        if (previewRequestSeq.current === currentRequest) {
+          setPreviewResult(result);
+        }
+      } catch (error) {
+        if (previewRequestSeq.current !== currentRequest) {
+          return;
+        }
+        const message =
+          error instanceof Error ? error.message : "Não foi possível simular os valores.";
+        setPreviewResult(null);
+        setPreviewError(message);
+      } finally {
+        if (previewRequestSeq.current === currentRequest) {
+          setIsPreviewLoading(false);
+        }
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [
+    formState.description,
+    formState.locationAddress,
+    formState.selectedAvailableDate,
+    formState.selectedServiceId,
+    formState.selectedTimeSlot,
+    profile.id,
+    selectedService,
+  ]);
 
   const submit = async () => {
     const payload = buildPayload();
@@ -240,7 +323,10 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     formState,
     hasServices: profile.services.length > 0,
     isSubmitting: createMutation.isPending,
+    isPreviewLoading,
     monthLabel,
+    previewError,
+    previewResult,
     selectedService,
     weekDayLabels,
     goToNextMonth: () => setDisplayedMonth((current) => addMonths(current, 1)),

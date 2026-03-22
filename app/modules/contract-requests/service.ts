@@ -18,6 +18,18 @@ export async function createContractRequest(
   });
 }
 
+export async function previewContractRequest(
+  data: ContractRequestPayload,
+  token?: string
+): Promise<ContractRequestItem> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractRequestItem>("/contract-requests/preview", {
+    method: "POST",
+    body: data,
+    token: accessToken,
+  });
+}
+
 export async function getMyCompanyContractRequests(
   status?: ContractRequestStatus,
   token?: string

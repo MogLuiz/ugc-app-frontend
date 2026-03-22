@@ -100,7 +100,9 @@ export function CreatorPendingContractRequestsScreen() {
                         <p className="text-sm text-slate-500">
                           {formatDateTime(item.startsAt)} • {item.durationMinutes} min
                         </p>
-                        <p className="text-sm text-slate-500">{item.locationAddress}</p>
+                        <p className="text-sm text-slate-500">
+                          {item.jobFormattedAddress ?? item.jobAddress}
+                        </p>
                       </div>
 
                       <div className="rounded-2xl bg-slate-50 p-4">
