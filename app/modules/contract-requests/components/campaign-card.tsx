@@ -5,13 +5,13 @@ import type { CompanyCampaignStatus, ContractRequestItem } from "../types";
 import {
   formatCurrency,
   formatDateShort,
-  formatTimeRange,
   getContractRequestStatusMeta,
   getInitials,
 } from "../utils";
 
 type CampaignCardProps = {
   item: ContractRequestItem;
+  onCardClick?: (item: ContractRequestItem) => void;
 };
 
 function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignStatus {
@@ -23,7 +23,7 @@ function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignSt
   return "CANCELLED";
 }
 
-function CampaignCardComponent({ item }: CampaignCardProps) {
+function CampaignCardComponent({ item, onCardClick }: CampaignCardProps) {
   const status = resolveStatus(item.status);
   const statusMeta = getContractRequestStatusMeta(status);
   const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
@@ -40,17 +40,30 @@ function CampaignCardComponent({ item }: CampaignCardProps) {
       ? `${city}, ${state}`
       : city || state || item.jobFormattedAddress || item.jobAddress || "Local a combinar";
   const totalAmount = item.pricing?.totalAmount ?? item.totalAmount ?? item.totalPrice;
-  const baseAmount = item.pricing?.baseAmount ?? item.creatorBasePrice;
-  const transportAmount = item.pricing?.transportAmount ?? item.transportFee;
   const actions = item.actions ?? {
     canCancel: status === "PENDING",
     canChat: status === "ACCEPTED",
-    canViewDetails:
-      status === "ACCEPTED" || status === "IN_PROGRESS" || status === "COMPLETED",
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (onCardClick && !(e.target as HTMLElement).closest("a, button")) {
+      onCardClick(item);
+    }
   };
 
   return (
-    <article className="rounded-3xl bg-white p-5 shadow-sm lg:p-6">
+    <article
+      className="cursor-pointer rounded-3xl bg-white p-5 shadow-sm transition-shadow hover:shadow-md lg:p-6"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if ((e.key === "Enter" || e.key === " ") && onCardClick) {
+          e.preventDefault();
+          onCardClick(item);
+        }
+      }}
+    >
       <header className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-3">
           {creatorAvatarUrl ? (
@@ -77,7 +90,8 @@ function CampaignCardComponent({ item }: CampaignCardProps) {
 
         <Link
           to={`/criador/${item.creatorId}`}
-          className="rounded-full bg-[#895af6]/10 px-3 py-1.5 text-xs font-semibold text-[#895af6]"
+          className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-200"
+          onClick={(e) => e.stopPropagation()}
         >
           Ver perfil
         </Link>
@@ -96,88 +110,75 @@ function CampaignCardComponent({ item }: CampaignCardProps) {
         >
           {description}
         </p>
-        <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-3">
-          <p className="inline-flex items-center gap-1.5">
-            <CalendarDays className="size-3.5 text-[#895af6]" />
-            {formatDateShort(startsAt)}
-          </p>
-          <p className="inline-flex items-center gap-1.5">
-            <Clock3 className="size-3.5 text-[#895af6]" />
-            {formatTimeRange(startsAt, durationMinutes)}
-          </p>
-          <p className="inline-flex items-center gap-1.5">
-            <MapPin className="size-3.5 text-[#895af6]" />
-            {locationText}
-          </p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-3 text-xs">
+        <div className="inline-flex items-center gap-2">
+          <CalendarDays className="size-3.5 shrink-0 text-[#895af6]" />
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+              Data/Hora
+            </p>
+            <p className="font-bold text-slate-900">
+              {formatDateShort(startsAt)},{" "}
+              {new Date(startsAt).toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+        </div>
+        <div className="inline-flex items-center gap-2">
+          <MapPin className="size-3.5 shrink-0 text-[#895af6]" />
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+              Local
+            </p>
+            <p className="font-bold text-slate-900">{locationText}</p>
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-        <span className={`rounded-full px-4 py-2 text-xs font-extrabold uppercase ${statusMeta.className}`}>
+      <div className="mt-4">
+        <span
+          className={`inline-block rounded-full px-4 py-2 text-xs font-extrabold uppercase ${statusMeta.className}`}
+        >
           {statusMeta.label}
         </span>
-        <div className="text-right">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Total da campanha
-          </p>
-          <p className="text-3xl font-black leading-none text-[#895af6]">
-            {formatCurrency(totalAmount, item.currency)}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            Base: {formatCurrency(baseAmount, item.currency)}
-          </p>
-          <p className="text-xs text-slate-500">
-            Transporte: {formatCurrency(transportAmount, item.currency)}
-          </p>
-        </div>
       </div>
 
-      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-        {status === "PENDING" && actions.canCancel ? (
-          <button
-            type="button"
-            className="w-full rounded-full border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-600 sm:w-auto sm:min-w-[190px]"
-          >
-            Cancelar solicitação
-          </button>
-        ) : null}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 pt-4">
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-wide text-slate-500">
+            Investimento
+          </p>
+          <p className="mt-1 text-2xl font-black leading-none text-[#895af6]">
+            {formatCurrency(totalAmount, item.currency)}
+          </p>
+        </div>
 
-        {status === "ACCEPTED" && actions.canChat ? (
-          <button
-            type="button"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-4 py-3 text-sm font-semibold text-white sm:w-auto sm:min-w-[190px]"
-          >
-            <MessageCircle className="size-4" />
-            Falar com creator
-          </button>
-        ) : null}
+        <div className="shrink-0">
+          {status === "PENDING" && actions.canCancel ? (
+            <button
+              type="button"
+              className="rounded-full border border-rose-200 px-4 py-3 text-sm font-semibold text-rose-600 hover:bg-rose-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Cancelar solicitação
+            </button>
+          ) : null}
 
-        {status === "ACCEPTED" && actions.canViewDetails ? (
-          <button
-            type="button"
-            className="w-full rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 sm:w-auto sm:min-w-[170px]"
-          >
-            Ver detalhes
-          </button>
-        ) : null}
-
-        {status === "IN_PROGRESS" && actions.canViewDetails ? (
-          <button
-            type="button"
-            className="w-full rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 sm:w-auto sm:min-w-[170px]"
-          >
-            Ver andamento
-          </button>
-        ) : null}
-
-        {status === "COMPLETED" && actions.canViewDetails ? (
-          <button
-            type="button"
-            className="w-full rounded-full border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 sm:w-auto sm:min-w-[170px]"
-          >
-            Ver resultado
-          </button>
-        ) : null}
+          {(status === "ACCEPTED" || status === "IN_PROGRESS") && actions.canChat ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-full bg-[#895af6]/10 px-4 py-3 text-sm font-semibold text-[#895af6] hover:bg-[#895af6]/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MessageCircle className="size-4" />
+              Falar com creator
+            </button>
+          ) : null}
+        </div>
       </div>
     </article>
   );

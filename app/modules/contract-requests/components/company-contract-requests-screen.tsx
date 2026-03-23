@@ -7,6 +7,7 @@ import { EmptyState } from "~/components/ui/empty-state";
 import { useMyCompanyContractRequestsQuery } from "../queries";
 import type { CompanyCampaignStatus, ContractRequestItem } from "../types";
 import { CampaignCard } from "./campaign-card";
+import { CampaignDetailsModal } from "./campaign-details-modal";
 
 type TabId = "PENDING" | "ACCEPTED" | "IN_PROGRESS" | "FINALIZED";
 type SortBy = "CREATED_AT_DESC" | "TOTAL_DESC" | "DATE_ASC";
@@ -37,6 +38,7 @@ function getCampaignStatus(item: ContractRequestItem): CompanyCampaignStatus | n
 export function CompanyContractRequestsScreen() {
   const [activeTab, setActiveTab] = useState<TabId>("PENDING");
   const [sortBy] = useState<SortBy>("CREATED_AT_DESC");
+  const [selectedCampaign, setSelectedCampaign] = useState<ContractRequestItem | null>(null);
   const contractRequestsQuery = useMyCompanyContractRequestsQuery();
   const items = contractRequestsQuery.data ?? [];
   const filteredItems = useMemo(() => {
@@ -135,11 +137,20 @@ export function CompanyContractRequestsScreen() {
         ) : (
           <section className="grid gap-4 lg:grid-cols-2 lg:gap-6">
             {filteredItems.map((item) => (
-              <CampaignCard key={item.id} item={item} />
+              <CampaignCard
+                key={item.id}
+                item={item}
+                onCardClick={setSelectedCampaign}
+              />
             ))}
           </section>
         )}
       </main>
+
+      <CampaignDetailsModal
+        item={selectedCampaign}
+        onClose={() => setSelectedCampaign(null)}
+      />
 
       <BusinessBottomNav />
     </div>
