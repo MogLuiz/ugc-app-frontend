@@ -3,20 +3,23 @@ import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
-import { Button } from "~/components/ui/button";
-import { toast } from "~/components/ui/toast";
+import { EmptyState } from "~/components/ui/empty-state";
 import {
   useAcceptContractRequestMutation,
   useMyCreatorPendingContractRequestsQuery,
   useRejectContractRequestMutation,
 } from "../queries";
-import { formatCurrency, formatDateTime } from "../utils";
+import type { ContractRequestItem } from "../types";
+import { CompanyProfileModal } from "./company-profile-modal";
+import { OfferCard } from "./offer-card";
+import { toast } from "~/components/ui/toast";
 
 export function CreatorPendingContractRequestsScreen() {
   const pendingQuery = useMyCreatorPendingContractRequestsQuery();
   const acceptMutation = useAcceptContractRequestMutation();
   const rejectMutation = useRejectContractRequestMutation();
   const [activeMutationId, setActiveMutationId] = useState<string | null>(null);
+  const [viewedCompany, setViewedCompany] = useState<ContractRequestItem | null>(null);
 
   const items = pendingQuery.data ?? [];
 
@@ -54,17 +57,19 @@ export function CreatorPendingContractRequestsScreen() {
         <AppSidebar variant="creator" />
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-24 pt-6 lg:p-8">
+      <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-24 pt-6 lg:gap-10 lg:px-12 lg:pt-10">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Ofertas</h1>
+            <h1 className="text-2xl font-black tracking-tight text-slate-900 lg:text-[48px] lg:leading-[48px]">
+              Ofertas
+            </h1>
             <p className="mt-1 text-sm text-slate-500">
               Revise as pendências e responda sem sair do seu fluxo.
             </p>
           </div>
           <Link
             to="/dashboard"
-            className="hidden items-center gap-2 text-sm font-medium text-slate-600 lg:inline-flex"
+            className="hidden items-center gap-2 text-sm font-semibold text-slate-600 lg:inline-flex"
           >
             <ArrowLeft className="size-4" />
             Voltar
@@ -74,69 +79,35 @@ export function CreatorPendingContractRequestsScreen() {
         {pendingQuery.isLoading && items.length === 0 ? (
           <p className="text-sm text-slate-600">Carregando pendências...</p>
         ) : pendingQuery.error ? (
-          <div className="rounded-[32px] bg-white p-6 text-sm text-slate-600 shadow-sm">
+          <div className="rounded-3xl bg-white p-6 text-sm text-slate-600 shadow-sm">
             {pendingQuery.error instanceof Error
               ? pendingQuery.error.message
               : "Não foi possível carregar as pendências."}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-[32px] border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-600 shadow-sm">
-            Nenhuma solicitação pendente no momento.
-          </div>
+          <EmptyState
+            title="Nenhuma oferta pendente"
+            description="Quando empresas enviarem propostas, elas aparecerão aqui. Verifique também suas notificações."
+          />
         ) : (
-          <section className="flex flex-col gap-4">
+          <section className="grid gap-6 lg:grid-cols-2 lg:gap-8">
             {items.map((item) => {
               const isMutating = activeMutationId === item.id;
               return (
-                <article
+                <OfferCard
                   key={item.id}
-                  className="rounded-[32px] bg-white p-5 shadow-sm lg:rounded-[48px] lg:p-6"
-                >
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-                      <div className="space-y-2">
-                        <h2 className="text-lg font-bold text-slate-900">Solicitação direta</h2>
-                        <p className="text-sm text-slate-600">{item.description}</p>
-                        <p className="text-sm text-slate-500">
-                          {formatDateTime(item.startsAt)} • {item.durationMinutes} min
-                        </p>
-                        <p className="text-sm text-slate-500">
-                          {item.jobFormattedAddress ?? item.jobAddress}
-                        </p>
-                      </div>
-
-                      <div className="rounded-2xl bg-slate-50 p-4">
-                        <p className="text-xs uppercase text-slate-400">Valor total</p>
-                        <p className="mt-1 text-xl font-bold text-[#895af6]">
-                          {formatCurrency(item.totalPrice, item.currency)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button
-                        variant="purple"
-                        className="rounded-full"
-                        onClick={() => void handleAccept(item.id)}
-                        disabled={isMutating}
-                      >
-                        {isMutating && acceptMutation.isPending
-                          ? "Aceitando..."
-                          : "Aceitar"}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="rounded-full"
-                        onClick={() => void handleReject(item.id)}
-                        disabled={isMutating}
-                      >
-                        {isMutating && rejectMutation.isPending
-                          ? "Recusando..."
-                          : "Recusar"}
-                      </Button>
-                    </div>
-                  </div>
-                </article>
+                  item={item}
+                  isMutating={isMutating}
+                  acceptLabel={
+                    isMutating && acceptMutation.isPending ? "Aceitando..." : "Aceitar"
+                  }
+                  rejectLabel={
+                    isMutating && rejectMutation.isPending ? "Recusando..." : "Recusar"
+                  }
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                  onViewProfile={setViewedCompany}
+                />
               );
             })}
           </section>
@@ -144,6 +115,13 @@ export function CreatorPendingContractRequestsScreen() {
       </main>
 
       <CreatorBottomNav />
+
+      {viewedCompany && (
+        <CompanyProfileModal
+          item={viewedCompany}
+          onClose={() => setViewedCompany(null)}
+        />
+      )}
     </div>
   );
 }

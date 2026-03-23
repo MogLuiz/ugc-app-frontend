@@ -5,6 +5,9 @@ export type ContractRequestStatus =
   | "CANCELLED"
   | "COMPLETED";
 
+/** Status simplificado para exibição na tela de ofertas */
+export type OfferDisplayStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED" | "CANCELLED" | "COMPLETED";
+
 export type PaymentStatus = "PENDING" | "PAID";
 
 export type ContractRequestItem = {
@@ -14,7 +17,7 @@ export type ContractRequestItem = {
   jobTypeId: string;
   mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
   description: string;
-  status: ContractRequestStatus;
+  status: ContractRequestStatus | OfferDisplayStatus;
   paymentStatus: PaymentStatus;
   currency: string;
   termsAcceptedAt: string;
@@ -47,6 +50,13 @@ export type ContractRequestItem = {
   rejectionReason: string | null;
   createdAt?: string;
   updatedAt?: string;
+  /** Payload enriquecido (my-creator/pending) */
+  companyName?: string;
+  companyLogoUrl?: string | null;
+  companyRating?: number | null;
+  jobTypeName?: string | null;
+  expiresSoon?: boolean;
+  expiresAt?: string;
 };
 
 export type ContractRequestPayload = {
