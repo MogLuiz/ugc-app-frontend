@@ -5,6 +5,13 @@ export type ContractRequestStatus =
   | "CANCELLED"
   | "COMPLETED";
 
+export type CompanyCampaignStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED";
+
 /** Status simplificado para exibição na tela de ofertas */
 export type OfferDisplayStatus = "PENDING" | "ACCEPTED" | "REJECTED" | "EXPIRED" | "CANCELLED" | "COMPLETED";
 
@@ -17,7 +24,8 @@ export type ContractRequestItem = {
   jobTypeId: string;
   mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
   description: string;
-  status: ContractRequestStatus | OfferDisplayStatus;
+  status: ContractRequestStatus | CompanyCampaignStatus | OfferDisplayStatus;
+  legacyStatus?: ContractRequestStatus;
   paymentStatus: PaymentStatus;
   currency: string;
   termsAcceptedAt: string;
@@ -57,6 +65,39 @@ export type ContractRequestItem = {
   jobTypeName?: string | null;
   expiresSoon?: boolean;
   expiresAt?: string;
+  /** Payload enriquecido (my-company) */
+  creator?: {
+    name: string;
+    avatarUrl: string | null;
+    rating: number | null;
+  };
+  job?: {
+    title: string;
+    description: string;
+    durationMinutes: number;
+  };
+  schedule?: {
+    date: string;
+    startTime: string;
+  };
+  location?: {
+    city: string | null;
+    state: string | null;
+  };
+  pricing?: {
+    totalAmount: number;
+    baseAmount: number;
+    transportAmount: number;
+  };
+  metadata?: {
+    createdAt: string | null;
+    acceptedAt: string | null;
+  };
+  actions?: {
+    canCancel: boolean;
+    canChat: boolean;
+    canViewDetails: boolean;
+  };
 };
 
 export type ContractRequestPayload = {

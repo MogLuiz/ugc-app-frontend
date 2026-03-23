@@ -8,9 +8,15 @@ import {
   previewContractRequest,
   rejectContractRequest,
 } from "./service";
-import type { ContractRequestPayload, ContractRequestStatus } from "./types";
+import type {
+  CompanyCampaignStatus,
+  ContractRequestPayload,
+  ContractRequestStatus,
+} from "./types";
 
-export function useMyCompanyContractRequestsQuery(status?: ContractRequestStatus) {
+export function useMyCompanyContractRequestsQuery(
+  status?: CompanyCampaignStatus | ContractRequestStatus
+) {
   return useQuery({
     queryKey: contractRequestKeys.companyList(status),
     queryFn: () => getMyCompanyContractRequests(status),

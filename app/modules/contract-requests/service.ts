@@ -1,6 +1,7 @@
 import { httpClient } from "~/lib/http/client";
 import { getAccessToken } from "~/modules/auth/service";
 import type {
+  CompanyCampaignStatus,
   ContractRequestItem,
   ContractRequestPayload,
   ContractRequestStatus,
@@ -31,7 +32,7 @@ export async function previewContractRequest(
 }
 
 export async function getMyCompanyContractRequests(
-  status?: ContractRequestStatus,
+  status?: CompanyCampaignStatus | ContractRequestStatus,
   token?: string
 ): Promise<ContractRequestItem[]> {
   const accessToken = await getAccessToken(token);

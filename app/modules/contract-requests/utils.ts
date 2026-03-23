@@ -1,4 +1,8 @@
-import type { ContractRequestStatus, OfferDisplayStatus } from "./types";
+import type {
+  CompanyCampaignStatus,
+  ContractRequestStatus,
+  OfferDisplayStatus,
+} from "./types";
 
 export function formatCurrency(value: number, currency = "BRL") {
   return new Intl.NumberFormat("pt-BR", {
@@ -53,7 +57,7 @@ export function formatTimeRange(startsAt: string, durationMinutes: number) {
 }
 
 export function getContractRequestStatusMeta(
-  status: ContractRequestStatus | OfferDisplayStatus
+  status: ContractRequestStatus | CompanyCampaignStatus | OfferDisplayStatus
 ) {
   switch (status) {
     case "PENDING_ACCEPTANCE":
@@ -64,28 +68,33 @@ export function getContractRequestStatusMeta(
       };
     case "ACCEPTED":
       return {
-        label: "Aceita",
+        label: "Aceito",
         className: "bg-emerald-100 text-emerald-700",
+      };
+    case "IN_PROGRESS":
+      return {
+        label: "Em produção",
+        className: "bg-blue-100 text-blue-700",
       };
     case "REJECTED":
       return {
-        label: "Recusada",
+        label: "Cancelado",
         className: "bg-rose-100 text-rose-700",
+      };
+    case "CANCELLED":
+      return {
+        label: "Cancelado",
+        className: "bg-rose-100 text-rose-700",
+      };
+    case "COMPLETED":
+      return {
+        label: "Finalizado",
+        className: "bg-slate-200 text-slate-700",
       };
     case "EXPIRED":
       return {
         label: "Expirada",
         className: "bg-slate-200 text-slate-600",
-      };
-    case "CANCELLED":
-      return {
-        label: "Cancelada",
-        className: "bg-slate-200 text-slate-700",
-      };
-    case "COMPLETED":
-      return {
-        label: "Concluída",
-        className: "bg-blue-100 text-blue-700",
       };
     default:
       return {
@@ -93,4 +102,13 @@ export function getContractRequestStatusMeta(
         className: "bg-slate-100 text-slate-700",
       };
   }
+}
+
+export function getInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("");
 }
