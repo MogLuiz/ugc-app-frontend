@@ -5,11 +5,9 @@ import { MobileJobSheet } from "../calendar/mobile-job-sheet";
 import { PastRangeNotice } from "../calendar/past-range-notice";
 import {
   MobileAgendaTopBar,
-  MobileFeaturedJobCard,
   MobileSectionHeading,
   MobileStandardJobCard,
   MobileWeekStrip,
-  pickFeaturedEventId,
   sectionHeadingAccent,
 } from "../calendar/mobile-agenda-ui";
 
@@ -29,11 +27,6 @@ function CreatorCalendarMobile({
   onOpenEvent,
 }: CreatorCalendarMobileProps) {
   const { user } = useAuth();
-
-  const featuredId = useMemo(
-    () => pickFeaturedEventId(viewModel.events),
-    [viewModel.events],
-  );
 
   const sectionsWithEvents = useMemo(
     () => viewModel.timelineByDay.filter((s) => s.events.length > 0),
@@ -85,22 +78,13 @@ function CreatorCalendarMobile({
                     accent={sectionHeadingAccent(section, viewModel)}
                   />
                   <div className="flex flex-col gap-4">
-                    {section.events.map((event) =>
-                      event.id === featuredId ? (
-                        <MobileFeaturedJobCard
-                          key={event.id}
-                          event={event}
-                          timeZone={viewModel.timeZone}
-                          onOpen={() => openDetails(event)}
-                        />
-                      ) : (
-                        <MobileStandardJobCard
-                          key={event.id}
-                          event={event}
-                          onOpen={() => openDetails(event)}
-                        />
-                      ),
-                    )}
+                    {section.events.map((event) => (
+                      <MobileStandardJobCard
+                        key={event.id}
+                        event={event}
+                        onOpen={() => openDetails(event)}
+                      />
+                    ))}
                   </div>
                 </section>
               ))}

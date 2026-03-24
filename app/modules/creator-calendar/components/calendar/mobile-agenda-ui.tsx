@@ -1,9 +1,7 @@
 import type { KeyboardEvent } from "react";
-import { ArrowLeft, Clock, Search, Video } from "lucide-react";
-import { Link } from "react-router";
+import { ArrowLeft, Video } from "lucide-react";
 import { cn } from "~/lib/utils";
 import type { AuthUser } from "~/modules/auth/types";
-import { formatDayNumberInTimeZone } from "../../lib/calendar-tz";
 import { VISUAL_STATUS_BADGE_LABEL } from "../../lib/calendar-view-model";
 import type {
   CalendarTimelineSection,
@@ -44,30 +42,21 @@ export function MobileAgendaTopBar({ user }: { user: AuthUser | null }) {
 
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200/50 bg-[#f6f5f8]/90 backdrop-blur-[12px]">
-      <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f0ebff]">
-            {photo ? (
-              <img
-                src={photo}
-                alt=""
-                className="size-full object-cover"
-              />
-            ) : (
-              <span className="text-sm font-semibold text-[#895af6]">{initial}</span>
-            )}
-          </div>
-          <span className="text-[20px] font-light tracking-[-0.02em] text-[#895af6]">
-            UGC Local
-          </span>
+      <div className="flex items-center gap-3 px-6 py-4">
+        <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f0ebff]">
+          {photo ? (
+            <img
+              src={photo}
+              alt=""
+              className="size-full object-cover"
+            />
+          ) : (
+            <span className="text-sm font-semibold text-[#895af6]">{initial}</span>
+          )}
         </div>
-        <Link
-          to="/marketplace"
-          className="flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
-          aria-label="Buscar creators e campanhas"
-        >
-          <Search className="size-[18px]" strokeWidth={2} />
-        </Link>
+        <span className="text-[20px] font-light tracking-[-0.02em] text-[#895af6]">
+          UGC Local
+        </span>
       </div>
     </header>
   );
@@ -113,13 +102,13 @@ export function MobileSectionHeading(props: {
     <div className="flex items-center gap-3">
       <span
         className={cn(
-          "shrink-0 text-[10px] font-bold uppercase tracking-[0.1em]",
+          "max-w-[72%] text-xs font-bold leading-snug tracking-tight",
           props.accent ? "text-[#895af6]" : "text-slate-500",
         )}
       >
         {props.label}
       </span>
-      <div className="h-px min-w-0 flex-1 bg-slate-200" />
+      <div className="h-px min-w-0 flex-1 bg-slate-200" aria-hidden />
     </div>
   );
 }
@@ -204,69 +193,6 @@ export function MobileStandardJobCard(props: {
       </div>
     </div>
   );
-}
-
-export function MobileFeaturedJobCard(props: {
-  event: UiCalendarEvent;
-  timeZone: string;
-  onOpen: () => void;
-}) {
-  const { event, timeZone } = props;
-  const dayNum = formatDayNumberInTimeZone(event.startAt, timeZone);
-  const monthRaw = new Intl.DateTimeFormat("pt-BR", {
-    timeZone,
-    month: "long",
-  }).format(event.startAt);
-  const monthUpper = monthRaw.toUpperCase();
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={props.onOpen}
-      onKeyDown={(e) => cardKeyOpen(e, props.onOpen)}
-      className="relative w-full cursor-pointer overflow-hidden rounded-[32px] bg-[#895af6] p-6 text-left shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2),0px_4px_6px_-4px_rgba(137,90,246,0.2)] transition hover:opacity-[0.98]"
-    >
-      <div
-        className="pointer-events-none absolute -right-4 -top-4 size-24 rounded-full bg-white/10 blur-2xl"
-        aria-hidden
-      />
-      <div className="relative flex items-start justify-between gap-3">
-        <span className="rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white backdrop-blur-sm">
-          {VISUAL_STATUS_BADGE_LABEL[event.visualStatus]}
-        </span>
-        <div className="text-right text-white">
-          <p className="text-2xl font-bold leading-none">{dayNum}</p>
-          <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider opacity-90">
-            {monthUpper}
-          </p>
-        </div>
-      </div>
-      <h3 className="relative mt-8 text-xl font-bold leading-tight text-white">
-        {event.title}
-      </h3>
-      <p className="relative mt-2 max-w-[240px] text-sm leading-snug text-white/90">
-        {event.locationLine ?? event.modeLine}
-      </p>
-      <div className="relative mt-6 flex items-center gap-3 text-sm text-white">
-        <Clock className="size-5 shrink-0 opacity-95" />
-        <span className="font-medium">
-          {event.startLabel} - {event.endLabel}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-export function pickFeaturedEventId(events: UiCalendarEvent[]): string | null {
-  const candidates = events.filter((e) => e.bookingStatus === "CONFIRMED");
-  if (candidates.length === 0) return null;
-  const sorted = [...candidates].sort(
-    (a, b) =>
-      b.durationMinutes - a.durationMinutes ||
-      a.startAt.getTime() - b.startAt.getTime(),
-  );
-  return sorted[0]?.id ?? null;
 }
 
 export function sectionHeadingAccent(

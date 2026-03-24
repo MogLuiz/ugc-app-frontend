@@ -110,6 +110,7 @@ export type UiCalendarEvent = {
 
 export type CalendarTimelineSection = {
   dateKey: string;
+  /** Cabeçalho da timeline (ex.: "TER - 31 de Março", "HOJE - 24 de Março"). */
   sectionLabel: string;
   events: UiCalendarEvent[];
 };

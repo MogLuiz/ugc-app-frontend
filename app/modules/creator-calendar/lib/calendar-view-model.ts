@@ -1,6 +1,7 @@
 import { addDays, SCHEDULING_TIMEZONE } from "./calendar-date";
 import {
   diffCalendarDays,
+  formatDayAndMonthLongInTimeZone,
   formatDayNumberInTimeZone,
   formatIsoDateInTimeZone,
   formatTimeInTimeZone,
@@ -173,7 +174,7 @@ function buildWeeklyStats(
   const totalHours =
     Math.round(
       counted.reduce((sum, e) => sum + (e.endAt.getTime() - e.startAt.getTime()) / 3_600_000, 0) *
-        100,
+      100,
     ) / 100;
 
   const stats: CalendarWeeklyStats = {
@@ -338,14 +339,17 @@ export function buildCalendarViewModel(input: {
     const dateKey = formatIsoDateInTimeZone(date, timeZone);
     const dayEvents = events.filter((e) => e.dayIndex === i);
 
-    let sectionLabel: string;
+    let dayPrefix: string;
     if (dateKey === todayDateKey) {
-      sectionLabel = "HOJE";
+      dayPrefix = "HOJE";
     } else if (diffCalendarDays(todayDateKey, dateKey) === 1) {
-      sectionLabel = "AMANHÃ";
+      dayPrefix = "AMANHÃ";
     } else {
-      sectionLabel = formatWeekdayShortInTimeZone(date, timeZone);
+      dayPrefix = formatWeekdayShortInTimeZone(date, timeZone);
     }
+
+    const dateCaption = formatDayAndMonthLongInTimeZone(date, timeZone);
+    const sectionLabel = `${dayPrefix} • ${dateCaption}`;
 
     timelineByDay.push({
       dateKey,

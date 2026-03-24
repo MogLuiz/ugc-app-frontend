@@ -61,6 +61,22 @@ export function formatWeekdayLongInTimeZone(date: Date, timeZone: string): strin
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
+/** Ex.: "31 de Março" (dia + mês por extenso no fuso da agenda). */
+export function formatDayAndMonthLongInTimeZone(date: Date, timeZone: string): string {
+  const raw = new Intl.DateTimeFormat("pt-BR", {
+    timeZone,
+    day: "numeric",
+    month: "long",
+  }).format(date);
+  const sep = " de ";
+  const idx = raw.indexOf(sep);
+  if (idx === -1) return raw;
+  const dayPart = raw.slice(0, idx);
+  const monthPart = raw.slice(idx + sep.length);
+  if (!monthPart) return raw;
+  return `${dayPart} de ${monthPart.charAt(0).toUpperCase()}${monthPart.slice(1)}`;
+}
+
 function dateKeyToUtcNoon(dateKey: string): number {
   const [y = 1970, m = 1, d = 1] = dateKey.split("-").map(Number);
   return Date.UTC(y, m - 1, d, 12, 0, 0, 0);
