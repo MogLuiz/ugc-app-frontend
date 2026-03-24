@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, CheckCheck } from "lucide-react";
+import { AlertCircle, CheckCheck, ChevronLeft } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "~/hooks/use-auth";
 import {
@@ -11,6 +11,7 @@ import { MessageInput } from "./message-input";
 
 type ChatThreadProps = {
   conversation: ConversationListItem | null;
+  onBackToList?: () => void;
 };
 
 function mergeUniqueMessages(items: ConversationMessageItem[]): ConversationMessageItem[] {
@@ -26,7 +27,7 @@ type LocalMessage = ConversationMessageItem & {
   localError?: string;
 };
 
-export function ChatThread({ conversation }: ChatThreadProps) {
+export function ChatThread({ conversation, onBackToList }: ChatThreadProps) {
   const { user } = useAuth();
   const messagesQuery = useConversationMessagesInfiniteQuery(conversation?.id);
   const sendMessageMutation = useSendConversationMessageMutation(conversation?.id);
@@ -199,26 +200,70 @@ export function ChatThread({ conversation }: ChatThreadProps) {
   };
 
   const isClosed = Boolean(conversation.closedAt);
+  const isMobileDetail = Boolean(onBackToList);
   const lastFailedMessageId = [...localMessages]
     .reverse()
     .find((message) => message.deliveryStatus === "failed")?.id;
   const showThreadLoading = messagesQuery.isLoading && !messagesQuery.data;
 
   return (
-    <section className="flex min-h-[420px] flex-col rounded-3xl bg-white shadow-sm transition-opacity duration-200">
+    <section
+      className={`flex flex-col bg-white transition-opacity duration-200 ${
+        isMobileDetail
+          ? "min-h-screen rounded-none shadow-none"
+          : "min-h-[420px] rounded-3xl shadow-sm lg:h-full"
+      }`}
+    >
       <header className="border-b border-slate-200 px-4 py-3">
         <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-slate-900">
-              {conversation.participant?.name ?? "Conversa"}
-            </p>
-            <p className="text-xs text-slate-500">
-              {isClosed ? "Conversa encerrada" : "Conversa ativa"}
-            </p>
+          <div className="flex min-w-0 items-center gap-3">
+            {onBackToList ? (
+              <button
+                type="button"
+                onClick={onBackToList}
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 lg:hidden"
+                aria-label="Voltar para conversas"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+            ) : null}
+
+            {conversation.participant?.avatarUrl ? (
+              <img
+                src={conversation.participant.avatarUrl}
+                alt={conversation.participant.name}
+                className="size-10 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xs font-bold text-slate-700">
+                {(conversation.participant?.name ?? "Conversa")
+                  .split(" ")
+                  .slice(0, 2)
+                  .map((chunk) => chunk[0]?.toUpperCase() ?? "")
+                  .join("")}
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-slate-900">
+                {conversation.participant?.name ?? "Conversa"}
+              </p>
+              <div className="mt-1 flex items-center gap-2">
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                    isClosed
+                      ? "bg-slate-100 text-slate-500"
+                      : "bg-[#f0ebff] text-[#7c3aed]"
+                  }`}
+                >
+                  {isClosed ? "Finalizada" : "Em andamento"}
+                </span>
+              </div>
+            </div>
           </div>
           <Link
             to={campaignHref}
-            className="rounded-full bg-[#895af6]/10 px-3 py-1.5 text-xs font-bold text-[#7b4bf0] hover:bg-[#895af6]/20"
+            className="shrink-0 rounded-full bg-[#895af6]/10 px-3 py-1.5 text-xs font-bold text-[#7b4bf0] hover:bg-[#895af6]/20"
           >
             Ver campanha
           </Link>

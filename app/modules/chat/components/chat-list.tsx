@@ -4,6 +4,8 @@ type ChatListProps = {
   conversations: ConversationListItem[];
   selectedConversationId: string | null;
   onSelectConversation: (conversationId: string) => void;
+  activeFilter?: "all" | "unread" | "active";
+  hasAnyConversations?: boolean;
 };
 
 function getConversationName(conversation: ConversationListItem): string {
@@ -43,17 +45,26 @@ export function ChatList({
   conversations,
   selectedConversationId,
   onSelectConversation,
+  activeFilter = "all",
+  hasAnyConversations = conversations.length > 0,
 }: ChatListProps) {
   if (!conversations.length) {
+    const message = hasAnyConversations
+      ? activeFilter === "unread"
+        ? "Você está em 'Não lidas'. Quando houver novas mensagens, elas aparecem aqui."
+        : "Você está em 'Em andamento'. Troque para 'Todas' para ver conversas encerradas."
+      : "Ainda não há conversas por aqui. Assim que uma solicitação for aceita, elas aparecerão nesta tela.";
+
     return (
-      <div className="rounded-3xl bg-white p-4 text-sm text-slate-500 shadow-sm">
-        Nenhuma conversa disponível.
+      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 text-sm text-slate-600 shadow-sm">
+        <p className="font-semibold text-slate-800">Nenhuma conversa neste momento</p>
+        <p className="mt-1 leading-relaxed">{message}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2 rounded-3xl bg-white p-3 shadow-sm">
+    <div className="space-y-2">
       {conversations.map((conversation) => {
         const isSelected = selectedConversationId === conversation.id;
         const unreadCount = conversation.unreadCount;
