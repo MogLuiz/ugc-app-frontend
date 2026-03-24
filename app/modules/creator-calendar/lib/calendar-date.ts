@@ -92,8 +92,10 @@ export function parseCalendarDate(value: string): Date {
 
 export type CalendarRequestRangeOptions = {
   now?: Date;
-  /** Garante dados além dos 7 dias visíveis (ex.: próximo compromisso na sidebar). Fim civil exclusivo. */
+  /** Garante dados além do período visível (ex.: próximo compromisso na sidebar). Fim civil exclusivo. */
   upcomingHorizonDays?: number;
+  /** Quantidade de dias civis a partir de periodStart (fim exclusivo na API). */
+  visiblePeriodDays?: number;
 };
 
 export function toCalendarRequestRange(
@@ -102,9 +104,10 @@ export function toCalendarRequestRange(
 ) {
   const now = options?.now ?? new Date();
   const upcomingHorizonDays = options?.upcomingHorizonDays ?? 45;
+  const visiblePeriodDays = Math.max(1, options?.visiblePeriodDays ?? 7);
 
   const startDateKey = formatIsoDate(periodStart);
-  const periodEndKey = formatIsoDate(addDays(periodStart, 7));
+  const periodEndKey = formatIsoDate(addDays(periodStart, visiblePeriodDays));
   const horizonEndKey = formatIsoDate(
     addDays(startOfDay(now), upcomingHorizonDays),
   );

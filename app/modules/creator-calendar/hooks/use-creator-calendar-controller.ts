@@ -9,9 +9,19 @@ import {
   useCreatorCalendarQuery,
 } from "../queries";
 import type { UiCalendarEvent } from "../types";
+import {
+  CALENDAR_VISIBLE_DAYS_DESKTOP,
+  CALENDAR_VISIBLE_DAYS_MOBILE,
+  useCalendarLayoutIsMobile,
+} from "./use-calendar-layout-is-mobile";
 
 export function useCreatorCalendarController() {
   const navigate = useNavigate();
+  const isMobileLayout = useCalendarLayoutIsMobile();
+  const visiblePeriodDays = isMobileLayout
+    ? CALENDAR_VISIBLE_DAYS_MOBILE
+    : CALENDAR_VISIBLE_DAYS_DESKTOP;
+
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfDay(new Date()),
   );
@@ -20,8 +30,15 @@ export function useCreatorCalendarController() {
   const [isDesktopPanelOpen, setIsDesktopPanelOpen] = useState(false);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const calendarRange = useMemo(
-    () => toCalendarRequestRange(currentWeekStart, { now: new Date() }),
-    [currentWeekStart],
+    () =>
+      toCalendarRequestRange(currentWeekStart, {
+        now: new Date(),
+        visiblePeriodDays,
+        upcomingHorizonDays: isMobileLayout
+          ? CALENDAR_VISIBLE_DAYS_MOBILE
+          : 45,
+      }),
+    [currentWeekStart, isMobileLayout, visiblePeriodDays],
   );
 
   const calendarQuery = useCreatorCalendarQuery({
@@ -37,8 +54,15 @@ export function useCreatorCalendarController() {
         response: calendarQuery.data,
         weekStart: currentWeekStart,
         selectedDate,
+        visiblePeriodDays,
       }),
-    [calendarQuery.data, calendarQuery.dataUpdatedAt, currentWeekStart, selectedDate],
+    [
+      calendarQuery.data,
+      calendarQuery.dataUpdatedAt,
+      currentWeekStart,
+      selectedDate,
+      visiblePeriodDays,
+    ],
   );
 
   const selectedEvent = useMemo((): UiCalendarEvent | null => {
@@ -67,13 +91,13 @@ export function useCreatorCalendarController() {
   const errorMessage = getQueryErrorMessage(calendarQuery.error ?? null);
 
   function goToPreviousWeek() {
-    setCurrentWeekStart((current) => addDays(current, -7));
-    setSelectedDate((current) => addDays(current, -7));
+    setCurrentWeekStart((current) => addDays(current, -visiblePeriodDays));
+    setSelectedDate((current) => addDays(current, -visiblePeriodDays));
   }
 
   function goToNextWeek() {
-    setCurrentWeekStart((current) => addDays(current, 7));
-    setSelectedDate((current) => addDays(current, 7));
+    setCurrentWeekStart((current) => addDays(current, visiblePeriodDays));
+    setSelectedDate((current) => addDays(current, visiblePeriodDays));
   }
 
   function goToToday() {

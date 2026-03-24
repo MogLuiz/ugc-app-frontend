@@ -262,9 +262,13 @@ export function buildCalendarViewModel(input: {
   weekStart: Date;
   selectedDate: Date;
   now?: Date;
+  /** Dias civis no período (lista mobile pode usar 15; grade desktop segue 7 colunas). */
+  visiblePeriodDays?: number;
 }): CalendarViewModel | null {
   const { response, weekStart, selectedDate } = input;
   const now = input.now ?? new Date();
+  const visiblePeriodDays = Math.max(1, input.visiblePeriodDays ?? 7);
+  const lastDayOffset = visiblePeriodDays - 1;
 
   if (!response) {
     return null;
@@ -274,7 +278,10 @@ export function buildCalendarViewModel(input: {
   const rangeStartKey = formatIsoDateInTimeZone(weekStart, timeZone);
   const todayDateKey = formatIsoDateInTimeZone(now, timeZone);
   const selectedDateKey = formatIsoDateInTimeZone(selectedDate, timeZone);
-  const rangeEndKey = formatIsoDateInTimeZone(addDays(weekStart, 6), timeZone);
+  const rangeEndKey = formatIsoDateInTimeZone(
+    addDays(weekStart, lastDayOffset),
+    timeZone,
+  );
 
   let rangePastNotice: CalendarRangePastNotice = "none";
   if (rangeEndKey < todayDateKey) {
@@ -290,7 +297,7 @@ export function buildCalendarViewModel(input: {
     const eventKey = formatIsoDateInTimeZone(startAt, timeZone);
     const dayIndex = diffCalendarDays(rangeStartKey, eventKey);
 
-    if (dayIndex < 0 || dayIndex > 6) {
+    if (dayIndex < 0 || dayIndex >= visiblePeriodDays) {
       continue;
     }
 
@@ -311,7 +318,7 @@ export function buildCalendarViewModel(input: {
 
   const overlapById = new Map<string, { overlapIndex: number; overlapCount: number }>();
 
-  for (let d = 0; d <= 6; d += 1) {
+  for (let d = 0; d < visiblePeriodDays; d += 1) {
     const dayList = byDay.get(d) ?? [];
     const items = dayList.map((e) => ({
       id: e.id,
@@ -365,7 +372,7 @@ export function buildCalendarViewModel(input: {
 
   const timelineByDay: CalendarTimelineSection[] = [];
 
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < visiblePeriodDays; i += 1) {
     const date = addDays(weekStart, i);
     const dateKey = formatIsoDateInTimeZone(date, timeZone);
     const dayEvents = events.filter((e) => e.dayIndex === i);
@@ -400,7 +407,7 @@ export function buildCalendarViewModel(input: {
 
   return {
     timeZone,
-    weekRangeLabel: formatWeekRangeLabel(weekStart, timeZone),
+    weekRangeLabel: formatWeekRangeLabel(weekStart, timeZone, visiblePeriodDays),
     weekDays,
     hourSlots,
     events,

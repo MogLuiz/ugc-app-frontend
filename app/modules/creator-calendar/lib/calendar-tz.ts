@@ -89,8 +89,12 @@ export function diffCalendarDays(fromKey: string, toKey: string): number {
   );
 }
 
-export function formatWeekRangeLabel(weekStart: Date, timeZone: string): string {
-  const endDay = addDays(weekStart, 6);
+export function formatWeekRangeLabel(
+  weekStart: Date,
+  timeZone: string,
+  periodDayCount = 7,
+): string {
+  const endDay = addDays(weekStart, Math.max(1, periodDayCount) - 1);
   const startDay = Number(formatDayNumberInTimeZone(weekStart, timeZone));
   const endDayNum = Number(formatDayNumberInTimeZone(endDay, timeZone));
   const monthFormatter = new Intl.DateTimeFormat("pt-BR", {

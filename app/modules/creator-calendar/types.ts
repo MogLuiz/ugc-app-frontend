@@ -121,7 +121,7 @@ export type CalendarWeeklyStats = {
   weeklyEarnings?: number;
 };
 
-/** Período visível (7 dias) em relação a hoje no fuso da agenda. */
+/** Período visível (7 dias no desktop, 15 no mobile) em relação a hoje no fuso da agenda. */
 export type CalendarRangePastNotice = "none" | "partial" | "full";
 
 export type CalendarViewModel = {
