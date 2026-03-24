@@ -98,9 +98,9 @@ export function ChatScreen() {
       </div>
 
       <main
-        className={`flex min-w-0 flex-1 flex-col lg:h-screen lg:p-8 ${
+        className={`flex min-w-0 flex-1 flex-col lg:h-screen lg:min-h-0 lg:p-8 ${
           isMobileConversationDetail
-            ? "gap-0 p-0 pb-0 pt-0"
+            ? "gap-0 p-0 pb-0 pt-0 lg:gap-6 lg:p-8"
             : "gap-5 px-4 pb-24 pt-6"
         }`}
       >
@@ -157,8 +157,9 @@ export function ChatScreen() {
               )}
             </section>
 
-            <section className="hidden gap-6 lg:grid lg:h-[calc(100vh-4rem)] lg:grid-cols-[320px,1fr]">
-              <aside className="flex min-h-0 flex-col rounded-3xl bg-white p-3 shadow-sm">
+            {/* Desktop: duas colunas lado a lado (lista ~320px | thread flex-1), alinhado ao Figma */}
+            <section className="hidden min-h-0 w-full flex-1 flex-col gap-6 lg:flex lg:h-[calc(100vh-4rem)] lg:max-h-[calc(100vh-4rem)] lg:min-h-0 lg:flex-row">
+              <aside className="flex min-h-0 w-full shrink-0 flex-col rounded-3xl bg-white p-3 shadow-sm lg:w-[320px] lg:max-w-[320px]">
                 <div className="mb-2 flex items-center justify-between px-2 py-1">
                   <h2 className="text-sm font-bold uppercase tracking-[0.08em] text-slate-500">
                     Mensagens
@@ -178,7 +179,7 @@ export function ChatScreen() {
                 </div>
               </aside>
 
-              <div className="min-h-0">
+              <div className="flex min-h-0 min-w-0 flex-1 flex-col">
                 <ChatThread conversation={selectedConversation} />
               </div>
             </section>
