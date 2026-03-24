@@ -1,159 +1,63 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "~/components/ui/toast";
 import { HttpError } from "~/lib/http/errors";
-import { useCreatorAvailabilityQuery, useCreatorCalendarQuery, useReplaceCreatorAvailabilityMutation } from "../queries";
+import { buildCalendarViewModel } from "../lib/calendar-view-model";
+import { addDays, startOfDay, toCalendarRequestRange } from "../lib/calendar-date";
 import {
-  calculateTotalWeeklyMinutes,
-  getMonthTitle,
-  mapAvailabilityDays,
-  mapDailyJobs,
-  mapDesktopEvents,
-  mapDesktopTimeSlots,
-  mapNextSession,
-  mapUpcomingJobs,
-  mapWeekDays,
-} from "../lib/calendar-mappers";
-import {
-  addDays,
-  buildHalfHourOptions,
-  formatWeekdayLong,
-  parseCalendarDate,
-  startOfWeek,
-  toCalendarRequestRange,
-  formatWeeklyHoursLabel,
-} from "../lib/calendar-date";
-import type { AvailabilityDay, DesktopCalendarView, MobileCalendarView } from "../types";
+  useAcceptCreatorBookingMutation,
+  useCreatorCalendarQuery,
+} from "../queries";
+import type { UiCalendarEvent } from "../types";
 
 export function useCreatorCalendarController() {
-  const [desktopView, setDesktopView] = useState<DesktopCalendarView>("week");
-  const [mobileView, setMobileView] = useState<MobileCalendarView>("weekly");
-  const [isDesktopSettingsExpanded, setIsDesktopSettingsExpanded] = useState(false);
-  const [isMobileAvailabilityOpen, setIsMobileAvailabilityOpen] = useState(false);
-  const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date()));
+  const navigate = useNavigate();
+  const [currentWeekStart, setCurrentWeekStart] = useState(() =>
+    startOfDay(new Date()),
+  );
   const [selectedDate, setSelectedDate] = useState(() => new Date());
-  const [availabilityDays, setAvailabilityDays] = useState<AvailabilityDay[]>(() =>
-    mapAvailabilityDays(undefined)
-  );
-
-  const availabilityQuery = useCreatorAvailabilityQuery();
-  const serverAvailabilityDays = useMemo(
-    () => mapAvailabilityDays(availabilityQuery.data),
-    [availabilityQuery.data]
-  );
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [isDesktopPanelOpen, setIsDesktopPanelOpen] = useState(false);
+  const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const calendarRange = useMemo(
     () => toCalendarRequestRange(currentWeekStart),
-    [currentWeekStart]
+    [currentWeekStart],
   );
+
   const calendarQuery = useCreatorCalendarQuery({
     start: calendarRange.startIso,
     end: calendarRange.endIso,
   });
-  const replaceAvailabilityMutation = useReplaceCreatorAvailabilityMutation();
-  const [isAvailabilityDirty, setIsAvailabilityDirty] = useState(false);
+
+  const acceptMutation = useAcceptCreatorBookingMutation();
+
+  const viewModel = useMemo(
+    () =>
+      buildCalendarViewModel({
+        response: calendarQuery.data,
+        weekStart: currentWeekStart,
+        selectedDate,
+      }),
+    [calendarQuery.data, calendarQuery.dataUpdatedAt, currentWeekStart, selectedDate],
+  );
+
+  const selectedEvent = useMemo((): UiCalendarEvent | null => {
+    if (!selectedEventId || !viewModel) return null;
+    return viewModel.events.find((e) => e.id === selectedEventId) ?? null;
+  }, [selectedEventId, viewModel]);
 
   useEffect(() => {
-    if (!availabilityQuery.data || isAvailabilityDirty) return;
-    setAvailabilityDays(serverAvailabilityDays);
-  }, [availabilityQuery.data, isAvailabilityDirty, serverAvailabilityDays]);
+    if (!selectedEventId || !viewModel) return;
+    const exists = viewModel.events.some((e) => e.id === selectedEventId);
+    if (!exists) {
+      toast.info("Evento nao disponivel neste periodo.");
+      setSelectedEventId(null);
+      setIsDesktopPanelOpen(false);
+      setIsMobileSheetOpen(false);
+    }
+  }, [selectedEventId, viewModel]);
 
-  const calendarBookings = calendarQuery.data?.bookings ?? [];
-  const desktopWeekDays = useMemo(
-    () => mapWeekDays(currentWeekStart, selectedDate),
-    [currentWeekStart, selectedDate]
-  );
-  const desktopEvents = useMemo(
-    () => mapDesktopEvents(calendarBookings, currentWeekStart),
-    [calendarBookings, currentWeekStart]
-  );
-  const desktopTimeSlots = useMemo(
-    () => mapDesktopTimeSlots(availabilityDays, calendarBookings),
-    [availabilityDays, calendarBookings]
-  );
-  const upcomingJobs = useMemo(
-    () => mapUpcomingJobs(calendarBookings),
-    [calendarBookings]
-  );
-  const dailyJobs = useMemo(
-    () => mapDailyJobs(calendarBookings, selectedDate),
-    [calendarBookings, selectedDate]
-  );
-  const nextSession = useMemo(
-    () => mapNextSession(calendarBookings),
-    [calendarBookings]
-  );
-  const totalWeeklyHours = useMemo(
-    () => formatWeeklyHoursLabel(calculateTotalWeeklyMinutes(availabilityDays)),
-    [availabilityDays]
-  );
-  const errorMessage = getQueryErrorMessage(
-    availabilityQuery.error ?? calendarQuery.error ?? null
-  );
-
-  function updateAvailabilityDay(
-    dayId: string,
-    field: "enabled" | "start" | "end",
-    value: boolean | string
-  ) {
-    setIsAvailabilityDirty(true);
-    setAvailabilityDays((current) =>
-      current.map((day) =>
-        day.id === dayId
-          ? {
-              ...day,
-              [field]: value,
-            }
-          : day
-      )
-    );
-  }
-
-  function syncWeekdays() {
-    const sourceDay = availabilityDays.find((day) => day.enabled) ?? availabilityDays[0];
-    if (!sourceDay) return;
-
-    setIsAvailabilityDirty(true);
-    setAvailabilityDays((current) =>
-      current.map((day) =>
-        day.enabled
-          ? {
-              ...day,
-              start: sourceDay.start,
-              end: sourceDay.end,
-            }
-          : day
-      )
-    );
-  }
-
-  async function saveDesktopSettings() {
-    await saveAvailabilitySettings(() => setIsDesktopSettingsExpanded(false));
-  }
-
-  async function saveMobileAvailability() {
-    await saveAvailabilitySettings(() => setIsMobileAvailabilityOpen(false));
-  }
-
-  function openDesktopSettings() {
-    setAvailabilityDays(serverAvailabilityDays);
-    setIsAvailabilityDirty(false);
-    setIsDesktopSettingsExpanded(true);
-  }
-
-  function cancelDesktopSettings() {
-    resetAvailabilityDraft();
-    setIsDesktopSettingsExpanded(false);
-  }
-
-  function openMobileAvailability() {
-    setAvailabilityDays(serverAvailabilityDays);
-    setIsAvailabilityDirty(false);
-    setIsMobileAvailabilityOpen(true);
-  }
-
-  function cancelMobileAvailability() {
-    resetAvailabilityDraft();
-    setIsMobileAvailabilityOpen(false);
-  }
+  const errorMessage = getQueryErrorMessage(calendarQuery.error ?? null);
 
   function goToPreviousWeek() {
     setCurrentWeekStart((current) => addDays(current, -7));
@@ -167,92 +71,69 @@ export function useCreatorCalendarController() {
 
   function goToToday() {
     const today = new Date();
-    setCurrentWeekStart(startOfWeek(today));
+    setCurrentWeekStart(startOfDay(today));
     setSelectedDate(today);
   }
 
-  function selectDate(isoDate: string) {
-    setSelectedDate(parseCalendarDate(isoDate));
+  function selectWeekDay(isoDate: string) {
+    setSelectedDate(new Date(`${isoDate}T12:00:00.000Z`));
   }
 
-  function openMobileDailyView(isoDate: string) {
-    selectDate(isoDate);
-    setMobileView("daily");
+  function openEventDetails(eventId: string, surface: "desktop" | "mobile") {
+    setSelectedEventId(eventId);
+    if (surface === "desktop") {
+      setIsDesktopPanelOpen(true);
+    } else {
+      setIsMobileSheetOpen(true);
+    }
   }
 
-  async function retry() {
-    await Promise.all([availabilityQuery.refetch(), calendarQuery.refetch()]);
+  function closeEventDetails() {
+    setIsDesktopPanelOpen(false);
+    setIsMobileSheetOpen(false);
+    setSelectedEventId(null);
   }
 
-  async function saveAvailabilitySettings(onSuccess: () => void) {
+  async function acceptPendingBooking(bookingId: string) {
     try {
-      const response = await replaceAvailabilityMutation.mutateAsync({
-        days: availabilityDays.map((day) => ({
-          dayOfWeek: day.dayOfWeek,
-          isActive: day.enabled,
-          startTime: day.enabled ? day.start : null,
-          endTime: day.enabled ? day.end : null,
-        })),
-      });
-      setAvailabilityDays(mapAvailabilityDays(response));
-      setIsAvailabilityDirty(false);
-      toast.success("Disponibilidade atualizada com sucesso.");
-      onSuccess();
+      await acceptMutation.mutateAsync(bookingId);
+      toast.success("Job confirmado.");
     } catch (error) {
       toast.error(getMutationErrorMessage(error));
     }
   }
 
-  function resetAvailabilityDraft() {
-    setAvailabilityDays(serverAvailabilityDays);
-    setIsAvailabilityDirty(false);
+  function openChatForContract(contractRequestId: string) {
+    void navigate(`/chat?contractRequestId=${contractRequestId}`);
+  }
+
+  async function retry() {
+    await calendarQuery.refetch();
   }
 
   return {
     state: {
-      desktopView,
-      mobileView,
-      isDesktopSettingsExpanded,
-      isMobileAvailabilityOpen,
+      isLoading: calendarQuery.isLoading,
+      isFetching: calendarQuery.isFetching,
+      errorMessage,
       currentWeekStart,
       selectedDate,
-      isLoading: availabilityQuery.isLoading || calendarQuery.isLoading,
-      isSavingAvailability: replaceAvailabilityMutation.isPending,
-      errorMessage,
+      selectedEventId,
+      isDesktopPanelOpen,
+      isMobileSheetOpen,
+      isAccepting: acceptMutation.isPending,
     },
-    viewModel: {
-      desktopEvents,
-      desktopTimeSlots,
-      desktopWeekDays,
-      mobileWeekDays: desktopWeekDays,
-      upcomingJobs,
-      dailyJobs,
-      availabilityDays,
-      timeOptions: buildHalfHourOptions(),
-      totalWeeklyHours,
-      monthTitle: getMonthTitle(currentWeekStart),
-      selectedDateLabel: formatWeekdayLong(selectedDate),
-      nextSession,
-      hasCalendarBookings: calendarBookings.length > 0,
-    },
+    viewModel,
+    selectedEvent,
     actions: {
-      setDesktopView,
-      setMobileView,
-      setIsDesktopSettingsExpanded,
-      setIsMobileAvailabilityOpen,
-      openDesktopSettings,
-      cancelDesktopSettings,
-      openMobileAvailability,
-      cancelMobileAvailability,
       goToPreviousWeek,
       goToNextWeek,
       goToToday,
-      selectDate,
-      openMobileDailyView,
-      updateAvailabilityDay,
-      syncWeekdays,
-      saveDesktopSettings,
-      saveMobileAvailability,
+      selectWeekDay,
+      openEventDetails,
+      closeEventDetails,
+      acceptPendingBooking,
+      openChatForContract,
       retry,
     },
   };
@@ -267,7 +148,7 @@ function getMutationErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Nao foi possivel salvar a disponibilidade.";
+  return "Nao foi possivel confirmar o job.";
 }
 
 function getQueryErrorMessage(error: unknown): string | null {

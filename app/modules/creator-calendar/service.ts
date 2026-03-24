@@ -47,3 +47,15 @@ export async function getCreatorCalendar(params: {
     },
   );
 }
+
+export async function acceptCreatorBooking(
+  bookingId: string,
+  token?: string,
+): Promise<void> {
+  const accessToken = await getAccessToken(token);
+
+  await httpClient<unknown>(`/bookings/${bookingId}/accept`, {
+    method: "POST",
+    token: accessToken,
+  });
+}

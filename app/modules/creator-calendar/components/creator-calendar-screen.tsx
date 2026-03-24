@@ -27,19 +27,19 @@ export function CreatorCalendarScreen() {
       <div className="hidden lg:block">
         <CreatorCalendarDesktopSection controller={controller} />
       </div>
-      <div className="lg:hidden">
+      <div className="flex min-h-0 flex-1 flex-col lg:hidden">
         <CreatorCalendarMobileSection controller={controller} />
       </div>
     </>
   );
 
   return (
-    <div className="min-h-screen bg-[#f6f5f8] lg:flex">
+    <div className="flex min-h-[100dvh] flex-col bg-[#f6f5f8] lg:min-h-screen lg:flex-row">
       <div className="hidden lg:block">
         <AppSidebar variant="creator" />
       </div>
 
-      <main className="min-w-0 flex-1 lg:p-8">
+      <main className="flex w-full min-w-0 flex-1 flex-col bg-[#f6f5f8] min-h-[100dvh] lg:min-h-screen lg:p-8">
         {content}
       </main>
 

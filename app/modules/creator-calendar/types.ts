@@ -49,6 +49,8 @@ export type CreatorCalendarResponse = {
   };
   blockedStatuses: BookingStatus[];
   bookings: CalendarBooking[];
+  /** Quando existir no backend, exibe ganhos da semana na UI; caso contrário omitir. */
+  weeklyEarnings?: number;
 };
 
 export type CalendarBooking = {
@@ -69,6 +71,70 @@ export type CalendarBooking = {
   companyUserId: string;
   creatorUserId: string;
   isBlocking: boolean;
+  companyName?: string | null;
+  contractRequestId?: string | null;
+  location?: string | null;
+};
+
+/** Origem da linha no calendário (adapter); não confundir com `origin` legado da API de booking. */
+export type CalendarItemOrigin = "BOOKING" | "CONTRACT_REQUEST";
+
+export type VisualCalendarStatus = "confirmed" | "pending" | "completed" | "cancelled";
+
+export type UiCalendarEvent = {
+  id: string;
+  origin: CalendarItemOrigin;
+  contractRequestId: string | null;
+  bookingStatus: BookingStatus;
+  visualStatus: VisualCalendarStatus;
+  company: string;
+  title: string;
+  jobTypeName: string;
+  mode: JobMode;
+  startAt: Date;
+  endAt: Date;
+  startLabel: string;
+  endLabel: string;
+  locationLine: string | null;
+  /** Linha de modo (presencial/remoto) para exibição quando não houver endereço. */
+  modeLine: string;
+  description: string | null;
+  notes: string | null;
+  dayIndex: number;
+  startHour: number;
+  startMinute: number;
+  durationMinutes: number;
+  overlapIndex: number;
+  overlapCount: number;
+};
+
+export type CalendarTimelineSection = {
+  dateKey: string;
+  sectionLabel: string;
+  events: UiCalendarEvent[];
+};
+
+export type CalendarWeeklyStats = {
+  jobCount: number;
+  totalHours: number;
+  weeklyEarnings?: number;
+};
+
+/** Período visível (7 dias) em relação a hoje no fuso da agenda. */
+export type CalendarRangePastNotice = "none" | "partial" | "full";
+
+export type CalendarViewModel = {
+  timeZone: string;
+  weekRangeLabel: string;
+  weekDays: CalendarWeekDay[];
+  hourSlots: string[];
+  events: UiCalendarEvent[];
+  timelineByDay: CalendarTimelineSection[];
+  nextConfirmedJob: UiCalendarEvent | null;
+  todayJobs: UiCalendarEvent[];
+  weeklyStats: CalendarWeeklyStats;
+  todayDateKey: string;
+  rangePastNotice: CalendarRangePastNotice;
 };
 
 export type CalendarWeekDay = {

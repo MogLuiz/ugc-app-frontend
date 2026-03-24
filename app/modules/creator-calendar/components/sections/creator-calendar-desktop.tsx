@@ -1,319 +1,68 @@
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock3,
-  Settings2,
-} from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { useCreatorCalendarController } from "../../hooks/use-creator-calendar-controller";
-import { AvailabilitySwitch, SegmentedControl, TimeSelectField } from "./creator-calendar-controls";
+import { CalendarHeaderWeek } from "../calendar/calendar-header-week";
+import { CalendarJobDetailsPanel } from "../calendar/calendar-job-details-panel";
+import { CalendarRightPanel } from "../calendar/calendar-right-panel";
+import { PastRangeNotice } from "../calendar/past-range-notice";
+import { WeeklyCalendarGrid } from "../calendar/weekly-calendar-grid";
 
 type CreatorCalendarDesktopSectionProps = {
   controller: ReturnType<typeof useCreatorCalendarController>;
 };
 
-const DESKTOP_VIEW_ITEMS = [
-  { id: "day", label: "Dia" },
-  { id: "week", label: "Semana" },
-  { id: "month", label: "Mes" },
-];
-
 export function CreatorCalendarDesktopSection({
   controller,
 }: CreatorCalendarDesktopSectionProps) {
-  const { actions, state, viewModel } = controller;
+  const { state, viewModel, actions } = controller;
 
-  if (state.isDesktopSettingsExpanded) {
-    return (
-      <section className="rounded-[36px] border border-[rgba(137,90,246,0.08)] bg-white p-6 shadow-sm lg:p-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-[30px] font-black tracking-[-0.04em] text-slate-900">
-              Configuracoes de Agenda
-            </h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Defina sua disponibilidade semanal para novos jobs e reunioes.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              className="rounded-full px-5"
-              onClick={actions.cancelDesktopSettings}
-              disabled={state.isSavingAvailability}
-            >
-              Cancelar
-            </Button>
-            <Button
-              variant="purple"
-              className="rounded-full px-5"
-              onClick={() => void actions.saveDesktopSettings()}
-              disabled={state.isSavingAvailability}
-            >
-              {state.isSavingAvailability ? "Salvando..." : "Salvar Alteracoes"}
-            </Button>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <div className="mb-3 grid grid-cols-[minmax(0,1.7fr)_96px_minmax(140px,1fr)_minmax(140px,1fr)_minmax(160px,1.1fr)] items-center gap-4 px-5 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
-            <span>Dia da Semana</span>
-            <span className="text-center">Status</span>
-            <span>Inicio</span>
-            <span>Fim</span>
-            <span>Resumo</span>
-          </div>
-
-          <div className="space-y-3">
-          {viewModel.availabilityDays.map((day) => (
-            <div
-              key={day.id}
-              className={cn(
-                "grid grid-cols-[minmax(0,1.7fr)_96px_minmax(140px,1fr)_minmax(140px,1fr)_minmax(160px,1.1fr)] items-center gap-4 rounded-[28px] border px-5 py-4",
-                day.enabled
-                  ? "border-[rgba(137,90,246,0.08)] bg-[#faf9fd]"
-                  : "border-dashed border-slate-200 bg-[#fcfcfd] opacity-80"
-              )}
-            >
-              <div className="min-w-0 self-center">
-                <div>
-                  <p className="text-sm font-bold text-slate-900">{day.label}</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {day.enabled ? "Disponivel" : "Indisponivel"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center justify-center self-center">
-                <AvailabilitySwitch
-                  checked={day.enabled}
-                  onChange={(checked) =>
-                    actions.updateAvailabilityDay(day.id, "enabled", checked)
-                  }
-                />
-              </div>
-              <div className="self-center">
-                <TimeSelectField
-                  label="Inicio"
-                  value={day.start}
-                  options={viewModel.timeOptions}
-                  disabled={!day.enabled}
-                  onChange={(value) =>
-                    actions.updateAvailabilityDay(day.id, "start", value)
-                  }
-                />
-              </div>
-              <div className="self-center">
-                <TimeSelectField
-                  label="Fim"
-                  value={day.end}
-                  options={viewModel.timeOptions}
-                  disabled={!day.enabled}
-                  onChange={(value) =>
-                    actions.updateAvailabilityDay(day.id, "end", value)
-                  }
-                />
-              </div>
-              <div className="self-center rounded-[24px] bg-[#f6f5f8] px-4 py-3 text-center text-sm font-semibold text-slate-600">
-                {day.enabled ? `${day.start} - ${day.end}` : "Folga"}
-              </div>
-            </div>
-          ))}
-          </div>
-        </div>
-      </section>
-    );
+  if (!viewModel) {
+    return null;
   }
 
   return (
-    <div className="space-y-6">
-      <section className="flex items-center justify-between rounded-[32px] border border-[rgba(137,90,246,0.08)] bg-white px-6 py-5 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="flex size-12 items-center justify-center rounded-2xl bg-[#f0ebff]">
-            <Settings2 className="size-5 text-[#895af6]" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-[-0.03em] text-slate-900">
-              Configuracoes de Agenda
-            </h1>
-            <p className="text-sm text-slate-500">
-              Gerencie fusos horarios, buffers e sincronizacao.
-            </p>
-          </div>
-        </div>
-        <Button
-          variant="secondary"
-          className="rounded-full bg-[#f6f5f8] px-5 text-slate-900"
-          onClick={actions.openDesktopSettings}
-        >
-          Ver Configuracoes
-        </Button>
-      </section>
-
-      <section className="rounded-[36px] border border-[rgba(137,90,246,0.06)] bg-white shadow-sm">
-        <div className="flex items-center justify-between gap-4 border-b border-[rgba(137,90,246,0.06)] px-6 py-5">
-          <div className="flex items-center gap-3">
-            <h2 className="text-[32px] font-black tracking-[-0.04em] text-slate-900">
-              {viewModel.monthTitle}
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="flex size-9 items-center justify-center rounded-full bg-[#f6f5f8] text-slate-700"
-                onClick={actions.goToPreviousWeek}
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <button
-                type="button"
-                className="flex size-9 items-center justify-center rounded-full bg-[#f6f5f8] text-slate-700"
-                onClick={actions.goToNextWeek}
-              >
-                <ChevronRight className="size-4" />
-              </button>
-            </div>
-            <Button
-              variant="outline"
-              className="rounded-full px-4"
-              onClick={actions.goToToday}
-            >
-              Hoje
-            </Button>
-          </div>
-
-          <SegmentedControl
-            items={DESKTOP_VIEW_ITEMS}
-            value={state.desktopView}
-            onChange={(value) => actions.setDesktopView(value as typeof state.desktopView)}
-          />
-        </div>
-
-        <div className="overflow-hidden px-6 pb-6 pt-5">
-          <div className="grid grid-cols-[72px_repeat(7,minmax(0,1fr))] rounded-[32px] bg-[#fcfbfe]">
-            <div className="border-r border-[rgba(137,90,246,0.04)]" />
-            {viewModel.desktopWeekDays.map((day) => (
-              <div
-                key={day.id}
-                className={cn(
-                  "border-l border-[rgba(137,90,246,0.04)] px-4 py-4 text-center",
-                  day.highlighted && "bg-[#f4efff]"
-                )}
-              >
-                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
-                  {day.label}
-                </p>
-                <p className="mt-1 text-[30px] font-black tracking-[-0.04em] text-slate-900">
-                  {day.date}
-                </p>
-              </div>
-            ))}
-
-            {viewModel.desktopTimeSlots.map((slot, rowIndex) => (
-              <DesktopGridRow
-                key={slot}
-                rowIndex={rowIndex}
-                slot={slot}
-                controller={controller}
-              />
-            ))}
-          </div>
-          {!viewModel.hasCalendarBookings ? (
-            <div className="mt-4 rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500">
-              Nenhum booking encontrado para esta semana.
-            </div>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="grid grid-cols-[minmax(0,1fr)_280px] gap-5">
-        <div className="rounded-[32px] bg-[linear-gradient(135deg,#7c4aed_0%,#895af6_45%,#9f67ff_100%)] p-7 text-white shadow-sm">
-          <p className="text-[34px] font-black tracking-[-0.04em]">Produtividade em Alta!</p>
-          <p className="mt-3 max-w-[520px] text-base text-white/85">
-            Voce tem {viewModel.totalWeeklyHours} horas de sessoes criativas agendadas
-            para esta semana. Continue assim!
-          </p>
-          <Button className="mt-6 rounded-full bg-white px-6 text-[#895af6] hover:bg-white/95">
-            Ver Relatorio Completo
-          </Button>
-        </div>
-
-        <div className="rounded-[32px] border border-[rgba(137,90,246,0.06)] bg-white p-6 shadow-sm">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-            Proxima Sessao
-          </p>
-          {viewModel.nextSession ? (
-            <>
-              <h3 className="mt-3 text-[28px] font-black tracking-[-0.04em] text-slate-900">
-                {viewModel.nextSession.title}
-              </h3>
-              <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
-                <Clock3 className="size-4 text-slate-400" />
-                {viewModel.nextSession.schedule}
-              </div>
-              <Button variant="secondary" className="mt-8 w-full rounded-full bg-[#f6f5f8]">
-                Ver detalhes
-              </Button>
-            </>
-          ) : (
-            <p className="mt-3 text-sm text-slate-500">
-              Nenhuma sessao futura bloqueando agenda.
-            </p>
-          )}
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function DesktopGridRow({
-  controller,
-  rowIndex,
-  slot,
-}: {
-  controller: ReturnType<typeof useCreatorCalendarController>;
-  rowIndex: number;
-  slot: string;
-}) {
-  const slotHour = Number(slot.split(":")[0] ?? 0);
-
-  return (
     <>
-      <div className="border-t border-r border-[rgba(137,90,246,0.04)] px-4 py-8 text-xs font-medium text-slate-400">
-        {slot}
-      </div>
-      {controller.viewModel.desktopWeekDays.map((day, dayIndex) => (
-        <div
-          key={`${day.id}-${slot}`}
-          className="relative min-h-[104px] border-l border-t border-[rgba(137,90,246,0.04)]"
-        >
-          {controller.viewModel.desktopEvents
-            .filter(
-              (event) => event.dayIndex === dayIndex && event.startHour === slotHour
-            )
-            .map((event) => (
-              <div
-                key={event.id}
-                className={cn(
-                  "absolute left-2 right-2 top-2 rounded-[24px] p-4 text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.25),0px_4px_6px_-4px_rgba(137,90,246,0.25)]",
-                  event.tone === "indigo"
-                    ? "bg-[#6366f1]"
-                    : event.tone === "muted"
-                      ? "bg-slate-400"
-                      : "bg-[linear-gradient(180deg,#8b5cf6_0%,#7c4aed_100%)]"
-                )}
-                style={{
-                  top: `${8 + (event.startMinuteOffset / 60) * 104}px`,
-                  height: `${Math.max((event.durationMinutes / 60) * 104 - 12, 48)}px`,
-                }}
-              >
-                <p className="text-xs font-bold">{`${event.startLabel} - ${event.endLabel}`}</p>
-                <p className="mt-2 max-w-[140px] text-sm font-bold leading-5">
-                  {event.title}
-                </p>
-              </div>
-            ))}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1 space-y-4">
+          <section className="overflow-hidden rounded-[36px] border border-[rgba(137,90,246,0.06)] bg-white shadow-sm">
+            <CalendarHeaderWeek
+              weekRangeLabel={viewModel.weekRangeLabel}
+              onPrevWeek={actions.goToPreviousWeek}
+              onNextWeek={actions.goToNextWeek}
+              onToday={actions.goToToday}
+            />
+            <div className="space-y-3 px-6 pb-6 pt-2">
+              {viewModel.rangePastNotice !== "none" ? (
+                <PastRangeNotice notice={viewModel.rangePastNotice} />
+              ) : null}
+              <WeeklyCalendarGrid
+                viewModel={viewModel}
+                onEventClick={(id) => actions.openEventDetails(id, "desktop")}
+                onSelectWeekDay={actions.selectWeekDay}
+              />
+              {viewModel.events.length === 0 ? (
+                <div
+                  className={cn(
+                    "mt-4 rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500",
+                  )}
+                >
+                  Nenhum job neste período.
+                </div>
+              ) : null}
+            </div>
+          </section>
         </div>
-      ))}
+
+        <CalendarRightPanel
+          viewModel={viewModel}
+          onOpenEvent={(id) => actions.openEventDetails(id, "desktop")}
+        />
+      </div>
+
+      <CalendarJobDetailsPanel controller={controller} />
+
+      {state.isFetching && !state.isLoading ? (
+        <p className="text-center text-xs text-slate-400">Atualizando agenda...</p>
+      ) : null}
     </>
   );
 }
