@@ -90,9 +90,27 @@ export function parseCalendarDate(value: string): Date {
   return new Date(`${value}T12:00:00.000Z`);
 }
 
-export function toCalendarRequestRange(weekStart: Date) {
-  const startDateKey = formatIsoDate(weekStart);
-  const endDateKey = formatIsoDate(addDays(weekStart, 7));
+export type CalendarRequestRangeOptions = {
+  now?: Date;
+  /** Garante dados além dos 7 dias visíveis (ex.: próximo compromisso na sidebar). Fim civil exclusivo. */
+  upcomingHorizonDays?: number;
+};
+
+export function toCalendarRequestRange(
+  periodStart: Date,
+  options?: CalendarRequestRangeOptions,
+) {
+  const now = options?.now ?? new Date();
+  const upcomingHorizonDays = options?.upcomingHorizonDays ?? 45;
+
+  const startDateKey = formatIsoDate(periodStart);
+  const periodEndKey = formatIsoDate(addDays(periodStart, 7));
+  const horizonEndKey = formatIsoDate(
+    addDays(startOfDay(now), upcomingHorizonDays),
+  );
+  const endDateKey =
+    periodEndKey > horizonEndKey ? periodEndKey : horizonEndKey;
+
   const start = new Date(`${startDateKey}T00:00:00${SAO_PAULO_UTC_OFFSET}`);
   const end = new Date(`${endDateKey}T00:00:00${SAO_PAULO_UTC_OFFSET}`);
 

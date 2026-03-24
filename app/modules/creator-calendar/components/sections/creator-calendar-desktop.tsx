@@ -45,7 +45,7 @@ export function CreatorCalendarDesktopSection({
                     "mt-4 rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500",
                   )}
                 >
-                  Nenhum job neste período.
+                  Nenhum compromisso neste período.
                 </div>
               ) : null}
             </div>

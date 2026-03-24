@@ -20,7 +20,7 @@ export function useCreatorCalendarController() {
   const [isDesktopPanelOpen, setIsDesktopPanelOpen] = useState(false);
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false);
   const calendarRange = useMemo(
-    () => toCalendarRequestRange(currentWeekStart),
+    () => toCalendarRequestRange(currentWeekStart, { now: new Date() }),
     [currentWeekStart],
   );
 
@@ -43,12 +43,19 @@ export function useCreatorCalendarController() {
 
   const selectedEvent = useMemo((): UiCalendarEvent | null => {
     if (!selectedEventId || !viewModel) return null;
-    return viewModel.events.find((e) => e.id === selectedEventId) ?? null;
+    return (
+      viewModel.events.find((e) => e.id === selectedEventId) ??
+      (viewModel.nextUpcomingCommitment?.id === selectedEventId
+        ? viewModel.nextUpcomingCommitment
+        : null)
+    );
   }, [selectedEventId, viewModel]);
 
   useEffect(() => {
     if (!selectedEventId || !viewModel) return;
-    const exists = viewModel.events.some((e) => e.id === selectedEventId);
+    const exists =
+      viewModel.events.some((e) => e.id === selectedEventId) ||
+      viewModel.nextUpcomingCommitment?.id === selectedEventId;
     if (!exists) {
       toast.info("Evento nao disponivel neste periodo.");
       setSelectedEventId(null);
@@ -97,7 +104,7 @@ export function useCreatorCalendarController() {
   async function acceptPendingBooking(bookingId: string) {
     try {
       await acceptMutation.mutateAsync(bookingId);
-      toast.success("Job confirmado.");
+      toast.success("Compromisso confirmado.");
     } catch (error) {
       toast.error(getMutationErrorMessage(error));
     }
@@ -148,7 +155,7 @@ function getMutationErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Nao foi possivel confirmar o job.";
+  return "Nao foi possivel confirmar o compromisso.";
 }
 
 function getQueryErrorMessage(error: unknown): string | null {

@@ -25,7 +25,7 @@ export function MobileJobSheet({ controller }: MobileJobSheetProps) {
       <div className="max-h-[85vh] overflow-y-auto rounded-t-[28px] bg-white px-5 pb-8 pt-3 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200" />
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-slate-900">Job</h3>
+          <h3 className="text-base font-bold text-slate-900">Compromisso</h3>
           <Button
             type="button"
             variant="ghost"

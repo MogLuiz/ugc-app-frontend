@@ -15,15 +15,10 @@ export function CalendarHeaderWeek({
   onToday,
 }: CalendarHeaderWeekProps) {
   return (
-    <div className="flex flex-col gap-4 border-b border-[rgba(137,90,246,0.06)] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 className="text-2xl font-black tracking-[-0.03em] text-slate-900 lg:text-[28px]">
-          Calendário Semanal
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Visualize seus jobs confirmados e pendentes no período de 7 dias.
-        </p>
-      </div>
+    <div className="flex flex-col gap-4 border-b border-[rgba(137,90,246,0.06)] px-6 py-5">
+      <h1 className="text-2xl font-black tracking-[-0.03em] text-slate-900 lg:text-[28px]">
+        Calendário Semanal
+      </h1>
 
       <div className="flex flex-wrap items-center gap-2">
         <button
@@ -34,7 +29,7 @@ export function CalendarHeaderWeek({
         >
           <ChevronLeft className="size-4" />
         </button>
-        <span className="min-w-[160px] text-center text-sm font-bold text-slate-800 capitalize sm:min-w-[220px] sm:text-base">
+        <span className="min-w-0 flex-1 text-center text-sm font-bold capitalize text-slate-800 sm:text-base">
           {weekRangeLabel}
         </span>
         <button

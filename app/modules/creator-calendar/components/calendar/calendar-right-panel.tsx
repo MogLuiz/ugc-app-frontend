@@ -1,6 +1,5 @@
 import { Clock3 } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/utils";
 import { formatIsoDateInTimeZone } from "../../lib/calendar-tz";
 import { toRelativeDayLabel } from "../../lib/calendar-date";
 import type { CalendarViewModel, UiCalendarEvent } from "../../types";
@@ -21,7 +20,7 @@ export function CalendarRightPanel({
   viewModel,
   onOpenEvent,
 }: CalendarRightPanelProps) {
-  const { nextConfirmedJob, todayJobs, weeklyStats, timeZone } = viewModel;
+  const { nextUpcomingCommitment, weeklyStats, timeZone } = viewModel;
 
   return (
     <aside className="flex w-full flex-col gap-4 lg:w-[300px] lg:shrink-0">
@@ -30,45 +29,23 @@ export function CalendarRightPanel({
           Insights
         </p>
         <p className="mt-1 text-xs text-slate-500">
-          Resumo operacional da sua semana.
+          Resumo operacional dos compromissos no período visível.
         </p>
       </div>
 
-      <NextJobCard event={nextConfirmedJob} onOpen={onOpenEvent} timeZone={timeZone} />
+      <NextCommitmentCard
+        event={nextUpcomingCommitment}
+        onOpen={onOpenEvent}
+        timeZone={timeZone}
+      />
 
       <div className="rounded-[28px] border border-[rgba(137,90,246,0.08)] bg-white p-5 shadow-sm">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-          Hoje
-        </p>
-        {todayJobs.length === 0 ? (
-          <p className="mt-3 text-sm text-slate-500">Nenhum job agendado para hoje.</p>
-        ) : (
-          <ul className="mt-4 space-y-3">
-            {todayJobs.map((job) => (
-              <li key={job.id}>
-                <button
-                  type="button"
-                  onClick={() => onOpenEvent(job.id)}
-                  className="w-full rounded-2xl border border-[rgba(137,90,246,0.06)] bg-[#fcfbfe] px-3 py-3 text-left transition hover:bg-[#f4efff]"
-                >
-                  <p className="text-xs font-semibold text-[#895af6]">
-                    {job.startLabel} — {job.endLabel}
-                  </p>
-                  <p className="mt-1 text-sm font-bold text-slate-900">{job.title}</p>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="rounded-[28px] border border-[rgba(137,90,246,0.08)] bg-white p-5 shadow-sm">
-        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-          Estatísticas da semana
+          Estatísticas do período
         </p>
         <ul className="mt-4 space-y-2 text-sm text-slate-600">
           <li className="flex justify-between gap-2">
-            <span>Jobs</span>
+            <span>Compromissos</span>
             <span className="font-bold text-slate-900">{weeklyStats.jobCount}</span>
           </li>
           <li className="flex justify-between gap-2">
@@ -94,7 +71,7 @@ export function CalendarRightPanel({
   );
 }
 
-function NextJobCard({
+function NextCommitmentCard({
   event,
   onOpen,
   timeZone,
@@ -107,10 +84,11 @@ function NextJobCard({
     return (
       <div className="rounded-[28px] border border-[rgba(137,90,246,0.08)] bg-white p-5 shadow-sm">
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-          Próximo job
+          Próximo compromisso
         </p>
         <p className="mt-3 text-sm text-slate-500">
-          Nenhum job confirmado futuro neste período.
+          Nenhum compromisso pendente ou confirmado a partir de agora no intervalo
+          carregado.
         </p>
       </div>
     );
@@ -126,7 +104,7 @@ function NextJobCard({
   return (
     <div className="rounded-[28px] border border-[rgba(137,90,246,0.08)] bg-white p-5 shadow-sm">
       <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
-        Próximo job
+        Próximo compromisso
       </p>
       <p className="mt-2 text-xs font-bold uppercase tracking-wide text-[#895af6]">
         {event.company}

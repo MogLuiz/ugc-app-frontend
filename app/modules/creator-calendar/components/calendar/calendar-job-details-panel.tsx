@@ -26,7 +26,7 @@ export function CalendarJobDetailsPanel({
       />
       <aside className="flex h-full w-full max-w-md flex-col bg-white shadow-2xl">
         <header className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <h3 className="text-base font-bold text-slate-900">Detalhes do job</h3>
+          <h3 className="text-base font-bold text-slate-900">Detalhes do compromisso</h3>
           <Button
             type="button"
             variant="ghost"

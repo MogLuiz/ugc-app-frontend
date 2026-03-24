@@ -131,8 +131,8 @@ export type CalendarViewModel = {
   hourSlots: string[];
   events: UiCalendarEvent[];
   timelineByDay: CalendarTimelineSection[];
-  nextConfirmedJob: UiCalendarEvent | null;
-  todayJobs: UiCalendarEvent[];
+  /** Próximo compromisso ainda não encerrado (pendente ou confirmado), por ordem de início. */
+  nextUpcomingCommitment: UiCalendarEvent | null;
   weeklyStats: CalendarWeeklyStats;
   todayDateKey: string;
   rangePastNotice: CalendarRangePastNotice;

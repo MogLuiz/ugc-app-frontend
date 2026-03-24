@@ -73,6 +73,74 @@ function mapModeLine(mode: JobMode): string {
   return "Presencial";
 }
 
+function isUpcomingSidebarBookingStatus(status: BookingStatus): boolean {
+  return status === "PENDING" || status === "CONFIRMED";
+}
+
+function mapBookingRowToUiEvent(
+  row: CalendarBooking,
+  timeZone: string,
+  dayIndex: number,
+): UiCalendarEvent {
+  const startAt = new Date(row.startDateTime);
+  const endAt = new Date(row.endDateTime);
+  const { hour: startHour, minute: startMinute } = getHourMinuteInTimeZone(
+    startAt,
+    timeZone,
+  );
+  const origin = calendarItemOrigin(row);
+  const company =
+    row.companyName?.trim() ||
+    (origin === "CONTRACT_REQUEST" ? "Empresa" : "Cliente");
+  const locationLine = row.location?.trim() || null;
+  const modeLine = mapModeLine(row.mode);
+
+  return {
+    id: row.id,
+    origin,
+    contractRequestId: row.contractRequestId ?? null,
+    bookingStatus: row.status,
+    visualStatus: mapVisualStatus(row.status),
+    company,
+    title: row.title,
+    jobTypeName: row.jobType.name,
+    mode: row.mode,
+    startAt,
+    endAt,
+    startLabel: formatTimeInTimeZone(startAt, timeZone),
+    endLabel: formatTimeInTimeZone(endAt, timeZone),
+    locationLine,
+    modeLine,
+    description: row.description,
+    notes: row.notes,
+    dayIndex,
+    startHour,
+    startMinute,
+    durationMinutes: row.durationMinutes,
+    overlapIndex: 0,
+    overlapCount: 1,
+  };
+}
+
+function pickNextUpcomingCommitment(
+  rows: CalendarBooking[],
+  timeZone: string,
+  now: Date,
+): UiCalendarEvent | null {
+  const candidates: UiCalendarEvent[] = [];
+  for (const row of rows) {
+    if (!isUpcomingSidebarBookingStatus(row.status)) continue;
+    const endAt = new Date(row.endDateTime);
+    if (endAt.getTime() <= now.getTime()) continue;
+    candidates.push(mapBookingRowToUiEvent(row, timeZone, -1));
+  }
+  candidates.sort(
+    (a, b) =>
+      a.startAt.getTime() - b.startAt.getTime() || a.id.localeCompare(b.id),
+  );
+  return candidates[0] ?? null;
+}
+
 function intervalsOverlapHalfOpen(
   a0: number,
   a1: number,
@@ -219,7 +287,6 @@ export function buildCalendarViewModel(input: {
 
   for (const row of response.bookings) {
     const startAt = new Date(row.startDateTime);
-    const endAt = new Date(row.endDateTime);
     const eventKey = formatIsoDateInTimeZone(startAt, timeZone);
     const dayIndex = diffCalendarDays(rangeStartKey, eventKey);
 
@@ -227,43 +294,7 @@ export function buildCalendarViewModel(input: {
       continue;
     }
 
-    const { hour: startHour, minute: startMinute } = getHourMinuteInTimeZone(
-      startAt,
-      timeZone,
-    );
-    const origin = calendarItemOrigin(row);
-    const company =
-      row.companyName?.trim() ||
-      (origin === "CONTRACT_REQUEST" ? "Empresa" : "Cliente");
-
-    const locationLine = row.location?.trim() || null;
-    const modeLine = mapModeLine(row.mode);
-
-    rawEvents.push({
-      id: row.id,
-      origin,
-      contractRequestId: row.contractRequestId ?? null,
-      bookingStatus: row.status,
-      visualStatus: mapVisualStatus(row.status),
-      company,
-      title: row.title,
-      jobTypeName: row.jobType.name,
-      mode: row.mode,
-      startAt,
-      endAt,
-      startLabel: formatTimeInTimeZone(startAt, timeZone),
-      endLabel: formatTimeInTimeZone(endAt, timeZone),
-      locationLine,
-      modeLine,
-      description: row.description,
-      notes: row.notes,
-      dayIndex,
-      startHour,
-      startMinute,
-      durationMinutes: row.durationMinutes,
-      overlapIndex: 0,
-      overlapCount: 1,
-    });
+    rawEvents.push(mapBookingRowToUiEvent(row, timeZone, dayIndex));
   }
 
   rawEvents.sort(
@@ -358,14 +389,10 @@ export function buildCalendarViewModel(input: {
     });
   }
 
-  const nextConfirmedJob =
-    events.find(
-      (e) =>
-        e.bookingStatus === "CONFIRMED" && e.startAt.getTime() > now.getTime(),
-    ) ?? null;
-
-  const todayJobs = events.filter(
-    (e) => formatIsoDateInTimeZone(e.startAt, timeZone) === todayDateKey,
+  const nextUpcomingCommitment = pickNextUpcomingCommitment(
+    response.bookings,
+    timeZone,
+    now,
   );
 
   const weeklyEarnings = response.weeklyEarnings;
@@ -378,8 +405,7 @@ export function buildCalendarViewModel(input: {
     hourSlots,
     events,
     timelineByDay,
-    nextConfirmedJob,
-    todayJobs,
+    nextUpcomingCommitment,
     weeklyStats,
     todayDateKey,
     rangePastNotice,
