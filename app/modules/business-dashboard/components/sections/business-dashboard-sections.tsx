@@ -6,7 +6,6 @@ import {
   Clock3,
   MapPin,
   Menu,
-  Search,
   Sparkles,
   Users,
 } from "lucide-react";
@@ -154,13 +153,9 @@ function CampaignStatusBadge({
 export function BusinessDashboardHeader({
   greetingName,
   subtitle,
-  onSearchChange,
-  search,
 }: {
   greetingName: string;
   subtitle: string;
-  onSearchChange: (value: string) => void;
-  search: string;
 }) {
   return (
     <>
@@ -183,16 +178,6 @@ export function BusinessDashboardHeader({
           </button>
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-[rgba(137,90,246,0.08)] bg-white px-4 py-3">
-          <Search className="size-[18px] shrink-0 text-slate-400" />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Pesquisar campanhas e creators neste dashboard..."
-            className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-          />
-        </div>
       </header>
 
       <header className="sticky top-0 z-20 -mx-4 flex flex-col gap-4 border-b border-slate-200 bg-[#f6f5f8] px-4 pb-4 pt-6 lg:hidden">
@@ -221,17 +206,6 @@ export function BusinessDashboardHeader({
             {greetingName}
           </h1>
           <p className="mt-2 text-sm text-slate-500">{subtitle}</p>
-        </div>
-
-        <div className="flex items-center gap-3 rounded-full border border-[rgba(137,90,246,0.08)] bg-white px-4 py-3">
-          <Search className="size-[18px] shrink-0 text-slate-400" />
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Pesquisar no dashboard"
-            className="flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
-          />
         </div>
       </header>
     </>

@@ -24,8 +24,6 @@ export function BusinessDashboardScreen() {
         <BusinessDashboardHeader
           greetingName={controller.viewModel.greetingName}
           subtitle={controller.viewModel.subtitle}
-          search={controller.viewModel.search}
-          onSearchChange={controller.actions.setSearch}
         />
 
         <BusinessDashboardStats stats={controller.viewModel.metrics} />
