@@ -1,6 +1,12 @@
 import { memo } from "react";
 import { Link } from "react-router";
-import { CalendarDays, Clock3, MapPin, MessageCircle, Star } from "lucide-react";
+import {
+  CalendarDays,
+  Clock3,
+  MapPin,
+  MessageCircle,
+  Star,
+} from "lucide-react";
 import type { CompanyCampaignStatus, ContractRequestItem } from "../types";
 import {
   formatCurrency,
@@ -15,7 +21,9 @@ type CampaignCardProps = {
   onChatClick?: (item: ContractRequestItem) => void;
 };
 
-function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignStatus {
+function resolveStatus(
+  status: ContractRequestItem["status"],
+): CompanyCampaignStatus {
   if (status === "PENDING" || status === "PENDING_ACCEPTANCE") return "PENDING";
   if (status === "ACCEPTED") return "ACCEPTED";
   if (status === "IN_PROGRESS") return "IN_PROGRESS";
@@ -24,11 +32,17 @@ function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignSt
   return "CANCELLED";
 }
 
-function CampaignCardComponent({ item, onCardClick, onChatClick }: CampaignCardProps) {
+function CampaignCardComponent({
+  item,
+  onCardClick,
+  onChatClick,
+}: CampaignCardProps) {
   const status = resolveStatus(item.status);
   const statusMeta = getContractRequestStatusMeta(status);
-  const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
-  const creatorAvatarUrl = item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot;
+  const creatorName =
+    item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
+  const creatorAvatarUrl =
+    item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot;
   const creatorRating = item.creator?.rating ?? null;
   const title = item.job?.title ?? item.jobTypeName ?? "Campanha";
   const description = item.job?.description ?? item.description;
@@ -39,8 +53,13 @@ function CampaignCardComponent({ item, onCardClick, onChatClick }: CampaignCardP
   const locationText =
     city && state
       ? `${city}, ${state}`
-      : city || state || item.jobFormattedAddress || item.jobAddress || "Local a combinar";
-  const totalAmount = item.pricing?.totalAmount ?? item.totalAmount ?? item.totalPrice;
+      : city ||
+        state ||
+        item.jobFormattedAddress ||
+        item.jobAddress ||
+        "Local a combinar";
+  const totalAmount =
+    item.pricing?.totalAmount ?? item.totalAmount ?? item.totalPrice;
   const actions = item.actions ?? {
     canCancel: status === "PENDING",
     canChat: status === "ACCEPTED",
@@ -79,7 +98,9 @@ function CampaignCardComponent({ item, onCardClick, onChatClick }: CampaignCardP
             </div>
           )}
           <div className="min-w-0">
-            <p className="truncate text-base font-bold text-slate-900">{creatorName}</p>
+            <p className="truncate text-base font-bold text-slate-900">
+              {creatorName}
+            </p>
             {creatorRating != null ? (
               <div className="mt-0.5 inline-flex items-center gap-1 text-xs font-semibold text-amber-600">
                 <Star className="size-3.5 fill-current" />
@@ -99,7 +120,9 @@ function CampaignCardComponent({ item, onCardClick, onChatClick }: CampaignCardP
       </header>
 
       <div className="mt-4 rounded-2xl bg-[#f6f5f8] p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">{title}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+          {title}
+        </p>
         <p
           className="mt-1 text-sm text-slate-700"
           style={{
@@ -169,7 +192,8 @@ function CampaignCardComponent({ item, onCardClick, onChatClick }: CampaignCardP
             </button>
           ) : null}
 
-          {(status === "ACCEPTED" || status === "IN_PROGRESS") && actions.canChat ? (
+          {(status === "ACCEPTED" || status === "IN_PROGRESS") &&
+          actions.canChat ? (
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full bg-[#895af6]/10 px-4 py-3 text-sm font-semibold text-[#895af6] hover:bg-[#895af6]/20"

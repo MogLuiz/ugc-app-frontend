@@ -312,18 +312,18 @@ export function MarketplaceCreatorCardDesktop({
             </span>
           )}
         </div>
-        <div className="mt-auto flex h-10 shrink-0 gap-2 pt-4">
+        <div className="mt-auto flex h-10 min-w-0 shrink-0 gap-2 pt-4">
           <Link
             to={`/criador/${creator.id}`}
             state={{ marketplaceCreator: creator }}
-            className="flex min-h-10 flex-1 items-center justify-center rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50"
           >
             Ver Perfil
           </Link>
           <Button
             variant="purple"
             size="sm"
-            className="h-10 min-h-10 flex-1 rounded-full"
+            className="h-10 min-h-10 min-w-0 flex-1 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               onHire(creator);
@@ -396,18 +396,18 @@ export function MarketplaceCreatorCardMobile({
           </div>
         </div>
       </div>
-      <div className="flex h-11 shrink-0 gap-3">
+      <div className="flex h-11 min-w-0 shrink-0 gap-3">
         <Link
           to={`/criador/${creator.id}`}
           state={{ marketplaceCreator: creator }}
-          className="flex min-h-11 flex-1 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100"
+          className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-100"
         >
           Ver Perfil
         </Link>
         <Button
           variant="purple"
           size="md"
-          className="h-11 min-h-11 flex-1 rounded-full"
+          className="h-11 min-h-11 min-w-0 flex-1 rounded-full"
           onClick={() => onHire(creator)}
         >
           Contratar
