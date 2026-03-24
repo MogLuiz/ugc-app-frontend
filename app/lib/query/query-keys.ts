@@ -46,3 +46,11 @@ export const contractRequestKeys = {
     [...contractRequestKeys.all, "company", status ?? "all"] as const,
   creatorPending: () => [...contractRequestKeys.all, "creator", "pending"] as const,
 };
+
+export const chatKeys = {
+  all: ["chat"] as const,
+  conversations: (contractRequestId?: string) =>
+    [...chatKeys.all, "conversations", contractRequestId ?? "all"] as const,
+  messages: (conversationId?: string) =>
+    [...chatKeys.all, "messages", conversationId ?? "none"] as const,
+};

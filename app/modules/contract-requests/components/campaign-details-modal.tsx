@@ -1,4 +1,4 @@
-import { CalendarDays, MapPin, Star, X } from "lucide-react";
+import { CalendarDays, MapPin, MessageCircle, Star, X } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import type { CompanyCampaignStatus, ContractRequestItem } from "../types";
@@ -12,6 +12,7 @@ import {
 type CampaignDetailsModalProps = {
   item: ContractRequestItem | null;
   onClose: () => void;
+  onChatClick?: (item: ContractRequestItem) => void;
 };
 
 function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignStatus {
@@ -23,7 +24,7 @@ function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignSt
   return "CANCELLED";
 }
 
-export function CampaignDetailsModal({ item, onClose }: CampaignDetailsModalProps) {
+export function CampaignDetailsModal({ item, onClose, onChatClick }: CampaignDetailsModalProps) {
   if (!item) return null;
 
   const status = resolveStatus(item.status);
@@ -44,6 +45,11 @@ export function CampaignDetailsModal({ item, onClose }: CampaignDetailsModalProp
   const totalAmount = item.pricing?.totalAmount ?? item.totalAmount ?? item.totalPrice;
   const baseAmount = item.pricing?.baseAmount ?? item.creatorBasePrice;
   const transportAmount = item.pricing?.transportAmount ?? item.transportFee;
+  const actions = item.actions ?? {
+    canCancel: status === "PENDING",
+    canChat: status === "ACCEPTED",
+    canViewDetails: true,
+  };
 
   return (
     <div
@@ -154,6 +160,16 @@ export function CampaignDetailsModal({ item, onClose }: CampaignDetailsModalProp
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
+          {(status === "ACCEPTED" || status === "IN_PROGRESS") && actions.canChat ? (
+            <button
+              type="button"
+              onClick={() => onChatClick?.(item)}
+              className="inline-flex items-center gap-2 rounded-full border border-[#895af6]/20 px-4 py-2 text-sm font-semibold text-[#895af6] hover:bg-[#895af6]/10"
+            >
+              <MessageCircle className="size-4" />
+              Falar com creator
+            </button>
+          ) : null}
           <Link
             to={`/criador/${item.creatorId}`}
             className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"

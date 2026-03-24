@@ -38,6 +38,9 @@ type Pages = {
   "/ofertas": {
     params: {};
   };
+  "/chat": {
+    params: {};
+  };
   "/perfil": {
     params: {};
   };
@@ -51,11 +54,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -93,6 +96,10 @@ type RouteFiles = {
     id: "routes/ofertas";
     page: "/ofertas";
   };
+  "routes/chat.tsx": {
+    id: "routes/chat";
+    page: "/chat";
+  };
   "routes/perfil.tsx": {
     id: "routes/perfil";
     page: "/perfil";
@@ -115,6 +122,7 @@ type RouteModules = {
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
   "routes/campanhas": typeof import("./app/routes/campanhas.tsx");
   "routes/ofertas": typeof import("./app/routes/ofertas.tsx");
+  "routes/chat": typeof import("./app/routes/chat.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
 };

@@ -12,6 +12,7 @@ import {
 type CampaignCardProps = {
   item: ContractRequestItem;
   onCardClick?: (item: ContractRequestItem) => void;
+  onChatClick?: (item: ContractRequestItem) => void;
 };
 
 function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignStatus {
@@ -23,7 +24,7 @@ function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignSt
   return "CANCELLED";
 }
 
-function CampaignCardComponent({ item, onCardClick }: CampaignCardProps) {
+function CampaignCardComponent({ item, onCardClick, onChatClick }: CampaignCardProps) {
   const status = resolveStatus(item.status);
   const statusMeta = getContractRequestStatusMeta(status);
   const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
@@ -172,7 +173,10 @@ function CampaignCardComponent({ item, onCardClick }: CampaignCardProps) {
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full bg-[#895af6]/10 px-4 py-3 text-sm font-semibold text-[#895af6] hover:bg-[#895af6]/20"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChatClick?.(item);
+              }}
             >
               <MessageCircle className="size-4" />
               Falar com creator

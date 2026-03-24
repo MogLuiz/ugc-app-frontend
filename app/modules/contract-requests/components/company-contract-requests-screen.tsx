@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
@@ -36,6 +36,7 @@ function getCampaignStatus(item: ContractRequestItem): CompanyCampaignStatus | n
 }
 
 export function CompanyContractRequestsScreen() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TabId>("PENDING");
   const [sortBy] = useState<SortBy>("CREATED_AT_DESC");
   const [selectedCampaign, setSelectedCampaign] = useState<ContractRequestItem | null>(null);
@@ -67,6 +68,10 @@ export function CompanyContractRequestsScreen() {
     });
     return sorted;
   }, [activeTab, items, sortBy]);
+
+  const handleOpenChat = (item: ContractRequestItem) => {
+    navigate(`/chat?contractRequestId=${item.id}`);
+  };
 
   return (
     <div className="min-h-screen bg-[#f6f5f8] lg:flex">
@@ -141,6 +146,7 @@ export function CompanyContractRequestsScreen() {
                 key={item.id}
                 item={item}
                 onCardClick={setSelectedCampaign}
+                onChatClick={handleOpenChat}
               />
             ))}
           </section>
@@ -150,6 +156,7 @@ export function CompanyContractRequestsScreen() {
       <CampaignDetailsModal
         item={selectedCampaign}
         onClose={() => setSelectedCampaign(null)}
+        onChatClick={handleOpenChat}
       />
 
       <BusinessBottomNav />

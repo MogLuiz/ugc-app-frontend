@@ -5,7 +5,7 @@ import { cn } from "~/lib/utils";
 const BOTTOM_NAV_ITEMS = [
   { id: "inicio", label: "Início", icon: Home, to: "/dashboard" },
   { id: "agenda", label: "Agenda", icon: CalendarDays, to: "/agenda" },
-  { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "#" },
+  { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" },
   { id: "perfil", label: "Perfil", icon: User, to: "/perfil" },
 ];
 
@@ -35,14 +35,6 @@ export function CreatorBottomNav() {
               <span className="text-[10px]">{item.label}</span>
             </div>
           );
-
-          if (item.to.startsWith("#")) {
-            return (
-              <button key={item.id} type="button" className="flex flex-col">
-                {content}
-              </button>
-            );
-          }
 
           return (
             <Link key={item.id} to={item.to} className="flex flex-col">

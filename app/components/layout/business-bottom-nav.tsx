@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 
 const BOTTOM_NAV_ITEMS = [
   { id: "inicio", label: "Início", icon: Home, to: "/dashboard" },
-  { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "#" },
+  { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" },
   { id: "criadores", label: "Criadores", icon: Users, to: "/marketplace" },
 ];
 
@@ -34,14 +34,6 @@ export function BusinessBottomNav() {
               </span>
             </div>
           );
-
-          if (item.to.startsWith("#")) {
-            return (
-              <button key={item.id} type="button" className="flex flex-col">
-                {content}
-              </button>
-            );
-          }
 
           return (
             <Link key={item.id} to={item.to} className="flex flex-col">

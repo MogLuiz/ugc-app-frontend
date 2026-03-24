@@ -11,6 +11,7 @@ export default [
     route("dashboard", "routes/dashboard.tsx"),
     route("campanhas", "routes/campanhas.tsx"),
     route("ofertas", "routes/ofertas.tsx"),
+    route("chat", "routes/chat.tsx"),
     route("perfil", "routes/perfil.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx")
   ])
