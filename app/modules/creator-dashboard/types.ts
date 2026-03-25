@@ -1,23 +1,44 @@
-export type DashboardStat = {
+/** View models consumidos apenas pelos componentes de UI do dashboard do creator. */
+
+export type CreatorKpiCardVm = {
   id: string;
   label: string;
-  value: string;
-  badge?: { text: string; variant: "success" | "info" | "urgent" };
-  subtitle?: string;
+  valueDisplay: string;
 };
 
-export type JobOffer = {
+export type CreatorInviteVm = {
+  id: string;
+  companyName: string;
+  campaignTitle: string;
+  proposedDateDisplay: string;
+  paymentDisplay: string;
+};
+
+export type CreatorUpcomingCampaignVm = {
+  id: string;
+  campaignName: string;
+  companyName: string;
+  recordingAt: Date;
+  dayBanner: "HOJE" | "AMANHÃ" | null;
+  dateBadge: string;
+  timeDisplay: string;
+  locationDisplay: string;
+  durationDisplay: string;
+  statusBadge: string;
+};
+
+export type CreatorActivityItemVm = {
   id: string;
   title: string;
-  location: string;
   description: string;
-  value: string;
-  iconType: "gastronomy" | "unboxing";
+  relativeLabel: string;
+  href?: string;
 };
 
-export type ProgressItem = {
+export type NearbyCampaignCardVm = {
   id: string;
   title: string;
-  deadline: string;
-  progress: number;
+  distanceKm: number;
+  payment: number;
+  durationHours: number;
 };

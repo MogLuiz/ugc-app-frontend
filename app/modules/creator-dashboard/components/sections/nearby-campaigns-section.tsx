@@ -1,0 +1,75 @@
+import { Clock, MapPin } from "lucide-react";
+import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
+import type { NearbyCampaignCardVm } from "../../types";
+import { formatBrlCompact } from "../../adapters/creator-dashboard-adapters";
+import {
+  DashboardCard,
+  SectionHeader,
+} from "~/modules/business-dashboard/components/sections/section-primitives";
+
+export function NearbyCampaignsSection({
+  items,
+  newCount,
+}: {
+  items: NearbyCampaignCardVm[];
+  newCount: number;
+}) {
+  return (
+    <section className="flex flex-col gap-4">
+      {newCount > 0 ? (
+        <p className="text-sm font-bold text-[#6a36d5]">
+          {newCount}{" "}
+          {newCount === 1
+            ? "campanha nova perto de você"
+            : "campanhas novas perto de você"}
+        </p>
+      ) : null}
+
+      <SectionHeader title="Campanhas disponíveis perto de você" ctaLabel="Ver mapa" ctaTo="/mapa" />
+
+      <div className="flex gap-4 overflow-x-auto pb-1 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0">
+        {items.map((item) => (
+          <DashboardCard
+            key={item.id}
+            className={cn("min-w-[280px] shrink-0 overflow-hidden p-0 lg:min-w-0")}
+          >
+            <div className="h-40 bg-gradient-to-br from-[#6a36d5]/20 via-slate-100 to-slate-50" />
+            <div className="space-y-4 p-5">
+              <div>
+                <h3 className="text-lg font-black text-[#2c2f30]">{item.title}</h3>
+                <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[#595c5d]">
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="size-3.5 shrink-0 text-[#6a36d5]" />
+                    {item.distanceKm.toFixed(1)} km
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="size-3.5 shrink-0 text-[#6a36d5]" />
+                    {item.durationHours}h gravação
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border-2 border-[#6a36d5]/25 bg-gradient-to-br from-[#6a36d5]/[0.08] to-white px-4 py-3 text-center shadow-sm">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-[#6a36d5]">
+                  Pagamento
+                </p>
+                <p className="mt-1 text-3xl font-black tracking-tight text-[#6a36d5] lg:text-4xl">
+                  💰 {formatBrlCompact(item.payment)}
+                </p>
+              </div>
+
+              <Button
+                asChild
+                className="h-11 w-full rounded-full bg-[#6a36d5] font-bold hover:bg-[#5b2fc4]"
+              >
+                <Link to="/mapa">Ver campanha</Link>
+              </Button>
+            </div>
+          </DashboardCard>
+        ))}
+      </div>
+    </section>
+  );
+}

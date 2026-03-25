@@ -47,6 +47,14 @@ export const contractRequestKeys = {
   creatorPending: () => [...contractRequestKeys.all, "creator", "pending"] as const,
 };
 
+export const creatorDashboardKeys = {
+  all: ["creator-dashboard"] as const,
+  summary: () => [...creatorDashboardKeys.all, "summary"] as const,
+  invites: () => [...creatorDashboardKeys.all, "invites"] as const,
+  upcoming: () => [...creatorDashboardKeys.all, "upcoming"] as const,
+  activity: () => [...creatorDashboardKeys.all, "activity"] as const,
+};
+
 export const chatKeys = {
   all: ["chat"] as const,
   conversations: (contractRequestId?: string) =>

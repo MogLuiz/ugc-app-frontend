@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { contractRequestKeys } from "~/lib/query/query-keys";
+import { contractRequestKeys, creatorDashboardKeys } from "~/lib/query/query-keys";
 import {
   acceptContractRequest,
   createContractRequest,
@@ -54,6 +54,7 @@ export function useAcceptContractRequestMutation() {
     mutationFn: (contractRequestId: string) => acceptContractRequest(contractRequestId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
+      void queryClient.invalidateQueries({ queryKey: creatorDashboardKeys.all });
     },
   });
 }
@@ -66,6 +67,7 @@ export function useRejectContractRequestMutation() {
       rejectContractRequest(params.contractRequestId, params.rejectionReason),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
+      void queryClient.invalidateQueries({ queryKey: creatorDashboardKeys.all });
     },
   });
 }
