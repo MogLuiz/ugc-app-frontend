@@ -14,14 +14,7 @@ export type CompanyDashboardMetric = {
   tone: "default" | "highlight";
 };
 
-export type CompanyDashboardQuickAction = {
-  id: string;
-  label: string;
-  description: string;
-  to?: string;
-  disabled?: boolean;
-  todoNote?: string;
-};
+export type OperationalStatusVariant = "confirmed" | "pending_schedule" | "in_progress" | "completed";
 
 export type CompanyDashboardCampaignItem = {
   id: string;
@@ -30,14 +23,17 @@ export type CompanyDashboardCampaignItem = {
   creatorAvatarUrl: string | null;
   locationText: string;
   status: CompanyCampaignStatus;
-  statusLabel: string;
-  progressValue: number;
-  progressLabel: string;
-  totalAmount: number;
-  currency: string;
-  startsAt: string;
-  startsAtLabel: string;
-  relativeDateLabel: string;
+  /** Rótulo exibido no badge (Confirmada, Pendente, Em andamento, Concluída). */
+  operationalStatusLabel: string;
+  operationalStatusVariant: OperationalStatusVariant;
+  durationMinutes: number;
+  recordingInstant: Date | null;
+  /** Timestamp ms para ordenação; sem data = null (fica por último). */
+  recordingSortKey: number | null;
+  dateLine: string;
+  timeLine: string;
+  durationLine: string;
+  dayUrgency: "HOJE" | "AMANHÃ" | null;
   source: ContractRequestItem;
 };
 
@@ -60,22 +56,32 @@ export type CompanyDashboardRecommendedCreator = {
   avatarUrl: string | null;
 };
 
+export type CompanyDashboardActivityItem = {
+  id: string;
+  title: string;
+  description: string;
+  relativeLabel: string;
+  href?: string;
+};
+
 export type CompanyDashboardViewModel = {
   greetingName: string;
   subtitle: string;
-  search: string;
   metrics: CompanyDashboardMetric[];
-  quickActions: CompanyDashboardQuickAction[];
   activeCampaigns: CompanyDashboardCampaignItem[];
   pendingRequests: CompanyDashboardPendingItem[];
   recommendedCreators: CompanyDashboardRecommendedCreator[];
   mapHighlights: string[];
+  recentActivity: CompanyDashboardActivityItem[];
   hasCampaignData: boolean;
   hasRecommendedCreators: boolean;
   isCampaignsLoading: boolean;
   isRecommendedLoading: boolean;
   isCampaignsRefreshing: boolean;
   isRecommendedRefreshing: boolean;
+  isActivityLoading: boolean;
+  isActivityRefreshing: boolean;
   campaignsErrorMessage: string | null;
   recommendedErrorMessage: string | null;
+  activityErrorMessage: string | null;
 };

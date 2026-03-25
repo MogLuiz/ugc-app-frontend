@@ -1,39 +1,29 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useAuth } from "~/hooks/use-auth";
+import { useConversationsQuery } from "~/modules/chat/queries";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
 import { getInitials } from "~/modules/contract-requests/utils";
 import type { CompanyCampaignStatus, ContractRequestItem } from "~/modules/contract-requests/types";
 import { useMarketplaceCreatorsQuery } from "~/modules/marketplace/queries";
+import {
+  buildActivityFeed,
+  formatDurationLabel,
+  formatRecordingDateLabel,
+  formatRecordingTimeLabel,
+  getDayUrgencyBanner,
+  getRelativeActivityLabel,
+  resolveRecordingInstant,
+} from "../utils";
 import type {
+  CompanyDashboardActivityItem,
   CompanyDashboardCampaignItem,
   CompanyDashboardPendingItem,
   CompanyDashboardRecommendedCreator,
   CompanyDashboardViewModel,
+  OperationalStatusVariant,
 } from "../types";
 
 const RECOMMENDED_CREATORS_LIMIT = 4;
-
-const QUICK_ACTIONS = [
-  {
-    id: "create-campaign",
-    label: "Criar campanha",
-    description: "O fluxo atual começa pelo marketplace ou perfil do creator.",
-    disabled: true,
-    todoNote: "TODO: conectar quando existir rota dedicada para nova campanha.",
-  },
-  {
-    id: "explore-creators",
-    label: "Explorar criadores",
-    description: "Busque creators disponíveis no marketplace.",
-    to: "/marketplace",
-  },
-  {
-    id: "map",
-    label: "Mapa",
-    description: "Visualize a distribuição atual dos creators.",
-    to: "/mapa",
-  },
-] as const;
 
 function getCompanyStatus(item: ContractRequestItem): CompanyCampaignStatus {
   if (item.status === "PENDING" || item.status === "PENDING_ACCEPTANCE") return "PENDING";
@@ -90,50 +80,36 @@ function getRelativeLabel(value?: string | null) {
   return diffDays === 1 ? "Há 1 dia" : `Há ${diffDays} dias`;
 }
 
-function getStartsAtLabel(startsAt: string) {
-  const date = new Date(startsAt);
-  return date.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function getProgressMeta(status: CompanyCampaignStatus) {
-  switch (status) {
-    case "IN_PROGRESS":
-      return { value: 75, label: "Em execução" };
-    case "ACCEPTED":
-      return { value: 45, label: "Confirmada" };
-    case "COMPLETED":
-      return { value: 100, label: "Concluída" };
-    case "PENDING":
-      return { value: 20, label: "Aguardando creator" };
-    default:
-      return { value: 0, label: "Encerrada" };
+function getOperationalDisplay(
+  status: CompanyCampaignStatus,
+  recording: Date | null
+): { label: string; variant: OperationalStatusVariant } {
+  if (status === "IN_PROGRESS") {
+    return { label: "Em andamento", variant: "in_progress" };
   }
-}
-
-function getStatusLabel(status: CompanyCampaignStatus) {
-  switch (status) {
-    case "PENDING":
-      return "Aguardando resposta";
-    case "ACCEPTED":
-      return "Aceita";
-    case "IN_PROGRESS":
-      return "Em andamento";
-    case "COMPLETED":
-      return "Concluída";
-    default:
-      return "Cancelada";
+  if (status === "ACCEPTED") {
+    if (recording) return { label: "Confirmada", variant: "confirmed" };
+    return { label: "Pendente", variant: "pending_schedule" };
   }
+  if (status === "COMPLETED") {
+    return { label: "Concluída", variant: "completed" };
+  }
+  return { label: "Pendente", variant: "pending_schedule" };
 }
 
 function mapCampaignItem(item: ContractRequestItem): CompanyDashboardCampaignItem {
   const status = getCompanyStatus(item);
-  const progress = getProgressMeta(status);
   const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
+  const recordingInstant = resolveRecordingInstant(item);
+  const durationMinutes = item.job?.durationMinutes ?? item.durationMinutes;
+  const { label: operationalStatusLabel, variant: operationalStatusVariant } = getOperationalDisplay(
+    status,
+    recordingInstant
+  );
+
+  const dateLine = recordingInstant ? formatRecordingDateLabel(recordingInstant) : "Data a combinar";
+  const timeLine = recordingInstant ? formatRecordingTimeLabel(recordingInstant) : "Horário a combinar";
+  const durationLine = formatDurationLabel(durationMinutes);
 
   return {
     id: item.id,
@@ -142,14 +118,15 @@ function mapCampaignItem(item: ContractRequestItem): CompanyDashboardCampaignIte
     creatorAvatarUrl: item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot ?? null,
     locationText: getLocationText(item),
     status,
-    statusLabel: getStatusLabel(status),
-    progressValue: progress.value,
-    progressLabel: progress.label,
-    totalAmount: item.pricing?.totalAmount ?? item.totalAmount ?? item.totalPrice,
-    currency: item.currency,
-    startsAt: item.schedule?.startTime ?? item.startsAt,
-    startsAtLabel: getStartsAtLabel(item.schedule?.startTime ?? item.startsAt),
-    relativeDateLabel: getRelativeLabel(item.metadata?.createdAt ?? item.createdAt),
+    operationalStatusLabel,
+    operationalStatusVariant,
+    durationMinutes,
+    recordingInstant,
+    recordingSortKey: recordingInstant ? recordingInstant.getTime() : null,
+    dateLine,
+    timeLine,
+    durationLine,
+    dayUrgency: getDayUrgencyBanner(recordingInstant),
     source: item,
   };
 }
@@ -168,25 +145,33 @@ function mapPendingItem(item: ContractRequestItem): CompanyDashboardPendingItem 
   };
 }
 
-function filterBySearch<T>(items: T[], resolver: (item: T) => string, search: string) {
-  const normalized = search.trim().toLowerCase();
-  if (!normalized) return items;
-
-  return items.filter((item) => resolver(item).toLowerCase().includes(normalized));
+function compareActiveCampaigns(
+  a: CompanyDashboardCampaignItem,
+  b: CompanyDashboardCampaignItem
+): number {
+  if (a.recordingSortKey != null && b.recordingSortKey != null) {
+    return a.recordingSortKey - b.recordingSortKey;
+  }
+  if (a.recordingSortKey != null) return -1;
+  if (b.recordingSortKey != null) return 1;
+  const ca = new Date(a.source.metadata?.createdAt ?? a.source.createdAt ?? 0).getTime();
+  const cb = new Date(b.source.metadata?.createdAt ?? b.source.createdAt ?? 0).getTime();
+  return cb - ca;
 }
 
 export function useBusinessDashboardController() {
   const { user } = useAuth();
-  const [search, setSearch] = useState("");
 
   const campaignsQuery = useMyCompanyContractRequestsQuery();
   const creatorsQuery = useMarketplaceCreatorsQuery({
     page: 1,
     limit: RECOMMENDED_CREATORS_LIMIT,
   });
+  const conversationsQuery = useConversationsQuery();
 
   const campaigns = campaignsQuery.data ?? [];
   const creators = creatorsQuery.data?.items ?? [];
+  const conversations = conversationsQuery.data ?? [];
 
   const viewModel = useMemo<CompanyDashboardViewModel>(() => {
     const activeCampaignsRaw = campaigns
@@ -194,20 +179,8 @@ export function useBusinessDashboardController() {
         const status = getCompanyStatus(item);
         return status === "ACCEPTED" || status === "IN_PROGRESS";
       })
-      .sort((left, right) => {
-        const leftStatus = getCompanyStatus(left);
-        const rightStatus = getCompanyStatus(right);
-
-        if (leftStatus !== rightStatus) {
-          return leftStatus === "IN_PROGRESS" ? -1 : 1;
-        }
-
-        return (
-          new Date(right.metadata?.createdAt ?? right.createdAt ?? 0).getTime() -
-          new Date(left.metadata?.createdAt ?? left.createdAt ?? 0).getTime()
-        );
-      })
-      .map(mapCampaignItem);
+      .map(mapCampaignItem)
+      .sort(compareActiveCampaigns);
 
     const pendingRequestsRaw = campaigns
       .filter((item) => getCompanyStatus(item) === "PENDING")
@@ -234,28 +207,21 @@ export function useBusinessDashboardController() {
     ).length;
     const pendingRequestCount = pendingRequestsRaw.length;
 
-    const filteredActiveCampaigns = filterBySearch(
-      activeCampaignsRaw,
-      (item) => `${item.title} ${item.creatorName} ${item.locationText}`,
-      search
-    );
-    const filteredPendingRequests = filterBySearch(
-      pendingRequestsRaw,
-      (item) => `${item.title} ${item.creatorName}`,
-      search
-    );
-    const filteredRecommendedCreators = filterBySearch(
-      recommendedCreatorsRaw,
-      (item) => `${item.name} ${item.niche} ${item.location}`,
-      search
-    );
-
     const companyName = user?.companyProfile?.companyName ?? user?.profile?.name ?? user?.name;
+
+    const activityRaw = buildActivityFeed(campaigns, conversations);
+    const recentActivity: CompanyDashboardActivityItem[] = activityRaw.map((row) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      relativeLabel: getRelativeActivityLabel(new Date(row.at).toISOString()),
+      href: row.href,
+    }));
 
     return {
       greetingName: getGreetingName(companyName),
-      subtitle: "Acompanhe campanhas, creators e o que precisa de resposta agora.",
-      search,
+      subtitle:
+        "Acompanhe campanhas, creators e oportunidades próximas. Sua curadoria editorial começa aqui.",
       metrics: [
         {
           id: "active-campaigns",
@@ -268,7 +234,7 @@ export function useBusinessDashboardController() {
           id: "active-creators",
           label: "Criadores ativos",
           value: activeCreatorCount,
-          subtitle: "Trabalhando nas campanhas atuais",
+          subtitle: "Nas campanhas atuais",
           tone: "default",
         },
         {
@@ -282,21 +248,23 @@ export function useBusinessDashboardController() {
           id: "pending-requests",
           label: "Solicitações pendentes",
           value: pendingRequestCount,
-          subtitle: "Aguardando aceite do creator",
-          tone: "highlight",
+          subtitle: pendingRequestCount > 0 ? "Ação requerida" : "Nenhuma pendência",
+          tone: pendingRequestCount > 0 ? "highlight" : "default",
         },
       ],
-      quickActions: QUICK_ACTIONS.map((action) => ({ ...action })),
-      activeCampaigns: filteredActiveCampaigns,
-      pendingRequests: filteredPendingRequests,
-      recommendedCreators: filteredRecommendedCreators,
-      mapHighlights: creators.slice(0, 2).map((creator) => creator.location),
+      activeCampaigns: activeCampaignsRaw,
+      pendingRequests: pendingRequestsRaw,
+      recommendedCreators: recommendedCreatorsRaw,
+      mapHighlights: creators.slice(0, 2).map((c) => c.location),
+      recentActivity,
       hasCampaignData: campaigns.length > 0,
       hasRecommendedCreators: creators.length > 0,
       isCampaignsLoading: campaignsQuery.isLoading && !campaignsQuery.data,
       isRecommendedLoading: creatorsQuery.isLoading && !creatorsQuery.data,
       isCampaignsRefreshing: campaignsQuery.isFetching,
       isRecommendedRefreshing: creatorsQuery.isFetching,
+      isActivityLoading: conversationsQuery.isLoading && !conversationsQuery.data,
+      isActivityRefreshing: conversationsQuery.isFetching,
       campaignsErrorMessage: getQueryErrorMessage(
         campaignsQuery.error,
         "Não foi possível carregar as campanhas da empresa."
@@ -305,6 +273,10 @@ export function useBusinessDashboardController() {
         creatorsQuery.error,
         "Não foi possível carregar os creators recomendados."
       ),
+      activityErrorMessage: getQueryErrorMessage(
+        conversationsQuery.error,
+        "Não foi possível carregar a atividade recente."
+      ),
     };
   }, [
     campaigns,
@@ -312,12 +284,16 @@ export function useBusinessDashboardController() {
     campaignsQuery.error,
     campaignsQuery.isFetching,
     campaignsQuery.isLoading,
+    conversations,
+    conversationsQuery.data,
+    conversationsQuery.error,
+    conversationsQuery.isFetching,
+    conversationsQuery.isLoading,
     creators,
     creatorsQuery.data,
     creatorsQuery.error,
     creatorsQuery.isFetching,
     creatorsQuery.isLoading,
-    search,
     user?.companyProfile?.companyName,
     user?.name,
     user?.profile?.name,
@@ -325,7 +301,6 @@ export function useBusinessDashboardController() {
 
   return {
     actions: {
-      setSearch,
       getCreatorFallbackInitials: getInitials,
     },
     viewModel,

@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { EmptyState } from "~/components/ui/empty-state";
+import type { CompanyCampaignsLocationState } from "../company-campaigns-location-state";
 import { useMyCompanyContractRequestsQuery } from "../queries";
 import type { CompanyCampaignStatus, ContractRequestItem } from "../types";
 import { CampaignCard } from "./campaign-card";
@@ -35,8 +36,16 @@ function getCampaignStatus(item: ContractRequestItem): CompanyCampaignStatus | n
   return null;
 }
 
+function tabForCompanyStatus(status: CompanyCampaignStatus | null): TabId {
+  if (status === "PENDING") return "PENDING";
+  if (status === "ACCEPTED") return "ACCEPTED";
+  if (status === "IN_PROGRESS") return "IN_PROGRESS";
+  return "FINALIZED";
+}
+
 export function CompanyContractRequestsScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState<TabId>("PENDING");
   const [sortBy] = useState<SortBy>("CREATED_AT_DESC");
   const [selectedCampaign, setSelectedCampaign] = useState<ContractRequestItem | null>(null);
@@ -68,6 +77,20 @@ export function CompanyContractRequestsScreen() {
     });
     return sorted;
   }, [activeTab, items, sortBy]);
+
+  useEffect(() => {
+    const openId = (location.state as CompanyCampaignsLocationState | null)?.openContractRequestId;
+    if (!openId || contractRequestsQuery.isPending) return;
+
+    const found = items.find((item) => item.id === openId);
+    navigate("/campanhas", { replace: true, state: {} satisfies CompanyCampaignsLocationState });
+
+    if (!found) return;
+
+    const status = getCampaignStatus(found);
+    setActiveTab(tabForCompanyStatus(status));
+    setSelectedCampaign(found);
+  }, [contractRequestsQuery.isPending, items, location.state, navigate]);
 
   const handleOpenChat = (item: ContractRequestItem) => {
     navigate(`/chat?contractRequestId=${item.id}`);
