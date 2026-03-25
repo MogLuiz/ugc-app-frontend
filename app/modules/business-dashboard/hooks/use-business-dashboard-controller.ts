@@ -255,7 +255,6 @@ export function useBusinessDashboardController() {
       activeCampaigns: activeCampaignsRaw,
       pendingRequests: pendingRequestsRaw,
       recommendedCreators: recommendedCreatorsRaw,
-      mapHighlights: creators.slice(0, 2).map((c) => c.location),
       recentActivity,
       hasCampaignData: campaigns.length > 0,
       hasRecommendedCreators: creators.length > 0,

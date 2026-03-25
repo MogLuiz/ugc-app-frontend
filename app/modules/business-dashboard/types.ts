@@ -71,7 +71,6 @@ export type CompanyDashboardViewModel = {
   activeCampaigns: CompanyDashboardCampaignItem[];
   pendingRequests: CompanyDashboardPendingItem[];
   recommendedCreators: CompanyDashboardRecommendedCreator[];
-  mapHighlights: string[];
   recentActivity: CompanyDashboardActivityItem[];
   hasCampaignData: boolean;
   hasRecommendedCreators: boolean;

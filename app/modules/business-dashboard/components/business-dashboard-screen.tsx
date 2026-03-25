@@ -39,7 +39,9 @@ export function BusinessDashboardScreen() {
               errorMessage={controller.viewModel.campaignsErrorMessage}
               hasCampaignData={controller.viewModel.hasCampaignData}
               isRefreshing={controller.viewModel.isCampaignsRefreshing}
-              getCreatorFallbackInitials={controller.actions.getCreatorFallbackInitials}
+              getCreatorFallbackInitials={
+                controller.actions.getCreatorFallbackInitials
+              }
             />
 
             <BusinessDashboardCampaignsInProgress
@@ -48,20 +50,26 @@ export function BusinessDashboardScreen() {
               errorMessage={controller.viewModel.campaignsErrorMessage}
               hasCampaignData={controller.viewModel.hasCampaignData}
               isRefreshing={controller.viewModel.isCampaignsRefreshing}
-              getCreatorFallbackInitials={controller.actions.getCreatorFallbackInitials}
+              getCreatorFallbackInitials={
+                controller.actions.getCreatorFallbackInitials
+              }
             />
           </div>
 
           <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
-            <BusinessDashboardMapNearby highlights={controller.viewModel.mapHighlights} />
+            <BusinessDashboardMapNearby />
 
             <BusinessDashboardRecommendedCreators
               items={controller.viewModel.recommendedCreators}
               isLoading={controller.viewModel.isRecommendedLoading}
               errorMessage={controller.viewModel.recommendedErrorMessage}
-              hasRecommendedCreators={controller.viewModel.hasRecommendedCreators}
+              hasRecommendedCreators={
+                controller.viewModel.hasRecommendedCreators
+              }
               isRefreshing={controller.viewModel.isRecommendedRefreshing}
-              getCreatorFallbackInitials={controller.actions.getCreatorFallbackInitials}
+              getCreatorFallbackInitials={
+                controller.actions.getCreatorFallbackInitials
+              }
             />
 
             <BusinessDashboardRecentActivity
