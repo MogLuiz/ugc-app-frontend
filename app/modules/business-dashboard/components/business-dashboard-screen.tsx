@@ -57,7 +57,9 @@ export function BusinessDashboardScreen() {
           </div>
 
           <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
-            <BusinessDashboardMapNearby />
+            <BusinessDashboardMapNearby
+              highlights={controller.viewModel.mapHighlights}
+            />
 
             <BusinessDashboardRecommendedCreators
               items={controller.viewModel.recommendedCreators}

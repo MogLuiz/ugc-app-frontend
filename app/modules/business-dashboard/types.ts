@@ -71,6 +71,8 @@ export type CompanyDashboardViewModel = {
   activeCampaigns: CompanyDashboardCampaignItem[];
   pendingRequests: CompanyDashboardPendingItem[];
   recommendedCreators: CompanyDashboardRecommendedCreator[];
+  /** Regiões derivadas dos creators do marketplace (ex.: chip Belo Horizonte/MG). */
+  mapHighlights: string[];
   recentActivity: CompanyDashboardActivityItem[];
   hasCampaignData: boolean;
   hasRecommendedCreators: boolean;

@@ -1,3 +1,4 @@
+import { MapPin } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 
@@ -12,7 +13,7 @@ const FIGMA_MARKER_ICON =
 const FIGMA_MARKER_ICON_ALT =
   "https://www.figma.com/api/mcp/asset/9b55e3d9-5a30-4ddd-87a6-180e8d9cca07";
 
-export function BusinessDashboardMapNearby() {
+export function BusinessDashboardMapNearby({ highlights }: { highlights: string[] }) {
   return (
     <section
       className={cn(
@@ -20,17 +21,42 @@ export function BusinessDashboardMapNearby() {
         "shadow-[0px_4px_6px_-1px_rgba(106,54,213,0.04),0px_20px_40px_-1px_rgba(44,47,48,0.08)]"
       )}
     >
-      <header className="flex w-full items-center justify-between border-b border-[#e6e8ea] px-5 pb-[21px] pt-5">
-        <h2 className="text-sm font-bold tracking-[-0.35px] text-[#2c2f30]">
-          Criadores por perto
-        </h2>
-        <Link
-          to="/mapa"
-          className="rounded-full bg-[#6a36d5] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.5px] text-white hover:bg-[#5b2fc4]"
-        >
-          Ver mapa
-        </Link>
-      </header>
+      <div className="border-b border-[#e6e8ea] px-5 pb-5 pt-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#6a36d5]/10">
+              <MapPin className="size-5 text-[#6a36d5]" aria-hidden />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg font-black tracking-[-0.3px] text-[#2c2f30]">
+                Criadores por perto
+              </h2>
+              <p className="mt-1 text-sm text-[#595c5d]">
+                Visualize creators no mapa e refine por região.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/mapa"
+            className="shrink-0 rounded-full bg-[#6a36d5] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.5px] text-white hover:bg-[#5b2fc4]"
+          >
+            Ver mapa
+          </Link>
+        </div>
+
+        {highlights.length > 0 ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {highlights.map((item, index) => (
+              <span
+                key={`${item}-${index}`}
+                className="rounded-full border border-[#e6e8ea] bg-white px-3 py-1.5 text-xs font-medium text-[#595c5d] shadow-sm"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </div>
 
       <div className="relative w-full bg-[#eff1f2]">
         <div className="relative h-[167px] w-full shrink-0 opacity-90">
