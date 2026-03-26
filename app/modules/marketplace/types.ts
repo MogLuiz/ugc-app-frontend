@@ -9,6 +9,7 @@ export type MarketplaceCreator = {
   bio?: string | null;
   tags: string[];
   minPrice?: number | null;
+  ageYears: number | null;
 };
 
 export type MarketplaceServiceTypeOption = {

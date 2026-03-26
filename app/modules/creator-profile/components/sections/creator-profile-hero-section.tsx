@@ -1,4 +1,4 @@
-import { Check, Clock, MapPin, Star } from "lucide-react";
+import { Cake, Check, Clock, MapPin, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import type { CreatorProfile } from "../../types";
 
@@ -7,6 +7,11 @@ type CreatorProfileHeaderSectionProps = {
   onHire?: () => void;
   canHire?: boolean;
 };
+
+function formatAgeLabel(ageYears: number | null) {
+  const ok = ageYears != null && Number.isFinite(ageYears);
+  return ok ? `${ageYears} anos` : "Idade não informada";
+}
 
 function getInitials(name: string) {
   return name
@@ -84,11 +89,20 @@ export function CreatorProfileHeroSection({
               <Clock className="h-3.5 w-3.5" />
               {profile.jobsCount} jobs realizados
             </div>
-            <div className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span>
-                {profile.location.city}, {profile.location.state}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <div className="flex min-w-0 items-center gap-1">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="min-w-0 break-words">
+                  {profile.location.city}, {profile.location.state}
+                </span>
+              </div>
+              <span className="text-slate-300" aria-hidden>
+                •
               </span>
+              <div className="flex items-center gap-1">
+                <Cake className="h-3.5 w-3.5 shrink-0 text-[#64748b]" aria-hidden />
+                <span>{formatAgeLabel(profile.ageYears)}</span>
+              </div>
             </div>
             {profile.distance.formatted ? (
               <div className="inline-flex items-center gap-2 rounded-full bg-[#f1f5f9] px-3 py-1.5">

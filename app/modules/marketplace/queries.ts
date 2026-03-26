@@ -6,6 +6,8 @@ export function useMarketplaceCreatorsQuery(params: {
   limit: number;
   search?: string;
   serviceTypeId?: string;
+  minAge?: number;
+  maxAge?: number;
 }) {
   return useQuery({
     queryKey: marketplaceKeys.creators(params),

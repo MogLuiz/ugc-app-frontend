@@ -15,6 +15,8 @@ export async function getMarketplaceCreators(params: {
   limit: number;
   search?: string;
   serviceTypeId?: string;
+  minAge?: number;
+  maxAge?: number;
   token?: string;
 }): Promise<MarketplaceCreatorsResponse> {
   const accessToken = await getAccessToken(params.token);
@@ -30,6 +32,14 @@ export async function getMarketplaceCreators(params: {
 
   if (params.serviceTypeId) {
     searchParams.set("serviceTypeId", params.serviceTypeId);
+  }
+
+  if (params.minAge != null) {
+    searchParams.set("minAge", String(params.minAge));
+  }
+
+  if (params.maxAge != null) {
+    searchParams.set("maxAge", String(params.maxAge));
   }
 
   return httpClient<MarketplaceCreatorsResponse>(

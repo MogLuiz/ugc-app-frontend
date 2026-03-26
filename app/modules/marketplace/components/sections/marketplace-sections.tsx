@@ -1,4 +1,4 @@
-import { ChevronDown, MapPin, Menu, Search, Star, X } from "lucide-react";
+import { Cake, ChevronDown, MapPin, Menu, Search, Star, X } from "lucide-react";
 import type { ComponentProps } from "react";
 import { Link } from "react-router";
 import type {
@@ -85,6 +85,56 @@ function CreatorImageFallback({
       )}
     >
       {getCreatorInitials(name)}
+    </div>
+  );
+}
+
+
+function MarketplaceCreatorMetadataRow({
+  location,
+  ageYears,
+  compact,
+}: {
+  location: string;
+  ageYears: number | null;
+  compact?: boolean;
+}) {
+  const ageOk = ageYears != null && Number.isFinite(ageYears);
+  const ageText = ageOk ? `${ageYears} anos` : "Idade não informada";
+
+  return (
+    <div
+      className={cn(
+        "flex flex-wrap items-center gap-x-1.5 gap-y-0.5",
+        compact ? "mt-1" : "pt-1",
+        compact
+          ? "text-[11px] font-medium text-slate-400"
+          : "text-xs text-slate-500",
+      )}
+    >
+      <span className="inline-flex min-w-0 max-w-full items-center gap-1.5">
+        <MapPin
+          className={cn(
+            "shrink-0 text-slate-400",
+            compact ? "size-2" : "size-3.5",
+          )}
+          aria-hidden
+        />
+        <span className="min-w-0 break-words">{location}</span>
+      </span>
+      <span className="shrink-0 text-slate-300" aria-hidden>
+        •
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <Cake
+          className={cn(
+            "shrink-0 text-slate-400",
+            compact ? "size-2.5" : "size-3.5",
+          )}
+          aria-hidden
+        />
+        <span>{ageText}</span>
+      </span>
     </div>
   );
 }
@@ -293,10 +343,10 @@ export function MarketplaceCreatorCardDesktop({
         <h3 className="text-xl font-bold leading-7 text-slate-900">
           {creator.name}
         </h3>
-        <div className="flex items-center gap-1.5 pt-1">
-          <MapPin className="size-3.5 text-slate-400" />
-          <span className="text-xs text-slate-500">{creator.location}</span>
-        </div>
+        <MarketplaceCreatorMetadataRow
+          location={creator.location}
+          ageYears={creator.ageYears}
+        />
         <div className="mt-4 flex flex-1 flex-wrap content-start gap-2">
           {creator.tags.slice(0, 3).map((tag) => (
             <span
@@ -370,12 +420,11 @@ export function MarketplaceCreatorCardMobile({
               <h3 className="text-lg font-bold leading-[18px] text-slate-900">
                 {creator.name}
               </h3>
-              <div className="mt-1 flex items-center gap-1">
-                <MapPin className="size-2 text-slate-400" />
-                <span className="text-[11px] font-medium text-slate-400">
-                  {creator.location}
-                </span>
-              </div>
+              <MarketplaceCreatorMetadataRow
+                location={creator.location}
+                ageYears={creator.ageYears}
+                compact
+              />
             </div>
             <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1">
               <Star className="size-3 fill-amber-400 text-amber-400" />

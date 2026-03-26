@@ -36,6 +36,7 @@ export type CreatorProfile = {
   isOnline: boolean;
   rating: number;
   jobsCount: number;
+  ageYears: number | null;
   location: {
     city: string;
     state: string;
@@ -91,6 +92,7 @@ export type CreatorProfileDetailsResponse = {
   tags: string[];
   niche: string;
   minPrice: number | null;
+  ageYears: number | null;
   services: Array<{
     jobTypeId: string;
     name: string;

@@ -22,6 +22,8 @@ export const marketplaceKeys = {
     limit: number;
     search?: string;
     serviceTypeId?: string;
+    minAge?: number;
+    maxAge?: number;
   }) =>
     [
       ...marketplaceKeys.all,
@@ -30,6 +32,8 @@ export const marketplaceKeys = {
       params.limit,
       params.search ?? "",
       params.serviceTypeId ?? "",
+      params.minAge ?? "",
+      params.maxAge ?? "",
     ] as const,
   serviceTypes: () => [...marketplaceKeys.all, "service-types"] as const,
 };

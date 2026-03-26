@@ -57,6 +57,12 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
       currency: service.currency,
     }));
 
+  const ageYearsRaw = data.ageYears;
+  const ageYears =
+    ageYearsRaw != null && Number.isFinite(Number(ageYearsRaw))
+      ? Number(ageYearsRaw)
+      : null;
+
   return {
     id: data.id,
     name: data.name,
@@ -66,6 +72,7 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     isOnline: false,
     rating: data.rating,
     jobsCount: 0,
+    ageYears,
     location: {
       city,
       state,
