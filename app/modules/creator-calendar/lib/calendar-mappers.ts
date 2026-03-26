@@ -25,6 +25,7 @@ import {
   parseCalendarDate,
   toRelativeDayLabel,
 } from "./calendar-date";
+import { formatCalendarDurationLabel } from "./calendar-display";
 
 const DAY_METADATA: Record<
   AvailabilityDayOfWeek,
@@ -296,12 +297,7 @@ function mapEventTone(
 }
 
 function formatDurationHours(durationMinutes: number): string {
-  const hours = durationMinutes / 60;
-  if (durationMinutes % 60 === 0) {
-    return `${hours}h`;
-  }
-
-  return `${hours.toFixed(1).replace(".", ",")}h`;
+  return formatCalendarDurationLabel(durationMinutes);
 }
 
 function normalizeAvailabilityTime(value: string | null | undefined): string | null {

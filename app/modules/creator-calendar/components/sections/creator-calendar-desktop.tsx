@@ -19,13 +19,23 @@ export function CreatorCalendarDesktopSection({
     return null;
   }
 
+  const headerWeekDays = viewModel.weekDays.map((d) => ({
+    isoDate: d.isoDate,
+    label: d.label,
+    date: d.date,
+    isToday: Boolean(d.isToday),
+    isSelected: Boolean(d.highlighted),
+  }));
+
   return (
     <>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="min-w-0 flex-1 space-y-4">
-          <section className="overflow-hidden rounded-[36px] border border-[rgba(137,90,246,0.06)] bg-white shadow-sm">
+          <section className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)]">
             <CalendarHeaderWeek
               weekRangeLabel={viewModel.weekRangeLabel}
+              weekDays={headerWeekDays}
+              onSelectDay={actions.selectWeekDay}
               onPrevWeek={actions.goToPreviousWeek}
               onNextWeek={actions.goToNextWeek}
               onToday={actions.goToToday}
@@ -36,13 +46,14 @@ export function CreatorCalendarDesktopSection({
               ) : null}
               <WeeklyCalendarGrid
                 viewModel={viewModel}
+                selectedEventId={state.selectedEventId}
                 onEventClick={(id) => actions.openEventDetails(id, "desktop")}
                 onSelectWeekDay={actions.selectWeekDay}
               />
               {viewModel.events.length === 0 ? (
                 <div
                   className={cn(
-                    "mt-4 rounded-[24px] border border-dashed border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-500",
+                    "mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-5 py-4 text-sm text-slate-500",
                   )}
                 >
                   Nenhum compromisso neste período.

@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
+import { openMapsQuery } from "~/lib/maps";
 import type { useCreatorCalendarController } from "../../hooks/use-creator-calendar-controller";
 import { CalendarJobDetailsBody } from "./calendar-job-details-body";
 
@@ -8,24 +11,49 @@ type MobileJobSheetProps = {
 };
 
 export function MobileJobSheet({ controller }: MobileJobSheetProps) {
-  const { state, selectedEvent, actions } = controller;
+  const { state, selectedEvent, viewModel, actions } = controller;
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    if (!state.isMobileSheetOpen || !selectedEvent) {
+      setEntered(false);
+      return;
+    }
+    setEntered(false);
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setEntered(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [state.isMobileSheetOpen, selectedEvent?.id]);
 
   if (!state.isMobileSheetOpen || !selectedEvent) {
     return null;
   }
 
+  const mapsQuery =
+    selectedEvent.locationLine?.trim() && selectedEvent.mode !== "REMOTE"
+      ? selectedEvent.locationLine.trim()
+      : null;
+
+  const timeZone = viewModel?.timeZone ?? "America/Sao_Paulo";
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-900/50">
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-slate-950/40 backdrop-blur-[2px]">
       <button
         type="button"
         className="flex-1 border-0 bg-transparent"
         aria-label="Fechar"
         onClick={() => actions.closeEventDetails()}
       />
-      <div className="max-h-[85vh] overflow-y-auto rounded-t-[28px] bg-white px-5 pb-8 pt-3 shadow-[0_-8px_30px_rgba(0,0,0,0.12)]">
+      <div
+        className={cn(
+          "max-h-[88vh] overflow-y-auto rounded-t-[28px] border border-slate-200/80 bg-[#fafafa] px-5 pb-8 pt-3 shadow-[0_-12px_40px_rgba(15,23,42,0.12)] transition-transform duration-200 ease-out",
+          entered ? "translate-y-0" : "translate-y-full",
+        )}
+      >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-slate-200" />
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-base font-bold text-slate-900">Compromisso</h3>
+          <h3 className="text-base font-semibold text-slate-900">Compromisso</h3>
           <Button
             type="button"
             variant="ghost"
@@ -39,6 +67,7 @@ export function MobileJobSheet({ controller }: MobileJobSheetProps) {
         <CalendarJobDetailsBody
           event={selectedEvent}
           layout="sheet"
+          timeZone={timeZone}
           isAccepting={state.isAccepting}
           onAccept={
             selectedEvent.origin === "BOOKING" &&
@@ -52,6 +81,18 @@ export function MobileJobSheet({ controller }: MobileJobSheetProps) {
               ? () =>
                   actions.openChatForContract(selectedEvent.contractRequestId!)
               : undefined
+          }
+          onOpenFullCampaign={
+            selectedEvent.contractRequestId
+              ? () =>
+                  actions.openFullCampaign(
+                    selectedEvent.contractRequestId!,
+                    selectedEvent,
+                  )
+              : undefined
+          }
+          onOpenMaps={
+            mapsQuery ? () => openMapsQuery(mapsQuery) : undefined
           }
         />
       </div>

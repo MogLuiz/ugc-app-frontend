@@ -1,7 +1,9 @@
 import type { KeyboardEvent } from "react";
-import { ArrowLeft, Video } from "lucide-react";
+import { ArrowLeft, Clock, MapPin, Video } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { openMapsQuery } from "~/lib/maps";
 import type { AuthUser } from "~/modules/auth/types";
+import { bookingStatusBorderClass } from "../../lib/calendar-display";
 import { VISUAL_STATUS_BADGE_LABEL } from "../../lib/calendar-view-model";
 import type {
   CalendarTimelineSection,
@@ -113,11 +115,6 @@ export function MobileSectionHeading(props: {
   );
 }
 
-function openMapsQuery(query: string) {
-  const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-}
-
 function cardKeyOpen(e: KeyboardEvent<HTMLDivElement>, onOpen: () => void) {
   if (e.key === "Enter" || e.key === " ") {
     e.preventDefault();
@@ -131,63 +128,102 @@ export function MobileStandardJobCard(props: {
 }) {
   const { event } = props;
   const tone = STATUS_BADGE_ROW[event.visualStatus];
-  const subline = event.locationLine ?? event.modeLine;
+  const locationOrDistance =
+    event.distanceLabel ??
+    (event.locationLine?.trim() ? event.locationLine : event.modeLine);
   const showMapCta =
     Boolean(event.locationLine?.trim()) && event.mode !== "REMOTE";
+  const ModeIcon = event.mode === "REMOTE" ? Video : MapPin;
+
+  const tooltip = [
+    event.company,
+    event.title,
+    event.jobKindLabel,
+    `${event.startLabel} — ${event.endLabel} · ${event.durationLabel}`,
+    locationOrDistance,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <div
       role="button"
       tabIndex={0}
+      title={tooltip}
       onClick={props.onOpen}
       onKeyDown={(e) => cardKeyOpen(e, props.onOpen)}
-      className="w-full cursor-pointer rounded-[32px] border border-transparent bg-white p-5 text-left shadow-sm transition hover:shadow-md"
+      className={cn(
+        "w-full cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/90 p-4 text-left shadow-sm transition hover:scale-[1.01] hover:shadow-md",
+        bookingStatusBorderClass(event.bookingStatus),
+      )}
     >
-      <div className="flex items-start justify-between gap-3">
-        <span
-          className={cn(
-            "inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide",
-            tone.bg,
-            tone.text,
-          )}
-        >
-          <span className={cn("size-1.5 shrink-0 rounded-full", tone.dot)} />
-          {VISUAL_STATUS_BADGE_LABEL[event.visualStatus]}
-        </span>
-        <span className="shrink-0 text-xs text-slate-500">
-          {event.startLabel} - {event.endLabel}
-        </span>
-      </div>
-      <h3 className="mt-4 text-lg font-bold leading-snug tracking-tight text-slate-900">
-        {event.title}
-      </h3>
-      <p className="mt-1 text-sm text-slate-500">{subline}</p>
-
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <div className="min-w-0 flex items-center gap-2 text-xs text-slate-600">
-          {event.mode === "REMOTE" ? (
-            <>
-              <span className="flex size-8 items-center justify-center rounded-full bg-slate-100">
-                <Video className="size-3.5 text-slate-500" />
-              </span>
-              <span className="truncate">Reunião remota</span>
-            </>
-          ) : showMapCta ? (
-            <button
-              type="button"
-              className="inline-flex items-center gap-2 text-[#895af6]"
-              onClick={(e) => {
-                e.stopPropagation();
-                openMapsQuery(event.locationLine!);
-              }}
-            >
-              <span className="text-xs font-semibold">Ver no mapa</span>
-            </button>
+      <div className="flex items-start gap-3">
+        <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-sm font-bold text-slate-500">
+          {event.companyPhotoUrl ? (
+            <img
+              src={event.companyPhotoUrl}
+              alt=""
+              className="size-full object-cover"
+            />
           ) : (
-            <span className="truncate text-slate-500">{event.modeLine}</span>
+            event.company.charAt(0).toUpperCase()
           )}
         </div>
-        <span className="shrink-0 text-xs font-semibold text-[#895af6]">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={cn(
+                "inline-flex items-center gap-2 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                tone.bg,
+                tone.text,
+              )}
+            >
+              <span className={cn("size-1.5 shrink-0 rounded-full", tone.dot)} />
+              {VISUAL_STATUS_BADGE_LABEL[event.visualStatus]}
+            </span>
+          </div>
+          <p className="mt-1 truncate text-sm font-semibold text-slate-900">
+            {event.company}
+          </p>
+          <p className="mt-0.5 truncate text-xs font-medium text-slate-600">
+            {event.jobKindLabel}
+          </p>
+        </div>
+      </div>
+
+      <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">
+        {event.title}
+      </h3>
+
+      <div className="mt-3 space-y-1.5 text-sm text-slate-600">
+        <div className="flex items-center gap-2">
+          <Clock className="size-4 shrink-0 text-slate-400" aria-hidden />
+          <span className="truncate">
+            {event.startLabel} — {event.endLabel} · {event.durationLabel}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <ModeIcon className="size-4 shrink-0 text-slate-400" aria-hidden />
+          <span className="truncate">{locationOrDistance}</span>
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
+        <div className="min-w-0 text-xs text-slate-500">
+          {showMapCta ? (
+            <button
+              type="button"
+              className="font-semibold text-violet-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                openMapsQuery(event.locationLine!.trim());
+              }}
+            >
+              Ver no mapa
+            </button>
+          ) : null}
+        </div>
+        <span className="shrink-0 text-xs font-semibold text-violet-600">
           Ver detalhes
         </span>
       </div>

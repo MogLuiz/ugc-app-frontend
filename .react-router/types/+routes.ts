@@ -23,6 +23,16 @@ type Pages = {
   "/agenda": {
     params: {};
   };
+  "/empresa/:companyUserId": {
+    params: {
+      "companyUserId": string;
+    };
+  };
+  "/campanha/:contractRequestId": {
+    params: {
+      "contractRequestId": string;
+    };
+  };
   "/mapa": {
     params: {};
   };
@@ -54,11 +64,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -75,6 +85,14 @@ type RouteFiles = {
   "routes/agenda.tsx": {
     id: "routes/agenda";
     page: "/agenda";
+  };
+  "routes/empresa.$companyUserId.tsx": {
+    id: "routes/empresa.$companyUserId";
+    page: "/empresa/:companyUserId";
+  };
+  "routes/campanha.$contractRequestId.tsx": {
+    id: "routes/campanha.$contractRequestId";
+    page: "/campanha/:contractRequestId";
   };
   "routes/mapa.tsx": {
     id: "routes/mapa";
@@ -117,6 +135,8 @@ type RouteModules = {
   "routes/auth.login": typeof import("./app/routes/auth.login.tsx");
   "routes/auth.register": typeof import("./app/routes/auth.register.tsx");
   "routes/agenda": typeof import("./app/routes/agenda.tsx");
+  "routes/empresa.$companyUserId": typeof import("./app/routes/empresa.$companyUserId.tsx");
+  "routes/campanha.$contractRequestId": typeof import("./app/routes/campanha.$contractRequestId.tsx");
   "routes/mapa": typeof import("./app/routes/mapa.tsx");
   "routes/marketplace": typeof import("./app/routes/marketplace.tsx");
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");

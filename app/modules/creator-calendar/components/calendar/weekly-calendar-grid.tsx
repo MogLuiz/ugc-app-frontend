@@ -1,19 +1,53 @@
 import { useEffect, useRef } from "react";
 import { cn } from "~/lib/utils";
-import { formatIsoDateInTimeZone } from "../../lib/calendar-tz";
-import { VISUAL_STATUS_BADGE_LABEL, VISUAL_STATUS_CARD_CLASS } from "../../lib/calendar-view-model";
-import type { CalendarViewModel, UiCalendarEvent } from "../../types";
-
-const ROW_PX = 104;
+import { formatIsoDateInTimeZone, getHourMinuteInTimeZone } from "../../lib/calendar-tz";
+import { CalendarGridEventCard, CALENDAR_GRID_ROW_PX } from "./calendar-grid-event-card";
+import type { CalendarViewModel } from "../../types";
 
 type WeeklyCalendarGridProps = {
   viewModel: CalendarViewModel;
+  selectedEventId: string | null;
   onEventClick: (eventId: string) => void;
   onSelectWeekDay?: (isoDate: string) => void;
 };
 
+function CalendarNowIndicator({
+  minHour,
+  rowPx,
+  bodyHeight,
+  timeZone,
+}: {
+  minHour: number;
+  rowPx: number;
+  bodyHeight: number;
+  timeZone: string;
+}) {
+  const now = new Date();
+  const { hour, minute } = getHourMinuteInTimeZone(now, timeZone);
+  const top = (hour - minHour + minute / 60) * rowPx;
+  if (top < 0 || top > bodyHeight - 2) {
+    return null;
+  }
+
+  return (
+    <div
+      className="pointer-events-none absolute left-0 right-0 z-[3]"
+      style={{ top }}
+    >
+      <div className="relative flex h-0 items-center">
+        <span
+          className="absolute -left-0.5 size-2 rounded-full bg-rose-500 shadow-sm ring-2 ring-white"
+          aria-hidden
+        />
+        <div className="h-[2px] w-full bg-rose-500/85" />
+      </div>
+    </div>
+  );
+}
+
 export function WeeklyCalendarGrid({
   viewModel,
+  selectedEventId,
   onEventClick,
   onSelectWeekDay,
 }: WeeklyCalendarGridProps) {
@@ -23,7 +57,8 @@ export function WeeklyCalendarGrid({
   const scrollHorizontalRef = useRef<HTMLDivElement>(null);
 
   const { timeZone, todayDateKey, weekDays, hourSlots, events } = viewModel;
-  const bodyHeight = hourSlots.length * ROW_PX;
+  const rowPx = CALENDAR_GRID_ROW_PX;
+  const bodyHeight = hourSlots.length * rowPx;
 
   useEffect(() => {
     const todayIndex = weekDays.findIndex((d) => d.isoDate === todayDateKey);
@@ -51,17 +86,17 @@ export function WeeklyCalendarGrid({
     }
 
     const topPx =
-      (first.startHour - minHour) * ROW_PX +
-      (first.startMinute / 60) * ROW_PX;
-    scrollVerticalRef.current.scrollTop = Math.max(0, topPx - ROW_PX);
-  }, [events, minHour, timeZone, todayDateKey, weekDays]);
+      (first.startHour - minHour) * rowPx +
+      (first.startMinute / 60) * rowPx;
+    scrollVerticalRef.current.scrollTop = Math.max(0, topPx - rowPx);
+  }, [events, minHour, timeZone, todayDateKey, weekDays, rowPx]);
 
   return (
-    <div className="rounded-[32px] border border-[rgba(137,90,246,0.06)] bg-white shadow-sm">
+    <div className="rounded-2xl border border-slate-200/70 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
       <div ref={scrollHorizontalRef} className="overflow-x-auto">
         <div className="min-w-[720px]">
-          <div className="grid grid-cols-[72px_repeat(7,minmax(0,1fr))] border-b border-[rgba(137,90,246,0.06)]">
-            <div className="border-r border-[rgba(137,90,246,0.04)]" />
+          <div className="grid grid-cols-[72px_repeat(7,minmax(0,1fr))] border-b border-slate-200/60">
+            <div className="border-r border-slate-100" />
             {weekDays.map((day, index) => (
               <div
                 key={day.id}
@@ -69,19 +104,34 @@ export function WeeklyCalendarGrid({
                   columnRefs.current[index] = node;
                 }}
                 className={cn(
-                  "border-l border-[rgba(137,90,246,0.04)] px-2 py-3 text-center sm:px-4 sm:py-4",
-                  day.highlighted && "bg-[#f4efff]",
+                  "border-l border-slate-100 px-2 py-3 text-center sm:px-4 sm:py-4",
+                  day.isToday &&
+                    "rounded-t-xl border-x border-t border-violet-200/70 bg-violet-50/40",
+                  day.highlighted && !day.isToday && "bg-slate-50/80",
                 )}
               >
                 <button
                   type="button"
-                  className="w-full rounded-2xl px-1 py-1 text-center transition hover:bg-violet-50/80"
+                  className={cn(
+                    "w-full rounded-xl px-1 py-1 text-center transition hover:bg-slate-100/80",
+                    day.isToday && "hover:bg-violet-100/60",
+                  )}
                   onClick={() => onSelectWeekDay?.(day.isoDate)}
                 >
-                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  <p
+                    className={cn(
+                      "text-[11px] font-bold uppercase tracking-[0.12em]",
+                      day.isToday ? "text-violet-600" : "text-slate-400",
+                    )}
+                  >
                     {day.label}
                   </p>
-                  <p className="mt-1 text-[30px] font-black tracking-[-0.04em] text-slate-900">
+                  <p
+                    className={cn(
+                      "mt-1 text-[30px] font-black tracking-[-0.04em]",
+                      day.isToday ? "text-violet-700" : "text-slate-900",
+                    )}
+                  >
                     {day.date}
                   </p>
                 </button>
@@ -97,12 +147,12 @@ export function WeeklyCalendarGrid({
               className="grid grid-cols-[72px_repeat(7,minmax(0,1fr))]"
               style={{ height: bodyHeight }}
             >
-              <div className="border-r border-[rgba(137,90,246,0.04)]">
+              <div className="border-r border-slate-100">
                 {hourSlots.map((slot) => (
                   <div
                     key={slot}
-                    className="border-t border-[rgba(137,90,246,0.04)] px-4 py-8 text-xs font-medium text-slate-400"
-                    style={{ height: ROW_PX }}
+                    className="border-t border-slate-100 px-4 py-8 text-xs font-medium text-slate-400"
+                    style={{ height: rowPx }}
                   >
                     {slot}
                   </div>
@@ -112,16 +162,28 @@ export function WeeklyCalendarGrid({
               {weekDays.map((day, dayIndex) => (
                 <div
                   key={day.isoDate}
-                  className="relative border-l border-[rgba(137,90,246,0.04)]"
+                  className={cn(
+                    "relative border-l border-slate-100",
+                    day.isToday && "bg-violet-50/15",
+                  )}
                   style={{ height: bodyHeight }}
                 >
                   {hourSlots.map((slot, rowIndex) => (
                     <div
                       key={slot}
-                      className="absolute left-0 right-0 border-t border-[rgba(137,90,246,0.04)]"
-                      style={{ top: rowIndex * ROW_PX, height: ROW_PX }}
+                      className="absolute left-0 right-0 border-t border-slate-100"
+                      style={{ top: rowIndex * rowPx, height: rowPx }}
                     />
                   ))}
+
+                  {day.isoDate === todayDateKey ? (
+                    <CalendarNowIndicator
+                      minHour={minHour}
+                      rowPx={rowPx}
+                      bodyHeight={bodyHeight}
+                      timeZone={timeZone}
+                    />
+                  ) : null}
 
                   {events
                     .filter((e) => e.dayIndex === dayIndex)
@@ -130,6 +192,7 @@ export function WeeklyCalendarGrid({
                         key={event.id}
                         event={event}
                         minHour={minHour}
+                        selectedEventId={selectedEventId}
                         onSelect={() => onEventClick(event.id)}
                       />
                     ))}
@@ -140,65 +203,5 @@ export function WeeklyCalendarGrid({
         </div>
       </div>
     </div>
-  );
-}
-
-function CalendarGridEventCard({
-  event,
-  minHour,
-  onSelect,
-}: {
-  event: UiCalendarEvent;
-  minHour: number;
-  onSelect: () => void;
-}) {
-  const top =
-    (event.startHour - minHour) * ROW_PX + (event.startMinute / 60) * ROW_PX;
-  const height = Math.max((event.durationMinutes / 60) * ROW_PX - 8, 48);
-  const widthPct = 100 / event.overlapCount;
-  const leftPct = widthPct * event.overlapIndex;
-
-  return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(
-        "absolute z-[1] min-w-0 overflow-hidden rounded-2xl px-2 py-2 text-left text-xs shadow-sm transition hover:opacity-95",
-        VISUAL_STATUS_CARD_CLASS[event.visualStatus],
-      )}
-      style={{
-        top,
-        height,
-        left: `${leftPct}%`,
-        width: `${widthPct}%`,
-        paddingLeft: 6,
-        paddingRight: 6,
-      }}
-    >
-      <span className="block text-[10px] font-bold uppercase tracking-wide opacity-90">
-        {VISUAL_STATUS_BADGE_LABEL[event.visualStatus]}
-      </span>
-      <span className="mt-0.5 block truncate text-[11px] font-bold opacity-95">
-        {event.company}
-      </span>
-      <span className="mt-0.5 block truncate text-sm font-bold leading-tight">
-        {event.title}
-      </span>
-      <span className="mt-0.5 block truncate text-[11px] opacity-90">
-        {event.jobTypeName}
-      </span>
-      <span className="mt-1 block text-[11px] font-semibold">
-        {event.startLabel} — {event.endLabel}
-      </span>
-      {event.locationLine ? (
-        <span className="mt-0.5 block truncate text-[11px] opacity-90">
-          {event.locationLine}
-        </span>
-      ) : (
-        <span className="mt-0.5 block truncate text-[11px] opacity-90">
-          {event.modeLine}
-        </span>
-      )}
-    </button>
   );
 }

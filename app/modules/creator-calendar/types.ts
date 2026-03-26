@@ -72,6 +72,9 @@ export type CalendarBooking = {
   creatorUserId: string;
   isBlocking: boolean;
   companyName?: string | null;
+  companyPhotoUrl?: string | null;
+  companyRating?: number | null;
+  distanceKm?: number | null;
   contractRequestId?: string | null;
   location?: string | null;
 };
@@ -106,6 +109,13 @@ export type UiCalendarEvent = {
   durationMinutes: number;
   overlapIndex: number;
   overlapCount: number;
+  companyUserId: string;
+  companyPhotoUrl: string | null;
+  companyRating: number | null;
+  distanceKm: number | null;
+  durationLabel: string;
+  jobKindLabel: string;
+  distanceLabel: string | null;
 };
 
 export type CalendarTimelineSection = {
@@ -143,6 +153,8 @@ export type CalendarWeekDay = {
   label: string;
   date: string;
   highlighted?: boolean;
+  /** Dia civil atual no fuso da agenda. */
+  isToday?: boolean;
   isoDate: string;
   fullLabel: string;
 };

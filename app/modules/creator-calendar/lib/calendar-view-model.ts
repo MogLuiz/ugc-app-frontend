@@ -10,6 +10,11 @@ import {
   formatWeekdayShortInTimeZone,
   getHourMinuteInTimeZone,
 } from "./calendar-tz";
+import {
+  formatCalendarDurationLabel,
+  formatDistanceLabel,
+  formatJobKindLabel,
+} from "./calendar-display";
 import type {
   BookingStatus,
   CalendarBooking,
@@ -23,14 +28,6 @@ import type {
   UiCalendarEvent,
   VisualCalendarStatus,
 } from "../types";
-
-export const VISUAL_STATUS_CARD_CLASS: Record<VisualCalendarStatus, string> = {
-  confirmed:
-    "bg-[linear-gradient(180deg,#8b5cf6_0%,#7c4aed_100%)] text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.25)]",
-  pending: "bg-amber-100 text-amber-950 border border-amber-200/80",
-  completed: "bg-emerald-100 text-emerald-950 border border-emerald-200/80",
-  cancelled: "bg-red-50 text-red-900 border border-red-200/80",
-};
 
 export const VISUAL_STATUS_BADGE_LABEL: Record<VisualCalendarStatus, string> = {
   confirmed: "CONFIRMADO",
@@ -94,6 +91,10 @@ function mapBookingRowToUiEvent(
     (origin === "CONTRACT_REQUEST" ? "Empresa" : "Cliente");
   const locationLine = row.location?.trim() || null;
   const modeLine = mapModeLine(row.mode);
+  const distanceKm =
+    row.distanceKm != null && Number.isFinite(Number(row.distanceKm))
+      ? Number(row.distanceKm)
+      : null;
 
   return {
     id: row.id,
@@ -119,6 +120,16 @@ function mapBookingRowToUiEvent(
     durationMinutes: row.durationMinutes,
     overlapIndex: 0,
     overlapCount: 1,
+    companyUserId: row.companyUserId,
+    companyPhotoUrl: row.companyPhotoUrl?.trim() || null,
+    companyRating:
+      row.companyRating != null && Number.isFinite(Number(row.companyRating))
+        ? Number(row.companyRating)
+        : null,
+    distanceKm,
+    durationLabel: formatCalendarDurationLabel(row.durationMinutes),
+    jobKindLabel: formatJobKindLabel(row.jobType.name, row.mode),
+    distanceLabel: formatDistanceLabel(distanceKm),
   };
 }
 
@@ -365,6 +376,7 @@ export function buildCalendarViewModel(input: {
       label: formatWeekdayShortInTimeZone(date, timeZone),
       date: formatDayNumberInTimeZone(date, timeZone),
       highlighted: isoDate === selectedDateKey,
+      isToday: isoDate === todayDateKey,
       isoDate,
       fullLabel: formatWeekdayLongInTimeZone(date, timeZone),
     };
