@@ -161,6 +161,8 @@ export function CreatorProfileEditScreen() {
                   onDisplayNameChange={controller.setDisplayName}
                   birthDate={controller.birthDate}
                   onBirthDateChange={controller.setBirthDate}
+                  bio={controller.bio}
+                  onBioChange={controller.setBio}
                   phone={controller.phone}
                   onPhoneChange={controller.setPhone}
                   instagramUsername={controller.instagramUsername}
@@ -184,6 +186,8 @@ export function CreatorProfileEditScreen() {
                   onDisplayNameChange={controller.setDisplayName}
                   birthDate={controller.birthDate}
                   onBirthDateChange={controller.setBirthDate}
+                  bio={controller.bio}
+                  onBioChange={controller.setBio}
                   phone={controller.phone}
                   onPhoneChange={controller.setPhone}
                   instagramUsername={controller.instagramUsername}

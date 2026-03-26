@@ -196,7 +196,7 @@ function MobileLayout({ creators, search, onSearch, activeCategory, onCategoryCh
               to={`/criador/${creator.id}`}
               className={`flex w-[288px] shrink-0 gap-3 rounded-2xl border border-slate-100 bg-white p-3 text-left shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1)] transition ${selectedCreator?.id === creator.id ? "ring-2 ring-[#895af6]" : ""}`}
             >
-              <img src={creator.avatarUrl} alt={creator.name} className="h-20 w-20 rounded-full object-cover" />
+              <img src={creator.avatarUrl ?? undefined} alt={creator.name} className="h-20 w-20 rounded-full object-cover" />
               <div className="flex flex-1 flex-col justify-between py-1">
                 <div>
                   <div className="flex items-center gap-2"><Sparkles size={12} className="text-amber-500" /><span className="text-xs font-semibold">{creator.rating.toFixed(1)}</span></div>
@@ -204,8 +204,8 @@ function MobileLayout({ creators, search, onSearch, activeCategory, onCategoryCh
                   <p className="text-xs text-slate-500">UGC de {creator.specialty}</p>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="flex items-center gap-1 text-slate-600"><MapPin size={12} />{creator.distanceKm.toFixed(1)} km</span>
-                  <strong className="text-xl text-[#7c56f3]">R$ {creator.priceFrom}</strong>
+                  <span className="flex items-center gap-1 text-slate-600"><MapPin size={12} />{creator.distanceKm != null ? `${creator.distanceKm.toFixed(1)} km` : "—"}</span>
+                  {creator.priceFrom != null ? <strong className="text-xl text-[#7c56f3]">R$ {creator.priceFrom}</strong> : null}
                 </div>
               </div>
             </Link>
@@ -221,7 +221,7 @@ function CreatorDesktopCard({ creator, selected, onSelect }: { creator: CreatorM
     <article className={`rounded-[28px] border p-4 transition ${selected ? "border-[#d7ccff] bg-white" : "border-slate-200 bg-[#f8f8fa]"}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-slate-500">⭐ {creator.rating.toFixed(1)} ({creator.jobs} jobs)</p>
+          <p className="text-sm font-semibold text-slate-500">⭐ {creator.rating.toFixed(1)}{creator.jobs != null ? ` (${creator.jobs} jobs)` : ""}</p>
           <h4 className="mt-1 text-[32px] font-bold leading-8 text-slate-900">{creator.name}</h4>
           <p className="mt-1 text-xs uppercase text-slate-500">{creator.specialty} • {creator.region}</p>
           <div className="mt-4 flex items-center gap-2">
@@ -236,7 +236,7 @@ function CreatorDesktopCard({ creator, selected, onSelect }: { creator: CreatorM
             </Link>
           </div>
         </div>
-        <img src={creator.avatarUrl} alt={creator.name} className="h-24 w-24 rounded-full object-cover" />
+        <img src={creator.avatarUrl ?? undefined} alt={creator.name} className="h-24 w-24 rounded-full object-cover" />
       </div>
     </article>
   );

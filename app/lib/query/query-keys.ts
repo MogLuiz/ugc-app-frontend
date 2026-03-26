@@ -38,6 +38,11 @@ export const marketplaceKeys = {
   serviceTypes: () => [...marketplaceKeys.all, "service-types"] as const,
 };
 
+export const creatorsMapKeys = {
+  all: ["creators-map"] as const,
+  list: (search?: string) => [...creatorsMapKeys.all, "list", search ?? ""] as const,
+};
+
 export const creatorProfileKeys = {
   all: ["creator-profile"] as const,
   detail: (creatorId: string) =>

@@ -24,6 +24,8 @@ type ProfileInfoSectionProps = {
   onDisplayNameChange: (value: string) => void;
   birthDate: string;
   onBirthDateChange: (value: string) => void;
+  bio: string;
+  onBioChange: (value: string) => void;
   phone: string;
   onPhoneChange: (value: string) => void;
   instagramUsername: string;
@@ -47,6 +49,8 @@ export function CreatorProfileInfoSection({
   onDisplayNameChange,
   birthDate,
   onBirthDateChange,
+  bio,
+  onBioChange,
   phone,
   onPhoneChange,
   instagramUsername,
@@ -144,6 +148,22 @@ export function CreatorProfileInfoSection({
             placeholder="(00) 00000-0000"
             className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
           />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold uppercase text-[#94a3b8]">
+            Bio
+          </label>
+          <textarea
+            value={bio}
+            onChange={(e) => onBioChange(e.target.value)}
+            placeholder="Conte um pouco sobre você e seu trabalho"
+            rows={compact ? 2 : 3}
+            maxLength={500}
+            className="min-h-0 w-full resize-y rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-sm text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
+          />
+          <p className="text-right text-xs text-[#94a3b8]">
+            {bio.length}/500
+          </p>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold uppercase text-[#94a3b8]">

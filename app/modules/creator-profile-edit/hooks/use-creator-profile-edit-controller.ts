@@ -33,6 +33,7 @@ function getInitialState(user: AuthUser) {
   return {
     displayName: user.profile?.name ?? user.name ?? "",
     birthDate: user.profile?.birthDate?.slice(0, 10) ?? "",
+    bio: user.profile?.bio ?? "",
     phone: user.phone ?? "",
     instagramUsername: creatorProfile?.instagramUsername ?? "",
     tiktokUsername: creatorProfile?.tiktokUsername ?? "",
@@ -57,6 +58,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
     getInitialState(user).displayName
   );
   const [birthDate, setBirthDate] = useState(getInitialState(user).birthDate);
+  const [bio, setBio] = useState(getInitialState(user).bio);
   const [phone, setPhone] = useState(getInitialState(user).phone);
   const [instagramUsername, setInstagramUsername] = useState(
     getInitialState(user).instagramUsername
@@ -121,6 +123,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
     const init = getInitialState(user);
     setDisplayName(init.displayName);
     setBirthDate(init.birthDate);
+    setBio(init.bio);
     setPhone(init.phone);
     setInstagramUsername(init.instagramUsername);
     setTiktokUsername(init.tiktokUsername);
@@ -194,6 +197,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
     const init = getInitialState(user);
     setDisplayName(init.displayName);
     setBirthDate(init.birthDate);
+    setBio(init.bio);
     setPhone(init.phone);
     setInstagramUsername(init.instagramUsername);
     setTiktokUsername(init.tiktokUsername);
@@ -251,6 +255,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
           data: {
             name: displayName || undefined,
             birthDate: birthDate || undefined,
+            bio: bio.trim(),
             phone: phone || undefined,
             addressStreet: addressStreet || undefined,
             addressNumber: addressNumber || undefined,
@@ -298,6 +303,8 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setDisplayName,
     birthDate,
     setBirthDate,
+    bio,
+    setBio,
     phone,
     setPhone,
     instagramUsername,

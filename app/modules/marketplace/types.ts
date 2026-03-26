@@ -10,6 +10,9 @@ export type MarketplaceCreator = {
   tags: string[];
   minPrice?: number | null;
   ageYears: number | null;
+  creatorLatitude?: number | null;
+  creatorLongitude?: number | null;
+  creatorHasValidCoordinates?: boolean;
 };
 
 export type MarketplaceServiceTypeOption = {
