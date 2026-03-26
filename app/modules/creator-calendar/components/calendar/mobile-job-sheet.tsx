@@ -10,6 +10,7 @@ type MobileJobSheetProps = {
   controller: ReturnType<typeof useCreatorCalendarController>;
 };
 
+/** Detalhes do compromisso (mobile). Timeline com Livre/Agora: `mobile-agenda-ui` + `creator-calendar-mobile`. */
 export function MobileJobSheet({ controller }: MobileJobSheetProps) {
   const { state, selectedEvent, viewModel, actions } = controller;
   const [entered, setEntered] = useState(false);

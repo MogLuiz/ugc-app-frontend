@@ -23,14 +23,14 @@ export function getMobileCardDescriptionTitle(event: UiCalendarEvent): string {
   return t;
 }
 
-/** Linha de local / distância no mobile ("No local" quando muito perto). */
+/** Linha de local / distância no mobile ("📍 No local" quando muito perto). */
 export function getMobilePinLineText(event: UiCalendarEvent): string {
   if (
     event.distanceKm != null &&
     Number.isFinite(event.distanceKm) &&
     event.distanceKm <= 0.3
   ) {
-    return "No local";
+    return "📍 No local";
   }
   if (event.distanceLabel) {
     return event.distanceLabel;
@@ -50,6 +50,19 @@ export function formatCalendarDurationLabel(durationMinutes: number): string {
   }
 
   return `${hours.toFixed(1).replace(".", ",")}h`;
+}
+
+/** Rótulo para bloco "Livre · …" na timeline mobile (45min, 1h, 1h30). Reutiliza horas cheias de formatCalendarDurationLabel. */
+export function formatMobileFreeGapDurationLabel(durationMinutes: number): string {
+  if (durationMinutes < 60) {
+    return `${durationMinutes}min`;
+  }
+  if (durationMinutes % 60 === 0) {
+    return formatCalendarDurationLabel(durationMinutes);
+  }
+  const h = Math.floor(durationMinutes / 60);
+  const m = durationMinutes % 60;
+  return `${h}h${m}`;
 }
 
 const MODE_LABEL: Record<JobMode, string> = {

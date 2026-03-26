@@ -4,11 +4,9 @@ import type { useCreatorCalendarController } from "../../hooks/use-creator-calen
 import { MobileJobSheet } from "../calendar/mobile-job-sheet";
 import { PastRangeNotice } from "../calendar/past-range-notice";
 import {
+  MobileAgendaTimelineSections,
   MobileAgendaTopBar,
-  MobileSectionHeading,
-  MobileTimelineEventRow,
   MobileWeekStrip,
-  sectionHeadingAccent,
 } from "../calendar/mobile-agenda-ui";
 
 import type { CalendarViewModel, UiCalendarEvent } from "../../types";
@@ -83,24 +81,11 @@ function CreatorCalendarMobile({
             </p>
           ) : (
             <div className="mt-10 flex flex-col gap-10">
-              {sectionsWithEvents.map((section) => (
-                <section key={section.dateKey} className="flex flex-col gap-4">
-                  <MobileSectionHeading
-                    label={section.sectionLabel}
-                    accent={sectionHeadingAccent(section, viewModel)}
-                  />
-                  <div className="ml-2 flex flex-col">
-                    {section.events.map((event, idx) => (
-                      <MobileTimelineEventRow
-                        key={event.id}
-                        event={event}
-                        isLast={idx === section.events.length - 1}
-                        onOpen={() => openDetails(event)}
-                      />
-                    ))}
-                  </div>
-                </section>
-              ))}
+              <MobileAgendaTimelineSections
+                sections={sectionsWithEvents}
+                viewModel={viewModel}
+                onOpenEvent={openDetails}
+              />
             </div>
           )}
         </div>

@@ -1,13 +1,17 @@
 import type { KeyboardEvent } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { ArrowLeft, Clock, MapPin } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { openMapsQuery } from "~/lib/maps";
 import type { AuthUser } from "~/modules/auth/types";
 import {
   bookingStatusBorderClass,
+  formatMobileFreeGapDurationLabel,
   getMobileCardDescriptionTitle,
   getMobilePinLineText,
 } from "../../lib/calendar-display";
+import { formatTimeInTimeZone } from "../../lib/calendar-tz";
+import { buildMobileDayTimelineItems } from "../../lib/mobile-day-timeline";
 import { VISUAL_STATUS_BADGE_LABEL } from "../../lib/calendar-view-model";
 import type {
   CalendarTimelineSection,
@@ -42,6 +46,16 @@ const STATUS_BADGE_ROW: Record<
   },
 };
 
+/** Atualiza o relógio da timeline mobile (~1/min) sem recriar estruturas pesadas no pai. */
+export function useNowForMobileTimeline(intervalMs = 60_000): Date {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), intervalMs);
+    return () => window.clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
 export function MobileAgendaTopBar({ user }: { user: AuthUser | null }) {
   const initial = user?.name?.charAt(0).toUpperCase() ?? "?";
   const photo = user?.profile?.photoUrl;
@@ -51,13 +65,11 @@ export function MobileAgendaTopBar({ user }: { user: AuthUser | null }) {
       <div className="flex items-center gap-3 px-6 py-4">
         <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#f0ebff]">
           {photo ? (
-            <img
-              src={photo}
-              alt=""
-              className="size-full object-cover"
-            />
+            <img src={photo} alt="" className="size-full object-cover" />
           ) : (
-            <span className="text-sm font-semibold text-[#895af6]">{initial}</span>
+            <span className="text-sm font-semibold text-[#895af6]">
+              {initial}
+            </span>
           )}
         </div>
         <span className="text-[20px] font-light tracking-[-0.02em] text-[#895af6]">
@@ -159,7 +171,7 @@ export function MobileStandardJobCard(props: {
       onClick={props.onOpen}
       onKeyDown={(e) => cardKeyOpen(e, props.onOpen)}
       className={cn(
-        "w-full cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/90 p-5 text-left shadow-sm transition active:scale-[0.99]",
+        "w-full max-w-full cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/90 p-5 text-left shadow-sm transition active:scale-[0.99]",
         bookingStatusBorderClass(event.bookingStatus),
       )}
     >
@@ -187,7 +199,9 @@ export function MobileStandardJobCard(props: {
                 tone.text,
               )}
             >
-              <span className={cn("size-1.5 shrink-0 rounded-full", tone.dot)} />
+              <span
+                className={cn("size-1.5 shrink-0 rounded-full", tone.dot)}
+              />
               {VISUAL_STATUS_BADGE_LABEL[event.visualStatus]}
             </span>
           </div>
@@ -212,7 +226,12 @@ export function MobileStandardJobCard(props: {
         )}
         <div className="flex items-center gap-2">
           <MapPin className="size-4 shrink-0 text-slate-400" aria-hidden />
-          <span className="truncate">{pinText}</span>
+          <span
+            className="truncate"
+            aria-label={pinText.startsWith("📍") ? "No local" : undefined}
+          >
+            {pinText}
+          </span>
         </div>
       </div>
 
@@ -239,32 +258,51 @@ export function MobileStandardJobCard(props: {
   );
 }
 
+function MobileTimelineSpineContinuation(props: {
+  showContinuationBelow: boolean;
+}) {
+  const stem = "min-h-[20px]";
+  return (
+    <div className="flex w-2 shrink-0 flex-col items-center">
+      <span className={cn("w-px shrink-0 bg-neutral-200", stem)} aria-hidden />
+      {props.showContinuationBelow ? (
+        <span
+          className={cn("mt-1.5 w-px flex-1 bg-neutral-200", stem)}
+          aria-hidden
+        />
+      ) : (
+        <span className="mt-1.5 h-1.5 shrink-0" aria-hidden />
+      )}
+    </div>
+  );
+}
+
 export function MobileTimelineEventRow(props: {
   event: UiCalendarEvent;
   onOpen: () => void;
-  isLast: boolean;
+  showContinuationBelow: boolean;
 }) {
-  const { event, isLast } = props;
+  const { event, showContinuationBelow } = props;
   return (
-    <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-x-2">
+    <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-x-2">
       <div className="pt-1 text-left">
         <span className="text-xs tabular-nums leading-none text-slate-500">
           {event.startLabel}
         </span>
       </div>
-      <div className="flex min-w-0 gap-2 pb-6">
+      <div className="flex min-w-0 gap-2 pb-3">
         <div className="flex w-2 shrink-0 flex-col items-center pt-1.5">
           <span
             className="size-2 shrink-0 rounded-full bg-neutral-400"
             aria-hidden
           />
-          {!isLast ? (
+          {showContinuationBelow ? (
             <span
-              className="mt-1.5 w-px flex-1 min-h-[20px] bg-neutral-200"
+              className="mt-1.5 w-px flex-1 min-h-[24px] bg-neutral-200"
               aria-hidden
             />
           ) : (
-            <span className="mt-1.5 h-1.5" aria-hidden />
+            <span className="mt-1.5 h-1.5 shrink-0" aria-hidden />
           )}
         </div>
         <div className="min-w-0 flex-1">
@@ -276,6 +314,149 @@ export function MobileTimelineEventRow(props: {
         </div>
       </div>
     </div>
+  );
+}
+
+function MobileTimelineFreeGapRow(props: {
+  durationMinutes: number;
+  showContinuationBelow: boolean;
+}) {
+  const label = formatMobileFreeGapDurationLabel(props.durationMinutes);
+  return (
+    <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-x-2">
+      <div className="pt-1" aria-hidden />
+      <div className="flex min-w-0 gap-2 pb-3">
+        <MobileTimelineSpineContinuation
+          showContinuationBelow={props.showContinuationBelow}
+        />
+        <p
+          className="flex min-h-9 min-w-0 flex-1 items-center justify-center rounded-md border border-green-100 bg-green-50 px-3 py-2 text-center text-xs font-medium text-green-600"
+          role="status"
+        >
+          <span aria-hidden className="mr-2">
+            🟢{" "}
+          </span>
+          Livre · {label}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MobileTimelineNowDividerRow(props: {
+  timeZone: string;
+  now: Date;
+  showContinuationBelow: boolean;
+}) {
+  const timeLabel = formatTimeInTimeZone(props.now, props.timeZone);
+  return (
+    <div className="grid grid-cols-[48px_minmax(0,1fr)] gap-x-2">
+      <div className="pt-1" aria-hidden />
+      <div className="flex min-w-0 gap-2 pb-3">
+        <MobileTimelineSpineContinuation
+          showContinuationBelow={props.showContinuationBelow}
+        />
+        <div
+          className="flex min-w-0 flex-1 items-center gap-2 py-1.5"
+          role="status"
+          aria-label={`Agora, ${timeLabel}`}
+        >
+          <div className="h-px min-w-0 flex-1 bg-slate-200" aria-hidden />
+          <span className="shrink-0 text-[10px] font-medium tabular-nums text-slate-500">
+            Agora {timeLabel}
+          </span>
+          <div className="h-px min-w-0 flex-1 bg-slate-200" aria-hidden />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileAgendaTimelineDay(props: {
+  section: CalendarTimelineSection;
+  viewModel: CalendarViewModel;
+  now: Date;
+  onOpenEvent: (event: UiCalendarEvent) => void;
+}) {
+  const items = useMemo(
+    () =>
+      buildMobileDayTimelineItems(
+        props.section.events,
+        props.section.dateKey,
+        props.viewModel.todayDateKey,
+        props.viewModel.timeZone,
+        props.now,
+      ),
+    [
+      props.section.events,
+      props.section.dateKey,
+      props.viewModel.todayDateKey,
+      props.viewModel.timeZone,
+      props.now,
+    ],
+  );
+
+  return (
+    <>
+      {items.map((item, idx) => {
+        const showContinuationBelow = idx < items.length - 1;
+        if (item.type === "event") {
+          return (
+            <MobileTimelineEventRow
+              key={item.event.id}
+              event={item.event}
+              onOpen={() => props.onOpenEvent(item.event)}
+              showContinuationBelow={showContinuationBelow}
+            />
+          );
+        }
+        if (item.type === "freeGap") {
+          return (
+            <MobileTimelineFreeGapRow
+              key={item.key}
+              durationMinutes={item.durationMinutes}
+              showContinuationBelow={showContinuationBelow}
+            />
+          );
+        }
+        return (
+          <MobileTimelineNowDividerRow
+            key={item.key}
+            timeZone={props.viewModel.timeZone}
+            now={props.now}
+            showContinuationBelow={showContinuationBelow}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+export function MobileAgendaTimelineSections(props: {
+  sections: CalendarTimelineSection[];
+  viewModel: CalendarViewModel;
+  onOpenEvent: (event: UiCalendarEvent) => void;
+}) {
+  const now = useNowForMobileTimeline(60_000);
+  return (
+    <>
+      {props.sections.map((section) => (
+        <section key={section.dateKey} className="flex flex-col gap-4">
+          <MobileSectionHeading
+            label={section.sectionLabel}
+            accent={sectionHeadingAccent(section, props.viewModel)}
+          />
+          <div className="ml-1 flex min-w-0 flex-col">
+            <MobileAgendaTimelineDay
+              section={section}
+              viewModel={props.viewModel}
+              now={now}
+              onOpenEvent={props.onOpenEvent}
+            />
+          </div>
+        </section>
+      ))}
+    </>
   );
 }
 
