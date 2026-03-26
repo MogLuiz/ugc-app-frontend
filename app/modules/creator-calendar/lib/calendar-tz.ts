@@ -112,3 +112,27 @@ export function formatWeekRangeLabel(
 
   return `${startDay} de ${startMonth} – ${endDayNum} de ${endMonth}`;
 }
+
+/** Ex.: "31 Mar" (dia + mês curto, fuso da agenda). */
+export function formatDayMonthCompactInTimeZone(date: Date, timeZone: string): string {
+  const day = formatDayNumberInTimeZone(date, timeZone);
+  const monthRaw = new Intl.DateTimeFormat("pt-BR", {
+    timeZone,
+    month: "short",
+  }).format(date);
+  const month = monthRaw.replace(/\./g, "").trim();
+  const cap = month ? month.charAt(0).toUpperCase() + month.slice(1) : "";
+  return `${day} ${cap}`;
+}
+
+/** Ex.: "26 Mar — 9 Abr" para o período visível (mobile). */
+export function formatWeekRangeLabelCompact(
+  weekStart: Date,
+  timeZone: string,
+  periodDayCount = 7,
+): string {
+  const endDay = addDays(weekStart, Math.max(1, periodDayCount) - 1);
+  const a = formatDayMonthCompactInTimeZone(weekStart, timeZone);
+  const b = formatDayMonthCompactInTimeZone(endDay, timeZone);
+  return `${a} — ${b}`;
+}

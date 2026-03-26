@@ -9,6 +9,7 @@ export type CompanyPreviewProps = {
   profileHref?: string;
   profileLinkState?: unknown;
   profileButtonLabel?: string;
+  profileLinkClassName?: string;
   className?: string;
   compact?: boolean;
 };
@@ -20,6 +21,7 @@ export function CompanyPreview({
   profileHref,
   profileLinkState,
   profileButtonLabel = "Ver perfil da empresa",
+  profileLinkClassName,
   className,
   compact,
 }: CompanyPreviewProps) {
@@ -68,7 +70,10 @@ export function CompanyPreview({
         <Link
           to={profileHref}
           state={profileLinkState}
-          className="mt-3 flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50"
+          className={
+            profileLinkClassName ??
+            "mt-3 flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50"
+          }
         >
           {profileButtonLabel}
         </Link>

@@ -6,7 +6,7 @@ import { PastRangeNotice } from "../calendar/past-range-notice";
 import {
   MobileAgendaTopBar,
   MobileSectionHeading,
-  MobileStandardJobCard,
+  MobileTimelineEventRow,
   MobileWeekStrip,
   sectionHeadingAccent,
 } from "../calendar/mobile-agenda-ui";
@@ -19,6 +19,16 @@ type CreatorCalendarMobileProps = {
   onNextWeek: () => void;
   onOpenEvent: (eventId: string) => void;
 };
+
+function commitmentSubtitle(count: number): string {
+  if (count === 0) {
+    return "Nenhum compromisso neste período";
+  }
+  if (count === 1) {
+    return "1 compromisso neste período";
+  }
+  return `${count} compromissos neste período`;
+}
 
 function CreatorCalendarMobile({
   viewModel,
@@ -37,6 +47,8 @@ function CreatorCalendarMobile({
     onOpenEvent(event.id);
   };
 
+  const commitmentCount = viewModel.weeklyStats.jobCount;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[#f6f5f8]">
       <MobileAgendaTopBar user={user} />
@@ -44,15 +56,15 @@ function CreatorCalendarMobile({
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-28 pt-6">
         <div className="mx-auto flex min-h-full w-full max-w-md flex-col">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Meus Compromissos
+            Agenda
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Gerencie sua agenda e nunca perca um trabalho.
+            {commitmentSubtitle(commitmentCount)}
           </p>
 
-          <div className="mt-6">
+          <div className="mt-5">
             <MobileWeekStrip
-              weekRangeLabel={viewModel.weekRangeLabel}
+              weekRangeLabelCompact={viewModel.weekRangeLabelCompact}
               onPrev={onPrevWeek}
               onNext={onNextWeek}
             />
@@ -77,11 +89,12 @@ function CreatorCalendarMobile({
                     label={section.sectionLabel}
                     accent={sectionHeadingAccent(section, viewModel)}
                   />
-                  <div className="flex flex-col gap-4">
-                    {section.events.map((event) => (
-                      <MobileStandardJobCard
+                  <div className="ml-2 flex flex-col">
+                    {section.events.map((event, idx) => (
+                      <MobileTimelineEventRow
                         key={event.id}
                         event={event}
+                        isLast={idx === section.events.length - 1}
                         onOpen={() => openDetails(event)}
                       />
                     ))}

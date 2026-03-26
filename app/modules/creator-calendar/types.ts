@@ -137,6 +137,8 @@ export type CalendarRangePastNotice = "none" | "partial" | "full";
 export type CalendarViewModel = {
   timeZone: string;
   weekRangeLabel: string;
+  /** Intervalo curto para mobile (ex.: "26 Mar — 9 Abr"). Desktop não utiliza. */
+  weekRangeLabelCompact: string;
   weekDays: CalendarWeekDay[];
   hourSlots: string[];
   events: UiCalendarEvent[];

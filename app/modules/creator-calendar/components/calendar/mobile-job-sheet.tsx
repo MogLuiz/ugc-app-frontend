@@ -47,7 +47,7 @@ export function MobileJobSheet({ controller }: MobileJobSheetProps) {
       />
       <div
         className={cn(
-          "max-h-[88vh] overflow-y-auto rounded-t-[28px] border border-slate-200/80 bg-[#fafafa] px-5 pb-8 pt-3 shadow-[0_-12px_40px_rgba(15,23,42,0.12)] transition-transform duration-200 ease-out",
+          "max-h-[88vh] overflow-y-auto rounded-t-[28px] border border-slate-200/80 bg-[#fafafa] px-5 pb-8 pt-3 shadow-[0_-12px_40px_rgba(15,23,42,0.12)] transition-transform duration-150 ease-out",
           entered ? "translate-y-0" : "translate-y-full",
         )}
       >

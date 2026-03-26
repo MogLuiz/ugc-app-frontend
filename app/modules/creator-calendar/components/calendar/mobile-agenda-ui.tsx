@@ -1,9 +1,13 @@
 import type { KeyboardEvent } from "react";
-import { ArrowLeft, Clock, MapPin, Video } from "lucide-react";
+import { ArrowLeft, Clock, MapPin } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { openMapsQuery } from "~/lib/maps";
 import type { AuthUser } from "~/modules/auth/types";
-import { bookingStatusBorderClass } from "../../lib/calendar-display";
+import {
+  bookingStatusBorderClass,
+  getMobileCardDescriptionTitle,
+  getMobilePinLineText,
+} from "../../lib/calendar-display";
 import { VISUAL_STATUS_BADGE_LABEL } from "../../lib/calendar-view-model";
 import type {
   CalendarTimelineSection,
@@ -65,27 +69,27 @@ export function MobileAgendaTopBar({ user }: { user: AuthUser | null }) {
 }
 
 export function MobileWeekStrip(props: {
-  weekRangeLabel: string;
+  weekRangeLabelCompact: string;
   onPrev: () => void;
   onNext: () => void;
 }) {
   return (
-    <div className="rounded-[32px] border border-slate-200/60 bg-white px-4 py-3 shadow-sm">
+    <div className="rounded-2xl border border-slate-200/60 bg-white px-3 py-2.5 shadow-sm">
       <div className="flex items-center justify-between gap-2">
         <button
           type="button"
-          className="rounded-full p-2 text-[#895af6]"
+          className="rounded-full p-2 text-violet-600"
           onClick={props.onPrev}
           aria-label="Período anterior"
         >
           <ArrowLeft className="size-4" />
         </button>
-        <p className="min-w-0 flex-1 text-center text-sm font-bold capitalize leading-tight text-slate-900">
-          {props.weekRangeLabel}
+        <p className="min-w-0 flex-1 text-center text-[13px] font-semibold tabular-nums leading-tight text-slate-900">
+          {props.weekRangeLabelCompact}
         </p>
         <button
           type="button"
-          className="rounded-full p-2 text-[#895af6]"
+          className="rounded-full p-2 text-violet-600"
           onClick={props.onNext}
           aria-label="Próximo período"
         >
@@ -104,8 +108,8 @@ export function MobileSectionHeading(props: {
     <div className="flex items-center gap-3">
       <span
         className={cn(
-          "max-w-[72%] text-xs font-bold leading-snug tracking-tight",
-          props.accent ? "text-[#895af6]" : "text-slate-500",
+          "max-w-[78%] text-[11px] font-bold uppercase tracking-[0.08em]",
+          props.accent ? "text-violet-600" : "text-slate-500",
         )}
       >
         {props.label}
@@ -122,25 +126,27 @@ function cardKeyOpen(e: KeyboardEvent<HTMLDivElement>, onOpen: () => void) {
   }
 }
 
+export type MobileJobCardVariant = "default" | "timeline";
+
 export function MobileStandardJobCard(props: {
   event: UiCalendarEvent;
   onOpen: () => void;
+  variant?: MobileJobCardVariant;
 }) {
-  const { event } = props;
+  const { event, variant = "default" } = props;
   const tone = STATUS_BADGE_ROW[event.visualStatus];
-  const locationOrDistance =
-    event.distanceLabel ??
-    (event.locationLine?.trim() ? event.locationLine : event.modeLine);
+  const pinText = getMobilePinLineText(event);
   const showMapCta =
     Boolean(event.locationLine?.trim()) && event.mode !== "REMOTE";
-  const ModeIcon = event.mode === "REMOTE" ? Video : MapPin;
+  const descriptionTitle = getMobileCardDescriptionTitle(event);
+  const subtitle = `${event.jobKindLabel} · ${event.durationLabel}`;
 
   const tooltip = [
     event.company,
-    event.title,
-    event.jobKindLabel,
-    `${event.startLabel} — ${event.endLabel} · ${event.durationLabel}`,
-    locationOrDistance,
+    descriptionTitle,
+    subtitle,
+    `${event.startLabel} — ${event.endLabel}`,
+    pinText,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -153,27 +159,30 @@ export function MobileStandardJobCard(props: {
       onClick={props.onOpen}
       onKeyDown={(e) => cardKeyOpen(e, props.onOpen)}
       className={cn(
-        "w-full cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/90 p-4 text-left shadow-sm transition hover:scale-[1.01] hover:shadow-md",
+        "w-full cursor-pointer rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white to-slate-50/90 p-5 text-left shadow-sm transition active:scale-[0.99]",
         bookingStatusBorderClass(event.bookingStatus),
       )}
     >
-      <div className="flex items-start gap-3">
-        <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-sm font-bold text-slate-500">
-          {event.companyPhotoUrl ? (
-            <img
-              src={event.companyPhotoUrl}
-              alt=""
-              className="size-full object-cover"
-            />
-          ) : (
-            event.company.charAt(0).toUpperCase()
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
+      <div className="border-b border-slate-100 pb-4">
+        <div className="flex items-start gap-3">
+          <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-xs font-bold text-slate-500">
+            {event.companyPhotoUrl ? (
+              <img
+                src={event.companyPhotoUrl}
+                alt=""
+                className="size-full object-cover"
+              />
+            ) : (
+              event.company.charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[15px] font-semibold leading-tight text-slate-900">
+              {event.company}
+            </p>
             <span
               className={cn(
-                "inline-flex items-center gap-2 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                "mt-2 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
                 tone.bg,
                 tone.text,
               )}
@@ -182,50 +191,89 @@ export function MobileStandardJobCard(props: {
               {VISUAL_STATUS_BADGE_LABEL[event.visualStatus]}
             </span>
           </div>
-          <p className="mt-1 truncate text-sm font-semibold text-slate-900">
-            {event.company}
-          </p>
-          <p className="mt-0.5 truncate text-xs font-medium text-slate-600">
-            {event.jobKindLabel}
-          </p>
         </div>
       </div>
 
-      <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">
-        {event.title}
-      </h3>
+      <div className="space-y-1 border-b border-slate-100 py-4">
+        <p className="text-[13px] font-medium text-slate-600">{subtitle}</p>
+        <p className="text-[15px] font-semibold leading-snug text-slate-900">
+          {descriptionTitle}
+        </p>
+      </div>
 
-      <div className="mt-3 space-y-1.5 text-sm text-slate-600">
+      <div className="space-y-2 pt-4 text-[13px] text-slate-600">
+        {variant === "timeline" ? null : (
+          <div className="flex items-center gap-2">
+            <Clock className="size-4 shrink-0 text-slate-400" aria-hidden />
+            <span className="truncate">
+              {event.startLabel} — {event.endLabel} · {event.durationLabel}
+            </span>
+          </div>
+        )}
         <div className="flex items-center gap-2">
-          <Clock className="size-4 shrink-0 text-slate-400" aria-hidden />
-          <span className="truncate">
-            {event.startLabel} — {event.endLabel} · {event.durationLabel}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <ModeIcon className="size-4 shrink-0 text-slate-400" aria-hidden />
-          <span className="truncate">{locationOrDistance}</span>
+          <MapPin className="size-4 shrink-0 text-slate-400" aria-hidden />
+          <span className="truncate">{pinText}</span>
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3">
-        <div className="min-w-0 text-xs text-slate-500">
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+        <div className="min-w-0">
           {showMapCta ? (
             <button
               type="button"
-              className="font-semibold text-violet-600"
+              className="text-[13px] font-semibold text-violet-600"
               onClick={(e) => {
                 e.stopPropagation();
                 openMapsQuery(event.locationLine!.trim());
               }}
             >
-              Ver no mapa
+              Abrir no mapa
             </button>
           ) : null}
         </div>
-        <span className="shrink-0 text-xs font-semibold text-violet-600">
+        <span className="shrink-0 text-[13px] font-semibold text-violet-600">
           Ver detalhes
         </span>
+      </div>
+    </div>
+  );
+}
+
+export function MobileTimelineEventRow(props: {
+  event: UiCalendarEvent;
+  onOpen: () => void;
+  isLast: boolean;
+}) {
+  const { event, isLast } = props;
+  return (
+    <div className="grid grid-cols-[56px_minmax(0,1fr)] gap-x-2">
+      <div className="pt-1 text-left">
+        <span className="text-xs tabular-nums leading-none text-slate-500">
+          {event.startLabel}
+        </span>
+      </div>
+      <div className="flex min-w-0 gap-2 pb-6">
+        <div className="flex w-2 shrink-0 flex-col items-center pt-1.5">
+          <span
+            className="size-2 shrink-0 rounded-full bg-neutral-400"
+            aria-hidden
+          />
+          {!isLast ? (
+            <span
+              className="mt-1.5 w-px flex-1 min-h-[20px] bg-neutral-200"
+              aria-hidden
+            />
+          ) : (
+            <span className="mt-1.5 h-1.5" aria-hidden />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <MobileStandardJobCard
+            event={event}
+            onOpen={props.onOpen}
+            variant="timeline"
+          />
+        </div>
       </div>
     </div>
   );

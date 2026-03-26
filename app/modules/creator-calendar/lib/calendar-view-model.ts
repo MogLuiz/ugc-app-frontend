@@ -1,11 +1,12 @@
 import { addDays, SCHEDULING_TIMEZONE } from "./calendar-date";
 import {
   diffCalendarDays,
-  formatDayAndMonthLongInTimeZone,
+  formatDayMonthCompactInTimeZone,
   formatDayNumberInTimeZone,
   formatIsoDateInTimeZone,
   formatTimeInTimeZone,
   formatWeekRangeLabel,
+  formatWeekRangeLabelCompact,
   formatWeekdayLongInTimeZone,
   formatWeekdayShortInTimeZone,
   getHourMinuteInTimeZone,
@@ -391,14 +392,14 @@ export function buildCalendarViewModel(input: {
 
     let dayPrefix: string;
     if (dateKey === todayDateKey) {
-      dayPrefix = "HOJE";
+      dayPrefix = "Hoje";
     } else if (diffCalendarDays(todayDateKey, dateKey) === 1) {
-      dayPrefix = "AMANHÃ";
+      dayPrefix = "Amanhã";
     } else {
       dayPrefix = formatWeekdayShortInTimeZone(date, timeZone);
     }
 
-    const dateCaption = formatDayAndMonthLongInTimeZone(date, timeZone);
+    const dateCaption = formatDayMonthCompactInTimeZone(date, timeZone);
     const sectionLabel = `${dayPrefix} • ${dateCaption}`;
 
     timelineByDay.push({
@@ -420,6 +421,11 @@ export function buildCalendarViewModel(input: {
   return {
     timeZone,
     weekRangeLabel: formatWeekRangeLabel(weekStart, timeZone, visiblePeriodDays),
+    weekRangeLabelCompact: formatWeekRangeLabelCompact(
+      weekStart,
+      timeZone,
+      visiblePeriodDays,
+    ),
     weekDays,
     hourSlots,
     events,

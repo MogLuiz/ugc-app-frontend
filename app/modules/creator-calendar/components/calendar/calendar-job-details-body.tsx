@@ -3,9 +3,17 @@ import { ExternalLink, MapPin, MessageCircle, Clock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { CompanyPreview } from "~/components/company/company-preview";
 import { cn } from "~/lib/utils";
-import { formatWeekdayLongInTimeZone } from "../../lib/calendar-tz";
+import {
+  formatDayMonthCompactInTimeZone,
+  formatWeekdayLongInTimeZone,
+  formatWeekdayShortInTimeZone,
+} from "../../lib/calendar-tz";
 import { VISUAL_STATUS_BADGE_LABEL } from "../../lib/calendar-view-model";
 import type { UiCalendarEvent } from "../../types";
+import {
+  getMobileCardDescriptionTitle,
+  getMobilePinLineText,
+} from "../../lib/calendar-display";
 
 type CalendarJobDetailsBodyProps = {
   event: UiCalendarEvent;
@@ -36,6 +44,7 @@ export function CalendarJobDetailsBody({
   isAccepting,
   layout = "panel",
 }: CalendarJobDetailsBodyProps) {
+  const isSheet = layout === "sheet";
   const showAccept =
     event.origin === "BOOKING" && event.bookingStatus === "PENDING" && onAccept;
   const showChat =
@@ -52,6 +61,14 @@ export function CalendarJobDetailsBody({
 
   const addressLine =
     event.locationLine?.trim() || event.modeLine;
+
+  const headerTitle = isSheet
+    ? getMobileCardDescriptionTitle(event)
+    : event.title;
+
+  const pinSheet = getMobilePinLineText(event);
+  const showPinSheetRow =
+    isSheet && pinSheet.trim() !== addressLine.trim();
 
   return (
     <div className="space-y-6">
@@ -82,7 +99,7 @@ export function CalendarJobDetailsBody({
           <h2
             className={cn(
               "font-bold tracking-tight text-slate-900",
-              layout === "sheet" ? "text-xl" : "text-2xl",
+              isSheet ? "text-xl" : "text-2xl",
             )}
           >
             {event.company}
@@ -91,37 +108,78 @@ export function CalendarJobDetailsBody({
             {event.jobKindLabel}
           </p>
           <p className="mt-2 text-base font-semibold text-slate-800">
-            {event.title}
+            {headerTitle}
           </p>
         </div>
       </header>
 
-      <section className="space-y-2 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-        <SectionTitle>Horário</SectionTitle>
-        <p className="text-sm font-semibold capitalize text-slate-800">
-          {weekday}
-        </p>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <Clock className="size-4 shrink-0 text-slate-400" aria-hidden />
-          <span>
-            {event.startLabel} — {event.endLabel}
-          </span>
-        </div>
-        <p className="text-sm text-slate-500">Duração: {event.durationLabel}</p>
-      </section>
-
-      <section className="space-y-2 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
-        <SectionTitle>Local</SectionTitle>
-        <div className="flex items-start gap-2 text-sm text-slate-700">
-          <MapPin className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
-          <span>{addressLine}</span>
-        </div>
-        {event.distanceLabel ? (
-          <p className="text-sm font-medium text-slate-600">
-            Distância: {event.distanceLabel}
+      {isSheet ? (
+        <section className="space-y-2.5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <SectionTitle>Horário</SectionTitle>
+          <p className="flex items-center gap-2 text-sm font-semibold text-slate-800">
+            <span aria-hidden>📅</span>
+            <span>
+              {formatWeekdayShortInTimeZone(event.startAt, timeZone)} •{" "}
+              {formatDayMonthCompactInTimeZone(event.startAt, timeZone)}
+            </span>
           </p>
-        ) : null}
-      </section>
+          <p className="flex items-center gap-2 text-sm text-slate-600">
+            <span aria-hidden>🕒</span>
+            <span>
+              {event.startLabel} — {event.endLabel}
+            </span>
+          </p>
+          <p className="flex items-center gap-2 text-sm text-slate-600">
+            <span aria-hidden>⏱</span>
+            <span>{event.durationLabel}</span>
+          </p>
+        </section>
+      ) : (
+        <section className="space-y-2 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <SectionTitle>Horário</SectionTitle>
+          <p className="text-sm font-semibold capitalize text-slate-800">
+            {weekday}
+          </p>
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <Clock className="size-4 shrink-0 text-slate-400" aria-hidden />
+            <span>
+              {event.startLabel} — {event.endLabel}
+            </span>
+          </div>
+          <p className="text-sm text-slate-500">
+            Duração: {event.durationLabel}
+          </p>
+        </section>
+      )}
+
+      {isSheet ? (
+        <section className="space-y-2 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <SectionTitle>Local</SectionTitle>
+          <div className="flex items-start gap-2 text-sm text-slate-700">
+            <MapPin className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
+            <span>{addressLine}</span>
+          </div>
+          {showPinSheetRow ? (
+            <p className="flex items-center gap-2 text-sm font-medium text-slate-600">
+              <MapPin className="size-4 shrink-0 text-slate-400" aria-hidden />
+              <span>{pinSheet}</span>
+            </p>
+          ) : null}
+        </section>
+      ) : (
+        <section className="space-y-2 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm">
+          <SectionTitle>Local</SectionTitle>
+          <div className="flex items-start gap-2 text-sm text-slate-700">
+            <MapPin className="mt-0.5 size-4 shrink-0 text-slate-400" aria-hidden />
+            <span>{addressLine}</span>
+          </div>
+          {event.distanceLabel ? (
+            <p className="text-sm font-medium text-slate-600">
+              Distância: {event.distanceLabel}
+            </p>
+          ) : null}
+        </section>
+      )}
 
       <section className="space-y-3">
         <SectionTitle>Empresa</SectionTitle>
@@ -130,7 +188,14 @@ export function CalendarJobDetailsBody({
           photoUrl={event.companyPhotoUrl}
           rating={event.companyRating}
           profileHref={`/empresa/${event.companyUserId}`}
-          profileButtonLabel="Ver perfil da empresa"
+          profileButtonLabel={
+            isSheet ? "Ver empresa →" : "Ver perfil da empresa"
+          }
+          profileLinkClassName={
+            isSheet
+              ? "mt-2 inline-flex w-full items-center justify-end text-sm font-semibold text-violet-600 transition hover:text-violet-800"
+              : undefined
+          }
           profileLinkState={{
             companyName: event.company,
             companyPhotoUrl: event.companyPhotoUrl,

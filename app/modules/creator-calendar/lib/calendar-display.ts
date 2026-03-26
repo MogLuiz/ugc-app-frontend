@@ -1,4 +1,46 @@
-import type { BookingStatus, JobMode } from "../types";
+import type { BookingStatus, JobMode, UiCalendarEvent } from "../types";
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Evita "Oferta aceita - Empresa" quando o nome já está no header (mobile). */
+export function getMobileCardDescriptionTitle(event: UiCalendarEvent): string {
+  const t = event.title.trim();
+  const company = event.company.trim();
+  if (!company) return t;
+  const reDash = new RegExp(
+    `^Oferta aceita\\s*-\\s*${escapeRegExp(company)}$`,
+    "i",
+  );
+  const reMdash = new RegExp(
+    `^Oferta aceita\\s*—\\s*${escapeRegExp(company)}$`,
+    "i",
+  );
+  if (reDash.test(t) || reMdash.test(t)) {
+    return "Oferta aceita";
+  }
+  return t;
+}
+
+/** Linha de local / distância no mobile ("No local" quando muito perto). */
+export function getMobilePinLineText(event: UiCalendarEvent): string {
+  if (
+    event.distanceKm != null &&
+    Number.isFinite(event.distanceKm) &&
+    event.distanceKm <= 0.3
+  ) {
+    return "No local";
+  }
+  if (event.distanceLabel) {
+    return event.distanceLabel;
+  }
+  if (event.locationLine?.trim()) {
+    return event.locationLine.trim();
+  }
+  return event.modeLine;
+}
+
 
 /** Rótulo de duração para UI (ex.: 5h ou 1,5h). */
 export function formatCalendarDurationLabel(durationMinutes: number): string {
