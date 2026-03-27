@@ -27,18 +27,26 @@ export function NearbyCampaignsSection({
         </p>
       ) : null}
 
-      <SectionHeader title="Campanhas disponíveis perto de você" ctaLabel="Ver mapa" ctaTo="/mapa" />
+      <SectionHeader
+        title="Campanhas disponíveis perto de você"
+        ctaLabel="Ver mapa"
+        ctaTo="/mapa"
+      />
 
       <div className="flex gap-4 overflow-x-auto pb-1 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0">
         {items.map((item) => (
           <DashboardCard
             key={item.id}
-            className={cn("min-w-[280px] shrink-0 overflow-hidden p-0 lg:min-w-0")}
+            className={cn(
+              "min-w-[280px] shrink-0 overflow-hidden p-0 lg:min-w-0",
+            )}
           >
             <div className="h-40 bg-gradient-to-br from-[#6a36d5]/20 via-slate-100 to-slate-50" />
             <div className="space-y-4 p-5">
               <div>
-                <h3 className="text-lg font-black text-[#2c2f30]">{item.title}</h3>
+                <h3 className="text-lg font-black text-[#2c2f30]">
+                  {item.title}
+                </h3>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-[#595c5d]">
                   <span className="inline-flex items-center gap-1">
                     <MapPin className="size-3.5 shrink-0 text-[#6a36d5]" />

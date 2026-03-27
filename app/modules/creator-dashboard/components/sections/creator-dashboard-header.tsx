@@ -46,13 +46,6 @@ export function CreatorDashboardHeader({
         <p className="mt-2 text-sm leading-relaxed text-[#595c5d]">
           Veja suas campanhas, convites e oportunidades perto de você.
         </p>
-        <Link
-          to="/mapa"
-          className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#6a36d5] text-base font-bold text-white shadow-md transition-colors hover:bg-[#5b2fc4]"
-        >
-          <MapPin className="size-5" />
-          Ver oportunidades perto de você
-        </Link>
       </section>
     </>
   );

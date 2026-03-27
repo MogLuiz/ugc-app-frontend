@@ -21,22 +21,27 @@ type AppHeaderProps = {
   title?: string;
 };
 
-export function AppHeader({ notifications: notificationsProp, title }: AppHeaderProps) {
+export function AppHeader({
+  notifications: notificationsProp,
+  title,
+}: AppHeaderProps) {
   const { user, logout } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
 
   const nameParts = (user?.name ?? "").trim().split(/\s+/).filter(Boolean);
-  const firstName = nameParts[0] ?? null;
-  const greeting = firstName ? `Olá, ${firstName} 👋` : "Olá 👋";
+  const greeting = "Portal do Criador";
 
   const photo = user?.profile?.photoUrl;
-  const initials = nameParts
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("") || "?";
+  const initials =
+    nameParts
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("") || "?";
 
   const defaultNotifications =
-    user?.role === "business" ? MOCK_BUSINESS_NOTIFICATIONS : MOCK_NOTIFICATIONS;
+    user?.role === "business"
+      ? MOCK_BUSINESS_NOTIFICATIONS
+      : MOCK_NOTIFICATIONS;
   const notifications = notificationsProp ?? defaultNotifications;
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -54,13 +59,18 @@ export function AppHeader({ notifications: notificationsProp, title }: AppHeader
             {photo ? (
               <img src={photo} alt="" className="size-full object-cover" />
             ) : (
-              <span className="text-[11px] font-bold text-[#895af6]">{initials}</span>
+              <span className="text-[11px] font-bold text-[#895af6]">
+                {initials}
+              </span>
             )}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
           <DropdownMenuItem asChild>
-            <Link to="/perfil" className="flex cursor-pointer items-center gap-2">
+            <Link
+              to="/perfil"
+              className="flex cursor-pointer items-center gap-2"
+            >
               <User className="size-4" />
               Meu perfil
             </Link>
@@ -84,7 +94,9 @@ export function AppHeader({ notifications: notificationsProp, title }: AppHeader
       </DropdownMenu>
 
       {/* Center: Screen title or greeting */}
-      <p className="text-sm font-semibold text-slate-900">{title ?? greeting}</p>
+      <p className="text-sm font-semibold text-slate-900">
+        {title ?? greeting}
+      </p>
 
       {/* Right: Notifications bell */}
       <button
