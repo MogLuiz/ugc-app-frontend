@@ -1,4 +1,5 @@
 import { AppSidebar } from "~/components/app-sidebar";
+import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useBusinessDashboardController } from "../hooks/use-business-dashboard-controller";
 import {
@@ -21,7 +22,9 @@ export function BusinessDashboardScreen() {
         <AppSidebar variant="business" />
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 pb-24 lg:gap-10 lg:p-8">
+      <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden pb-24 lg:gap-10 lg:p-8">
+        <AppHeader />
+        <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 lg:gap-10 lg:px-0">
         <BusinessDashboardHeader
           greetingName={controller.viewModel.greetingName}
           subtitle={controller.viewModel.subtitle}
@@ -81,6 +84,7 @@ export function BusinessDashboardScreen() {
               isRefreshing={controller.viewModel.isActivityRefreshing}
             />
           </div>
+        </div>
         </div>
       </main>
 

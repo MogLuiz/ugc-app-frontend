@@ -1,4 +1,5 @@
 import { AppSidebar } from "~/components/app-sidebar";
+import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { useCreatorDashboardController } from "../hooks/use-creator-dashboard-controller";
 import {
@@ -21,7 +22,9 @@ export function CreatorDashboardScreen() {
         <AppSidebar variant="creator" />
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-24 pt-4 lg:gap-8 lg:p-8 lg:pt-8">
+      <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:gap-8 lg:p-8 lg:pt-8">
+        <AppHeader />
+        <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:gap-8 lg:px-0">
         <CreatorDashboardHeader creatorName={viewModel.creatorName} />
 
         {viewModel.kpiErrorMessage ? (
@@ -61,6 +64,7 @@ export function CreatorDashboardScreen() {
               <CreatorTipsCard />
             </div>
           </div>
+        </div>
         </div>
       </main>
 

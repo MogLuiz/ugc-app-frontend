@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, MapPin, Menu, Search, Sparkles } from "lucide-react";
+import { Bell, ChevronDown, MapPin, Search, Sparkles } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { GoogleCreatorsMap } from "~/modules/creators-map/components/google-creators-map";
@@ -164,9 +164,6 @@ function MobileLayout({ creators, search, onSearch, activeCategory, onCategoryCh
 
       <div className="absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-[rgba(246,245,248,0.9)] to-transparent p-4">
         <div className="flex items-center gap-3">
-          <button className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)]">
-            <Menu size={20} />
-          </button>
           <div className="flex h-11 flex-1 items-center rounded-full border border-[rgba(137,90,246,0.1)] bg-white px-4 text-sm text-slate-400 shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)]">
             <Search size={16} className="mr-2 text-[#8b5cf6]" />
             <input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Pesquisar em Belo Horizonte" className="w-full bg-transparent text-slate-600 outline-none placeholder:text-slate-400" />

@@ -1,4 +1,4 @@
-import { Cake, ChevronDown, MapPin, Menu, Search, Star, X } from "lucide-react";
+import { Cake, ChevronDown, MapPin, Search, Star, X } from "lucide-react";
 import type { ComponentProps } from "react";
 import { Link } from "react-router";
 import type {
@@ -153,26 +153,10 @@ export function MarketplaceHeader() {
         </p>
       </header>
 
-      {/* Mobile header */}
-      <header className="sticky top-0 z-20 -mx-4 flex items-center justify-between border-b border-[rgba(137,90,246,0.1)] bg-[rgba(246,245,248,0.8)] px-4 py-4 backdrop-blur-sm lg:hidden">
-        <button
-          type="button"
-          className="flex size-12 items-center justify-center"
-          aria-label="Menu"
-        >
-          <Menu className="size-5 text-slate-600" />
-        </button>
-        <h2 className="text-xl font-bold tracking-[-0.5px] text-slate-900">
-          Criadores
-        </h2>
-        <Link
-          to="/marketplace"
-          className="flex size-10 items-center justify-center rounded-full bg-[rgba(137,90,246,0.1)]"
-          aria-label="Buscar"
-        >
-          <Search className="size-5 text-[#895af6]" />
-        </Link>
-      </header>
+      {/* Mobile page title */}
+      <div className="flex items-center justify-between lg:hidden">
+        <h2 className="text-2xl font-black tracking-[-0.5px] text-slate-900">Criadores</h2>
+      </div>
     </>
   );
 }

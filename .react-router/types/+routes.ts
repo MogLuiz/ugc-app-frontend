@@ -45,6 +45,9 @@ type Pages = {
   "/campanhas": {
     params: {};
   };
+  "/criar": {
+    params: {};
+  };
   "/ofertas": {
     params: {};
   };
@@ -69,11 +72,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -115,6 +118,10 @@ type RouteFiles = {
     id: "routes/campanhas";
     page: "/campanhas";
   };
+  "routes/criar.tsx": {
+    id: "routes/criar";
+    page: "/criar";
+  };
   "routes/ofertas.tsx": {
     id: "routes/ofertas";
     page: "/ofertas";
@@ -150,6 +157,7 @@ type RouteModules = {
   "routes/marketplace": typeof import("./app/routes/marketplace.tsx");
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
   "routes/campanhas": typeof import("./app/routes/campanhas.tsx");
+  "routes/criar": typeof import("./app/routes/criar.tsx");
   "routes/ofertas": typeof import("./app/routes/ofertas.tsx");
   "routes/ofertas.$id": typeof import("./app/routes/ofertas.$id.tsx");
   "routes/chat": typeof import("./app/routes/chat.tsx");

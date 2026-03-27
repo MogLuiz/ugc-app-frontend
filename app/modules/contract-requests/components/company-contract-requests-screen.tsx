@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
+import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { EmptyState } from "~/components/ui/empty-state";
 import type { CompanyCampaignsLocationState } from "../company-campaigns-location-state";
@@ -102,7 +103,9 @@ export function CompanyContractRequestsScreen() {
         <AppSidebar variant="business" />
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 pb-24 pt-6 lg:p-8">
+      <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-6 lg:p-8">
+        <AppHeader />
+        <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:px-0">
         <header className="flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#895af6]">
@@ -174,6 +177,7 @@ export function CompanyContractRequestsScreen() {
             ))}
           </section>
         )}
+        </div>
       </main>
 
       <CampaignDetailsModal

@@ -1,11 +1,9 @@
 import { useMemo } from "react";
-import { useAuth } from "~/hooks/use-auth";
 import type { useCreatorCalendarController } from "../../hooks/use-creator-calendar-controller";
 import { MobileJobSheet } from "../calendar/mobile-job-sheet";
 import { PastRangeNotice } from "../calendar/past-range-notice";
 import {
   MobileAgendaTimelineSections,
-  MobileAgendaTopBar,
   MobileWeekStrip,
 } from "../calendar/mobile-agenda-ui";
 
@@ -34,8 +32,6 @@ function CreatorCalendarMobile({
   onNextWeek,
   onOpenEvent,
 }: CreatorCalendarMobileProps) {
-  const { user } = useAuth();
-
   const sectionsWithEvents = useMemo(
     () => viewModel.timelineByDay.filter((s) => s.events.length > 0),
     [viewModel.timelineByDay],
@@ -49,8 +45,6 @@ function CreatorCalendarMobile({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-[#f6f5f8]">
-      <MobileAgendaTopBar user={user} />
-
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-28 pt-6">
         <div className="mx-auto flex min-h-full w-full max-w-md flex-col">
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">

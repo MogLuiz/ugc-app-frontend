@@ -12,6 +12,7 @@ export default [
     route("marketplace", "routes/marketplace.tsx"),
     route("dashboard", "routes/dashboard.tsx"),
     route("campanhas", "routes/campanhas.tsx"),
+    route("criar", "routes/criar.tsx"),
     route("ofertas", "routes/ofertas.tsx"),
     route("ofertas/:id", "routes/ofertas.$id.tsx"),
     route("chat", "routes/chat.tsx"),

@@ -1,4 +1,5 @@
 import { AppSidebar } from "~/components/app-sidebar";
+import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { ErrorState } from "~/components/ui/error-state";
 import { LoadingState } from "~/components/ui/loading-state";
@@ -40,6 +41,7 @@ export function CreatorCalendarScreen() {
       </div>
 
       <main className="flex w-full min-w-0 flex-1 flex-col bg-[#f6f5f8] min-h-[100dvh] lg:min-h-screen lg:p-8">
+        <AppHeader />
         {content}
       </main>
 

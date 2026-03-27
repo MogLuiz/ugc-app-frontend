@@ -122,7 +122,7 @@ export default function AuthRegisterRoute() {
       {/* Right: Form */}
       <section className="flex min-h-screen w-full flex-col bg-white lg:h-screen lg:w-2/5 lg:overflow-y-auto">
         {/* Mobile nav */}
-        <div className="flex items-center bg-white px-4 py-3 lg:hidden">
+        <div className="flex items-center bg-white px-4 py-3 lg:hidden mt-4">
           <Link
             to="/auth/login"
             className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100"
