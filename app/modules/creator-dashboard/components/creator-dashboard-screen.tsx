@@ -35,9 +35,6 @@ export function CreatorDashboardScreen() {
 
         <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
           <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
-            <NearbyCampaignsSection
-              items={viewModel.nearbyCampaigns}
-            />
             <PendingInvitesSection
               items={viewModel.invites}
               isLoading={viewModel.isInvitesLoading}
@@ -49,6 +46,9 @@ export function CreatorDashboardScreen() {
               isLoading={viewModel.isUpcomingLoading}
               errorMessage={viewModel.upcomingErrorMessage}
               isRefreshing={viewModel.isUpcomingRefreshing}
+            />
+            <NearbyCampaignsSection
+              items={viewModel.nearbyCampaigns}
             />
           </div>
 
