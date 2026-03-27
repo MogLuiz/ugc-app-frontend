@@ -11,26 +11,15 @@ import {
 
 export function NearbyCampaignsSection({
   items,
-  newCount,
 }: {
   items: NearbyCampaignCardVm[];
-  newCount: number;
 }) {
   return (
     <section className="flex flex-col gap-4">
-      {newCount > 0 ? (
-        <p className="text-sm font-bold text-[#6a36d5]">
-          {newCount}{" "}
-          {newCount === 1
-            ? "campanha nova perto de você"
-            : "campanhas novas perto de você"}
-        </p>
-      ) : null}
-
       <SectionHeader
         title="Campanhas disponíveis perto de você"
-        ctaLabel="Ver mapa"
-        ctaTo="/mapa"
+        ctaLabel="Ver todas"
+        ctaTo="/campanhas"
       />
 
       <div className="flex gap-4 overflow-x-auto pb-1 lg:grid lg:grid-cols-2 lg:overflow-visible lg:pb-0">

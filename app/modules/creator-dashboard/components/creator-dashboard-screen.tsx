@@ -37,7 +37,6 @@ export function CreatorDashboardScreen() {
           <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
             <NearbyCampaignsSection
               items={viewModel.nearbyCampaigns}
-              newCount={viewModel.nearbyNewCount}
             />
             <PendingInvitesSection
               items={viewModel.invites}
