@@ -70,7 +70,7 @@ export default function AuthLoginRoute() {
       <AuthVisualPanel variant="login" />
 
       {/* Right: Form */}
-      <section className="flex min-h-screen w-full flex-col items-center justify-center bg-white px-6 py-4 lg:h-screen lg:w-2/5 lg:overflow-y-auto lg:px-12">
+      <section className="flex min-h-screen w-full flex-col items-center justify-start bg-white px-6 pt-8 pb-6 lg:h-screen lg:w-2/5 lg:justify-center lg:overflow-y-auto lg:px-12 lg:py-0">
         <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
           <div className="mb-4 flex flex-col items-center lg:hidden">
