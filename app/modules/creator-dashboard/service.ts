@@ -15,6 +15,7 @@ export type CreatorInviteApi = {
   proposedDate: string;
   payment: number;
   status: "PENDING";
+  distanceKm?: number | null;
 };
 
 export type CreatorUpcomingApi = {

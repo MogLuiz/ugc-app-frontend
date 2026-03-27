@@ -81,6 +81,10 @@ export function adaptCreatorInvites(rows: CreatorInviteApi[]): CreatorInviteVm[]
       campaignTitle: row.campaignTitle,
       proposedDateDisplay,
       paymentDisplay: formatBrlCompact(row.payment),
+      distanceDisplay:
+        row.distanceKm != null
+          ? `${row.distanceKm.toFixed(1).replace(".", ",")} km`
+          : null,
     };
   });
 }

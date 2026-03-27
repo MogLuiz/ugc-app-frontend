@@ -12,6 +12,7 @@ export type CreatorInviteVm = {
   campaignTitle: string;
   proposedDateDisplay: string;
   paymentDisplay: string;
+  distanceDisplay: string | null;
 };
 
 export type CreatorUpcomingCampaignVm = {
