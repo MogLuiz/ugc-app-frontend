@@ -99,13 +99,19 @@ export default function AuthRegisterRoute() {
     }
   }
 
+  // Shared input class — compact height for desktop to avoid scroll
+  const inputBase =
+    "h-11 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15";
+  const inputOk = "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
+  const inputErr = "border-red-400 focus:border-red-400";
+
   return (
-    <div className="min-h-screen lg:flex">
+    <div className="min-h-screen lg:flex lg:h-screen lg:overflow-hidden">
       {/* Left: Visual panel (desktop only) */}
       <AuthVisualPanel variant="register" />
 
       {/* Right: Form */}
-      <section className="flex min-h-screen w-full flex-col bg-white lg:w-1/2">
+      <section className="flex min-h-screen w-full flex-col bg-white lg:h-screen lg:w-2/5 lg:overflow-y-auto">
         {/* Mobile nav */}
         <div className="flex items-center border-b border-slate-100 bg-white px-4 py-3 lg:hidden">
           <Link
@@ -127,20 +133,20 @@ export default function AuthRegisterRoute() {
         </div>
 
         {/* Form area */}
-        <div className="flex flex-1 items-center justify-center px-6 py-8 lg:px-16">
-          <div className="w-full max-w-[440px]">
+        <div className="flex flex-1 items-center justify-center px-6 py-6 lg:px-10">
+          <div className="w-full max-w-[400px]">
             {/* Heading */}
-            <div className="mb-7">
-              <h1 className="text-[28px] font-black tracking-tight text-[#0f172a] lg:text-[32px]">
+            <div className="mb-5">
+              <h1 className="text-2xl font-black tracking-tight text-[#0f172a]">
                 Crie sua conta
               </h1>
-              <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
+              <p className="mt-1 text-sm text-slate-500">
                 Escolha como você deseja usar o UGC Local
               </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-              {/* Role selector — segmented control (mobile + desktop) */}
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3">
+              {/* Role selector */}
               <div>
                 <div className="flex rounded-full bg-[#f1f0f3] p-1">
                   {(["business", "creator"] as UserRole[]).map((r) => (
@@ -148,7 +154,7 @@ export default function AuthRegisterRoute() {
                       key={r}
                       type="button"
                       onClick={() => setRole(r)}
-                      className={`flex flex-1 items-center justify-center rounded-full py-2.5 text-sm font-bold transition-all ${
+                      className={`flex flex-1 items-center justify-center rounded-full py-2 text-sm font-bold transition-all ${
                         role === r
                           ? "bg-white text-[#895af6] shadow-sm"
                           : "text-slate-500 hover:text-slate-700"
@@ -158,21 +164,18 @@ export default function AuthRegisterRoute() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-2 pl-1 text-xs font-medium text-[#895af6]">
+                <p className="mt-1.5 pl-1 text-xs font-medium text-[#895af6]">
                   {ROLE_MICROCOPY[role]}
                 </p>
               </div>
 
               {/* Name */}
               <div>
-                <label
-                  htmlFor="register-name"
-                  className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-400"
-                >
+                <label htmlFor="register-name" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
                   Nome completo
                 </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                   <input
                     id="register-name"
                     type="text"
@@ -180,30 +183,19 @@ export default function AuthRegisterRoute() {
                     placeholder="Como quer ser chamado?"
                     {...register("name")}
                     aria-invalid={!!errors.name}
-                    className={`h-14 w-full rounded-2xl border bg-white pl-11 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 ${
-                      errors.name
-                        ? "border-red-400 focus:border-red-400"
-                        : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
-                    }`}
+                    className={`${inputBase} ${errors.name ? inputErr : inputOk}`}
                   />
                 </div>
-                {errors.name && (
-                  <p className="mt-1.5 pl-1 text-xs font-medium text-red-500">
-                    {errors.name.message}
-                  </p>
-                )}
+                {errors.name && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.name.message}</p>}
               </div>
 
               {/* Email */}
               <div>
-                <label
-                  htmlFor="register-email"
-                  className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-400"
-                >
+                <label htmlFor="register-email" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
                   E-mail
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                   <input
                     id="register-email"
                     type="email"
@@ -211,30 +203,19 @@ export default function AuthRegisterRoute() {
                     placeholder="seu@email.com"
                     {...register("email")}
                     aria-invalid={!!errors.email}
-                    className={`h-14 w-full rounded-2xl border bg-white pl-11 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 ${
-                      errors.email
-                        ? "border-red-400 focus:border-red-400"
-                        : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
-                    }`}
+                    className={`${inputBase} ${errors.email ? inputErr : inputOk}`}
                   />
                 </div>
-                {errors.email && (
-                  <p className="mt-1.5 pl-1 text-xs font-medium text-red-500">
-                    {errors.email.message}
-                  </p>
-                )}
+                {errors.email && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.email.message}</p>}
               </div>
 
               {/* Password */}
               <div>
-                <label
-                  htmlFor="register-password"
-                  className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-400"
-                >
+                <label htmlFor="register-password" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
                   Senha
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                   <input
                     id="register-password"
                     type={showPassword ? "text" : "password"}
@@ -242,42 +223,27 @@ export default function AuthRegisterRoute() {
                     placeholder="Mínimo 8 caracteres"
                     {...register("password")}
                     aria-invalid={!!errors.password}
-                    className={`h-14 w-full rounded-2xl border bg-white pl-11 pr-12 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 ${
-                      errors.password
-                        ? "border-red-400 focus:border-red-400"
-                        : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
-                    }`}
+                    className={`${inputBase} pr-10 ${errors.password ? inputErr : inputOk}`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
                     aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="mt-1.5 pl-1 text-xs font-medium text-red-500">
-                    {errors.password.message}
-                  </p>
-                )}
+                {errors.password && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.password.message}</p>}
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label
-                  htmlFor="register-confirm-password"
-                  className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-400"
-                >
+                <label htmlFor="register-confirm-password" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
                   Confirmar senha
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                   <input
                     id="register-confirm-password"
                     type={showConfirmPassword ? "text" : "password"}
@@ -285,37 +251,23 @@ export default function AuthRegisterRoute() {
                     placeholder="Confirme sua senha"
                     {...register("confirmPassword")}
                     aria-invalid={!!errors.confirmPassword}
-                    className={`h-14 w-full rounded-2xl border bg-white pl-11 pr-12 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 ${
-                      errors.confirmPassword
-                        ? "border-red-400 focus:border-red-400"
-                        : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
-                    }`}
+                    className={`${inputBase} pr-10 ${errors.confirmPassword ? inputErr : inputOk}`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((v) => !v)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
-                    aria-label={
-                      showConfirmPassword ? "Ocultar senha" : "Mostrar senha"
-                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showConfirmPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className="mt-1.5 pl-1 text-xs font-medium text-red-500">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
+                {errors.confirmPassword && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.confirmPassword.message}</p>}
               </div>
 
               {/* Terms */}
               <div>
-                <label className="flex cursor-pointer items-start gap-3">
+                <label className="flex cursor-pointer items-start gap-2.5">
                   <input
                     type="checkbox"
                     {...register("acceptTerms")}
@@ -323,34 +275,24 @@ export default function AuthRegisterRoute() {
                   />
                   <span className="text-xs leading-relaxed text-slate-500">
                     Eu aceito os{" "}
-                    <button
-                      type="button"
-                      className="font-semibold text-[#895af6] hover:underline"
-                    >
+                    <button type="button" className="font-semibold text-[#895af6] hover:underline">
                       Termos e Condições
                     </button>{" "}
                     e a{" "}
-                    <button
-                      type="button"
-                      className="font-semibold text-[#895af6] hover:underline"
-                    >
+                    <button type="button" className="font-semibold text-[#895af6] hover:underline">
                       Política de Privacidade
                     </button>{" "}
                     do UGC Local.
                   </span>
                 </label>
-                {errors.acceptTerms && (
-                  <p className="mt-1.5 pl-7 text-xs font-medium text-red-500">
-                    {errors.acceptTerms.message}
-                  </p>
-                )}
+                {errors.acceptTerms && <p className="mt-1 pl-6 text-xs font-medium text-red-500">{errors.acceptTerms.message}</p>}
               </div>
 
               {/* Submit */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="h-14 w-full rounded-2xl bg-[#895af6] text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(137,90,246,0.35)] transition-all hover:bg-[#7c4aed] hover:shadow-[0_12px_24px_-4px_rgba(137,90,246,0.4)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-12 w-full rounded-xl bg-[#895af6] text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(137,90,246,0.35)] transition-all hover:bg-[#7c4aed] hover:shadow-[0_12px_24px_-4px_rgba(137,90,246,0.4)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
@@ -364,7 +306,7 @@ export default function AuthRegisterRoute() {
             </form>
 
             {/* Login link */}
-            <p className="mt-5 text-center text-sm text-slate-500">
+            <p className="mt-4 text-center text-sm text-slate-500">
               Já possui conta?{" "}
               <Link
                 to="/auth/login"
