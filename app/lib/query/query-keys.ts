@@ -54,6 +54,8 @@ export const contractRequestKeys = {
   companyList: (status?: string) =>
     [...contractRequestKeys.all, "company", status ?? "all"] as const,
   creatorPending: () => [...contractRequestKeys.all, "creator", "pending"] as const,
+  creatorList: (status: string) =>
+    [...contractRequestKeys.all, "creator", status] as const,
 };
 
 export const creatorDashboardKeys = {

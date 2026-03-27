@@ -57,6 +57,17 @@ export async function getMyCreatorPendingContractRequests(
   });
 }
 
+export async function getMyCreatorContractRequests(
+  status: "ACCEPTED" | "COMPLETED",
+  token?: string
+): Promise<ContractRequestItem[]> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractRequestItem[]>(
+    `/contract-requests/my-creator?status=${status}`,
+    { token: accessToken }
+  );
+}
+
 export async function acceptContractRequest(
   contractRequestId: string,
   token?: string

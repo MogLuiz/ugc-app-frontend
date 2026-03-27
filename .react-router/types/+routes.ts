@@ -48,6 +48,11 @@ type Pages = {
   "/ofertas": {
     params: {};
   };
+  "/ofertas/:id": {
+    params: {
+      "id": string;
+    };
+  };
   "/chat": {
     params: {};
   };
@@ -64,11 +69,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -114,6 +119,10 @@ type RouteFiles = {
     id: "routes/ofertas";
     page: "/ofertas";
   };
+  "routes/ofertas.$id.tsx": {
+    id: "routes/ofertas.$id";
+    page: "/ofertas/:id";
+  };
   "routes/chat.tsx": {
     id: "routes/chat";
     page: "/chat";
@@ -142,6 +151,7 @@ type RouteModules = {
   "routes/dashboard": typeof import("./app/routes/dashboard.tsx");
   "routes/campanhas": typeof import("./app/routes/campanhas.tsx");
   "routes/ofertas": typeof import("./app/routes/ofertas.tsx");
+  "routes/ofertas.$id": typeof import("./app/routes/ofertas.$id.tsx");
   "routes/chat": typeof import("./app/routes/chat.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");

@@ -4,6 +4,7 @@ import {
   acceptContractRequest,
   createContractRequest,
   getMyCompanyContractRequests,
+  getMyCreatorContractRequests,
   getMyCreatorPendingContractRequests,
   previewContractRequest,
   rejectContractRequest,
@@ -27,6 +28,15 @@ export function useMyCreatorPendingContractRequestsQuery() {
   return useQuery({
     queryKey: contractRequestKeys.creatorPending(),
     queryFn: () => getMyCreatorPendingContractRequests(),
+  });
+}
+
+export function useMyCreatorContractRequestsQuery(
+  status: "ACCEPTED" | "COMPLETED"
+) {
+  return useQuery({
+    queryKey: contractRequestKeys.creatorList(status),
+    queryFn: () => getMyCreatorContractRequests(status),
   });
 }
 
