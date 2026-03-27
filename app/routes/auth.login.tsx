@@ -70,10 +70,10 @@ export default function AuthLoginRoute() {
       <AuthVisualPanel variant="login" />
 
       {/* Right: Form */}
-      <section className="flex min-h-screen w-full flex-col items-center justify-center bg-white px-6 py-10 lg:h-screen lg:w-2/5 lg:overflow-y-auto lg:px-12">
+      <section className="flex min-h-screen w-full flex-col items-center justify-center bg-white px-6 py-4 lg:h-screen lg:w-2/5 lg:overflow-y-auto lg:px-12">
         <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
-          <div className="mb-8 flex flex-col items-center lg:hidden">
+          <div className="mb-4 flex flex-col items-center lg:hidden">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#895af6]">
               <Rocket className="h-6 w-6 text-white" />
             </div>
@@ -83,7 +83,7 @@ export default function AuthLoginRoute() {
           </div>
 
           {/* Heading */}
-          <div className="mb-8">
+          <div className="mb-5">
             <h1 className="text-[28px] font-black tracking-tight text-[#0f172a] lg:text-[32px]">
               Bem-vindo de volta
             </h1>
@@ -102,7 +102,7 @@ export default function AuthLoginRoute() {
                 E-mail
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors" />
+                <Mail className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 transition-colors" />
                 <input
                   id="login-email"
                   type="email"
@@ -110,7 +110,7 @@ export default function AuthLoginRoute() {
                   placeholder="seu@email.com"
                   {...register("email")}
                   aria-invalid={!!errors.email}
-                  className={`h-14 w-full rounded-2xl border bg-white pl-11 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 ${
+                  className={`h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                     errors.email
                       ? "border-red-400 focus:border-red-400"
                       : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
@@ -133,7 +133,7 @@ export default function AuthLoginRoute() {
                 Senha
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors" />
+                <Lock className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 transition-colors" />
                 <input
                   id="login-password"
                   type={showPassword ? "text" : "password"}
@@ -141,7 +141,7 @@ export default function AuthLoginRoute() {
                   placeholder="Sua senha"
                   {...register("password")}
                   aria-invalid={!!errors.password}
-                  className={`h-14 w-full rounded-2xl border bg-white pl-11 pr-12 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 ${
+                  className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                     errors.password
                       ? "border-red-400 focus:border-red-400"
                       : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
@@ -150,7 +150,7 @@ export default function AuthLoginRoute() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
                   aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
                 >
                   {showPassword ? (
@@ -188,7 +188,7 @@ export default function AuthLoginRoute() {
             <button
               type="submit"
               disabled={isPending}
-              className="h-14 w-full rounded-2xl bg-[#895af6] text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(137,90,246,0.35)] transition-all hover:bg-[#7c4aed] hover:shadow-[0_12px_24px_-4px_rgba(137,90,246,0.4)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              className="h-12 w-full rounded-xl bg-[#895af6] text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(137,90,246,0.35)] transition-all hover:bg-[#7c4aed] hover:shadow-[0_12px_24px_-4px_rgba(137,90,246,0.4)] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isPending ? (
                 <span className="flex items-center justify-center gap-2">

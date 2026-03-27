@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
-import { ChevronLeft, Lock, Mail, Rocket, User, Eye, EyeOff } from "lucide-react";
+import {
+  ChevronLeft,
+  Lock,
+  Mail,
+  Rocket,
+  User,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
 import {
@@ -67,7 +75,7 @@ export default function AuthRegisterRoute() {
       const { data: signUpData, error } = await signUp(
         data.email,
         data.password,
-        { name: data.name, role }
+        { name: data.name, role },
       );
       if (error) {
         toast.error(getFriendlyRegisterError(error.message));
@@ -86,7 +94,7 @@ export default function AuthRegisterRoute() {
         navigate("/dashboard");
       } else {
         toast.success(
-          "Conta criada! Verifique seu e-mail para ativar sua conta."
+          "Conta criada! Verifique seu e-mail para ativar sua conta.",
         );
         navigate("/auth/login");
       }
@@ -94,15 +102,16 @@ export default function AuthRegisterRoute() {
       toast.error(
         err instanceof Error
           ? getFriendlyRegisterError(err.message)
-          : "Erro ao criar conta. Tente novamente."
+          : "Erro ao criar conta. Tente novamente.",
       );
     }
   }
 
   // Shared input class — compact height for desktop to avoid scroll
   const inputBase =
-    "h-11 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15";
-  const inputOk = "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
+    "h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11";
+  const inputOk =
+    "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
   const inputErr = "border-red-400 focus:border-red-400";
 
   return (
@@ -113,7 +122,7 @@ export default function AuthRegisterRoute() {
       {/* Right: Form */}
       <section className="flex min-h-screen w-full flex-col bg-white lg:h-screen lg:w-2/5 lg:overflow-y-auto">
         {/* Mobile nav */}
-        <div className="flex items-center border-b border-slate-100 bg-white px-4 py-3 lg:hidden">
+        <div className="flex items-center bg-white px-4 py-3 lg:hidden">
           <Link
             to="/auth/login"
             className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100"
@@ -133,7 +142,7 @@ export default function AuthRegisterRoute() {
         </div>
 
         {/* Form area */}
-        <div className="flex flex-1 items-center justify-center px-6 py-6 lg:px-10">
+        <div className="flex flex-1 items-start justify-center px-6 pt-4 pb-6 lg:items-center lg:px-10 lg:py-4">
           <div className="w-full max-w-[400px]">
             {/* Heading */}
             <div className="mb-5">
@@ -145,9 +154,13 @@ export default function AuthRegisterRoute() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-3">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              noValidate
+              className="space-y-4 lg:space-y-3"
+            >
               {/* Role selector */}
-              <div>
+              <div className="lg:mb-0 mb-1">
                 <div className="flex rounded-full bg-[#f1f0f3] p-1">
                   {(["business", "creator"] as UserRole[]).map((r) => (
                     <button
@@ -171,7 +184,10 @@ export default function AuthRegisterRoute() {
 
               {/* Name */}
               <div>
-                <label htmlFor="register-name" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+                <label
+                  htmlFor="register-name"
+                  className="mt-7 mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400"
+                >
                   Nome completo
                 </label>
                 <div className="relative">
@@ -186,12 +202,19 @@ export default function AuthRegisterRoute() {
                     className={`${inputBase} ${errors.name ? inputErr : inputOk}`}
                   />
                 </div>
-                {errors.name && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.name.message}</p>}
+                {errors.name && (
+                  <p className="mt-1 pl-1 text-xs font-medium text-red-500">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
 
               {/* Email */}
               <div>
-                <label htmlFor="register-email" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+                <label
+                  htmlFor="register-email"
+                  className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400"
+                >
                   E-mail
                 </label>
                 <div className="relative">
@@ -206,12 +229,19 @@ export default function AuthRegisterRoute() {
                     className={`${inputBase} ${errors.email ? inputErr : inputOk}`}
                   />
                 </div>
-                {errors.email && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="mt-1 pl-1 text-xs font-medium text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               {/* Password */}
               <div>
-                <label htmlFor="register-password" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+                <label
+                  htmlFor="register-password"
+                  className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400"
+                >
                   Senha
                 </label>
                 <div className="relative">
@@ -229,17 +259,30 @@ export default function AuthRegisterRoute() {
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
-                    aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                    aria-label={
+                      showPassword ? "Ocultar senha" : "Mostrar senha"
+                    }
                   >
-                    {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {showPassword ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
                   </button>
                 </div>
-                {errors.password && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="mt-1 pl-1 text-xs font-medium text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               {/* Confirm Password */}
               <div>
-                <label htmlFor="register-confirm-password" className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+                <label
+                  htmlFor="register-confirm-password"
+                  className="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400"
+                >
                   Confirmar senha
                 </label>
                 <div className="relative">
@@ -257,16 +300,26 @@ export default function AuthRegisterRoute() {
                     type="button"
                     onClick={() => setShowConfirmPassword((v) => !v)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
-                    aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+                    aria-label={
+                      showConfirmPassword ? "Ocultar senha" : "Mostrar senha"
+                    }
                   >
-                    {showConfirmPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
                   </button>
                 </div>
-                {errors.confirmPassword && <p className="mt-1 pl-1 text-xs font-medium text-red-500">{errors.confirmPassword.message}</p>}
+                {errors.confirmPassword && (
+                  <p className="mt-1 pl-1 text-xs font-medium text-red-500">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
               </div>
 
               {/* Terms */}
-              <div>
+              <div className="pt-1 lg:pt-0">
                 <label className="flex cursor-pointer items-start gap-2.5">
                   <input
                     type="checkbox"
@@ -275,17 +328,27 @@ export default function AuthRegisterRoute() {
                   />
                   <span className="text-xs leading-relaxed text-slate-500">
                     Eu aceito os{" "}
-                    <button type="button" className="font-semibold text-[#895af6] hover:underline">
+                    <button
+                      type="button"
+                      className="font-semibold text-[#895af6] hover:underline"
+                    >
                       Termos e Condições
                     </button>{" "}
                     e a{" "}
-                    <button type="button" className="font-semibold text-[#895af6] hover:underline">
+                    <button
+                      type="button"
+                      className="font-semibold text-[#895af6] hover:underline"
+                    >
                       Política de Privacidade
                     </button>{" "}
                     do UGC Local.
                   </span>
                 </label>
-                {errors.acceptTerms && <p className="mt-1 pl-6 text-xs font-medium text-red-500">{errors.acceptTerms.message}</p>}
+                {errors.acceptTerms && (
+                  <p className="mt-1 pl-6 text-xs font-medium text-red-500">
+                    {errors.acceptTerms.message}
+                  </p>
+                )}
               </div>
 
               {/* Submit */}
