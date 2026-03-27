@@ -15,7 +15,10 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import type { CreatorJobTypeItem } from "~/modules/creator-job-types/types";
-import { AvailabilitySwitch, TimeSelectField } from "~/modules/creator-calendar/components/sections/creator-calendar-controls";
+import {
+  AvailabilitySwitch,
+  TimeSelectField,
+} from "~/modules/creator-calendar/components/sections/creator-calendar-controls";
 import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 import type { PortfolioMediaPayload } from "~/modules/auth/types";
 
@@ -161,9 +164,7 @@ export function CreatorProfileInfoSection({
             maxLength={500}
             className="min-h-0 w-full resize-y rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-sm text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
           />
-          <p className="text-right text-xs text-[#94a3b8]">
-            {bio.length}/500
-          </p>
+          <p className="text-right text-xs text-[#94a3b8]">{bio.length}/500</p>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-xs font-bold uppercase text-[#94a3b8]">
@@ -331,7 +332,7 @@ type AvailabilitySectionProps = {
   onUpdateDay: (
     dayId: string,
     field: "enabled" | "start" | "end",
-    value: boolean | string
+    value: boolean | string,
   ) => void;
   onSyncWeekdays: () => void;
 };
@@ -372,14 +373,16 @@ export function CreatorAvailabilitySection({
             key={day.id}
             className={cn(
               "rounded-[24px] p-5",
-              day.enabled ? "bg-[#faf9fd] shadow-sm" : "bg-transparent opacity-80"
+              day.enabled
+                ? "bg-[#faf9fd] shadow-sm"
+                : "bg-transparent opacity-80",
             )}
           >
             <div className="flex items-center justify-between">
               <h3
                 className={cn(
                   "text-lg font-bold tracking-[-0.03em]",
-                  day.enabled ? "text-slate-900" : "text-slate-400"
+                  day.enabled ? "text-slate-900" : "text-slate-400",
                 )}
               >
                 {day.label}
@@ -453,7 +456,9 @@ export function CreatorServicesSection({
               key={jt.id}
               className={cn(
                 "flex items-center gap-4 rounded-[24px] p-4 transition-colors",
-                jt.selected ? "bg-[#faf9fd] shadow-sm" : "bg-transparent opacity-80",
+                jt.selected
+                  ? "bg-[#faf9fd] shadow-sm"
+                  : "bg-transparent opacity-80",
               )}
             >
               <div className="min-w-0 flex-1">

@@ -104,7 +104,7 @@ export function CompanyContractRequestsScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-6 lg:p-8">
-        <AppHeader />
+        <AppHeader title="Campanhas" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:px-0">
         <header className="flex items-center justify-between">
           <div>

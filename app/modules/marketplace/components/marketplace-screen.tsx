@@ -25,7 +25,7 @@ export function MarketplaceScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden pb-24 pt-4 lg:gap-8 lg:px-8 lg:py-8">
-        <AppHeader />
+        <AppHeader title="Criadores" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 lg:gap-8 lg:px-0">
         <MarketplaceHeader />
 

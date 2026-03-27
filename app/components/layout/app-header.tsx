@@ -9,14 +9,19 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useAuth } from "~/hooks/use-auth";
-import { MOCK_NOTIFICATIONS, NotificationsPanel } from "./notifications-panel";
+import {
+  MOCK_BUSINESS_NOTIFICATIONS,
+  MOCK_NOTIFICATIONS,
+  NotificationsPanel,
+} from "./notifications-panel";
 import type { AppNotification } from "./notifications-panel";
 
 type AppHeaderProps = {
   notifications?: AppNotification[];
+  title?: string;
 };
 
-export function AppHeader({ notifications = MOCK_NOTIFICATIONS }: AppHeaderProps) {
+export function AppHeader({ notifications: notificationsProp, title }: AppHeaderProps) {
   const { user, logout } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
 
@@ -29,6 +34,10 @@ export function AppHeader({ notifications = MOCK_NOTIFICATIONS }: AppHeaderProps
     .slice(0, 2)
     .map((p) => p[0]?.toUpperCase() ?? "")
     .join("") || "?";
+
+  const defaultNotifications =
+    user?.role === "business" ? MOCK_BUSINESS_NOTIFICATIONS : MOCK_NOTIFICATIONS;
+  const notifications = notificationsProp ?? defaultNotifications;
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -74,8 +83,8 @@ export function AppHeader({ notifications = MOCK_NOTIFICATIONS }: AppHeaderProps
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Center: Dynamic greeting */}
-      <p className="text-sm font-semibold text-slate-900">{greeting}</p>
+      {/* Center: Screen title or greeting */}
+      <p className="text-sm font-semibold text-slate-900">{title ?? greeting}</p>
 
       {/* Right: Notifications bell */}
       <button

@@ -10,6 +10,7 @@ export type AppNotification = {
   timeAgo: string;
   read: boolean;
   type: "campaign" | "message" | "payment" | "review" | "general";
+  navigationPath?: string;
 };
 
 const NOTIFICATION_ICONS: Record<AppNotification["type"], LucideIcon> = {
@@ -20,6 +21,7 @@ const NOTIFICATION_ICONS: Record<AppNotification["type"], LucideIcon> = {
   general: Bell,
 };
 
+/** Notificações mock para o fluxo do creator */
 export const MOCK_NOTIFICATIONS: AppNotification[] = [
   {
     id: "1",
@@ -28,6 +30,7 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
     timeAgo: "2h atrás",
     read: false,
     type: "campaign",
+    navigationPath: "/ofertas",
   },
   {
     id: "2",
@@ -36,6 +39,7 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
     timeAgo: "4h atrás",
     read: false,
     type: "message",
+    navigationPath: "/chat",
   },
   {
     id: "3",
@@ -44,6 +48,7 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
     timeAgo: "1d atrás",
     read: true,
     type: "campaign",
+    navigationPath: "/ofertas",
   },
   {
     id: "4",
@@ -52,14 +57,65 @@ export const MOCK_NOTIFICATIONS: AppNotification[] = [
     timeAgo: "2d atrás",
     read: true,
     type: "payment",
+    navigationPath: "/perfil",
   },
   {
     id: "5",
     title: "Nova avaliação recebida",
-    description: "Você recebeu uma nova avaliação.",
+    description: "Você recebeu uma nova avaliação de 5 estrelas.",
     timeAgo: "3d atrás",
     read: true,
     type: "review",
+    navigationPath: "/perfil",
+  },
+];
+
+/** Notificações mock para o fluxo da empresa */
+export const MOCK_BUSINESS_NOTIFICATIONS: AppNotification[] = [
+  {
+    id: "b1",
+    title: "Creator aceitou sua proposta",
+    description: "Ana Lima confirmou participação na campanha de lançamento.",
+    timeAgo: "30min atrás",
+    read: false,
+    type: "campaign",
+    navigationPath: "/campanhas",
+  },
+  {
+    id: "b2",
+    title: "Nova mensagem de creator",
+    description: "Pedro Souza enviou uma mensagem sobre a campanha de março.",
+    timeAgo: "2h atrás",
+    read: false,
+    type: "message",
+    navigationPath: "/chat",
+  },
+  {
+    id: "b3",
+    title: "Creator enviou entrega",
+    description: "Mariana Costa enviou o conteúdo para sua aprovação.",
+    timeAgo: "5h atrás",
+    read: true,
+    type: "campaign",
+    navigationPath: "/campanhas",
+  },
+  {
+    id: "b4",
+    title: "Pagamento processado",
+    description: "R$ 350,00 foi debitado para a campanha de vídeo.",
+    timeAgo: "1d atrás",
+    read: true,
+    type: "payment",
+    navigationPath: "/perfil",
+  },
+  {
+    id: "b5",
+    title: "Campanha sem candidatos",
+    description: "Sua campanha de foto ainda não recebeu aplicações.",
+    timeAgo: "2d atrás",
+    read: true,
+    type: "general",
+    navigationPath: "/campanhas",
   },
 ];
 

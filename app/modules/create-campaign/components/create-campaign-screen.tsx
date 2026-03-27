@@ -18,7 +18,7 @@ export function CreateCampaignScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:gap-8 lg:p-8">
-        <AppHeader />
+        <AppHeader title="Criar Campanha" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:gap-8 lg:px-0">
 
         {/* Desktop title */}
@@ -31,15 +31,10 @@ export function CreateCampaignScreen() {
           </p>
         </div>
 
-        {/* Mobile title */}
-        <div className="lg:hidden">
-          <h1 className="text-2xl font-black tracking-[-0.5px] text-slate-900">
-            Criar Campanha
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Preencha as etapas para publicar sua campanha.
-          </p>
-        </div>
+        {/* Mobile subtitle */}
+        <p className="text-sm text-slate-500 lg:hidden">
+          Preencha as etapas para publicar sua campanha.
+        </p>
 
         {/* Steps overview */}
         <section className="rounded-2xl bg-white p-5 shadow-sm">

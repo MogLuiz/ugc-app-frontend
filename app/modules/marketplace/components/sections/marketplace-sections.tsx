@@ -141,23 +141,15 @@ function MarketplaceCreatorMetadataRow({
 
 export function MarketplaceHeader() {
   return (
-    <>
-      {/* Desktop header */}
-      <header className="hidden flex-col gap-2 lg:flex">
-        <h1 className="text-[36px] font-black leading-10 tracking-[-0.9px] text-slate-900">
-          Marketplace de Criadores
-        </h1>
-        <p className="text-lg text-slate-500">
-          Encontre os melhores criadores de conteúdo UGC para impulsionar sua
-          marca.
-        </p>
-      </header>
-
-      {/* Mobile page title */}
-      <div className="flex items-center justify-between lg:hidden">
-        <h2 className="text-2xl font-black tracking-[-0.5px] text-slate-900">Criadores</h2>
-      </div>
-    </>
+    <header className="hidden flex-col gap-2 lg:flex">
+      <h1 className="text-[36px] font-black leading-10 tracking-[-0.9px] text-slate-900">
+        Marketplace de Criadores
+      </h1>
+      <p className="text-lg text-slate-500">
+        Encontre os melhores criadores de conteúdo UGC para impulsionar sua
+        marca.
+      </p>
+    </header>
   );
 }
 
@@ -223,43 +215,38 @@ export function MarketplaceSearchAndFilters({
         </div>
       </div>
 
-      {/* Mobile: busca branca + sombra; mesmo placeholder do Figma */}
-      <div className="flex flex-col gap-6 lg:hidden">
-        <h2 className="text-2xl font-bold leading-8 tracking-[-0.6px] text-slate-900">
-          Marketplace de Criadores
-        </h2>
-        <div className="flex flex-col gap-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
-            <Input
-              type="search"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Buscar por nome, nicho ou palavra-chave..."
-              className={cn(
-                "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
-                FIELD_SHADOW,
-              )}
-            />
-          </div>
-          <SelectPill
-            value={serviceTypeId}
-            onChange={(e) => onServiceTypeChange(e.target.value)}
-            aria-label="Tipo de serviço"
-            className="w-full"
-          >
-            <option value="">
-              {isServiceTypesLoading
-                ? "Carregando servicos..."
-                : "Todos os servicos"}
-            </option>
-            {serviceTypes.map((serviceType) => (
-              <option key={serviceType.id} value={serviceType.id}>
-                {serviceType.label}
-              </option>
-            ))}
-          </SelectPill>
+      {/* Mobile: busca branca + sombra */}
+      <div className="flex flex-col gap-3 lg:hidden">
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
+          <Input
+            type="search"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Buscar por nome, nicho ou palavra-chave..."
+            className={cn(
+              "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
+              FIELD_SHADOW,
+            )}
+          />
         </div>
+        <SelectPill
+          value={serviceTypeId}
+          onChange={(e) => onServiceTypeChange(e.target.value)}
+          aria-label="Tipo de serviço"
+          className="w-full"
+        >
+          <option value="">
+            {isServiceTypesLoading
+              ? "Carregando servicos..."
+              : "Todos os servicos"}
+          </option>
+          {serviceTypes.map((serviceType) => (
+            <option key={serviceType.id} value={serviceType.id}>
+              {serviceType.label}
+            </option>
+          ))}
+        </SelectPill>
       </div>
 
       {showActiveTags ? (

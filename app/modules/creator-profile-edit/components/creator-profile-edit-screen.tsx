@@ -129,16 +129,16 @@ export function CreatorProfileEditScreen() {
           </Button>
         </header>
 
-        <main className="flex-1 px-4 py-6 pb-32 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
+        <main className="flex-1 px-4 pb-32 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
           {/* Mobile: profile header section */}
-        <MobileProfileHeader
-          displayName={displayName}
-          initials={initials}
-          photoUrl={user.profile?.photoUrl}
-          username={controller.username}
-          onAvatarChange={controller.handleAvatarChange}
-          isUploading={controller.isUploadingAvatar}
-        />
+          <MobileProfileHeader
+            displayName={displayName}
+            initials={initials}
+            photoUrl={user.profile?.photoUrl}
+            username={controller.username}
+            onAvatarChange={controller.handleAvatarChange}
+            isUploading={controller.isUploadingAvatar}
+          />
 
           {/* Desktop header */}
           <div className="mb-8 hidden flex-col gap-2 lg:flex">

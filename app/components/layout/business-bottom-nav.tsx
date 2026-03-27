@@ -12,9 +12,9 @@ type NavItem = {
 };
 
 const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { id: "inicio",    label: "Dashboard", icon: Home,          to: "/dashboard"  },
-  { id: "criar",     label: "Criar",     icon: Plus,          to: "/criar",     special: true },
+  { id: "inicio",    label: "Início",    icon: Home,          to: "/dashboard"  },
   { id: "campanhas", label: "Campanhas", icon: Briefcase,     to: "/campanhas"  },
+  { id: "criar",     label: "Criar",     icon: Plus,          to: "/criar",     special: true },
   { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat"       },
   { id: "perfil",    label: "Perfil",    icon: User,          to: "/perfil"     },
 ];
@@ -51,6 +51,14 @@ export function BusinessBottomNav() {
                 >
                   <Icon className="size-6 text-white" />
                 </div>
+                <span
+                  className={cn(
+                    "text-[10px]",
+                    isActive ? "font-bold text-[#895af6]" : "font-medium text-slate-400",
+                  )}
+                >
+                  {item.label}
+                </span>
               </Link>
             );
           }

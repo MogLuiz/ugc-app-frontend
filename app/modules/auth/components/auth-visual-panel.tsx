@@ -1,14 +1,20 @@
 import { Rocket, Star, Users2 } from "lucide-react";
 
 // ── Login panel avatars (Figma, valid 7 days) ──────────────────────────────
-const loginUser1 = "https://www.figma.com/api/mcp/asset/885aeade-d43c-447f-90b4-fad51d864bdf";
-const loginUser2 = "https://www.figma.com/api/mcp/asset/3a5aea73-812f-47e5-8cf0-77c9d5537937";
-const loginUser3 = "https://www.figma.com/api/mcp/asset/d6bfc2ba-1633-4b0b-91cf-3a04d7368c35";
+const loginUser1 =
+  "https://www.figma.com/api/mcp/asset/885aeade-d43c-447f-90b4-fad51d864bdf";
+const loginUser2 =
+  "https://www.figma.com/api/mcp/asset/3a5aea73-812f-47e5-8cf0-77c9d5537937";
+const loginUser3 =
+  "https://www.figma.com/api/mcp/asset/d6bfc2ba-1633-4b0b-91cf-3a04d7368c35";
 
 // ── Register panel avatars (Figma 262:1780, valid 7 days) ─────────────────
-const regUser1 = "https://www.figma.com/api/mcp/asset/d6aa3d73-629b-4af4-b659-e0a2ba4b253b";
-const regUser2 = "https://www.figma.com/api/mcp/asset/b67352b5-f80e-496b-acf3-6f17534faa70";
-const regUser3 = "https://www.figma.com/api/mcp/asset/4297e90f-5f50-4a21-9478-7e219ff76b14";
+const regUser1 =
+  "https://www.figma.com/api/mcp/asset/d6aa3d73-629b-4af4-b659-e0a2ba4b253b";
+const regUser2 =
+  "https://www.figma.com/api/mcp/asset/b67352b5-f80e-496b-acf3-6f17534faa70";
+const regUser3 =
+  "https://www.figma.com/api/mcp/asset/4297e90f-5f50-4a21-9478-7e219ff76b14";
 
 type AuthVisualPanelProps = {
   variant: "login" | "register";
@@ -84,14 +90,16 @@ function LoginPanel() {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
           <Rocket className="h-5 w-5 text-white" />
         </div>
-        <span className="text-xl font-black tracking-tight text-white">UGC Local</span>
+        <span className="text-xl font-black tracking-tight text-white">
+          UGC Local
+        </span>
       </div>
 
       {/* Copy */}
       <div className="relative flex flex-1 flex-col items-start justify-end">
         <div className="flex max-w-[512px] flex-col gap-4">
           <p className="text-xs font-black uppercase tracking-[4.8px] text-white/60">
-            SaaS para Creators
+            O futuro da criação de conteúdo
           </p>
           <h2 className="text-[60px] font-black leading-[60px] tracking-[-1.5px] text-white">
             Impulsione sua{"\n"}marca com{"\n"}conteúdo local.
@@ -112,12 +120,16 @@ function LoginPanel() {
               className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/20"
               style={{ marginRight: i < 2 ? "-12px" : 0, zIndex: 3 - i }}
             >
-              <img alt="" className="absolute inset-0 h-full w-full object-cover" src={src} />
+              <img
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                src={src}
+              />
             </div>
           ))}
         </div>
         <div>
-          <p className="text-sm font-bold text-white">+2.000 criadores ativos</p>
+          <p className="text-sm font-bold text-white">+100 criadores ativos</p>
           <p className="text-xs text-white/40">Crescendo 15% todo mês</p>
         </div>
       </div>
@@ -155,7 +167,9 @@ function RegisterPanel() {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
           <Rocket className="h-5 w-5 text-white" />
         </div>
-        <span className="text-xl font-black tracking-tight text-white">UGC Local</span>
+        <span className="text-xl font-black tracking-tight text-white">
+          UGC Local
+        </span>
       </div>
 
       {/* Content */}
@@ -183,7 +197,11 @@ function RegisterPanel() {
               className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-white/20"
               style={{ marginRight: i < 2 ? "-16px" : 0, zIndex: 3 - i }}
             >
-              <img alt="" className="absolute inset-0 h-full w-full object-cover" src={src} />
+              <img
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                src={src}
+              />
             </div>
           ))}
           {/* +2k badge */}
@@ -196,8 +214,12 @@ function RegisterPanel() {
         </div>
         {/* Text */}
         <div>
-          <p className="text-[18px] font-bold text-white">+2.000 criadores ativos</p>
-          <p className="text-sm text-white/60">Produzindo conteúdo agora mesmo</p>
+          <p className="text-[18px] font-bold text-white">
+            +100 criadores ativos
+          </p>
+          <p className="text-sm text-white/60">
+            Produzindo conteúdo agora mesmo
+          </p>
         </div>
       </div>
     </aside>
