@@ -6,6 +6,7 @@ import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { toast } from "~/components/ui/toast";
 import {
   useAcceptContractRequestMutation,
+  useCancelContractRequestMutation,
   useMyCreatorContractRequestsQuery,
   useMyCreatorPendingContractRequestsQuery,
   useRejectContractRequestMutation,
@@ -47,6 +48,7 @@ export function CreatorPendingContractRequestsScreen() {
 
   const acceptMutation = useAcceptContractRequestMutation();
   const rejectMutation = useRejectContractRequestMutation();
+  const cancelMutation = useCancelContractRequestMutation();
 
   const getItems = (): ContractRequestItem[] => {
     if (activeTab === "pending") return pendingQuery.data ?? [];
@@ -92,6 +94,21 @@ export function CreatorPendingContractRequestsScreen() {
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Não foi possível recusar a oferta."
+      );
+    } finally {
+      setActiveMutationId(null);
+    }
+  };
+
+  const handleCancel = async (contractRequestId: string) => {
+    setActiveMutationId(contractRequestId);
+    try {
+      await cancelMutation.mutateAsync(contractRequestId);
+      toast.success("Trabalho desmarcado.");
+      setSelectedOfferId(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Não foi possível desmarcar o trabalho."
       );
     } finally {
       setActiveMutationId(null);
@@ -241,6 +258,7 @@ export function CreatorPendingContractRequestsScreen() {
                 isMutating={activeMutationId === selectedOffer.id}
                 onAccept={(id) => void handleAccept(id)}
                 onReject={(id) => void handleReject(id)}
+                onCancel={(id) => void handleCancel(id)}
               />
             </div>
           ) : (

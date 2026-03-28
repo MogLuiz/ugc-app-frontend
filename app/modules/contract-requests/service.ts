@@ -91,3 +91,14 @@ export async function rejectContractRequest(
     token: accessToken,
   });
 }
+
+export async function cancelContractRequest(
+  contractRequestId: string,
+  token?: string
+): Promise<ContractRequestItem> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractRequestItem>(`/contract-requests/${contractRequestId}/cancel`, {
+    method: "PATCH",
+    token: accessToken,
+  });
+}

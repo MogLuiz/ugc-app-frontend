@@ -15,6 +15,7 @@ type OfferDetailPanelProps = {
   isMutating: boolean;
   onAccept: (id: string) => void;
   onReject: (id: string) => void;
+  onCancel?: (id: string) => void;
 };
 
 function getExpiryLabel(expiresAt?: string): string | null {
@@ -53,12 +54,14 @@ export function OfferDetailPanel({
   isMutating,
   onAccept,
   onReject,
+  onCancel,
 }: OfferDetailPanelProps) {
   const companyName = item.companyName ?? "Empresa";
   const jobTypeName = item.jobTypeName ?? "Serviço";
   const amount = item.totalAmount ?? item.totalPrice;
   const distance = item.creatorDistance?.formatted;
   const isExpired = item.status === "EXPIRED";
+  const isAccepted = item.status === "ACCEPTED";
   const expiryLabel = getExpiryLabel(item.expiresAt);
   const durationLabel = formatDuration(item.durationMinutes, false);
   const address = item.jobFormattedAddress ?? item.jobAddress;
@@ -118,31 +121,45 @@ export function OfferDetailPanel({
 
         {/* Action buttons (desktop top-right) */}
         <div className="hidden flex-col items-end gap-2 lg:flex">
-          <div className="flex gap-2">
-            <Button
-              variant="purple"
-              size="lg"
-              className="rounded-full px-8 shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2)]"
-              onClick={() => void onAccept(item.id)}
-              disabled={isMutating || isExpired}
-            >
-              {isMutating ? "Aguarde..." : "Aceitar oferta"}
-            </Button>
+          {isAccepted ? (
             <Button
               variant="outline"
               size="lg"
-              className="rounded-full px-8"
-              onClick={() => void onReject(item.id)}
-              disabled={isMutating || isExpired}
+              className="rounded-full border-red-200 bg-red-50 px-8 text-red-500 hover:bg-red-100"
+              onClick={() => onCancel && void onCancel(item.id)}
+              disabled={isMutating}
             >
-              Recusar
+              {isMutating ? "Aguarde..." : "Desmarcar trabalho"}
             </Button>
-          </div>
-          {expiryLabel && (
-            <span className="flex items-center gap-1.5 text-xs text-slate-500">
-              <AlertCircle className="size-3.5 text-amber-500" />
-              Expira em {expiryLabel}
-            </span>
+          ) : (
+            <>
+              <div className="flex gap-2">
+                <Button
+                  variant="purple"
+                  size="lg"
+                  className="rounded-full px-8 shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2)]"
+                  onClick={() => void onAccept(item.id)}
+                  disabled={isMutating || isExpired}
+                >
+                  {isMutating ? "Aguarde..." : "Aceitar oferta"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full px-8"
+                  onClick={() => void onReject(item.id)}
+                  disabled={isMutating || isExpired}
+                >
+                  Recusar
+                </Button>
+              </div>
+              {expiryLabel && (
+                <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                  <AlertCircle className="size-3.5 text-amber-500" />
+                  Expira em {expiryLabel}
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -311,35 +328,6 @@ export function OfferDetailPanel({
         </div>
       )}
 
-      {/* ── Mobile action buttons ── */}
-      <div className="flex flex-col gap-3 lg:hidden">
-        <div className="flex gap-3">
-          <Button
-            variant="purple"
-            size="lg"
-            className="flex-1 rounded-full shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2)]"
-            onClick={() => void onAccept(item.id)}
-            disabled={isMutating || isExpired}
-          >
-            {isMutating ? "Aguarde..." : "Aceitar oferta"}
-          </Button>
-          <Button
-            variant="outline"
-            size="lg"
-            className="rounded-full px-6"
-            onClick={() => void onReject(item.id)}
-            disabled={isMutating || isExpired}
-          >
-            Recusar
-          </Button>
-        </div>
-        {expiryLabel && (
-          <p className="text-center text-xs text-slate-500">
-            <AlertCircle className="mr-1 inline size-3.5 text-amber-500" />
-            Você tem até {expiryLabel} para responder esta oferta.
-          </p>
-        )}
-      </div>
     </div>
   );
 }
