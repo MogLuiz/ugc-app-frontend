@@ -62,6 +62,9 @@ type Pages = {
   "/perfil": {
     params: {};
   };
+  "/indicacoes": {
+    params: {};
+  };
   "/criador/:creatorId": {
     params: {
       "creatorId": string;
@@ -72,11 +75,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -138,6 +141,10 @@ type RouteFiles = {
     id: "routes/perfil";
     page: "/perfil";
   };
+  "routes/indicacoes.tsx": {
+    id: "routes/indicacoes";
+    page: "/indicacoes";
+  };
   "routes/criador.$creatorId.tsx": {
     id: "routes/criador.$creatorId";
     page: "/criador/:creatorId";
@@ -162,5 +169,6 @@ type RouteModules = {
   "routes/ofertas.$id": typeof import("./app/routes/ofertas.$id.tsx");
   "routes/chat": typeof import("./app/routes/chat.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
+  "routes/indicacoes": typeof import("./app/routes/indicacoes.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
 };

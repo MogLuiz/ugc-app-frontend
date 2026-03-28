@@ -17,6 +17,7 @@ export default [
     route("ofertas/:id", "routes/ofertas.$id.tsx"),
     route("chat", "routes/chat.tsx"),
     route("perfil", "routes/perfil.tsx"),
+    route("indicacoes", "routes/indicacoes.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx")
   ])
 ] satisfies RouteConfig;

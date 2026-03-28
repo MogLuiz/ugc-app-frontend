@@ -221,7 +221,8 @@ export async function logout(): Promise<void> {
 
 export async function bootstrapUser(
   role: UserRole,
-  token?: string
+  token?: string,
+  referralCode?: string
 ): Promise<BootstrapPayload> {
   const session = token
     ? { access_token: token }
@@ -232,9 +233,17 @@ export async function bootstrapUser(
     throw new Error("Usuário não autenticado");
   }
 
+  const body: { role: ReturnType<typeof toBackendRole>; referralCode?: string } = {
+    role: toBackendRole(role),
+  };
+  const trimmed = referralCode?.trim();
+  if (trimmed) {
+    body.referralCode = trimmed;
+  }
+
   return httpClient<BootstrapPayload>("/users/bootstrap", {
     method: "POST",
-    body: { role: toBackendRole(role) },
+    body,
     token: accessToken,
   });
 }

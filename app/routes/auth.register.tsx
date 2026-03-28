@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import {
   ChevronLeft,
   Lock,
@@ -46,6 +46,8 @@ const ROLE_MICROCOPY: Record<UserRole, string> = {
 
 export default function AuthRegisterRoute() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referralCodeFromUrl = searchParams.get("ref")?.trim() || undefined;
   const bootstrapMutation = useBootstrapMutation();
   const updateProfileMutation = useUpdateProfileMutation();
   const [role, setRole] = useState<UserRole>("business");
@@ -84,7 +86,7 @@ export default function AuthRegisterRoute() {
 
       if (signUpData.session) {
         setStoredRole(role);
-        await bootstrapMutation.mutateAsync({ role });
+        await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
         if (data.name?.trim()) {
           await updateProfileMutation.mutateAsync({
             data: { name: data.name.trim() },

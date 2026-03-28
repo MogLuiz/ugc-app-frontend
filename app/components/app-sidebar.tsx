@@ -12,6 +12,7 @@ import {
   Rocket,
   Settings,
   User,
+  UserPlus,
   Users,
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
@@ -57,6 +58,12 @@ const SIDEBAR_CONFIG: Record<
         icon: BarChart3,
         to: "/dashboard",
       },
+      {
+        id: "indicacoes",
+        label: "Indicações",
+        icon: UserPlus,
+        to: "/indicacoes",
+      },
       { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "/campanhas" },
       {
         id: "criadores",
@@ -77,6 +84,12 @@ const SIDEBAR_CONFIG: Record<
     footer: "creator",
     navItems: [
       { id: "dashboard", label: "Dashboard", icon: Home, to: "/dashboard" },
+      {
+        id: "indicacoes",
+        label: "Indicações",
+        icon: UserPlus,
+        to: "/indicacoes",
+      },
       { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "/ofertas" },
       { id: "calendario", label: "Calendário", icon: CalendarDays, to: "/agenda" },
       { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },

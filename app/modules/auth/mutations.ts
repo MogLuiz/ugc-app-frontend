@@ -19,8 +19,15 @@ export function useBootstrapMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ role, token }: { role: UserRole; token?: string }) =>
-      bootstrapUser(role, token),
+    mutationFn: ({
+      role,
+      token,
+      referralCode,
+    }: {
+      role: UserRole;
+      token?: string;
+      referralCode?: string;
+    }) => bootstrapUser(role, token, referralCode),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },
