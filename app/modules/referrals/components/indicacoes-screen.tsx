@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 import {
+  Banknote,
   CheckCircle2,
   CircleUserRound,
   Info,
   Loader2,
   Share2,
+  ShieldCheck,
+  UserPlus,
+  Users,
   Wallet,
 } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -20,11 +24,10 @@ import {
   SectionHeader,
   SectionMessage,
 } from "~/modules/business-dashboard/components/sections/section-primitives";
-import type { CommissionStatusApi, ReferralStatusApi } from "../types";
+import type { ReferralStatusApi } from "../types";
 import { formatMoneyFromCents } from "../lib/format-money";
 import {
   useActivatePartnerMutation,
-  useCommissionsListQuery,
   usePartnerProfileQuery,
   useReferralsDashboardQuery,
   useReferralsListQuery,
@@ -49,21 +52,6 @@ function referralStatusLabel(status: ReferralStatusApi): string {
   }
 }
 
-function commissionStatusLabel(status: CommissionStatusApi): string {
-  switch (status) {
-    case "PENDING":
-      return "Pendente";
-    case "APPROVED":
-      return "Aprovada";
-    case "PAID":
-      return "Finalizada";
-    case "CANCELLED":
-      return "Cancelada";
-    default:
-      return status;
-  }
-}
-
 async function copyText(label: string, text: string) {
   try {
     await navigator.clipboard.writeText(text);
@@ -82,7 +70,6 @@ export function IndicacoesScreen() {
 
   const dashboardQuery = useReferralsDashboardQuery(isPartnerReady);
   const referralsQuery = useReferralsListQuery(isPartnerReady);
-  const commissionsQuery = useCommissionsListQuery(isPartnerReady);
 
   const activateMutation = useActivatePartnerMutation();
 
@@ -97,14 +84,10 @@ export function IndicacoesScreen() {
       : null) ||
     (referralsQuery.isError && referralsQuery.error instanceof Error
       ? referralsQuery.error.message
-      : null) ||
-    (commissionsQuery.isError && commissionsQuery.error instanceof Error
-      ? commissionsQuery.error.message
       : null);
 
   const dashboard = dashboardQuery.data;
   const referrals = referralsQuery.data?.items ?? [];
-  const commissions = commissionsQuery.data?.items ?? [];
   const profile =
     profileQuery.data?.kind === "active" ? profileQuery.data.profile : null;
 
@@ -313,19 +296,34 @@ export function IndicacoesScreen() {
               ) : null}
 
               {dashboard ? (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-                  <MetricTile
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:gap-4">
+                  <ReferralMetricCard
+                    icon={<Users className="size-5" strokeWidth={2} />}
+                    iconTone="sky"
                     label="Total de indicados"
                     value={String(dashboard.totalReferrals)}
                   />
-                  <MetricTile
+                  <ReferralMetricCard
+                    icon={<UserPlus className="size-5" strokeWidth={2} />}
+                    iconTone="violet"
                     label="Aguardando 1º trabalho"
                     value={String(dashboard.pendingReferrals)}
                     hint="Cadastro feito; trabalho ainda não concluído"
                   />
-                  <MetricTile
+                  <ReferralMetricCard
+                    icon={<CheckCircle2 className="size-5" strokeWidth={2} />}
+                    iconTone="emerald"
                     label="Com primeiro trabalho concluído"
                     value={String(dashboard.qualifiedReferrals)}
+                  />
+                  <ReferralMetricCard
+                    icon={<Banknote className="size-5" strokeWidth={2} />}
+                    iconTone="amber"
+                    label="Comissões geradas"
+                    value={formatMoneyFromCents(
+                      dashboard.totalCommissionAmountCents,
+                      dashboard.currency,
+                    )}
                   />
                 </div>
               ) : null}
@@ -334,10 +332,7 @@ export function IndicacoesScreen() {
 
               <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
                 <DashboardCard>
-                  <SectionHeader
-                    title="Indicados recentes"
-                    description="Dados conforme a API de indicações (sem localização ou redes sociais)."
-                  />
+                  <SectionHeader title="Indicados recentes" />
                   {referralsQuery.isLoading ? (
                     <p className="py-8 text-center text-sm text-slate-500">
                       Carregando…
@@ -384,88 +379,45 @@ export function IndicacoesScreen() {
                   )}
                 </DashboardCard>
 
-                <div className="flex flex-col gap-6">
-                  <DashboardCard>
-                    <SectionHeader
-                      title="Últimas comissões"
-                      description="Registros mais recentes (sem saque neste MVP)."
-                    />
-                    <div>
-                      {commissionsQuery.isLoading ? (
-                        <p className="mt-3 text-sm text-slate-500">
-                          Carregando…
-                        </p>
-                      ) : commissions.length === 0 ? (
-                        <p className="mt-3 text-sm text-slate-500">
-                          Nenhuma comissão registrada ainda.
-                        </p>
-                      ) : (
-                        <ul className="mt-3 flex flex-col gap-2">
-                          {commissions.map((c) => (
-                            <li
-                              key={c.id}
-                              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm"
-                            >
-                              <span className="font-medium text-[#2c2f30]">
-                                {c.referredUserName}
-                              </span>
-                              <span className="font-semibold text-[#6a36d5]">
-                                {formatMoneyFromCents(
-                                  c.commissionAmountCents,
-                                  c.currency,
-                                )}
-                              </span>
-                              <span className="w-full text-xs text-slate-500">
-                                {commissionStatusLabel(c.status)} ·{" "}
-                                {DATE_FMT.format(new Date(c.createdAt))}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </DashboardCard>
-
-                  <DashboardCard>
-                    <SectionHeader
-                      title="Como funciona"
-                      addon={
-                        <Info className="size-4 text-[#895af6]" aria-hidden />
-                      }
-                    />
-                    <ol className="mt-4 space-y-4 text-sm text-[#595c5d]">
-                      <li className="flex gap-3">
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
-                          1
-                        </span>
-                        <span>
-                          Compartilhe seu link ou código com quem ainda não está
-                          na plataforma.
-                        </span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
-                          2
-                        </span>
-                        <span>
-                          Quando a pessoa se cadastrar pelo seu link, ela entra
-                          como sua indicação.
-                        </span>
-                      </li>
-                      <li className="flex gap-3">
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
-                          3
-                        </span>
-                        <span>
-                          Quando o indicado concluir o primeiro trabalho válido
-                          (contrato concluído), geramos a comissão de{" "}
-                          <strong>{ratePercent}%</strong> sobre a base do
-                          trabalho, conforme regras do programa.
-                        </span>
-                      </li>
-                    </ol>
-                  </DashboardCard>
-                </div>
+                <DashboardCard>
+                  <SectionHeader
+                    title="Como funciona"
+                    addon={
+                      <Info className="size-4 text-[#895af6]" aria-hidden />
+                    }
+                  />
+                  <ol className="mt-4 space-y-4 text-sm text-[#595c5d]">
+                    <li className="flex gap-3">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
+                        1
+                      </span>
+                      <span>
+                        Compartilhe seu link ou código com quem ainda não está
+                        na plataforma.
+                      </span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
+                        2
+                      </span>
+                      <span>
+                        Quando a pessoa se cadastrar pelo seu link, ela entra
+                        como sua indicação.
+                      </span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
+                        3
+                      </span>
+                      <span>
+                        Quando o indicado concluir o primeiro trabalho válido
+                        (contrato concluído), geramos a comissão de{" "}
+                        <strong>{ratePercent}%</strong> sobre a base do
+                        trabalho, conforme regras do programa.
+                      </span>
+                    </li>
+                  </ol>
+                </DashboardCard>
               </div>
             </>
           )}
@@ -477,11 +429,23 @@ export function IndicacoesScreen() {
   );
 }
 
-function MetricTile({
+const METRIC_ICON_TONE: Record<"sky" | "violet" | "emerald" | "amber", string> =
+  {
+    sky: "bg-sky-100 text-sky-600",
+    violet: "bg-[rgba(137,90,246,0.15)] text-[#895af6]",
+    emerald: "bg-emerald-100 text-emerald-700",
+    amber: "bg-amber-100 text-amber-800",
+  };
+
+function ReferralMetricCard({
+  icon,
+  iconTone,
   label,
   value,
   hint,
 }: {
+  icon: ReactNode;
+  iconTone: keyof typeof METRIC_ICON_TONE;
   label: string;
   value: string;
   hint?: string;
@@ -494,10 +458,22 @@ function MetricTile({
           "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
       }}
     >
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="flex items-start justify-between gap-2">
+        <div
+          className={cn(
+            "flex size-10 shrink-0 items-center justify-center rounded-full",
+            METRIC_ICON_TONE[iconTone],
+          )}
+        >
+          {icon}
+        </div>
+      </div>
+      <p className="mt-4 text-[10px] font-semibold uppercase tracking-wide text-slate-500">
         {label}
       </p>
-      <p className="mt-1 text-2xl font-black text-[#2c2f30]">{value}</p>
+      <p className="mt-1 text-2xl font-black tabular-nums tracking-tight text-[#2c2f30]">
+        {value}
+      </p>
       {hint ? (
         <p className="mt-1 text-[10px] leading-tight text-slate-400">{hint}</p>
       ) : null}
@@ -508,25 +484,43 @@ function MetricTile({
 function JourneyBlock({ ratePercent }: { ratePercent: number }) {
   return (
     <DashboardCard>
-      <SectionHeader
-        title="Jornada da indicação"
-        description="Estágios possíveis após o cadastro do indicado."
-      />
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+        <h2 className="text-lg font-black tracking-[-0.3px] text-[#2c2f30] lg:text-xl">
+          Jornada da indicação
+        </h2>
+        <p className="max-w-xl text-sm leading-relaxed text-[#595c5d] lg:text-right">
+          Acompanhe o progresso simplificado dos seus indicados.
+        </p>
+      </div>
+
+      <div className="mt-8 flex flex-col gap-10 md:mt-10 md:flex-row md:items-start md:gap-0 md:pt-1">
         <JourneyStep
-          icon={<CircleUserRound className="size-6" />}
+          icon={
+            <CircleUserRound className="size-7 text-white" strokeWidth={2} />
+          }
+          tone="brand"
           title="Cadastro realizado"
-          body="A pessoa entrou na plataforma usando seu link ou código."
+          body="Perfil criado na plataforma após usar seu link ou código."
+        />
+        <div
+          className="hidden min-w-[1.5rem] shrink-0 self-center border-t border-dashed border-slate-200 md:mx-1 md:mt-7 md:block md:flex-1 lg:mx-3"
+          aria-hidden
         />
         <JourneyStep
-          icon={<CheckCircle2 className="size-6" />}
+          icon={<ShieldCheck className="size-7 text-white" strokeWidth={2} />}
+          tone="brand"
           title="Primeiro trabalho concluído"
-          body="O indicado finaliza o primeiro contrato válido."
+          body="Entrega da primeira campanha válida (contrato concluído)."
+        />
+        <div
+          className="hidden min-w-[1.5rem] shrink-0 self-center border-t border-dashed border-slate-200 md:mx-1 md:mt-7 md:block md:flex-1 lg:mx-3"
+          aria-hidden
         />
         <JourneyStep
-          icon={<Wallet className="size-6" />}
+          icon={<Wallet className="size-7 text-slate-600" strokeWidth={2} />}
+          tone="muted"
           title="Comissão gerada"
-          body={`Comissão de ${ratePercent}% registrada sobre a base do trabalho, sem fluxo de saque neste MVP.`}
+          body={`Comissão de ${ratePercent}% registrada sobre a base do trabalho. Sem saque automático neste MVP.`}
         />
       </div>
     </DashboardCard>
@@ -535,20 +529,29 @@ function JourneyBlock({ ratePercent }: { ratePercent: number }) {
 
 function JourneyStep({
   icon,
+  tone,
   title,
   body,
 }: {
   icon: ReactNode;
+  tone: "brand" | "muted";
   title: string;
   body: string;
 }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-white text-[#895af6] shadow-sm">
+    <div className="flex min-w-0 flex-1 flex-col items-center px-1 text-center">
+      <div
+        className={cn(
+          "flex size-14 shrink-0 items-center justify-center rounded-full shadow-sm",
+          tone === "brand"
+            ? "bg-[#895af6] text-white shadow-[0_4px_14px_rgba(137,90,246,0.35)]"
+            : "bg-slate-200 text-slate-600",
+        )}
+      >
         {icon}
       </div>
-      <h3 className="mt-3 text-sm font-bold text-[#2c2f30]">{title}</h3>
-      <p className="mt-1 text-xs leading-relaxed text-[#595c5d]">{body}</p>
+      <h3 className="mt-4 text-sm font-bold text-[#2c2f30]">{title}</h3>
+      <p className="mt-2 text-xs leading-relaxed text-[#595c5d]">{body}</p>
     </div>
   );
 }
