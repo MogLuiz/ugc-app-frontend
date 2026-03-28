@@ -21,7 +21,7 @@ export function UpcomingCampaignsSection({
 }) {
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title="Próximas campanhas" />
+      <SectionHeader title="Próximas campanhas" ctaLabel="Ver todas" ctaTo="/ofertas" />
 
       {isRefreshing && !isLoading ? (
         <p className="text-xs font-medium text-[#595c5d]/80">Atualizando agenda…</p>

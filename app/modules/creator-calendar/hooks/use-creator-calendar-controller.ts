@@ -138,23 +138,8 @@ export function useCreatorCalendarController() {
     void navigate(`/chat?contractRequestId=${contractRequestId}`);
   }
 
-  function openFullCampaign(contractRequestId: string, event: UiCalendarEvent) {
-    void navigate(`/campanha/${contractRequestId}`, {
-      state: {
-        snapshot: {
-          company: event.company,
-          title: event.title,
-          description: event.description,
-          jobKindLabel: event.jobKindLabel,
-          startLabel: event.startLabel,
-          endLabel: event.endLabel,
-          durationLabel: event.durationLabel,
-          locationLine: event.locationLine,
-          modeLine: event.modeLine,
-          distanceLabel: event.distanceLabel,
-        },
-      },
-    });
+  function openFullCampaign(contractRequestId: string, _event: UiCalendarEvent) {
+    void navigate(`/ofertas/${contractRequestId}`);
   }
 
   async function retry() {

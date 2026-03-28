@@ -1,7 +1,10 @@
 import { useLocation, useParams } from "react-router";
 import { AuthGuard } from "~/components/auth-guard";
 import { OfferDetailScreen } from "~/modules/contract-requests/components/offer-detail-screen";
-import { useMyCreatorPendingContractRequestsQuery } from "~/modules/contract-requests/queries";
+import {
+  useMyCreatorContractRequestsQuery,
+  useMyCreatorPendingContractRequestsQuery,
+} from "~/modules/contract-requests/queries";
 import type { ContractRequestItem } from "~/modules/contract-requests/types";
 
 export default function OfferDetailRoute() {
@@ -12,10 +15,15 @@ export default function OfferDetailRoute() {
   const stateItem = (location.state as { item?: ContractRequestItem } | null)?.item;
   const itemFromState = stateItem?.id === id ? stateItem : null;
 
-  // Fallback: fetch from pending list when navigating directly (e.g. from dashboard)
-  const { data: pendingItems, isLoading } = useMyCreatorPendingContractRequestsQuery();
-  const itemFromQuery = pendingItems?.find((i) => i.id === id) ?? null;
+  // Fallback: busca em pending e accepted quando não há state (ex: navegação do calendário ou dashboard)
+  const { data: pendingItems, isLoading: isPendingLoading } = useMyCreatorPendingContractRequestsQuery();
+  const { data: acceptedItems, isLoading: isAcceptedLoading } = useMyCreatorContractRequestsQuery("ACCEPTED");
+  const itemFromQuery =
+    pendingItems?.find((i) => i.id === id) ??
+    acceptedItems?.find((i) => i.id === id) ??
+    null;
 
+  const isLoading = isPendingLoading || isAcceptedLoading;
   const item = itemFromState ?? itemFromQuery;
 
   if (isLoading && !item) {
