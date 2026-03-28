@@ -1,4 +1,4 @@
-import { CalendarDays, MessageCircle, Navigation, Wallet } from "lucide-react";
+import { CalendarDays, ChevronRight, MessageCircle, Navigation, Wallet } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { CreatorInviteVm } from "../../types";
@@ -69,38 +69,45 @@ export function PendingInvitesSection({
           !errorMessage &&
           items.map((invite) => (
             <DashboardCard key={invite.id} className="overflow-hidden p-0">
-              {/* Bloco 1: Identidade */}
-              <div className="flex items-center gap-3 p-4 lg:p-5">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#6a36d5]/10 text-sm font-black text-[#6a36d5]">
-                  {getInitials(invite.companyName)}
+              {/* Blocos 1+2: área clicável → detalhamento */}
+              <Link
+                to={`/campanha/${invite.id}`}
+                className="group block transition-colors hover:bg-slate-50 active:bg-slate-100"
+              >
+                {/* Bloco 1: Identidade */}
+                <div className="flex items-center gap-3 p-4 lg:p-5">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#6a36d5]/10 text-sm font-black text-[#6a36d5]">
+                    {getInitials(invite.companyName)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-bold leading-snug text-[#2c2f30]">
+                      {invite.companyName}
+                    </h4>
+                    <p className="mt-0.5 line-clamp-2 text-sm text-[#595c5d]">
+                      {invite.campaignTitle}
+                    </p>
+                  </div>
+                  <ChevronRight className="size-4 shrink-0 text-slate-400 transition-colors group-hover:text-[#6a36d5]/60" />
                 </div>
-                <div className="min-w-0">
-                  <h4 className="font-bold leading-snug text-[#2c2f30]">
-                    {invite.companyName}
-                  </h4>
-                  <p className="mt-0.5 line-clamp-2 text-sm text-[#595c5d]">
-                    {invite.campaignTitle}
-                  </p>
-                </div>
-              </div>
 
-              {/* Bloco 2: Metadados */}
-              <div className="flex flex-wrap items-center gap-2 px-4 pb-4 lg:px-5">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#6a36d5]/10 px-3 py-1 text-sm font-black text-[#6a36d5]">
-                  <Wallet className="size-3.5 shrink-0" />
-                  {invite.paymentDisplay}
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-[#595c5d]">
-                  <CalendarDays className="size-3.5 shrink-0" />
-                  {invite.proposedDateDisplay}
-                </span>
-                {invite.distanceDisplay ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-[#595c5d]">
-                    <Navigation className="size-3.5 shrink-0" />
-                    {invite.distanceDisplay}
+                {/* Bloco 2: Metadados */}
+                <div className="flex flex-wrap items-center gap-2 px-4 pb-4 lg:px-5">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#6a36d5]/10 px-3 py-1 text-sm font-black text-[#6a36d5]">
+                    <Wallet className="size-3.5 shrink-0" />
+                    {invite.paymentDisplay}
                   </span>
-                ) : null}
-              </div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-[#595c5d]">
+                    <CalendarDays className="size-3.5 shrink-0" />
+                    {invite.proposedDateDisplay}
+                  </span>
+                  {invite.distanceDisplay ? (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-[#595c5d]">
+                      <Navigation className="size-3.5 shrink-0" />
+                      {invite.distanceDisplay}
+                    </span>
+                  ) : null}
+                </div>
+              </Link>
 
               {/* Bloco 3: Ações */}
               <div className="flex items-center gap-2 border-t border-[rgba(106,54,213,0.06)] px-4 py-3 lg:px-5">
