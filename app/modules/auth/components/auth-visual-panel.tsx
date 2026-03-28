@@ -105,8 +105,8 @@ function LoginPanel() {
             Impulsione sua{"\n"}marca com{"\n"}conteúdo local.
           </h2>
           <p className="pt-2 text-[20px] font-medium leading-[32.5px] text-white/70">
-            A plataforma completa para gerenciar campanhas de UGC e conectar-se
-            com os melhores talentos da sua região.
+            A plataforma completa para gerenciar campanhas de criadores e
+            conectar-se com os melhores talentos da sua região.
           </p>
         </div>
       </div>

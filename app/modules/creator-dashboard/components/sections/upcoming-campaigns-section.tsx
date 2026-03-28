@@ -1,8 +1,8 @@
 import { ChevronRight, Clock, MapPin } from "lucide-react";
+import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import type { CreatorUpcomingCampaignVm } from "../../types";
 import {
-  DashboardCard,
   SectionHeader,
   SectionMessage,
   SectionSkeleton,
@@ -50,7 +50,7 @@ export function UpcomingCampaignsSection({
         {!isLoading &&
           !errorMessage &&
           items.map((row) => (
-            <DashboardCard key={row.id} className="p-0">
+            <Link key={row.id} to={`/ofertas/${row.id}`} className="block overflow-hidden rounded-[32px]">
               <div className="flex items-stretch gap-0">
                 <div className="flex w-[76px] shrink-0 flex-col items-center justify-center rounded-l-[28px] bg-[#6a36d5]/10 px-2 py-4 text-center lg:w-[84px]">
                   <span className="text-[10px] font-bold uppercase leading-tight text-[#6a36d5]">
@@ -61,7 +61,7 @@ export function UpcomingCampaignsSection({
                   </span>
                 </div>
 
-                <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 border-l border-[rgba(106,54,213,0.12)] px-4 py-4 lg:px-5">
+                <div className="flex min-w-0 flex-1 flex-col justify-center gap-2 border-l border-[rgba(106,54,213,0.12)] bg-white px-4 py-4 lg:px-5">
                   <div className="flex flex-wrap items-center gap-2">
                     {row.dayBanner === "HOJE" ? (
                       <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-white">
@@ -107,14 +107,14 @@ export function UpcomingCampaignsSection({
                   </div>
                 </div>
 
-                <div className="hidden items-center pr-3 lg:flex">
+                <div className="flex items-center bg-white pr-3">
                   <ChevronRight
                     className="size-5 text-[#595c5d]/40"
                     aria-hidden
                   />
                 </div>
               </div>
-            </DashboardCard>
+            </Link>
           ))}
       </div>
     </section>
