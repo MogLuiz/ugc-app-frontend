@@ -1,5 +1,11 @@
-import { CalendarDays, ChevronRight, MessageCircle, Navigation, Wallet } from "lucide-react";
-import { Link } from "react-router";
+import {
+  CalendarDays,
+  ChevronRight,
+  MessageCircle,
+  Navigation,
+  Wallet,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { CreatorInviteVm } from "../../types";
 import {
@@ -31,8 +37,14 @@ export function PendingInvitesSection({
   errorMessage: string | null;
   isRefreshing: boolean;
 }) {
+  const navigate = useNavigate();
   const acceptMutation = useAcceptContractRequestMutation();
   const rejectMutation = useRejectContractRequestMutation();
+
+  const handleInviteClick = (id: string) => {
+    const isDesktop = window.innerWidth >= 640;
+    void navigate(isDesktop ? "/ofertas" : `/ofertas/${id}`);
+  };
 
   const busyId =
     acceptMutation.isPending && acceptMutation.variables
@@ -70,9 +82,10 @@ export function PendingInvitesSection({
           items.map((invite) => (
             <DashboardCard key={invite.id} className="overflow-hidden p-0">
               {/* Blocos 1+2: área clicável → detalhamento */}
-              <Link
-                to={`/campanha/${invite.id}`}
-                className="group block transition-colors hover:bg-slate-50 active:bg-slate-100"
+              <button
+                type="button"
+                onClick={() => handleInviteClick(invite.id)}
+                className="group w-full text-left transition-colors hover:bg-slate-50 active:bg-slate-100"
               >
                 {/* Bloco 1: Identidade */}
                 <div className="flex items-center gap-3 p-4 lg:p-5">
@@ -107,7 +120,7 @@ export function PendingInvitesSection({
                     </span>
                   ) : null}
                 </div>
-              </Link>
+              </button>
 
               {/* Bloco 3: Ações */}
               <div className="flex items-center gap-2 border-t border-[rgba(106,54,213,0.06)] px-4 py-3 lg:px-5">
