@@ -21,10 +21,16 @@ export function UpcomingCampaignsSection({
 }) {
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title="Próximas campanhas" ctaLabel="Ver todas" ctaTo="/ofertas" />
+      <SectionHeader
+        title="Próximos trabalhos"
+        ctaLabel="Ver todos"
+        ctaTo="/ofertas?tab=confirmed"
+      />
 
       {isRefreshing && !isLoading ? (
-        <p className="text-xs font-medium text-[#595c5d]/80">Atualizando agenda…</p>
+        <p className="text-xs font-medium text-[#595c5d]/80">
+          Atualizando agenda…
+        </p>
       ) : null}
 
       {isLoading ? <SectionSkeleton rows={2} /> : null}
@@ -69,16 +75,23 @@ export function UpcomingCampaignsSection({
                     <span
                       className={cn(
                         "rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                        row.statusBadge === "Confirmada" && "bg-emerald-100 text-emerald-800",
-                        row.statusBadge === "Pendente" && "bg-amber-100 text-amber-800",
-                        row.statusBadge === "Concluída" && "bg-slate-100 text-slate-600"
+                        row.statusBadge === "Confirmada" &&
+                          "bg-emerald-100 text-emerald-800",
+                        row.statusBadge === "Pendente" &&
+                          "bg-amber-100 text-amber-800",
+                        row.statusBadge === "Concluída" &&
+                          "bg-slate-100 text-slate-600",
                       )}
                     >
                       {row.statusBadge}
                     </span>
                   </div>
-                  <h4 className="text-base font-black text-[#2c2f30]">{row.campaignName}</h4>
-                  <p className="text-xs font-medium text-[#595c5d]">{row.companyName}</p>
+                  <h4 className="text-base font-black text-[#2c2f30]">
+                    {row.campaignName}
+                  </h4>
+                  <p className="text-xs font-medium text-[#595c5d]">
+                    {row.companyName}
+                  </p>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#595c5d]">
                     <span className="inline-flex items-center gap-1">
                       <Clock className="size-3.5 text-[#6a36d5]" />
@@ -88,12 +101,17 @@ export function UpcomingCampaignsSection({
                       <MapPin className="size-3.5 text-[#6a36d5]" />
                       {row.locationDisplay}
                     </span>
-                    <span className="inline-flex items-center gap-1">⏱ {row.durationDisplay}</span>
+                    <span className="inline-flex items-center gap-1">
+                      ⏱ {row.durationDisplay}
+                    </span>
                   </div>
                 </div>
 
                 <div className="hidden items-center pr-3 lg:flex">
-                  <ChevronRight className="size-5 text-[#595c5d]/40" aria-hidden />
+                  <ChevronRight
+                    className="size-5 text-[#595c5d]/40"
+                    aria-hidden
+                  />
                 </div>
               </div>
             </DashboardCard>

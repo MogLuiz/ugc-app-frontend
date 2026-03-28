@@ -69,7 +69,7 @@ export function useCreatorDashboardController() {
       isUpcomingRefreshing: upcomingQuery.isFetching,
       upcomingErrorMessage: getQueryErrorMessage(
         upcomingQuery.error,
-        "Não foi possível carregar as próximas campanhas."
+        "Não foi possível carregar os próximos trabalhos."
       ),
       isActivityLoading: activityQuery.isLoading && !activityQuery.data,
       isActivityRefreshing: activityQuery.isFetching,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
@@ -23,12 +23,23 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "finalized", label: "Finalizadas" },
 ];
 
+function parseTab(value: string | null): Tab {
+  if (value === "confirmed" || value === "finalized") return value;
+  return "pending";
+}
+
 export function CreatorPendingContractRequestsScreen() {
-  const [activeTab, setActiveTab] = useState<Tab>("pending");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = parseTab(searchParams.get("tab"));
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [activeMutationId, setActiveMutationId] = useState<string | null>(null);
 
   const navigate = useNavigate();
+
+  function setActiveTab(tab: Tab) {
+    setSearchParams(tab === "pending" ? {} : { tab }, { replace: true });
+    setSelectedOfferId(null);
+  }
 
   const pendingQuery = useMyCreatorPendingContractRequestsQuery();
   const confirmedQuery = useMyCreatorContractRequestsQuery("ACCEPTED");
@@ -144,10 +155,7 @@ export function CreatorPendingContractRequestsScreen() {
                     <button
                       key={tab.id}
                       type="button"
-                      onClick={() => {
-                        setActiveTab(tab.id);
-                        setSelectedOfferId(null);
-                      }}
+                      onClick={() => setActiveTab(tab.id)}
                       className={
                         isActive
                           ? "flex flex-1 items-center justify-center gap-1.5 rounded-full bg-white py-2 text-sm font-bold text-slate-900 shadow-sm"

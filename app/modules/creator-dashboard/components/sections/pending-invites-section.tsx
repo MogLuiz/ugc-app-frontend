@@ -55,7 +55,11 @@ export function PendingInvitesSection({
 
   return (
     <section className="flex flex-col gap-4">
-      <SectionHeader title="Convites aguardando resposta" />
+      <SectionHeader
+        title="Convites de trabalho"
+        ctaLabel="Ver todos"
+        ctaTo="/ofertas"
+      />
 
       {isRefreshing && !isLoading ? (
         <p className="text-xs font-medium text-[#595c5d]/80">

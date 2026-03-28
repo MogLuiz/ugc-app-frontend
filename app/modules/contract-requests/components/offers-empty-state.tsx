@@ -1,7 +1,9 @@
 import { Link } from "react-router";
 import { Tag, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export function OffersEmptyState() {
+  const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center px-4 py-8">
       {/* Illustration card — compact */}
@@ -52,11 +54,12 @@ export function OffersEmptyState() {
 
       {/* Tip chip */}
       <div className="mt-4 flex items-center gap-2 rounded-full border border-white bg-white/60 px-4 py-2.5 shadow-sm backdrop-blur-sm">
-        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">
-          Dica Pro:
-        </span>
-        <span className="text-xs font-semibold text-slate-700">
-          Complete seu perfil UGC para receber mais ofertas.
+        <span
+          className="text-xs font-semibold text-slate-700 cursor-pointer flex items-center gap-1 text-center"
+          onClick={() => void navigate("/perfil")}
+        >
+          Complete seu perfil para receber mais ofertas.{" "}
+          <ArrowRight className="size-4" />
         </span>
       </div>
     </div>
