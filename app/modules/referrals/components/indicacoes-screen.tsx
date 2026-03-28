@@ -2,9 +2,9 @@ import type { ReactNode } from "react";
 import {
   CheckCircle2,
   CircleUserRound,
-  Copy,
   Info,
   Loader2,
+  Share2,
   Wallet,
 } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -125,9 +125,9 @@ export function IndicacoesScreen() {
               Indicações
             </h1>
             <p className="mt-1 text-sm text-[#595c5d]">
-              Ganhe comissão quando o indicado concluir o primeiro trabalho válido
-              na plataforma. Não há saque automático nem extrato financeiro
-              completo neste momento.
+              Ganhe comissão quando o indicado concluir o primeiro trabalho
+              válido na plataforma. Não há saque automático nem extrato
+              financeiro completo neste momento.
             </p>
           </div>
 
@@ -182,72 +182,138 @@ export function IndicacoesScreen() {
                 <SectionMessage message={dataError} tone="error" />
               ) : null}
 
-              {profile &&
-              (profile.referralLink || profile.referralCode) ? (
-                <section className="overflow-hidden rounded-[24px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-5 text-white shadow-lg lg:p-8">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-white/90">
-                    Seu link de indicação
-                  </p>
-                  <h2 className="mt-2 text-xl font-black leading-tight lg:text-2xl">
-                    Compartilhe e convide novos criadores
-                  </h2>
+              {profile && (profile.referralLink || profile.referralCode) ? (
+                <div className="flex flex-col gap-4 xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
+                  {/* Card branco — alinhado ao Figma (fundo claro + ícone decorativo) */}
+                  <section
+                    className={cn(
+                      "relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6",
+                    )}
+                    style={{
+                      boxShadow:
+                        "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
+                    }}
+                  >
+                    <Share2
+                      className="pointer-events-none absolute right-3 top-[27%] size-[7.5rem] -translate-y-1/2 text-slate-100 sm:right-5"
+                      strokeWidth={1}
+                      aria-hidden
+                    />
+                    <div className="relative z-[1]">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#895af6]">
+                        Seu link exclusivo
+                      </p>
+                      <h2 className="mt-2 text-xl font-black leading-tight text-[#2c2f30] xl:text-2xl">
+                        Compartilhe e convide novos criadores
+                      </h2>
 
-                  {profile.referralLink ? (
-                    <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <div className="min-w-0 flex-1 rounded-xl bg-white/15 px-3 py-2.5 text-sm backdrop-blur-sm">
-                        <span className="block truncate font-medium">
-                          {profile.referralLink}
-                        </span>
+                      <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
+                        {profile.referralLink ? (
+                          <div className="min-w-0 flex-1 space-y-2">
+                            <p className="text-xs font-medium text-slate-600">
+                              Link de indicação
+                            </p>
+                            <div className="flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-100/90 pl-3 pr-1 py-1.5">
+                              <span className="min-w-0 flex-1 break-all text-sm leading-snug text-[#0f172a] xl:truncate xl:break-normal xl:leading-normal">
+                                {profile.referralLink}
+                              </span>
+                              <Button
+                                type="button"
+                                className="h-9 shrink-0 rounded-lg bg-[#895af6] px-4 text-xs font-bold text-white hover:bg-[#7c4aeb]"
+                                onClick={() =>
+                                  void copyText("Link", profile.referralLink!)
+                                }
+                              >
+                                Copiar
+                              </Button>
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {profile.referralCode ? (
+                          <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
+                            <p className="text-xs font-medium text-slate-600">
+                              Código
+                            </p>
+                            <div className="flex min-h-[44px] items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-slate-100/90 px-3 py-1">
+                              <span className="font-mono text-sm font-bold tracking-wide text-[#0f172a]">
+                                {profile.referralCode}
+                              </span>
+                              <Button
+                                type="button"
+                                className="h-9 shrink-0 rounded-lg bg-[#895af6] px-3 text-xs font-bold text-white hover:bg-[#7c4aeb]"
+                                onClick={() =>
+                                  void copyText("Código", profile.referralCode!)
+                                }
+                              >
+                                Copiar
+                              </Button>
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="shrink-0 rounded-xl border-0 bg-white font-bold text-[#6a2fc4] hover:bg-white/95"
-                        onClick={() =>
-                          void copyText("Link", profile.referralLink!)
-                        }
-                      >
-                        <Copy className="mr-1.5 size-4" />
-                        Copiar link
-                      </Button>
-                    </div>
-                  ) : null}
 
-                  {profile.referralCode ? (
-                    <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
-                      <div className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-white/15 px-3 py-2.5 backdrop-blur-sm">
-                        <span className="text-xs font-semibold uppercase text-white/80">
-                          Código
-                        </span>
-                        <span className="font-mono text-base font-bold tracking-wide">
-                          {profile.referralCode}
-                        </span>
+                      <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-slate-600">
+                        <Info
+                          className="mt-0.5 size-4 shrink-0 text-[#895af6]"
+                          aria-hidden
+                        />
+                        Convide novos talentos e receba comissão quando
+                        entregarem o primeiro trabalho válido. Sem crédito
+                        imediato em conta neste MVP.
+                      </p>
+                    </div>
+                  </section>
+
+                  {/* Card roxo — resumo ao lado (desktop); empilhado no mobile */}
+                  {dashboardQuery.isLoading ? (
+                    <div className="flex min-h-[200px] items-center justify-center rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 text-white shadow-lg">
+                      <Loader2 className="size-8 animate-spin text-white/90" />
+                    </div>
+                  ) : dashboard ? (
+                    <section className="relative flex min-h-[200px] flex-col justify-between overflow-hidden rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 text-white shadow-lg">
+                      <Wallet
+                        className="pointer-events-none absolute bottom-3 right-3 size-16 text-white/25"
+                        aria-hidden
+                      />
+                      <div className="relative z-[1] flex min-h-0 flex-1 flex-col">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-white/80">
+                          Resumo de comissões
+                        </p>
+                        <p className="mt-3 text-3xl font-black tabular-nums tracking-tight">
+                          {formatMoneyFromCents(
+                            dashboard.totalCommissionAmountCents,
+                            dashboard.currency,
+                          )}
+                        </p>
+                        <p className="mt-1 text-sm text-white/75">
+                          Total registrado até hoje
+                        </p>
+                        <div
+                          className="my-4 h-px shrink-0 bg-white/25"
+                          role="separator"
+                        />
+                        <div className="flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-sm text-white/80">
+                              Comissões pendentes
+                            </p>
+                            <p className="mt-1 text-xl font-bold tabular-nums">
+                              {formatMoneyFromCents(
+                                dashboard.pendingCommissionAmountCents,
+                                dashboard.currency,
+                              )}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="shrink-0 rounded-xl border-0 bg-white font-bold text-[#6a2fc4] hover:bg-white/95"
-                        onClick={() =>
-                          void copyText("Código", profile.referralCode!)
-                        }
-                      >
-                        <Copy className="mr-1.5 size-4" />
-                        Copiar código
-                      </Button>
-                    </div>
+                    </section>
                   ) : null}
-
-                  <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-white/85">
-                    <Info className="mt-0.5 size-4 shrink-0" />
-                    A comissão é calculada sobre o valor base do trabalho quando
-                    o indicado concluir o primeiro contrato válido. Não há crédito
-                    imediato em conta nem fluxo de saque neste MVP.
-                  </p>
-                </section>
+                </div>
               ) : null}
 
               {dashboard ? (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
                   <MetricTile
                     label="Total de indicados"
                     value={String(dashboard.totalReferrals)}
@@ -260,13 +326,6 @@ export function IndicacoesScreen() {
                   <MetricTile
                     label="Com primeiro trabalho concluído"
                     value={String(dashboard.qualifiedReferrals)}
-                  />
-                  <MetricTile
-                    label="Total em comissões (registrado)"
-                    value={formatMoneyFromCents(
-                      dashboard.totalCommissionAmountCents,
-                      dashboard.currency,
-                    )}
                   />
                 </div>
               ) : null}
@@ -328,41 +387,10 @@ export function IndicacoesScreen() {
                 <div className="flex flex-col gap-6">
                   <DashboardCard>
                     <SectionHeader
-                      title="Resumo de comissões"
-                      description="Valores registrados no sistema (sem saque neste MVP)."
+                      title="Últimas comissões"
+                      description="Registros mais recentes (sem saque neste MVP)."
                     />
-                    {dashboard ? (
-                      <div className="mt-4 space-y-3 rounded-2xl bg-[rgba(137,90,246,0.08)] p-4">
-                        <div className="flex items-center justify-between gap-2 text-sm">
-                          <span className="text-[#595c5d]">
-                            Total registrado
-                          </span>
-                          <span className="font-bold text-[#2c2f30]">
-                            {formatMoneyFromCents(
-                              dashboard.totalCommissionAmountCents,
-                              dashboard.currency,
-                            )}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 text-sm">
-                          <span className="flex items-center gap-1.5 text-[#595c5d]">
-                            <Wallet className="size-4 text-[#895af6]" />
-                            Pendentes de processamento
-                          </span>
-                          <span className="font-bold text-[#2c2f30]">
-                            {formatMoneyFromCents(
-                              dashboard.pendingCommissionAmountCents,
-                              dashboard.currency,
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    <div className="mt-6">
-                      <h3 className="text-sm font-bold text-[#2c2f30]">
-                        Últimas comissões
-                      </h3>
+                    <div>
                       {commissionsQuery.isLoading ? (
                         <p className="mt-3 text-sm text-slate-500">
                           Carregando…
@@ -525,13 +553,7 @@ function JourneyStep({
   );
 }
 
-function Avatar({
-  name,
-  photoUrl,
-}: {
-  name: string;
-  photoUrl: string | null;
-}) {
+function Avatar({ name, photoUrl }: { name: string; photoUrl: string | null }) {
   const initials = name
     .split(/\s+/)
     .slice(0, 2)
