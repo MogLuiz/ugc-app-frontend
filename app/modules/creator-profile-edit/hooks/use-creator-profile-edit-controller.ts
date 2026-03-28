@@ -28,6 +28,13 @@ type CreatorProfileExt = {
   tiktokUsername?: string;
 };
 
+export type ProfileProgressItem = { label: string; done: boolean };
+export type ProfileProgress = {
+  percent: number;
+  completedCount: number;
+  items: ProfileProgressItem[];
+};
+
 function getInitialState(user: AuthUser) {
   const creatorProfile = user.creatorProfile as CreatorProfileExt | undefined;
   return {
@@ -46,42 +53,23 @@ function getInitialState(user: AuthUser) {
 }
 
 export function useCreatorProfileEditController(user: AuthUser) {
-  const creatorProfile = user.creatorProfile as CreatorProfileExt | undefined;
-
   const updateProfileMutation = useUpdateProfileMutation();
   const updateCreatorProfileMutation = useUpdateCreatorProfileMutation();
   const uploadAvatarMutation = useUploadAvatarMutation();
   const uploadPortfolioMediaMutation = useUploadPortfolioMediaMutation();
   const deletePortfolioMediaMutation = useDeletePortfolioMediaMutation();
 
-  const [displayName, setDisplayName] = useState(
-    getInitialState(user).displayName
-  );
+  const [displayName, setDisplayName] = useState(getInitialState(user).displayName);
   const [birthDate, setBirthDate] = useState(getInitialState(user).birthDate);
   const [bio, setBio] = useState(getInitialState(user).bio);
   const [phone, setPhone] = useState(getInitialState(user).phone);
-  const [instagramUsername, setInstagramUsername] = useState(
-    getInitialState(user).instagramUsername
-  );
-  const [tiktokUsername, setTiktokUsername] = useState(
-    getInitialState(user).tiktokUsername
-  );
-  const [addressStreet, setAddressStreet] = useState(
-    getInitialState(user).addressStreet
-  );
-  const [addressNumber, setAddressNumber] = useState(
-    getInitialState(user).addressNumber
-  );
-  const [addressCity, setAddressCity] = useState(
-    getInitialState(user).addressCity
-  );
-  const [addressState, setAddressState] = useState(
-    getInitialState(user).addressState
-  );
-  const [addressZipCode, setAddressZipCode] = useState(
-    getInitialState(user).addressZipCode
-  );
-  const [niches, setNiches] = useState<string[]>(["Beleza", "Food", "Lifestyle"]);
+  const [instagramUsername, setInstagramUsername] = useState(getInitialState(user).instagramUsername);
+  const [tiktokUsername, setTiktokUsername] = useState(getInitialState(user).tiktokUsername);
+  const [addressStreet, setAddressStreet] = useState(getInitialState(user).addressStreet);
+  const [addressNumber, setAddressNumber] = useState(getInitialState(user).addressNumber);
+  const [addressCity, setAddressCity] = useState(getInitialState(user).addressCity);
+  const [addressState, setAddressState] = useState(getInitialState(user).addressState);
+  const [addressZipCode, setAddressZipCode] = useState(getInitialState(user).addressZipCode);
 
   const jobTypesQuery = useCreatorJobTypesQuery();
   const replaceJobTypesMutation = useReplaceCreatorJobTypesMutation();
@@ -135,23 +123,98 @@ export function useCreatorProfileEditController(user: AuthUser) {
   }, [user]);
 
   const displayNameFromUser = user.profile?.name ?? user.name ?? "";
-  const username =
-    user.name ??
-    user.email?.split("@")[0] ??
-    "usuario";
+  const username = user.name ?? user.email?.split("@")[0] ?? "usuario";
   const location =
     user.profile?.addressCity && user.profile?.addressState
       ? `${user.profile.addressCity}, ${user.profile.addressState}`
-      : ""
+      : "";
   const portfolioMedia = user.portfolio?.media ?? [];
+
+  // Profile completion progress — 8 criteria (tiktok is optional, not counted)
+  const profileProgress = useMemo((): ProfileProgress => {
+    const items: ProfileProgressItem[] = [
+      {
+        label: "Foto de perfil",
+        done: !!user.profile?.photoUrl,
+      },
+      {
+        label: "Bio preenchida",
+        done: bio.trim().length > 0,
+      },
+      {
+        label: "Portfólio adicionado",
+        done: portfolioMedia.length > 0,
+      },
+      {
+        label: "Disponibilidade configurada",
+        done: availabilityDays.some((d) => d.enabled && d.start.length > 0 && d.end.length > 0),
+      },
+      {
+        label: "Tipo de trabalho ativo",
+        done: jobTypes.some((jt) => jt.selected),
+      },
+      {
+        label: "Endereço cadastrado",
+        done: !!addressCity && !!addressState,
+      },
+      {
+        label: "Instagram",
+        done: instagramUsername.trim().length > 0,
+      },
+      {
+        label: "Telefone",
+        done: phone.trim().length > 0,
+      },
+    ];
+    const completedCount = items.filter((i) => i.done).length;
+    return {
+      percent: Math.round((completedCount / items.length) * 100),
+      completedCount,
+      items,
+    };
+  }, [
+    user.profile?.photoUrl,
+    bio,
+    portfolioMedia,
+    availabilityDays,
+    jobTypes,
+    addressCity,
+    addressState,
+    instagramUsername,
+    phone,
+  ]);
+
+  // Split dirty tracking per endpoint to avoid unnecessary requests
+  const isProfileFieldsDirty = useMemo(() => {
+    const init = getInitialState(user);
+    return (
+      displayName !== init.displayName ||
+      birthDate !== init.birthDate ||
+      bio !== init.bio ||
+      phone !== init.phone ||
+      addressStreet !== init.addressStreet ||
+      addressNumber !== init.addressNumber ||
+      addressCity !== init.addressCity ||
+      addressState !== init.addressState ||
+      addressZipCode !== init.addressZipCode
+    );
+  }, [user, displayName, birthDate, bio, phone, addressStreet, addressNumber, addressCity, addressState, addressZipCode]);
+
+  const isCreatorProfileFieldsDirty = useMemo(() => {
+    const init = getInitialState(user);
+    return (
+      instagramUsername !== init.instagramUsername ||
+      tiktokUsername !== init.tiktokUsername
+    );
+  }, [user, instagramUsername, tiktokUsername]);
+
+  const isDirty = isProfileFieldsDirty || isCreatorProfileFieldsDirty || isAvailabilityDirty || isJobTypesDirty;
 
   const updateAvailabilityDay = useCallback(
     (dayId: string, field: "enabled" | "start" | "end", value: boolean | string) => {
       setIsAvailabilityDirty(true);
       setAvailabilityDays((current) =>
-        current.map((day) =>
-          day.id === dayId ? { ...day, [field]: value } : day
-        )
+        current.map((day) => (day.id === dayId ? { ...day, [field]: value } : day))
       );
     },
     []
@@ -167,18 +230,6 @@ export function useCreatorProfileEditController(user: AuthUser) {
       )
     );
   }, [availabilityDays]);
-
-  const addNiche = useCallback((niche: string) => {
-    if (niche.trim()) {
-      setNiches((prev) =>
-        prev.includes(niche.trim()) ? prev : [...prev, niche.trim()]
-      );
-    }
-  }, []);
-
-  const removeNiche = useCallback((niche: string) => {
-    setNiches((prev) => prev.filter((n) => n !== niche));
-  }, []);
 
   const toggleJobType = useCallback((id: string) => {
     setIsJobTypesDirty(true);
@@ -250,27 +301,39 @@ export function useCreatorProfileEditController(user: AuthUser) {
 
   async function handleSubmit() {
     try {
-      const [profileResult] = await Promise.all([
-        updateProfileMutation.mutateAsync({
-          data: {
-            name: displayName || undefined,
-            birthDate: birthDate || undefined,
-            bio: bio.trim(),
-            phone: phone || undefined,
-            addressStreet: addressStreet || undefined,
-            addressNumber: addressNumber || undefined,
-            addressCity: addressCity || undefined,
-            addressState: addressState || undefined,
-            addressZipCode: addressZipCode || undefined,
-          },
-        }),
-        updateCreatorProfileMutation.mutateAsync({
-          data: {
-            instagramUsername: instagramUsername || undefined,
-            tiktokUsername: tiktokUsername || undefined,
-          },
-        }),
-      ]);
+      let profileResult: { warnings?: string[] } | undefined;
+      const mutations: Promise<unknown>[] = [];
+
+      if (isProfileFieldsDirty) {
+        mutations.push(
+          updateProfileMutation.mutateAsync({
+            data: {
+              name: displayName || undefined,
+              birthDate: birthDate || undefined,
+              bio: bio.trim(),
+              phone: phone || undefined,
+              addressStreet: addressStreet || undefined,
+              addressNumber: addressNumber || undefined,
+              addressCity: addressCity || undefined,
+              addressState: addressState || undefined,
+              addressZipCode: addressZipCode || undefined,
+            },
+          }).then((r) => { profileResult = r; })
+        );
+      }
+
+      if (isCreatorProfileFieldsDirty) {
+        mutations.push(
+          updateCreatorProfileMutation.mutateAsync({
+            data: {
+              instagramUsername: instagramUsername || undefined,
+              tiktokUsername: tiktokUsername || undefined,
+            },
+          })
+        );
+      }
+
+      if (mutations.length > 0) await Promise.all(mutations);
       if (isAvailabilityDirty) {
         const response = await replaceAvailabilityMutation.mutateAsync({
           days: availabilityDays.map((day) => ({
@@ -284,13 +347,11 @@ export function useCreatorProfileEditController(user: AuthUser) {
         setIsAvailabilityDirty(false);
       }
       if (isJobTypesDirty) {
-        await replaceJobTypesMutation.mutateAsync(
-          Array.from(selectedJobTypeIds),
-        );
+        await replaceJobTypesMutation.mutateAsync(Array.from(selectedJobTypeIds));
         setIsJobTypesDirty(false);
       }
       toast.success(getCreatorProfileSuccessMessage("profile_update"));
-      if (profileResult.warnings?.length) {
+      if (profileResult?.warnings?.length) {
         toast.warning(profileResult.warnings[0]);
       }
     } catch (error) {
@@ -321,9 +382,6 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setAddressState,
     addressZipCode,
     setAddressZipCode,
-    niches,
-    addNiche,
-    removeNiche,
     availabilityDays,
     timeOptions: buildHalfHourOptions(),
     updateAvailabilityDay,
@@ -335,6 +393,8 @@ export function useCreatorProfileEditController(user: AuthUser) {
     username,
     location,
     portfolioMedia,
+    profileProgress,
+    isDirty,
     handleAvatarChange,
     handlePortfolioUpload,
     handlePortfolioRemove,
