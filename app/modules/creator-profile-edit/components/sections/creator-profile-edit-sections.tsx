@@ -8,10 +8,8 @@ import {
   Plus,
   Tag,
   Trash2,
-  Upload,
   X,
 } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
 import type { CreatorJobTypeItem } from "~/modules/creator-job-types/types";
@@ -546,23 +544,12 @@ export function CreatorPortfolioSection({
           <Image className="size-5 text-[#895af6]" />
           <h3 className="text-base font-bold text-[#0f172a]">Meu Portfólio</h3>
         </div>
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="text-xs font-bold text-[#895af6] hover:underline lg:hidden"
-          >
-            Ver todos
-          </button>
-          <Button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="gap-2 rounded-full bg-[#895af6] px-4 py-2 text-xs font-bold text-white hover:bg-[#7c4aeb] disabled:opacity-50"
-          >
-            <Upload className="size-3.5" />
-            {isUploading ? "Enviando..." : "Upload"}
-          </Button>
-        </div>
+        <button
+          type="button"
+          className="text-xs font-bold text-[#895af6] hover:underline"
+        >
+          Ver todos
+        </button>
         <input
           ref={fileInputRef}
           type="file"
