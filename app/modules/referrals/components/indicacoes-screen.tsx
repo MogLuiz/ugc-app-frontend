@@ -5,12 +5,14 @@ import {
   CircleUserRound,
   Info,
   Loader2,
+  MapPin,
   Share2,
   ShieldCheck,
   UserPlus,
   Users,
   Wallet,
 } from "lucide-react";
+import { Link } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
@@ -24,7 +26,7 @@ import {
   SectionHeader,
   SectionMessage,
 } from "~/modules/business-dashboard/components/sections/section-primitives";
-import type { ReferralStatusApi } from "../types";
+import type { ReferralListItem, ReferralsDashboardResponse, ReferralStatusApi } from "../types";
 import { formatMoneyFromCents } from "../lib/format-money";
 import {
   useActivatePartnerMutation,
@@ -50,6 +52,41 @@ function referralStatusLabel(status: ReferralStatusApi): string {
     default:
       return status;
   }
+}
+
+function referralStatusBadgeFigma(status: ReferralStatusApi): {
+  label: string;
+  className: string;
+} {
+  switch (status) {
+    case "PENDING":
+      return {
+        label: "Em análise",
+        className: "text-[#f59e0b]",
+      };
+    case "QUALIFIED":
+      return {
+        label: "Finalizado",
+        className: "text-[#895af6]",
+      };
+    case "EXPIRED":
+      return {
+        label: "Expirado",
+        className: "text-slate-500",
+      };
+    default:
+      return { label: status, className: "text-slate-600" };
+  }
+}
+
+function initialsAvatarTint(name: string): string {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) {
+    h = name.charCodeAt(i) + ((h << 5) - h);
+  }
+  return Math.abs(h) % 2 === 0
+    ? "bg-[#e0e7ff] text-[#6366f1]"
+    : "bg-[#f0ebff] text-[#895af6]";
 }
 
 async function copyText(label: string, text: string) {
@@ -396,96 +433,110 @@ export function IndicacoesScreen() {
                 </div>
               ) : null}
 
-              <JourneyBlock ratePercent={ratePercent} />
+              <div className="hidden xl:flex xl:flex-col xl:gap-6">
+                <JourneyBlock ratePercent={ratePercent} />
 
-              <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
-                <DashboardCard>
-                  <SectionHeader title="Indicados recentes" />
-                  {referralsQuery.isLoading ? (
-                    <p className="py-8 text-center text-sm text-slate-500">
-                      Carregando…
-                    </p>
-                  ) : referrals.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-slate-500">
-                      Nenhuma indicação ainda.
-                    </p>
-                  ) : (
-                    <ul className="mt-4 flex flex-col gap-3">
-                      {referrals.map((r) => (
-                        <li
-                          key={r.id}
-                          className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3"
-                        >
-                          <Avatar
-                            name={r.referredUser.name}
-                            photoUrl={r.referredUser.photoUrl}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-[#2c2f30]">
-                              {r.referredUser.name}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              {referralStatusLabel(r.status)} · desde{" "}
-                              {DATE_FMT.format(new Date(r.createdAt))}
-                            </p>
-                          </div>
-                          <span
-                            className={cn(
-                              "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
-                              r.status === "QUALIFIED"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : r.status === "PENDING"
-                                  ? "bg-amber-100 text-amber-900"
-                                  : "bg-slate-200 text-slate-700",
-                            )}
+                <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
+                  <DashboardCard>
+                    <SectionHeader title="Indicados recentes" />
+                    {referralsQuery.isLoading ? (
+                      <p className="py-8 text-center text-sm text-slate-500">
+                        Carregando…
+                      </p>
+                    ) : referrals.length === 0 ? (
+                      <p className="py-8 text-center text-sm text-slate-500">
+                        Nenhuma indicação ainda.
+                      </p>
+                    ) : (
+                      <ul className="mt-4 flex flex-col gap-3">
+                        {referrals.map((r) => (
+                          <li
+                            key={r.id}
+                            className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3"
                           >
-                            {referralStatusLabel(r.status)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </DashboardCard>
+                            <Avatar
+                              name={r.referredUser.name}
+                              photoUrl={r.referredUser.photoUrl}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate font-semibold text-[#2c2f30]">
+                                {r.referredUser.name}
+                              </p>
+                              <p className="text-xs text-slate-500">
+                                {referralStatusLabel(r.status)} · desde{" "}
+                                {DATE_FMT.format(new Date(r.createdAt))}
+                              </p>
+                            </div>
+                            <span
+                              className={cn(
+                                "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
+                                r.status === "QUALIFIED"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : r.status === "PENDING"
+                                    ? "bg-amber-100 text-amber-900"
+                                    : "bg-slate-200 text-slate-700",
+                              )}
+                            >
+                              {referralStatusLabel(r.status)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </DashboardCard>
 
-                <DashboardCard>
-                  <SectionHeader
-                    title="Como funciona"
-                    addon={
-                      <Info className="size-4 text-[#895af6]" aria-hidden />
-                    }
-                  />
-                  <ol className="mt-4 space-y-4 text-sm text-[#595c5d]">
-                    <li className="flex gap-3">
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
-                        1
-                      </span>
-                      <span>
-                        Compartilhe seu link ou código com quem ainda não está
-                        na plataforma.
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
-                        2
-                      </span>
-                      <span>
-                        Quando a pessoa se cadastrar pelo seu link, ela entra
-                        como sua indicação.
-                      </span>
-                    </li>
-                    <li className="flex gap-3">
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
-                        3
-                      </span>
-                      <span>
-                        Quando o indicado concluir o primeiro trabalho válido
-                        (contrato concluído), geramos a comissão de{" "}
-                        <strong>{ratePercent}%</strong> sobre a base do
-                        trabalho, conforme regras do programa.
-                      </span>
-                    </li>
-                  </ol>
-                </DashboardCard>
+                  <DashboardCard>
+                    <SectionHeader
+                      title="Como funciona"
+                      addon={
+                        <Info className="size-4 text-[#895af6]" aria-hidden />
+                      }
+                    />
+                    <ol className="mt-4 space-y-4 text-sm text-[#595c5d]">
+                      <li className="flex gap-3">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
+                          1
+                        </span>
+                        <span>
+                          Compartilhe seu link ou código com quem ainda não está
+                          na plataforma.
+                        </span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
+                          2
+                        </span>
+                        <span>
+                          Quando a pessoa se cadastrar pelo seu link, ela entra
+                          como sua indicação.
+                        </span>
+                      </li>
+                      <li className="flex gap-3">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-xs font-bold text-white">
+                          3
+                        </span>
+                        <span>
+                          Quando o indicado concluir o primeiro trabalho válido
+                          (contrato concluído), geramos a comissão de{" "}
+                          <strong>{ratePercent}%</strong> sobre a base do
+                          trabalho, conforme regras do programa.
+                        </span>
+                      </li>
+                    </ol>
+                  </DashboardCard>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-6 xl:hidden">
+                <ComoFuncionaMobileBlock />
+                <RecentReferralsMobileBlock
+                  isLoading={referralsQuery.isLoading}
+                  referrals={referrals}
+                />
+                <ResumoGanhosMobileBlock
+                  isLoading={dashboardQuery.isLoading}
+                  dashboard={dashboard}
+                />
               </div>
             </>
           )}
@@ -544,6 +595,230 @@ function ReferralMetricCard({
       {hint ? (
         <p className="mt-1 text-[10px] leading-tight text-slate-400">{hint}</p>
       ) : null}
+    </div>
+  );
+}
+
+/** Bloco “Como funciona” — timeline vertical alinhada ao Figma mobile (280:330). */
+function ComoFuncionaMobileBlock() {
+  return (
+    <section className="rounded-[32px] bg-[#f1f0f3] p-5">
+      <div className="flex items-center gap-2">
+        <Info className="size-3.5 shrink-0 text-[#895af6]" strokeWidth={2.5} aria-hidden />
+        <h2 className="text-sm font-bold text-[#0f172a]">Como funciona</h2>
+      </div>
+
+      <div className="relative mt-5 flex flex-col gap-4">
+        <div
+          className="absolute bottom-2 left-[13px] top-2 w-0.5 bg-[rgba(137,90,246,0.2)]"
+          aria-hidden
+        />
+
+        <div className="relative z-[1] flex gap-3">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-[10px] font-black text-white shadow-[0px_4px_6px_-1px_rgba(137,90,246,0.2),0px_2px_4px_-2px_rgba(137,90,246,0.2)]">
+            1
+          </div>
+          <div className="min-w-0 flex-1 pt-0.5">
+            <p className="text-xs font-bold text-[#0f172a]">Cadastro realizado</p>
+            <p className="mt-1 text-[10px] leading-snug text-[#64748b]">
+              O criador usa seu link para entrar na plataforma.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-[1] flex gap-3">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-[10px] font-black text-white shadow-[0px_4px_6px_-1px_rgba(137,90,246,0.2),0px_2px_4px_-2px_rgba(137,90,246,0.2)]">
+            2
+          </div>
+          <div className="min-w-0 flex-1 pt-0.5">
+            <p className="text-xs font-bold text-[#0f172a]">
+              Primeiro trabalho concluído
+            </p>
+            <p className="mt-1 text-[10px] leading-snug text-[#64748b]">
+              O indicado entrega com sucesso o seu primeiro conteúdo UGC.
+            </p>
+          </div>
+        </div>
+
+        <div className="relative z-[1] flex gap-3">
+          <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#e7e6e9] text-[10px] font-black text-[#64748b]">
+            3
+          </div>
+          <div className="min-w-0 flex-1 pt-0.5">
+            <p className="text-xs font-bold text-[#0f172a]">Comissão gerada</p>
+            <p className="mt-1 text-[10px] leading-snug text-[#64748b]">
+              Comissão gerada após o primeiro trabalho concluído.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function RecentReferralsMobileBlock({
+  isLoading,
+  referrals,
+}: {
+  isLoading: boolean;
+  referrals: ReferralListItem[];
+}) {
+  return (
+    <section id="indicacoes-recentes-mobile" className="flex flex-col gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-bold text-[#0f172a]">Indicações Recentes</h2>
+        <Link
+          to="/indicacoes"
+          className="text-xs font-bold text-[#895af6] hover:underline"
+        >
+          Ver todos
+        </Link>
+      </div>
+
+      {isLoading ? (
+        <p className="py-6 text-center text-sm text-slate-500">Carregando…</p>
+      ) : referrals.length === 0 ? (
+        <p className="py-6 text-center text-sm text-slate-500">
+          Nenhuma indicação ainda.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-3">
+          {referrals.map((r) => {
+            const badge = referralStatusBadgeFigma(r.status);
+            return (
+              <li
+                key={r.id}
+                className="flex items-center justify-between gap-3 rounded-[32px] border border-slate-200/10 bg-white p-[17px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  <AvatarMobile name={r.referredUser.name} photoUrl={r.referredUser.photoUrl} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold text-[#0f172a]">
+                      {r.referredUser.name}
+                    </p>
+                    <p className="mt-0.5 flex items-center gap-1 text-[10px] text-[#64748b]">
+                      <MapPin className="size-2.5 shrink-0 opacity-70" aria-hidden />
+                      <span>
+                        Desde {DATE_FMT.format(new Date(r.createdAt))}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p
+                    className={cn(
+                      "text-[10px] font-bold uppercase tracking-[-0.5px]",
+                      badge.className,
+                    )}
+                  >
+                    {badge.label}
+                  </p>
+                  <p
+                    className="mt-1 text-sm font-black tabular-nums text-[#0f172a]"
+                    title="Valor por indicação disponível em versões futuras da API"
+                  >
+                    —
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function ResumoGanhosMobileBlock({
+  isLoading,
+  dashboard,
+}: {
+  isLoading: boolean;
+  dashboard: ReferralsDashboardResponse | undefined;
+}) {
+  if (isLoading) {
+    return (
+      <section className="flex min-h-[160px] items-center justify-center rounded-[32px] border-2 border-dashed border-[rgba(137,90,246,0.2)] bg-[#f6f5f8] p-6">
+        <Loader2 className="size-7 animate-spin text-[#895af6]" aria-hidden />
+      </section>
+    );
+  }
+
+  if (!dashboard) {
+    return null;
+  }
+
+  const confirmedCents = Math.max(
+    0,
+    dashboard.totalCommissionAmountCents - dashboard.pendingCommissionAmountCents,
+  );
+
+  return (
+    <section className="flex flex-col gap-4 rounded-[32px] border-2 border-dashed border-[rgba(137,90,246,0.2)] bg-[#f6f5f8] p-[26px]">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#895af6]/15">
+          <Wallet className="size-5 text-[#895af6]" strokeWidth={2} aria-hidden />
+        </div>
+        <p className="text-[10px] font-bold uppercase tracking-[1px] text-[#64748b]">
+          Resumo de Ganhos
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-end justify-between gap-2 text-sm">
+          <span className="text-[#64748b]">Comissões pendentes</span>
+          <span className="font-bold tabular-nums text-[#0f172a]">
+            {formatMoneyFromCents(
+              dashboard.pendingCommissionAmountCents,
+              dashboard.currency,
+            )}
+          </span>
+        </div>
+        <div className="flex items-end justify-between gap-2 text-sm">
+          <span className="text-[#64748b]">Ganhos confirmados</span>
+          <span className="font-bold tabular-nums text-[#0f172a]">
+            {formatMoneyFromCents(confirmedCents, dashboard.currency)}
+          </span>
+        </div>
+        <div className="flex items-end justify-between border-t border-slate-200/20 pt-4">
+          <span className="text-sm font-bold text-[#0f172a]">Saldo Acumulado</span>
+          <span className="text-xl font-black tabular-nums text-[#895af6]">
+            {formatMoneyFromCents(
+              dashboard.totalCommissionAmountCents,
+              dashboard.currency,
+            )}
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AvatarMobile({
+  name,
+  photoUrl,
+}: {
+  name: string;
+  photoUrl: string | null;
+}) {
+  const initials = name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+  const tint = initialsAvatarTint(name);
+  return (
+    <div
+      className={cn(
+        "flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold uppercase",
+        photoUrl ? "bg-slate-200" : tint,
+      )}
+    >
+      {photoUrl ? (
+        <img src={photoUrl} alt="" className="size-full object-cover" />
+      ) : (
+        initials || "?"
+      )}
     </div>
   );
 }
