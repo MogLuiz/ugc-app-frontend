@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -7,9 +7,11 @@ import {
   ChevronDown,
   Circle,
   Image,
+  Loader2,
   MapPin,
   Plus,
   Trash2,
+  XCircle,
 } from "lucide-react";
 import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
@@ -21,6 +23,7 @@ import {
 import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 import type { PortfolioMediaPayload } from "~/modules/auth/types";
 import type { ProfileProgress } from "../../hooks/use-creator-profile-edit-controller";
+import { lookupCep, formatCep } from "../../lib/cep-lookup";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Internal helper
@@ -420,6 +423,8 @@ export function CreatorSupplementarySection({
 // CreatorAddressSection
 // ─────────────────────────────────────────────────────────────────────────────
 
+type CepStatus = "idle" | "loading" | "found" | "not_found" | "error";
+
 type AddressSectionProps = {
   street: string;
   onStreetChange: (value: string) => void;
@@ -447,31 +452,141 @@ export function CreatorAddressSection({
   onZipCodeChange,
   collapsible = false,
 }: AddressSectionProps) {
+  // Lock city/state when they were already derived from a CEP at mount time.
+  // Street is always editable — CEP auto-fills it as a convenience, not a lock.
+  const [cepStatus, setCepStatus] = useState<CepStatus>("idle");
+  const [lockedByZip, setLockedByZip] = useState(
+    () => !!(city && state && zipCode),
+  );
+
+  // Abort controller ref — cancels in-flight ViaCEP requests when CEP changes
+  // rapidly, preventing old responses from overwriting newer results.
+  const abortRef = useRef<AbortController | null>(null);
+
   const hasAddress = !!(city && state);
   const [open, setOpen] = useState(hasAddress);
 
-  // Auto-open if address data becomes available after initial render (async user load)
   useEffect(() => {
     if (hasAddress) setOpen(true);
   }, [hasAddress]);
 
-  const summaryLine = city && state
-    ? street
-      ? `${street}${number ? `, ${number}` : ""} – ${city}, ${state}`
-      : `${city}, ${state}`
-    : "Endereço não cadastrado";
+  const handleCepChange = useCallback(
+    async (raw: string) => {
+      const masked = formatCep(raw);
+      onZipCodeChange(masked);
+
+      const digits = masked.replace(/\D/g, "");
+
+      if (digits.length < 8) {
+        // Incomplete — abort any in-flight request and unlock derived fields
+        abortRef.current?.abort();
+        abortRef.current = null;
+        setLockedByZip(false);
+        setCepStatus("idle");
+        return;
+      }
+
+      // Cancel previous request before starting a new one (race condition guard)
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      setCepStatus("loading");
+      try {
+        const result = await lookupCep(digits, controller.signal);
+
+        if (result.found) {
+          onCityChange(result.city);
+          onStateChange(result.state);
+          // Pre-fill street only when ViaCEP returns a logradouro — always editable
+          if (result.street) onStreetChange(result.street);
+          setLockedByZip(true);
+          setCepStatus("found");
+        } else {
+          // CEP not found — keep fields editable with fallback manual entry
+          setLockedByZip(false);
+          setCepStatus("not_found");
+        }
+      } catch (err) {
+        // Ignore AbortError (we cancelled it intentionally)
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setLockedByZip(false);
+        setCepStatus("error");
+      }
+    },
+    [onZipCodeChange, onCityChange, onStateChange, onStreetChange],
+  );
+
+  // CEP status icon
+  const cepIcon =
+    cepStatus === "loading" ? (
+      <Loader2 className="size-4 animate-spin text-[#895af6]" />
+    ) : cepStatus === "found" ? (
+      <CheckCircle2 className="size-4 text-emerald-500" />
+    ) : cepStatus === "not_found" || cepStatus === "error" ? (
+      <XCircle className="size-4 text-red-400" />
+    ) : null;
+
+  // Hint below CEP field
+  const cepHint =
+    cepStatus === "idle" && !zipCode ? (
+      <p className="mt-1 text-[11px] text-[#94a3b8]">
+        Digite seu CEP para preencher o endereço automaticamente
+      </p>
+    ) : cepStatus === "not_found" ? (
+      <p className="mt-1 text-[11px] text-red-500">
+        CEP não encontrado. Preencha o endereço manualmente.
+      </p>
+    ) : cepStatus === "error" ? (
+      <p className="mt-1 text-[11px] text-red-500">
+        Não foi possível validar o CEP. Preencha manualmente se necessário.
+      </p>
+    ) : null;
+
+  // Collapsed summary: show incomplete hint when city or state is missing
+  const summaryLine =
+    city && state
+      ? street
+        ? `${street}${number ? `, ${number}` : ""} – ${city}, ${state}`
+        : `${city}, ${state}`
+      : zipCode
+        ? "Endereço incompleto — adicione cidade e estado"
+        : "Endereço não cadastrado";
 
   const fields = (
     <div className="flex flex-col gap-4">
+      {/* CEP — primary field */}
+      <div className="flex flex-col gap-0">
+        <FieldLabel>CEP</FieldLabel>
+        <div className="relative mt-1.5">
+          <Input
+            value={zipCode}
+            onChange={(e) => void handleCepChange(e.target.value)}
+            placeholder="00000-000"
+            inputMode="numeric"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 pr-10"
+          />
+          {cepIcon && (
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+              {cepIcon}
+            </span>
+          )}
+        </div>
+        {cepHint}
+      </div>
+
+      {/* Street — always editable; auto-filled as convenience */}
       <div className="flex flex-col gap-1.5">
         <FieldLabel>Rua</FieldLabel>
         <Input
           value={street}
           onChange={(e) => onStreetChange(e.target.value)}
-          placeholder="Nome da rua"
+          placeholder="Logradouro"
           className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
         />
       </div>
+
+      {/* Number */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <FieldLabel>Número</FieldLabel>
@@ -482,16 +597,11 @@ export function CreatorAddressSection({
             className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <FieldLabel>CEP</FieldLabel>
-          <Input
-            value={zipCode}
-            onChange={(e) => onZipCodeChange(e.target.value)}
-            placeholder="00000-000"
-            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
-          />
-        </div>
+        {/* Second col empty — no complement field in backend */}
+        <div />
       </div>
+
+      {/* City + State — locked when derived from CEP */}
       <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <FieldLabel>Cidade</FieldLabel>
@@ -499,7 +609,12 @@ export function CreatorAddressSection({
             value={city}
             onChange={(e) => onCityChange(e.target.value)}
             placeholder="Cidade"
-            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+            disabled={lockedByZip}
+            title={lockedByZip ? "Definida pelo CEP" : undefined}
+            className={cn(
+              "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+              lockedByZip && "cursor-not-allowed bg-[#f1f5f9] text-[#94a3b8]",
+            )}
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -509,10 +624,21 @@ export function CreatorAddressSection({
             onChange={(e) => onStateChange(e.target.value)}
             placeholder="UF"
             maxLength={2}
-            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 uppercase"
+            disabled={lockedByZip}
+            title={lockedByZip ? "Definido pelo CEP" : undefined}
+            className={cn(
+              "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 uppercase",
+              lockedByZip && "cursor-not-allowed bg-[#f1f5f9] text-[#94a3b8]",
+            )}
           />
         </div>
       </div>
+
+      {lockedByZip && (
+        <p className="text-[11px] text-[#94a3b8]">
+          Cidade e estado são definidos pelo CEP. Para alterá-los, mude o CEP.
+        </p>
+      )}
     </div>
   );
 
