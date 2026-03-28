@@ -166,137 +166,205 @@ export function IndicacoesScreen() {
               ) : null}
 
               {profile && (profile.referralLink || profile.referralCode) ? (
-                <div className="flex flex-col gap-4 xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
-                  {/* Card branco — alinhado ao Figma (fundo claro + ícone decorativo) */}
+                <>
+                  {/* Mobile / tablet: hero roxo alinhado ao Figma */}
                   <section
                     className={cn(
-                      "relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6",
+                      "relative min-w-0 overflow-hidden rounded-[32px] bg-[#895af6] p-6 text-white sm:rounded-[40px] lg:rounded-[48px] xl:hidden",
                     )}
                     style={{
                       boxShadow:
-                        "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
+                        "0px 10px 15px -3px rgba(137,90,246,0.2), 0px 4px 6px -4px rgba(137,90,246,0.2)",
                     }}
                   >
-                    <Share2
-                      className="pointer-events-none absolute right-3 top-[27%] size-[7.5rem] -translate-y-1/2 text-slate-100 sm:right-5"
-                      strokeWidth={1}
+                    <div
+                      className="pointer-events-none absolute bottom-[-40px] right-[-40px] size-40 rounded-full bg-white/10 blur-[32px]"
                       aria-hidden
                     />
-                    <div className="relative z-[1]">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-[#895af6]">
-                        Seu link exclusivo
+                    <div className="relative z-[1] flex flex-col gap-2">
+                      <p className="text-[10px] font-bold uppercase tracking-[1px] text-white/80">
+                        Seu link de indicação
                       </p>
-                      <h2 className="mt-2 text-xl font-black leading-tight text-[#2c2f30] xl:text-2xl">
-                        Compartilhe e convide novos criadores
+                      <h2 className="text-[20px] font-black leading-snug tracking-[-0.5px]">
+                        <span className="block">Ganhe por cada novo criador</span>
+                        <span className="block">indicado</span>
                       </h2>
 
-                      <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
+                      <div className="flex flex-col gap-3 pt-2">
                         {profile.referralLink ? (
-                          <div className="min-w-0 flex-1 space-y-2">
-                            <p className="text-xs font-medium text-slate-600">
-                              Link de indicação
-                            </p>
-                            <div className="flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-100/90 pl-3 pr-1 py-1.5">
-                              <span className="min-w-0 flex-1 break-all text-sm leading-snug text-[#0f172a] xl:truncate xl:break-normal xl:leading-normal">
-                                {profile.referralLink}
-                              </span>
-                              <Button
-                                type="button"
-                                className="h-9 shrink-0 rounded-lg bg-[#895af6] px-4 text-xs font-bold text-white hover:bg-[#7c4aeb]"
-                                onClick={() =>
-                                  void copyText("Link", profile.referralLink!)
-                                }
-                              >
-                                Copiar
-                              </Button>
-                            </div>
+                          <div className="flex min-h-[44px] items-center justify-between gap-3 rounded-full bg-white/10 px-4 py-3 backdrop-blur-[6px]">
+                            <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+                              {profile.referralLink}
+                            </span>
+                            <Button
+                              type="button"
+                              className="h-8 shrink-0 rounded-full bg-white px-4 text-xs font-bold text-[#895af6] hover:bg-white/95"
+                              onClick={() =>
+                                void copyText("Link", profile.referralLink!)
+                              }
+                            >
+                              Copiar
+                            </Button>
                           </div>
                         ) : null}
 
                         {profile.referralCode ? (
-                          <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
-                            <p className="text-xs font-medium text-slate-600">
-                              Código
-                            </p>
-                            <div className="flex min-h-[44px] items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-slate-100/90 px-3 py-1">
-                              <span className="font-mono text-sm font-bold tracking-wide text-[#0f172a]">
+                          <div className="flex min-h-[44px] items-center justify-between gap-3 rounded-full bg-white/10 px-4 py-3 backdrop-blur-[6px]">
+                            <p className="min-w-0 flex-1 truncate text-sm font-medium text-white">
+                              <span>CÓDIGO: </span>
+                              <span className="font-bold">
                                 {profile.referralCode}
                               </span>
-                              <Button
-                                type="button"
-                                className="h-9 shrink-0 rounded-lg bg-[#895af6] px-3 text-xs font-bold text-white hover:bg-[#7c4aeb]"
-                                onClick={() =>
-                                  void copyText("Código", profile.referralCode!)
-                                }
-                              >
-                                Copiar
-                              </Button>
-                            </div>
+                            </p>
+                            <Button
+                              type="button"
+                              className="h-8 shrink-0 rounded-full bg-white px-4 text-xs font-bold text-[#895af6] hover:bg-white/95"
+                              onClick={() =>
+                                void copyText("Código", profile.referralCode!)
+                              }
+                            >
+                              Copiar
+                            </Button>
                           </div>
                         ) : null}
                       </div>
-
-                      <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-slate-600">
-                        <Info
-                          className="mt-0.5 size-4 shrink-0 text-[#895af6]"
-                          aria-hidden
-                        />
-                        Convide novos talentos e receba comissão quando
-                        entregarem o primeiro trabalho válido. Sem crédito
-                        imediato em conta neste MVP.
-                      </p>
                     </div>
                   </section>
 
-                  {/* Card roxo — resumo ao lado (desktop); empilhado no mobile */}
-                  {dashboardQuery.isLoading ? (
-                    <div className="flex min-h-[200px] items-center justify-center rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 text-white shadow-lg">
-                      <Loader2 className="size-8 animate-spin text-white/90" />
-                    </div>
-                  ) : dashboard ? (
-                    <section className="relative flex min-h-[200px] flex-col justify-between overflow-hidden rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 text-white shadow-lg">
-                      <Wallet
-                        className="pointer-events-none absolute bottom-3 right-3 size-16 text-white/25"
+                  {/* Desktop (xl+): card branco + resumo de comissões */}
+                  <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
+                    <section
+                      className={cn(
+                        "relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6",
+                      )}
+                      style={{
+                        boxShadow:
+                          "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
+                      }}
+                    >
+                      <Share2
+                        className="pointer-events-none absolute right-3 top-[27%] size-[7.5rem] -translate-y-1/2 text-slate-100 sm:right-5"
+                        strokeWidth={1}
                         aria-hidden
                       />
-                      <div className="relative z-[1] flex min-h-0 flex-1 flex-col">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-white/80">
-                          Resumo de comissões
+                      <div className="relative z-[1]">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-[#895af6]">
+                          Seu link exclusivo
                         </p>
-                        <p className="mt-3 text-3xl font-black tabular-nums tracking-tight">
-                          {formatMoneyFromCents(
-                            dashboard.totalCommissionAmountCents,
-                            dashboard.currency,
-                          )}
-                        </p>
-                        <p className="mt-1 text-sm text-white/75">
-                          Total registrado até hoje
-                        </p>
-                        <div
-                          className="my-4 h-px shrink-0 bg-white/25"
-                          role="separator"
-                        />
-                        <div className="flex items-end justify-between gap-3">
-                          <div>
-                            <p className="text-sm text-white/80">
-                              Comissões pendentes
-                            </p>
-                            <p className="mt-1 text-xl font-bold tabular-nums">
-                              {formatMoneyFromCents(
-                                dashboard.pendingCommissionAmountCents,
-                                dashboard.currency,
-                              )}
-                            </p>
-                          </div>
+                        <h2 className="mt-2 text-xl font-black leading-tight text-[#2c2f30] xl:text-2xl">
+                          Compartilhe e convide novos criadores
+                        </h2>
+
+                        <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
+                          {profile.referralLink ? (
+                            <div className="min-w-0 flex-1 space-y-2">
+                              <p className="text-xs font-medium text-slate-600">
+                                Link de indicação
+                              </p>
+                              <div className="flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-100/90 py-1.5 pl-3 pr-1">
+                                <span className="min-w-0 flex-1 break-all text-sm leading-snug text-[#0f172a] xl:truncate xl:break-normal xl:leading-normal">
+                                  {profile.referralLink}
+                                </span>
+                                <Button
+                                  type="button"
+                                  className="h-9 shrink-0 rounded-lg bg-[#895af6] px-4 text-xs font-bold text-white hover:bg-[#7c4aeb]"
+                                  onClick={() =>
+                                    void copyText("Link", profile.referralLink!)
+                                  }
+                                >
+                                  Copiar
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {profile.referralCode ? (
+                            <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
+                              <p className="text-xs font-medium text-slate-600">
+                                Código
+                              </p>
+                              <div className="flex min-h-[44px] items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-slate-100/90 px-3 py-1">
+                                <span className="font-mono text-sm font-bold tracking-wide text-[#0f172a]">
+                                  {profile.referralCode}
+                                </span>
+                                <Button
+                                  type="button"
+                                  className="h-9 shrink-0 rounded-lg bg-[#895af6] px-3 text-xs font-bold text-white hover:bg-[#7c4aeb]"
+                                  onClick={() =>
+                                    void copyText(
+                                      "Código",
+                                      profile.referralCode!,
+                                    )
+                                  }
+                                >
+                                  Copiar
+                                </Button>
+                              </div>
+                            </div>
+                          ) : null}
                         </div>
+
+                        <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-slate-600">
+                          <Info
+                            className="mt-0.5 size-4 shrink-0 text-[#895af6]"
+                            aria-hidden
+                          />
+                          Convide novos talentos e receba comissão quando
+                          entregarem o primeiro trabalho válido. Sem crédito
+                          imediato em conta neste MVP.
+                        </p>
                       </div>
                     </section>
-                  ) : null}
-                </div>
+
+                    {dashboardQuery.isLoading ? (
+                      <div className="flex min-h-[200px] items-center justify-center rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 text-white shadow-lg">
+                        <Loader2 className="size-8 animate-spin text-white/90" />
+                      </div>
+                    ) : dashboard ? (
+                      <section className="relative flex min-h-[200px] flex-col justify-between overflow-hidden rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 text-white shadow-lg">
+                        <Wallet
+                          className="pointer-events-none absolute bottom-3 right-3 size-16 text-white/25"
+                          aria-hidden
+                        />
+                        <div className="relative z-[1] flex min-h-0 flex-1 flex-col">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-white/80">
+                            Resumo de comissões
+                          </p>
+                          <p className="mt-3 text-3xl font-black tabular-nums tracking-tight">
+                            {formatMoneyFromCents(
+                              dashboard.totalCommissionAmountCents,
+                              dashboard.currency,
+                            )}
+                          </p>
+                          <p className="mt-1 text-sm text-white/75">
+                            Total registrado até hoje
+                          </p>
+                          <div
+                            className="my-4 h-px shrink-0 bg-white/25"
+                            role="separator"
+                          />
+                          <div className="flex items-end justify-between gap-3">
+                            <div>
+                              <p className="text-sm text-white/80">
+                                Comissões pendentes
+                              </p>
+                              <p className="mt-1 text-xl font-bold tabular-nums">
+                                {formatMoneyFromCents(
+                                  dashboard.pendingCommissionAmountCents,
+                                  dashboard.currency,
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </section>
+                    ) : null}
+                  </div>
+                </>
               ) : null}
 
               {dashboard ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 xl:gap-4">
+                <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
                   <ReferralMetricCard
                     icon={<Users className="size-5" strokeWidth={2} />}
                     iconTone="sky"
@@ -452,11 +520,10 @@ function ReferralMetricCard({
 }) {
   return (
     <div
-      className="rounded-[20px] border border-[rgba(106,54,213,0.08)] bg-white p-4 shadow-sm"
-      style={{
-        boxShadow:
-          "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
-      }}
+      className={cn(
+        "flex flex-col rounded-[32px] border border-slate-300/30 bg-white p-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]",
+        "min-h-[121px] xl:min-h-0 xl:rounded-[20px] xl:border-[rgba(106,54,213,0.08)] xl:p-4 xl:shadow-[0px_4px_6px_-1px_rgba(106,54,213,0.04),0px_20px_40px_-1px_rgba(44,47,48,0.08)]",
+      )}
     >
       <div className="flex items-start justify-between gap-2">
         <div
