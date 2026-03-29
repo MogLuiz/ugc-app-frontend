@@ -5,6 +5,14 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { ChangePasswordSection } from "~/modules/auth/components/change-password-section";
 import { useAuth } from "~/hooks/use-auth";
 
+function SectionLabel({ children }: { children: string }) {
+  return (
+    <p className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+      {children}
+    </p>
+  );
+}
+
 function ConfiguracoesScreen() {
   const { user } = useAuth();
   const variant = user?.role === "creator" ? "creator" : "business";
@@ -30,10 +38,10 @@ function ConfiguracoesScreen() {
         </header>
 
         <main className="flex-1 px-4 py-6 lg:overflow-auto lg:p-8">
-          <div className="mx-auto w-full max-w-2xl">
+          <div className="mx-auto w-full max-w-3xl">
 
             {/* Desktop heading */}
-            <div className="mb-6 hidden lg:flex lg:items-center lg:gap-3">
+            <div className="mb-8 hidden lg:flex lg:items-center lg:gap-3">
               <div className="flex size-10 items-center justify-center rounded-2xl bg-[#895af6]/10">
                 <Settings className="size-5 text-[#895af6]" />
               </div>
@@ -42,12 +50,21 @@ function ConfiguracoesScreen() {
                   Configurações
                 </h1>
                 <p className="text-sm text-slate-500">
-                  Gerencie a segurança e preferências da sua conta.
+                  Gerencie a segurança da sua conta.
                 </p>
               </div>
             </div>
 
-            <ChangePasswordSection />
+            <div className="flex flex-col gap-8">
+              {/* Seção: Segurança */}
+              <section>
+                <SectionLabel>Segurança</SectionLabel>
+                <ChangePasswordSection />
+              </section>
+
+
+            </div>
+
           </div>
         </main>
       </div>
