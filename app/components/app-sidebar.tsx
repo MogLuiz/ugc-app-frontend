@@ -75,7 +75,7 @@ const SIDEBAR_CONFIG: Record<
       { id: "relatorios", label: "Relatórios", icon: BarChart3, to: "#" },
       { id: "chat", label: "Chat", icon: MessageCircle, to: "/chat" },
       { id: "perfil", label: "Perfil da Empresa", icon: Users, to: "/perfil" },
-      { id: "configuracoes", label: "Configurações", icon: Settings, to: "#" },
+      { id: "configuracoes", label: "Configurações", icon: Settings, to: "/configuracoes" },
     ],
   },
   creator: {
@@ -95,7 +95,7 @@ const SIDEBAR_CONFIG: Record<
       { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },
       { id: "pagamentos", label: "Pagamentos", icon: CreditCard, to: "#" },
       { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" },
-      { id: "configuracoes", label: "Configurações", icon: Settings, to: "#" },
+      { id: "configuracoes", label: "Configurações", icon: Settings, to: "/configuracoes" },
     ],
   },
 };

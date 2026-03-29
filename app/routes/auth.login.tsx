@@ -176,12 +176,12 @@ export default function AuthLoginRoute() {
                 />
                 Lembrar de mim
               </label>
-              <button
-                type="button"
+              <Link
+                to="/auth/esqueci-senha"
                 className="text-sm font-semibold text-[#895af6] transition-opacity hover:opacity-75"
               >
                 Esqueci a senha
-              </button>
+              </Link>
             </div>
 
             {/* Submit */}

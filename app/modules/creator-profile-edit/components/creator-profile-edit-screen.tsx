@@ -173,6 +173,7 @@ export function CreatorProfileEditScreen() {
               birthDate={controller.birthDate}
               onBirthDateChange={controller.setBirthDate}
             />
+
           </div>
 
           {/* ── DESKTOP LAYOUT (hidden below lg) ── */}
@@ -268,6 +269,7 @@ export function CreatorProfileEditScreen() {
                     {controller.isSaving ? "Salvando..." : "Salvar Alterações"}
                   </Button>
                 </div>
+
               </div>
             </div>
           </div>

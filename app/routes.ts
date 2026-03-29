@@ -5,6 +5,8 @@ export default [
     index("routes/home.tsx"),
     route("auth/login", "routes/auth.login.tsx"),
     route("auth/register", "routes/auth.register.tsx"),
+    route("auth/esqueci-senha", "routes/auth.esqueci-senha.tsx"),
+    route("auth/redefinir-senha", "routes/auth.redefinir-senha.tsx"),
     route("agenda", "routes/agenda.tsx"),
     route("empresa/:companyUserId", "routes/empresa.$companyUserId.tsx"),
     route("campanha/:contractRequestId", "routes/campanha.$contractRequestId.tsx"),
@@ -18,6 +20,7 @@ export default [
     route("chat", "routes/chat.tsx"),
     route("perfil", "routes/perfil.tsx"),
     route("indicacoes", "routes/indicacoes.tsx"),
-    route("criador/:creatorId", "routes/criador.$creatorId.tsx")
+    route("criador/:creatorId", "routes/criador.$creatorId.tsx"),
+    route("configuracoes", "routes/configuracoes.tsx")
   ])
 ] satisfies RouteConfig;

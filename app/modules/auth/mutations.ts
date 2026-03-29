@@ -2,6 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authKeys } from "~/lib/query/query-keys";
 import {
   bootstrapUser,
+  changePassword,
+  forgotPassword,
+  resetPassword,
   updateProfile,
   updateCompanyProfile,
   updateCreatorProfile,
@@ -124,5 +127,31 @@ export function useDeletePortfolioMediaMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },
+  });
+}
+
+export function useForgotPasswordMutation() {
+  return useMutation({
+    mutationFn: (email: string) => forgotPassword(email),
+  });
+}
+
+export function useResetPasswordMutation() {
+  return useMutation({
+    mutationFn: (newPassword: string) => resetPassword(newPassword),
+  });
+}
+
+export function useChangePasswordMutation() {
+  // Sem invalidateQueries: signInWithPassword já dispara onAuthStateChange no AuthProvider,
+  // que invalida as queries via o listener global. Evitar dupla invalidação.
+  return useMutation({
+    mutationFn: ({
+      currentPassword,
+      newPassword,
+    }: {
+      currentPassword: string;
+      newPassword: string;
+    }) => changePassword(currentPassword, newPassword),
   });
 }

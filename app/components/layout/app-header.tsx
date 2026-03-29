@@ -75,9 +75,14 @@ export function AppHeader({
               Meu perfil
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem disabled className="flex items-center gap-2">
-            <Settings className="size-4" />
-            Configurações
+          <DropdownMenuItem asChild>
+            <Link
+              to="/configuracoes"
+              className="flex cursor-pointer items-center gap-2"
+            >
+              <Settings className="size-4" />
+              Configurações
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem

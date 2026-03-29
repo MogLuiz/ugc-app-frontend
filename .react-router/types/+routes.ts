@@ -20,6 +20,12 @@ type Pages = {
   "/auth/register": {
     params: {};
   };
+  "/auth/esqueci-senha": {
+    params: {};
+  };
+  "/auth/redefinir-senha": {
+    params: {};
+  };
   "/agenda": {
     params: {};
   };
@@ -70,16 +76,19 @@ type Pages = {
       "creatorId": string;
     };
   };
+  "/configuracoes": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId";
+    page: "/" | "/auth/login" | "/auth/register" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -92,6 +101,14 @@ type RouteFiles = {
   "routes/auth.register.tsx": {
     id: "routes/auth.register";
     page: "/auth/register";
+  };
+  "routes/auth.esqueci-senha.tsx": {
+    id: "routes/auth.esqueci-senha";
+    page: "/auth/esqueci-senha";
+  };
+  "routes/auth.redefinir-senha.tsx": {
+    id: "routes/auth.redefinir-senha";
+    page: "/auth/redefinir-senha";
   };
   "routes/agenda.tsx": {
     id: "routes/agenda";
@@ -149,6 +166,10 @@ type RouteFiles = {
     id: "routes/criador.$creatorId";
     page: "/criador/:creatorId";
   };
+  "routes/configuracoes.tsx": {
+    id: "routes/configuracoes";
+    page: "/configuracoes";
+  };
 };
 
 type RouteModules = {
@@ -157,6 +178,8 @@ type RouteModules = {
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/auth.login": typeof import("./app/routes/auth.login.tsx");
   "routes/auth.register": typeof import("./app/routes/auth.register.tsx");
+  "routes/auth.esqueci-senha": typeof import("./app/routes/auth.esqueci-senha.tsx");
+  "routes/auth.redefinir-senha": typeof import("./app/routes/auth.redefinir-senha.tsx");
   "routes/agenda": typeof import("./app/routes/agenda.tsx");
   "routes/empresa.$companyUserId": typeof import("./app/routes/empresa.$companyUserId.tsx");
   "routes/campanha.$contractRequestId": typeof import("./app/routes/campanha.$contractRequestId.tsx");
@@ -171,4 +194,5 @@ type RouteModules = {
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
   "routes/indicacoes": typeof import("./app/routes/indicacoes.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
+  "routes/configuracoes": typeof import("./app/routes/configuracoes.tsx");
 };

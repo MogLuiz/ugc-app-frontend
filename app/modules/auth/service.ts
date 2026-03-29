@@ -248,6 +248,41 @@ export async function bootstrapUser(
   });
 }
 
+export async function forgotPassword(email: string) {
+  return supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/redefinir-senha`,
+  });
+}
+
+export async function resetPassword(newPassword: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw new Error(error.message);
+  // Encerra a sessão de recovery para evitar estado residual no AuthProvider
+  await supabase.auth.signOut();
+}
+
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  const session = (await supabase.auth.getSession()).data.session;
+  if (!session?.user?.email) throw new Error("Usuário não autenticado");
+
+  // Re-autentica para validar a senha atual.
+  // Nota: signInWithPassword dispara SIGNED_IN no onAuthStateChange global (AuthProvider),
+  // que invalida queries e causa um refetch da sessão em background. Isso não desloga o
+  // usuário nem afeta o estado visível (React Query usa isFetching, não isLoading, em
+  // refetches quando há cache). Validar se há flash visual durante os testes.
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: session.user.email,
+    password: currentPassword,
+  });
+  if (signInError) throw new Error("Senha atual incorreta");
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw new Error(error.message);
+}
+
 export async function signIn(email: string, password: string) {
   return supabase.auth.signInWithPassword({ email, password });
 }
