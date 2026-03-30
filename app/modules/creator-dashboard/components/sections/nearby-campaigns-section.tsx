@@ -8,7 +8,7 @@ import {
   DashboardCard,
   SectionHeader,
 } from "~/modules/business-dashboard/components/sections/section-primitives";
-import { MobileEmptyState, OrbitTipCard } from "~/components/ui/mobile-empty-state";
+import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 
 function CampaignsIllustration() {
   return (
@@ -61,11 +61,7 @@ export function NearbyCampaignsSection({
   if (items.length === 0) {
     return (
       <section className="flex flex-col gap-4">
-        <SectionHeader
-          title="Campanhas disponíveis perto de você"
-          ctaLabel="Ver todas"
-          ctaTo="/campanhas"
-        />
+        <SectionHeader title="Campanhas disponíveis perto de você" />
         <DashboardCard>
           <MobileEmptyState
             variant="initial"
@@ -78,12 +74,9 @@ export function NearbyCampaignsSection({
                 to="/perfil"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-8 py-4 text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25)] transition-colors hover:bg-[#7c4aed]"
               >
-                <ArrowRight className="size-4" aria-hidden="true" />
                 Atualizar perfil
+                <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
-            }
-            footer={
-              <OrbitTipCard text="Campanhas remotas costumam aceitar criadores de qualquer região." />
             }
           />
         </DashboardCard>

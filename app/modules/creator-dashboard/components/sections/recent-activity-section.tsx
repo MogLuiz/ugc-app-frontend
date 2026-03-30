@@ -10,43 +10,43 @@ import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 
 function ActivityIllustration() {
   return (
-    <div className="relative w-[160px]">
+    <div className="relative w-[120px]">
       {/* Glow ambiente */}
-      <div className="absolute -inset-2 rounded-full bg-[#895af6]/10 blur-[24px]" />
+      <div className="absolute -inset-2 rounded-full bg-[#895af6]/10 blur-[20px]" />
 
       {/* Card skeleton superior (esmaecido) */}
-      <div className="relative flex items-start gap-2 rounded-xl border border-white/80 bg-white/60 p-2.5 opacity-40 shadow-sm backdrop-blur-sm">
-        <div className="size-6 shrink-0 rounded-full bg-slate-200" />
+      <div className="relative flex items-start gap-2 rounded-xl border border-white/80 bg-white/60 p-2 opacity-40 shadow-sm backdrop-blur-sm">
+        <div className="size-5 shrink-0 rounded-full bg-slate-200" />
         <div className="flex-1 space-y-1.5 pt-0.5">
-          <div className="h-1.5 w-20 rounded-full bg-slate-200" />
-          <div className="h-1.5 w-14 rounded-full bg-slate-100" />
+          <div className="h-1.5 w-14 rounded-full bg-slate-200" />
+          <div className="h-1.5 w-10 rounded-full bg-slate-100" />
         </div>
       </div>
 
       {/* Card central destacado */}
-      <div className="relative z-10 -mx-2 my-1.5 rounded-xl border border-[#895af6]/10 bg-white p-3 shadow-[0_16px_20px_-5px_rgba(137,90,246,0.1)]">
+      <div className="relative z-10 -mx-1.5 my-1 rounded-xl border border-[#895af6]/10 bg-white p-2.5 shadow-[0_8px_16px_-4px_rgba(137,90,246,0.12)]">
         {/* Badge decorativo */}
-        <div className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-[#6366f1] shadow-md">
-          <Zap className="size-2.5 text-white" aria-hidden="true" />
+        <div className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-[#6366f1] shadow-sm">
+          <Zap className="size-2 text-white" aria-hidden="true" />
         </div>
         <div className="flex items-start gap-2">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#f0ebff]">
-            <Bell className="size-3.5 text-[#895af6]" aria-hidden="true" />
+          <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-[#f0ebff]">
+            <Bell className="size-3 text-[#895af6]" aria-hidden="true" />
           </div>
           <div className="flex-1 space-y-1.5 pt-0.5">
-            <div className="h-2 w-20 rounded-full bg-[#895af6]/20" />
+            <div className="h-1.5 w-14 rounded-full bg-[#895af6]/20" />
             <div className="h-1.5 w-full rounded-full bg-slate-100" />
-            <div className="h-1.5 w-12 rounded-full bg-slate-100" />
+            <div className="h-1.5 w-8 rounded-full bg-slate-100" />
           </div>
         </div>
       </div>
 
       {/* Card skeleton inferior (esmaecido) */}
-      <div className="relative flex items-start gap-2 rounded-xl border border-white/80 bg-white/60 p-2.5 opacity-40 shadow-sm backdrop-blur-sm">
-        <div className="size-6 shrink-0 rounded-full bg-slate-200" />
+      <div className="relative flex items-start gap-2 rounded-xl border border-white/80 bg-white/60 p-2 opacity-40 shadow-sm backdrop-blur-sm">
+        <div className="size-5 shrink-0 rounded-full bg-slate-200" />
         <div className="flex-1 space-y-1.5 pt-0.5">
-          <div className="h-1.5 w-24 rounded-full bg-slate-200" />
-          <div className="h-1.5 w-10 rounded-full bg-slate-100" />
+          <div className="h-1.5 w-16 rounded-full bg-slate-200" />
+          <div className="h-1.5 w-8 rounded-full bg-slate-100" />
         </div>
       </div>
     </div>
@@ -77,7 +77,7 @@ export function RecentActivitySection({
         <p className="mt-4 text-xs font-medium text-[#595c5d]/70">Atualizando…</p>
       ) : null}
 
-      <div className="mt-5">
+      <div className="mt-3">
         {isLoading ? <SectionSkeleton rows={3} /> : null}
 
         {!isLoading && errorMessage ? (
@@ -87,22 +87,22 @@ export function RecentActivitySection({
         {isEmpty ? (
           <MobileEmptyState
             variant="initial"
-            className="py-6"
+            density="expanded"
             illustration={<ActivityIllustration />}
             title="Sem atividades recentes"
-            description="Tudo o que acontecer no seu perfil, como convites e atualizações de campanhas, aparecerá aqui em tempo real."
+            description="Convites e atualizações de campanhas aparecerão aqui em tempo real."
             actions={
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
                 <Link
                   to="/perfil"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-6 py-3.5 text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.2)] transition-colors hover:bg-[#7c4aed]"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-5 py-3 text-base font-bold text-white transition-colors hover:bg-[#7c4aed]"
                 >
                   Completar perfil
-                  <ArrowRight className="size-4" aria-hidden="true" />
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
                 </Link>
                 <Link
                   to="/campanhas"
-                  className="inline-flex w-full items-center justify-center rounded-full py-3 text-sm font-bold uppercase tracking-[1.4px] text-[#895af6] transition-colors hover:text-[#7c4aed]"
+                  className="inline-flex w-full items-center justify-center rounded-full py-1.5 text-xs font-semibold text-[#895af6]/60 transition-colors hover:text-[#895af6]"
                 >
                   Ver minhas campanhas
                 </Link>

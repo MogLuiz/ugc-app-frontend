@@ -1,5 +1,8 @@
-import { ChevronRight, Clock, MapPin } from "lucide-react";
+import { CalendarDays, ChevronRight, Clock, MapPin, Video } from "lucide-react";
 import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
+import { DashboardCard } from "~/components/ui/dashboard-card";
+import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 import { cn } from "~/lib/utils";
 import type { CreatorUpcomingCampaignVm } from "../../types";
 import {
@@ -7,6 +10,17 @@ import {
   SectionMessage,
   SectionSkeleton,
 } from "~/modules/business-dashboard/components/sections/section-primitives";
+
+function UpcomingEmptyIllustration() {
+  return (
+    <div className="relative flex size-8 items-center justify-center rounded-xl bg-[#f0ebff]" aria-hidden>
+      <CalendarDays className="size-3.5 text-[#6a36d5]" />
+      <span className="absolute -bottom-0.5 -right-0.5 flex size-3 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100/90">
+        <Video className="size-2 text-[#6a36d5]" aria-hidden />
+      </span>
+    </div>
+  );
+}
 
 export function UpcomingCampaignsSection({
   items,
@@ -19,12 +33,16 @@ export function UpcomingCampaignsSection({
   errorMessage: string | null;
   isRefreshing: boolean;
 }) {
+  /** Com lista vazia, o link do header some para não competir com o CTA do empty (descoberta em marketplace). */
+  const hideSectionHeaderCta =
+    !isLoading && !errorMessage && items.length === 0;
+
   return (
     <section className="flex flex-col gap-4">
       <SectionHeader
         title="Próximos trabalhos"
-        ctaLabel="Ver todos"
-        ctaTo="/ofertas?tab=confirmed"
+        ctaLabel={hideSectionHeaderCta ? undefined : "Ver todos"}
+        ctaTo={hideSectionHeaderCta ? undefined : "/ofertas?tab=confirmed"}
       />
 
       {isRefreshing && !isLoading ? (
@@ -40,10 +58,27 @@ export function UpcomingCampaignsSection({
       ) : null}
 
       {!isLoading && !errorMessage && items.length === 0 ? (
-        <SectionMessage
-          message="Nenhuma gravação agendada nos próximos dias."
-          tone="default"
-        />
+        <DashboardCard className="p-3 lg:p-3">
+          <MobileEmptyState
+            density="compact"
+            variant="no-data"
+            illustration={<UpcomingEmptyIllustration />}
+            title="Nenhuma gravação agendada"
+            description="Campanhas aceitas e confirmadas aparecerão aqui."
+            actions={
+              <div className="flex justify-center">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
+                >
+                  <Link to="/marketplace">Explorar campanhas</Link>
+                </Button>
+              </div>
+            }
+          />
+        </DashboardCard>
       ) : null}
 
       <div className="flex flex-col gap-3">

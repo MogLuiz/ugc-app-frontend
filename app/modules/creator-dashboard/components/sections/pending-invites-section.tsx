@@ -1,19 +1,21 @@
 import {
   CalendarDays,
   ChevronRight,
+  Mail,
   MessageCircle,
   Navigation,
   Wallet,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
+import { DashboardCard } from "~/components/ui/dashboard-card";
+import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 import type { CreatorInviteVm } from "../../types";
 import {
   useAcceptContractRequestMutation,
   useRejectContractRequestMutation,
 } from "~/modules/contract-requests/queries";
 import {
-  DashboardCard,
   SectionHeader,
   SectionMessage,
   SectionSkeleton,
@@ -24,6 +26,17 @@ function getInitials(name: string): string {
   const words = name.trim().split(/\s+/);
   if (words.length === 1) return (words[0] ?? "").slice(0, 2).toUpperCase();
   return ((words[0]?.[0] ?? "") + (words[1]?.[0] ?? "")).toUpperCase();
+}
+
+function InvitesEmptyIllustration() {
+  return (
+    <div
+      className="flex size-8 items-center justify-center rounded-xl bg-[#f0ebff]"
+      aria-hidden
+    >
+      <Mail className="size-3.5 text-[#6a36d5]" />
+    </div>
+  );
 }
 
 export function PendingInvitesSection({
@@ -74,10 +87,27 @@ export function PendingInvitesSection({
       ) : null}
 
       {!isLoading && !errorMessage && items.length === 0 ? (
-        <SectionMessage
-          message="Nenhum convite pendente no momento."
-          tone="default"
-        />
+        <DashboardCard className="p-3 lg:p-3">
+          <MobileEmptyState
+            density="compact"
+            variant="no-data"
+            illustration={<InvitesEmptyIllustration />}
+            title="Nenhum convite por enquanto"
+            description="Os convites aparecerão aqui quando uma marca encontrar seu perfil."
+            actions={
+              <div className="flex justify-center">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
+                >
+                  <Link to="/perfil">Completar perfil</Link>
+                </Button>
+              </div>
+            }
+          />
+        </DashboardCard>
       ) : null}
 
       <div className="flex flex-col gap-3">

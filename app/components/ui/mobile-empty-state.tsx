@@ -10,6 +10,13 @@ import { cn } from "~/lib/utils";
  */
 export type EmptyStateVariant = "initial" | "filtered" | "period" | "no-data";
 
+/**
+ * `compact`  — seções secundárias (Convites, Próximos trabalhos)
+ * `expanded` — seções intermediárias (Atividade recente)
+ * `default`  — seção principal (Campanhas disponíveis)
+ */
+export type EmptyStateDensity = "default" | "compact" | "expanded";
+
 type MobileEmptyStateProps = {
   /** Área visual decorativa no topo (ilustração CSS ou SVG). Aria-hidden aplicado automaticamente. */
   illustration?: ReactNode;
@@ -26,6 +33,11 @@ type MobileEmptyStateProps = {
    * mas é exposto via data-empty-variant para futuros estilos/testes.
    */
   variant?: EmptyStateVariant;
+  /**
+   * `compact`: blocos secundários na dashboard — padding e tipografia menores.
+   * Layout do texto prioriza copy curta + max-width + leading-snug.
+   */
+  density?: EmptyStateDensity;
   className?: string;
 };
 
@@ -36,28 +48,65 @@ export function MobileEmptyState({
   actions,
   footer,
   variant = "initial",
+  density = "default",
   className,
 }: MobileEmptyStateProps) {
+  const isCompact = density === "compact";
+  const isExpanded = density === "expanded";
+
   return (
     <div
-      className={cn("flex flex-col items-center py-6 text-center", className)}
+      className={cn(
+        "flex flex-col items-center text-center",
+        isCompact ? "py-3" : isExpanded ? "py-5" : "py-6",
+        className
+      )}
       data-empty-variant={variant}
+      data-empty-density={density}
     >
       {illustration ? (
-        <div className="mb-5 flex items-center justify-center" aria-hidden="true">
+        <div
+          className={cn(
+            "flex items-center justify-center",
+            isCompact ? "mb-2" : isExpanded ? "mb-4" : "mb-5"
+          )}
+          aria-hidden="true"
+        >
           {illustration}
         </div>
       ) : null}
 
-      <h2 className="text-xl font-black tracking-[-0.5px] text-[#0f172a]">
+      <h2
+        className={cn(
+          "font-black text-[#0f172a]",
+          isCompact
+            ? "text-base tracking-[-0.35px]"
+            : isExpanded
+              ? "text-lg tracking-[-0.4px]"
+              : "text-xl tracking-[-0.5px]"
+        )}
+      >
         {title}
       </h2>
-      <p className="mt-2 max-w-[280px] text-sm font-medium leading-relaxed text-slate-500">
+      <p
+        className={cn(
+          "font-medium text-slate-500",
+          isCompact
+            ? "mt-1.5 max-w-[240px] text-xs leading-snug lg:max-w-[260px]"
+            : isExpanded
+              ? "mt-2 max-w-[250px] text-sm leading-snug"
+              : "mt-2 max-w-[280px] text-sm leading-relaxed",
+        )}
+      >
         {description}
       </p>
 
-      {actions ? <div className="mt-6 w-full">{actions}</div> : null}
-      {footer ? <div className="mt-4 w-full">{footer}</div> : null}
+      {actions ? (
+        <div className={cn("w-full", isCompact ? "mt-2.5" : isExpanded ? "mt-4" : "mt-6")}>{actions}</div>
+      ) : null}
+      {footer ? (
+        <div className={cn("w-full", isCompact ? "mt-3" : isExpanded ? "mt-3" : "mt-4")}>{footer}</div>
+      ) : null}
     </div>
   );
 }
