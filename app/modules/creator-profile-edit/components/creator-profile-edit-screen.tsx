@@ -159,23 +159,24 @@ export function CreatorProfileEditScreen() {
 
           {/* ── DESKTOP LAYOUT (hidden below lg) ── */}
           <div className="hidden lg:block">
-            {/* Desktop header text */}
-            <div className="mb-6 flex flex-col gap-2">
-              <h1 className="text-[30px] font-black leading-9 tracking-[-0.75px] text-[#0f172a]">
-                Editar Perfil
-              </h1>
-              <p className="text-base text-[#64748b]">
-                Gerencie sua disponibilidade, serviços e portfólio para atrair marcas.
-              </p>
-            </div>
+            <div className="mx-auto w-full max-w-6xl">
+              {/* Desktop header text */}
+              <div className="mb-6 flex flex-col gap-2">
+                <h1 className="text-[30px] font-black leading-9 tracking-[-0.75px] text-[#0f172a]">
+                  Editar Perfil
+                </h1>
+                <p className="text-base text-[#64748b]">
+                  Gerencie sua disponibilidade, serviços e portfólio para atrair marcas.
+                </p>
+              </div>
 
-            {/* Desktop progress block */}
-            <div className="mb-8">
-              <ProfileProgressBlock {...controller.profileProgress} />
-            </div>
+              {/* Desktop progress block */}
+              <div className="mb-8">
+                <ProfileProgressBlock {...controller.profileProgress} />
+              </div>
 
-            {/* Desktop grid — 3 cols */}
-            <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-3 lg:items-start">
+              {/* Desktop grid — 3 cols */}
+              <div className="grid w-full gap-8 lg:grid-cols-3 lg:items-start">
               {/* Left col — 1/3: Profile info + Address */}
               <div className="flex flex-col gap-8 lg:col-span-1">
                 <CreatorProfileInfoSection
@@ -252,6 +253,7 @@ export function CreatorProfileEditScreen() {
                 </div>
 
               </div>
+            </div>
             </div>
           </div>
         </main>
