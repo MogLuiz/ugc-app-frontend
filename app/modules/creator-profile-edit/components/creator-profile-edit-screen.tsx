@@ -17,8 +17,12 @@ import {
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MobileStickyFooter — floats above CreatorBottomNav (~58px)
+// MobileStickyFooter — fixed acima da CreatorBottomNav (altura + safe-area)
 // ─────────────────────────────────────────────────────────────────────────────
+
+/** Altura base da CreatorBottomNav (py-3 + coluna ícone+texto); safe-area fica no próprio nav — somamos aqui para não ficar atrás dele no iOS. */
+const MOBILE_BOTTOM_NAV_OFFSET =
+  "calc(4rem + env(safe-area-inset-bottom, 0px))" as const;
 
 function MobileStickyFooter({
   profileProgress,
@@ -32,7 +36,10 @@ function MobileStickyFooter({
   onSave: () => void;
 }) {
   return (
-    <div className="fixed bottom-[58px] left-0 right-0 z-20 lg:hidden">
+    <div
+      className="fixed left-0 right-0 z-[25] lg:hidden"
+      style={{ bottom: MOBILE_BOTTOM_NAV_OFFSET }}
+    >
       {/* Thin progress bar flush at the top */}
       <div className="h-1 w-full bg-[#f1f5f9]">
         <div
@@ -82,7 +89,7 @@ export function CreatorProfileEditScreen() {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <main className="flex-1 pb-28 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
+        <main className="flex-1 pb-40 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
 
           {/* ── MOBILE LAYOUT (hidden on lg+) ── */}
           <div className="flex flex-col gap-5 px-4 pt-4 lg:hidden">
