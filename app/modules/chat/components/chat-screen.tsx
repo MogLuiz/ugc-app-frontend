@@ -109,7 +109,7 @@ export function ChatScreen() {
         </header>
 
         <div
-          className={`${isMobileConversationDetail ? "hidden" : "-mx-1 flex"} gap-2 overflow-x-auto px-1 pb-1 lg:hidden`}
+          className={`${isMobileConversationDetail ? "hidden" : "-mx-1 flex flex-wrap"} gap-2 px-1 lg:hidden`}
         >
           {FILTERS.map((filter) => (
             <button

@@ -123,14 +123,14 @@ export function CompanyContractRequestsScreen() {
           </Link>
         </header>
 
-        <section className="overflow-x-auto pb-1">
-          <div className="inline-flex min-w-full gap-2 rounded-2xl bg-white p-1 shadow-sm lg:min-w-0">
+        <section>
+          <div className="flex flex-wrap gap-2 rounded-2xl bg-white p-1 shadow-sm">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+                className={`shrink-0 rounded-full px-5 py-2 text-sm font-semibold transition ${
                   activeTab === tab.id
                     ? "bg-[#895af6] text-white shadow-[0_10px_20px_-10px_rgba(137,90,246,0.6)]"
                     : "text-slate-600 hover:bg-slate-100"
