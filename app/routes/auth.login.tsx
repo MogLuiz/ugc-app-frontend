@@ -8,9 +8,18 @@ import { signIn } from "~/modules/auth/service";
 import { loginSchema, type LoginForm } from "~/modules/auth/schemas/login";
 import { AuthVisualPanel } from "~/modules/auth/components/auth-visual-panel";
 
+const EMAIL_NOT_CONFIRMED_PT =
+  "Confirme seu e-mail antes de entrar. Abra o link que enviamos na caixa de entrada (e na pasta de spam) e depois tente de novo.";
+
 function getFriendlyLoginError(rawMessage?: string | null): string {
   if (!rawMessage?.trim()) return "Não foi possível entrar. Tente novamente.";
   const lower = rawMessage.toLowerCase();
+  if (
+    lower.includes("email not confirmed") ||
+    lower.includes("email_not_confirmed")
+  ) {
+    return EMAIL_NOT_CONFIRMED_PT;
+  }
   if (
     lower.includes("invalid login credentials") ||
     lower.includes("invalid_credentials") ||
@@ -46,7 +55,7 @@ export default function AuthLoginRoute() {
     try {
       const { error } = await signIn(data.email, data.password);
       if (error) {
-        toast.error(getFriendlyLoginError(error.message));
+        toast.error(getFriendlyLoginError(error.message || error.code));
         return;
       }
       toast.success("Login realizado com sucesso");

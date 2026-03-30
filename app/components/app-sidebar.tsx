@@ -308,7 +308,7 @@ function CreatorFooter() {
         displayName={displayName}
         initials={initials}
         photoUrl={photoUrl}
-        subtitle="Premium Creator"
+        subtitle="Criador de conteúdo"
         onLogout={logout}
       />
     </div>
