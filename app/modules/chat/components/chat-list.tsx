@@ -1,3 +1,6 @@
+import { Link } from "react-router";
+import { ArrowRight, MessageSquare, MessagesSquare, Sparkles } from "lucide-react";
+import { MobileEmptyState, OrbitTipCard } from "~/components/ui/mobile-empty-state";
 import type { ConversationListItem } from "../types";
 
 type ChatListProps = {
@@ -41,6 +44,31 @@ function getConversationTime(conversation: ConversationListItem): string {
   });
 }
 
+function ChatIllustration() {
+  return (
+    <div className="relative flex size-[120px] items-center justify-center overflow-hidden">
+      {/* Glow ambiente */}
+      <div className="absolute inset-0 rounded-full bg-[#895af6]/5 blur-[16px]" />
+      {/* Container principal */}
+      <div className="relative flex size-[88px] items-center justify-center rounded-[22px] bg-white shadow-[0_12px_20px_-4px_rgba(137,90,246,0.1)]">
+        <div className="absolute inset-1 rounded-[16px] bg-gradient-to-br from-[#895af6]/5 to-transparent" />
+        {/* Elemento flutuante superior-direito */}
+        <div className="absolute right-0 top-0 flex size-7 rotate-12 items-center justify-center rounded-lg bg-[#e0e7ff] shadow-sm">
+          <MessagesSquare className="size-3 text-[#6366f1]" />
+        </div>
+        {/* Elemento flutuante inferior-esquerdo */}
+        <div className="absolute bottom-0 left-0 flex size-6 -rotate-12 items-center justify-center rounded-full bg-[#ffedd5] shadow-sm">
+          <Sparkles className="size-2.5 text-orange-400" />
+        </div>
+        {/* Ícone central */}
+        <div className="-rotate-3 flex size-12 items-center justify-center rounded-[14px] bg-[#895af6] shadow-[0_8px_12px_-2px_rgba(137,90,246,0.3)]">
+          <MessageSquare className="size-5 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ChatList({
   conversations,
   selectedConversationId,
@@ -49,16 +77,43 @@ export function ChatList({
   hasAnyConversations = conversations.length > 0,
 }: ChatListProps) {
   if (!conversations.length) {
-    const message = hasAnyConversations
-      ? activeFilter === "unread"
+    // Estado vazio inicial: nenhuma conversa ainda existe
+    if (!hasAnyConversations) {
+      return (
+        <MobileEmptyState
+          variant="initial"
+          illustration={<ChatIllustration />}
+          title="Você ainda não tem conversas"
+          description="Quando uma campanha for aceita, a conversa com a marca aparecerá aqui para alinhar os detalhes."
+          actions={
+            <Link
+              to="/ofertas"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-8 py-4 text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25)] transition-colors hover:bg-[#7c4aed]"
+            >
+              Explorar campanhas
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          }
+          footer={
+            <OrbitTipCard text="Mantenha seu perfil atualizado para receber novas propostas." />
+          }
+        />
+      );
+    }
+
+    // Estado vazio por filtro: tem conversas mas o filtro ativo não retornou nada
+    const filterMessage =
+      activeFilter === "unread"
         ? "Você está em 'Não lidas'. Quando houver novas mensagens, elas aparecem aqui."
-        : "Você está em 'Em andamento'. Troque para 'Todas' para ver conversas encerradas."
-      : "Ainda não há conversas por aqui. Assim que uma solicitação for aceita, elas aparecerão nesta tela.";
+        : "Você está em 'Em andamento'. Troque para 'Todas' para ver conversas encerradas.";
 
     return (
-      <div className="rounded-3xl border border-slate-200/80 bg-white p-5 text-sm text-slate-600 shadow-sm">
-        <p className="font-semibold text-slate-800">Nenhuma conversa neste momento</p>
-        <p className="mt-1 leading-relaxed">{message}</p>
+      <div
+        className="rounded-3xl border border-slate-200/80 bg-white p-5 text-sm text-slate-600 shadow-sm"
+        data-empty-variant="filtered"
+      >
+        <p className="font-semibold text-slate-800">Nenhuma conversa neste filtro</p>
+        <p className="mt-1 leading-relaxed">{filterMessage}</p>
       </div>
     );
   }

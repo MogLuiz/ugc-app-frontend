@@ -12,7 +12,6 @@ import {
   useCreatorInvitesQuery,
   useCreatorUpcomingCampaignsQuery,
 } from "../queries";
-import { MOCK_NEARBY_CAMPAIGNS } from "../data/mock-nearby-campaigns";
 
 function getQueryErrorMessage(error: unknown, fallback: string) {
   if (!error) return null;
@@ -51,8 +50,8 @@ export function useCreatorDashboardController() {
       invites,
       upcoming,
       activityItems,
-      nearbyCampaigns: MOCK_NEARBY_CAMPAIGNS,
-      nearbyNewCount: MOCK_NEARBY_CAMPAIGNS.length,
+      nearbyCampaigns: [],
+      nearbyNewCount: 0,
       isKpiLoading: dashboardQuery.isLoading && !dashboardQuery.data,
       isKpiRefreshing: dashboardQuery.isFetching,
       kpiErrorMessage: getQueryErrorMessage(

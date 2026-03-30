@@ -9,6 +9,7 @@
   "packageManager": "pnpm@10.5.1",
   "scripts": {
     "dev": "react-router dev",
+    "dev:staging": "react-router dev --mode staging",
     "build": "react-router build",
     "build:staging": "react-router build --mode staging",
     "start": "react-router-serve ./build/server/index.js",

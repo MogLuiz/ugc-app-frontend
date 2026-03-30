@@ -4,8 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
 import { Lock, Mail, Rocket, Eye, EyeOff } from "lucide-react";
 import { toast } from "~/components/ui/toast";
-import { signIn, getStoredRole } from "~/modules/auth/service";
-import { useBootstrapMutation } from "~/modules/auth/mutations";
+import { signIn } from "~/modules/auth/service";
 import { loginSchema, type LoginForm } from "~/modules/auth/schemas/login";
 import { AuthVisualPanel } from "~/modules/auth/components/auth-visual-panel";
 
@@ -31,8 +30,8 @@ function getFriendlyLoginError(rawMessage?: string | null): string {
 
 export default function AuthLoginRoute() {
   const navigate = useNavigate();
-  const bootstrapMutation = useBootstrapMutation();
   const [showPassword, setShowPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
 
   const {
     register,
@@ -43,14 +42,13 @@ export default function AuthLoginRoute() {
   });
 
   async function onSubmit(data: LoginForm) {
+    setIsPending(true);
     try {
       const { error } = await signIn(data.email, data.password);
       if (error) {
         toast.error(getFriendlyLoginError(error.message));
         return;
       }
-      const role = getStoredRole() ?? "business";
-      await bootstrapMutation.mutateAsync({ role });
       toast.success("Login realizado com sucesso");
       navigate("/dashboard");
     } catch (err) {
@@ -59,10 +57,10 @@ export default function AuthLoginRoute() {
           ? getFriendlyLoginError(err.message)
           : "Erro ao fazer login. Tente novamente."
       );
+    } finally {
+      setIsPending(false);
     }
   }
-
-  const isPending = bootstrapMutation.isPending;
 
   return (
     <div className="min-h-screen lg:flex lg:h-screen lg:overflow-hidden">

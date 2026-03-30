@@ -1,4 +1,6 @@
 import { useMemo } from "react";
+import { Link } from "react-router";
+import { ArrowRight, CalendarX2, RefreshCw } from "lucide-react";
 import type { useCreatorCalendarController } from "../../hooks/use-creator-calendar-controller";
 import { MobileJobSheet } from "../calendar/mobile-job-sheet";
 import { PastRangeNotice } from "../calendar/past-range-notice";
@@ -6,6 +8,7 @@ import {
   MobileAgendaTimelineSections,
   MobileWeekStrip,
 } from "../calendar/mobile-agenda-ui";
+import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 
 import type { CalendarViewModel, UiCalendarEvent } from "../../types";
 
@@ -15,6 +18,58 @@ type CreatorCalendarMobileProps = {
   onNextWeek: () => void;
   onOpenEvent: (eventId: string) => void;
 };
+
+function CalendarIllustration() {
+  return (
+    <div className="relative flex size-[110px] items-center justify-center">
+      {/* Glow ambiente */}
+      <div className="absolute inset-0 rounded-full bg-[#895af6]/10 blur-[16px]" />
+      {/* Container principal */}
+      <div className="relative flex size-[90px] items-center justify-center overflow-hidden rounded-[22px] bg-white shadow-[0_12px_24px_-6px_rgba(137,90,246,0.15)] ring-1 ring-[#f8fafc]">
+        {/* Formas decorativas de fundo */}
+        <div className="absolute -right-6 -top-6 size-14 rounded-full bg-[rgba(240,235,255,0.4)]" />
+        <div className="absolute -bottom-8 -left-8 size-16 rounded-full bg-[rgba(224,231,255,0.3)]" />
+        {/* Ícone central */}
+        <CalendarX2 className="relative size-10 text-[#895af6]" />
+        {/* Ponto decorativo âmbar */}
+        <div className="absolute right-3 top-2 size-2 rounded-full bg-amber-400 shadow-sm" />
+        {/* Ponto decorativo índigo */}
+        <div className="absolute bottom-5 left-3 size-1.5 rounded-full bg-[#6366f1] opacity-60" />
+      </div>
+    </div>
+  );
+}
+
+function AgendaEmptyState() {
+  return (
+    <MobileEmptyState
+      variant="initial"
+      className="mt-4"
+      illustration={<CalendarIllustration />}
+      title="Nenhum trabalho agendado"
+      description="Sua agenda está livre por enquanto. Assim que você aceitar uma campanha e a data for confirmada, ela aparecerá aqui."
+      actions={
+        <div className="flex flex-col gap-3">
+          <Link
+            to="/ofertas"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-6 py-3.5 text-base font-bold text-white shadow-[0_8px_12px_-3px_rgba(137,90,246,0.25)] transition-colors hover:bg-[#7c4aed]"
+          >
+            <ArrowRight className="size-5" aria-hidden="true" />
+            Ver novas ofertas
+          </Link>
+          {/* Sincronizar calendário: placeholder para futura integração em /configuracoes */}
+          <Link
+            to="/configuracoes"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-8 py-[17px] text-sm font-semibold text-slate-500 shadow-sm transition-colors hover:bg-slate-50"
+          >
+            <RefreshCw className="size-3.5" aria-hidden="true" />
+            Sincronizar calendário
+          </Link>
+        </div>
+      }
+    />
+  );
+}
 
 function commitmentSubtitle(count: number): string {
   if (count === 0) {
@@ -70,9 +125,7 @@ function CreatorCalendarMobile({
           ) : null}
 
           {sectionsWithEvents.length === 0 ? (
-            <p className="mt-10 text-center text-sm text-slate-500">
-              Nenhum compromisso neste período.
-            </p>
+            <AgendaEmptyState />
           ) : (
             <div className="mt-10 flex flex-col gap-10">
               <MobileAgendaTimelineSections
