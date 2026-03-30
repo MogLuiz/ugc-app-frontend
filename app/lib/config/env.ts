@@ -3,6 +3,7 @@ type Environment = "dev" | "test" | "prod";
 const ENVIRONMENT_BY_MODE: Record<string, Environment> = {
   development: "dev",
   test: "test",
+  staging: "dev",
   production: "prod"
 };
 

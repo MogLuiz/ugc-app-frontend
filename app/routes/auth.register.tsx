@@ -111,7 +111,7 @@ export default function AuthRegisterRoute() {
 
   // Shared input class — compact height for desktop to avoid scroll
   const inputBase =
-    "h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11";
+    "h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11";
   const inputOk =
     "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
   const inputErr = "border-red-400 focus:border-red-400";

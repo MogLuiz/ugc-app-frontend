@@ -100,7 +100,7 @@ export default function AuthEsqueciSenhaRoute() {
                       placeholder="seu@email.com"
                       {...register("email")}
                       aria-invalid={!!errors.email}
-                      className={`h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
+                      className={`h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                         errors.email
                           ? "border-red-400 focus:border-red-400"
                           : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"

@@ -83,7 +83,7 @@ export default function AuthLoginRoute() {
           </div>
 
           {/* Heading */}
-          <div className="mb-5">
+          <div className="mb-5 text-center">
             <h1 className="text-[28px] font-black tracking-tight text-[#0f172a] lg:text-[32px]">
               Bem-vindo de volta
             </h1>
@@ -110,7 +110,7 @@ export default function AuthLoginRoute() {
                   placeholder="seu@email.com"
                   {...register("email")}
                   aria-invalid={!!errors.email}
-                  className={`h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
+                  className={`h-12 w-full rounded-xl border bg-white pl-10 pr-5 text-base text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                     errors.email
                       ? "border-red-400 focus:border-red-400"
                       : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
@@ -141,7 +141,7 @@ export default function AuthLoginRoute() {
                   placeholder="Sua senha"
                   {...register("password")}
                   aria-invalid={!!errors.password}
-                  className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
+                  className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-base text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                     errors.password
                       ? "border-red-400 focus:border-red-400"
                       : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"

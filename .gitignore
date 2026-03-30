@@ -5,6 +5,8 @@ dist
 .env
 .env.local
 .env.test
+.env.staging
+.env.production
 coverage
 playwright-report
 test-results

@@ -165,7 +165,7 @@ export default function AuthRedefinirSenhaRoute() {
                       placeholder="Mínimo 8 caracteres"
                       {...register("password")}
                       aria-invalid={!!errors.password}
-                      className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
+                      className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-base text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                         errors.password
                           ? "border-red-400 focus:border-red-400"
                           : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
@@ -204,7 +204,7 @@ export default function AuthRedefinirSenhaRoute() {
                       placeholder="Repita a nova senha"
                       {...register("confirmPassword")}
                       aria-invalid={!!errors.confirmPassword}
-                      className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-sm text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
+                      className={`h-12 w-full rounded-xl border bg-white pl-10 pr-10 text-base text-[#0f172a] outline-none transition-all placeholder:text-slate-400 focus:ring-2 focus:ring-[#895af6]/15 lg:h-11 ${
                         errors.confirmPassword
                           ? "border-red-400 focus:border-red-400"
                           : "border-slate-200 hover:border-slate-300 focus:border-[#895af6]"
