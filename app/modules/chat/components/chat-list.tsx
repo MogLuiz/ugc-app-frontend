@@ -9,6 +9,18 @@ type ChatListProps = {
   onSelectConversation: (conversationId: string) => void;
   activeFilter?: "all" | "unread" | "active";
   hasAnyConversations?: boolean;
+  /**
+   * Desktop: sem conversas no total — evita o bloco grande na coluna estreita;
+   * o estado completo é mostrado na área principal do thread.
+   */
+  suppressInitialEmpty?: boolean;
+  exploreHref?: string;
+  exploreLabel?: string;
+};
+
+type ChatConversationsInitialEmptyStateProps = {
+  exploreHref?: string;
+  exploreLabel?: string;
 };
 
 function getConversationName(conversation: ConversationListItem): string {
@@ -69,34 +81,56 @@ function ChatIllustration() {
   );
 }
 
+export function ChatConversationsInitialEmptyState({
+  exploreHref = "/ofertas",
+  exploreLabel = "Explorar campanhas",
+}: ChatConversationsInitialEmptyStateProps) {
+  return (
+    <MobileEmptyState
+      variant="initial"
+      illustration={<ChatIllustration />}
+      title="Você ainda não tem conversas"
+      description="Quando uma campanha for aceita, a conversa com a marca aparecerá aqui para alinhar os detalhes."
+      actions={
+        <Link
+          to={exploreHref}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-8 py-4 text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25)] transition-colors hover:bg-[#7c4aeb]"
+        >
+          {exploreLabel}
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Link>
+      }
+      footer={
+        <OrbitTipCard text="Mantenha seu perfil atualizado para receber novas propostas." />
+      }
+    />
+  );
+}
+
 export function ChatList({
   conversations,
   selectedConversationId,
   onSelectConversation,
   activeFilter = "all",
   hasAnyConversations = conversations.length > 0,
+  suppressInitialEmpty = false,
+  exploreHref,
+  exploreLabel,
 }: ChatListProps) {
   if (!conversations.length) {
     // Estado vazio inicial: nenhuma conversa ainda existe
     if (!hasAnyConversations) {
+      if (suppressInitialEmpty) {
+        return (
+          <p className="px-3 py-6 text-center text-sm text-slate-400">
+            Nenhuma conversa ainda.
+          </p>
+        );
+      }
       return (
-        <MobileEmptyState
-          variant="initial"
-          illustration={<ChatIllustration />}
-          title="Você ainda não tem conversas"
-          description="Quando uma campanha for aceita, a conversa com a marca aparecerá aqui para alinhar os detalhes."
-          actions={
-            <Link
-              to="/ofertas"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-8 py-4 text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25)] transition-colors hover:bg-[#7c4aed]"
-            >
-              Explorar campanhas
-              <ArrowRight className="size-4" aria-hidden="true" />
-            </Link>
-          }
-          footer={
-            <OrbitTipCard text="Mantenha seu perfil atualizado para receber novas propostas." />
-          }
+        <ChatConversationsInitialEmptyState
+          exploreHref={exploreHref}
+          exploreLabel={exploreLabel}
         />
       );
     }

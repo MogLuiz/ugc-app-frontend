@@ -6,7 +6,7 @@ import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { useAuth } from "~/hooks/use-auth";
 import type { ConversationListItem } from "../types";
 import { useConversationsQuery } from "../queries";
-import { ChatList } from "./chat-list";
+import { ChatConversationsInitialEmptyState, ChatList } from "./chat-list";
 import { ChatThread } from "./chat-thread";
 
 type ConversationFilter = "all" | "unread" | "active";
@@ -74,6 +74,17 @@ export function ChatScreen() {
   const selectedConversation =
     orderedConversations.find((item) => item.id === selectedConversationId) ?? null;
   const isMobileConversationDetail = Boolean(selectedConversation);
+  const hasNoConversationsAtAll = orderedConversations.length === 0;
+  const exploreHref = user?.role === "business" ? "/marketplace" : "/ofertas";
+  const exploreLabel =
+    user?.role === "business" ? "Explorar marketplace" : "Explorar campanhas";
+  const desktopThreadEmpty =
+    hasNoConversationsAtAll ? (
+      <ChatConversationsInitialEmptyState
+        exploreHref={exploreHref}
+        exploreLabel={exploreLabel}
+      />
+    ) : undefined;
 
   const handleSelectConversation = (conversationId: string) => {
     setSearchParams((prev) => {
@@ -150,6 +161,8 @@ export function ChatScreen() {
                   onSelectConversation={handleSelectConversation}
                   activeFilter={activeFilter}
                   hasAnyConversations={orderedConversations.length > 0}
+                  exploreHref={exploreHref}
+                  exploreLabel={exploreLabel}
                 />
               )}
             </section>
@@ -172,12 +185,18 @@ export function ChatScreen() {
                     onSelectConversation={handleSelectConversation}
                     activeFilter={activeFilter}
                     hasAnyConversations={orderedConversations.length > 0}
+                    suppressInitialEmpty={hasNoConversationsAtAll}
+                    exploreHref={exploreHref}
+                    exploreLabel={exploreLabel}
                   />
                 </div>
               </aside>
 
               <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <ChatThread conversation={selectedConversation} />
+                <ChatThread
+                  conversation={selectedConversation}
+                  emptyWhenNoConversations={desktopThreadEmpty}
+                />
               </div>
             </section>
           </>

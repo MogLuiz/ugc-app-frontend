@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { AlertCircle, CheckCheck, ChevronLeft } from "lucide-react";
 import { Link } from "react-router";
 import { useAuth } from "~/hooks/use-auth";
@@ -12,6 +12,8 @@ import { MessageInput } from "./message-input";
 type ChatThreadProps = {
   conversation: ConversationListItem | null;
   onBackToList?: () => void;
+  /** Desktop: substitui “Selecione uma conversa…” quando ainda não há nenhuma conversa. */
+  emptyWhenNoConversations?: ReactNode;
 };
 
 function mergeUniqueMessages(items: ConversationMessageItem[]): ConversationMessageItem[] {
@@ -27,7 +29,11 @@ type LocalMessage = ConversationMessageItem & {
   localError?: string;
 };
 
-export function ChatThread({ conversation, onBackToList }: ChatThreadProps) {
+export function ChatThread({
+  conversation,
+  onBackToList,
+  emptyWhenNoConversations,
+}: ChatThreadProps) {
   const { user } = useAuth();
   const messagesQuery = useConversationMessagesInfiniteQuery(conversation?.id);
   const sendMessageMutation = useSendConversationMessageMutation(conversation?.id);
@@ -103,8 +109,14 @@ export function ChatThread({ conversation, onBackToList }: ChatThreadProps) {
 
   if (!conversation) {
     return (
-      <div className="flex min-h-[420px] items-center justify-center rounded-3xl bg-white p-6 text-sm text-slate-500 shadow-sm">
-        Selecione uma conversa para começar.
+      <div className="flex min-h-[360px] flex-1 items-center justify-center overflow-y-auto rounded-3xl bg-white p-6 shadow-sm lg:min-h-0">
+        <div className="w-full max-w-lg">
+          {emptyWhenNoConversations ?? (
+            <p className="text-center text-sm text-slate-500">
+              Selecione uma conversa para começar.
+            </p>
+          )}
+        </div>
       </div>
     );
   }
