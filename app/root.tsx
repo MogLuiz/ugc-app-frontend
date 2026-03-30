@@ -1,3 +1,4 @@
+import "./instrument.client";
 import type { ReactNode } from "react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { AppToaster } from "~/components/ui/toast";

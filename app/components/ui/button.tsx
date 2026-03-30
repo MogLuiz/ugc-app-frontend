@@ -1,3 +1,4 @@
+import { Slot } from "radix-ui";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "~/lib/utils";
@@ -16,7 +17,8 @@ const buttonVariants = cva(
       size: {
         sm: "h-9 px-3",
         md: "h-10 px-4",
-        lg: "h-11 px-5"
+        lg: "h-11 px-5",
+        icon: "size-9"
       }
     },
     defaultVariants: {
@@ -26,8 +28,10 @@ const buttonVariants = cva(
   }
 );
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & VariantProps<typeof buttonVariants>;
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants> & { asChild?: boolean };
 
-export function Button({ className, variant, size, ...props }: ButtonProps) {
-  return <button className={cn(buttonVariants({ variant, size }), className)} {...props} />;
+export function Button({ className, variant, size, asChild, ...props }: ButtonProps) {
+  const Comp = asChild ? Slot.Root : "button";
+  return <Comp className={cn(buttonVariants({ variant, size }), className)} {...props} />;
 }

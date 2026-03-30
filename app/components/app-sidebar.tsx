@@ -23,8 +23,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { cn } from "~/lib/utils";
 import { useAuth } from "~/hooks/use-auth";
+import { cn } from "~/lib/utils";
 import type { AuthUser, UserRole } from "~/modules/auth/types";
 
 type AppSidebarProps = {
@@ -64,7 +64,12 @@ const SIDEBAR_CONFIG: Record<
         icon: UserPlus,
         to: "/indicacoes",
       },
-      { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "/campanhas" },
+      {
+        id: "campanhas",
+        label: "Campanhas",
+        icon: Briefcase,
+        to: "/campanhas",
+      },
       {
         id: "criadores",
         label: "Marketplace",
@@ -75,7 +80,12 @@ const SIDEBAR_CONFIG: Record<
       { id: "relatorios", label: "Relatórios", icon: BarChart3, to: "#" },
       { id: "chat", label: "Chat", icon: MessageCircle, to: "/chat" },
       { id: "perfil", label: "Perfil da Empresa", icon: Users, to: "/perfil" },
-      { id: "configuracoes", label: "Configurações", icon: Settings, to: "/configuracoes" },
+      {
+        id: "configuracoes",
+        label: "Configurações",
+        icon: Settings,
+        to: "/configuracoes",
+      },
     ],
   },
   creator: {
@@ -91,11 +101,21 @@ const SIDEBAR_CONFIG: Record<
         to: "/indicacoes",
       },
       { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "/ofertas" },
-      { id: "calendario", label: "Calendário", icon: CalendarDays, to: "/agenda" },
+      {
+        id: "calendario",
+        label: "Calendário",
+        icon: CalendarDays,
+        to: "/agenda",
+      },
       { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },
       { id: "pagamentos", label: "Pagamentos", icon: CreditCard, to: "#" },
       { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" },
-      { id: "configuracoes", label: "Configurações", icon: Settings, to: "/configuracoes" },
+      {
+        id: "configuracoes",
+        label: "Configurações",
+        icon: Settings,
+        to: "/configuracoes",
+      },
     ],
   },
 };
