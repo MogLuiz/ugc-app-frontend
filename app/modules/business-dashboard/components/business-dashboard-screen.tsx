@@ -23,7 +23,7 @@ export function BusinessDashboardScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden pb-24 lg:gap-10 lg:p-8">
-        <AppHeader title="Início" />
+        <AppHeader title="Início" mobileBehavior="inline" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 lg:gap-10 lg:px-0">
         <BusinessDashboardHeader
           greetingName={controller.viewModel.greetingName}

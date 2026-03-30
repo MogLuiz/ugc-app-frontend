@@ -1,5 +1,4 @@
 import { AppSidebar } from "~/components/app-sidebar";
-import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useMarketplaceController } from "../hooks/use-marketplace-controller";
 import {
@@ -25,8 +24,8 @@ export function MarketplaceScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden pb-24 pt-4 lg:gap-8 lg:px-8 lg:py-8">
-        <AppHeader title="Criadores" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden px-4 lg:gap-8 lg:px-0">
+        <h1 className="text-xl font-black tracking-[-0.4px] text-[#2c2f30] lg:hidden">Criadores</h1>
         <MarketplaceHeader />
 
         <div className="flex flex-col gap-4 lg:gap-8">

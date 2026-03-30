@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Bell, LogOut, Settings, User } from "lucide-react";
 import { Link } from "react-router";
+import { cn } from "~/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,11 +20,14 @@ import type { AppNotification } from "./notifications-panel";
 type AppHeaderProps = {
   notifications?: AppNotification[];
   title?: string;
+  /** Mobile positioning. `"sticky"` (default) keeps the header fixed at the top while scrolling. `"inline"` lets it scroll with the page content. Desktop is unaffected. */
+  mobileBehavior?: "sticky" | "inline";
 };
 
 export function AppHeader({
   notifications: notificationsProp,
   title,
+  mobileBehavior = "sticky",
 }: AppHeaderProps) {
   const { user, logout } = useAuth();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -47,7 +51,10 @@ export function AppHeader({
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[rgba(137,90,246,0.1)] bg-[rgba(246,245,248,0.9)] px-4 py-3 backdrop-blur-md lg:hidden">
+    <header className={cn(
+      "flex items-center justify-between border-b border-[rgba(137,90,246,0.1)] bg-[rgba(246,245,248,0.9)] px-4 py-3 backdrop-blur-md lg:hidden",
+      mobileBehavior === "sticky" ? "sticky top-0 z-20" : "relative",
+    )}>
       {/* Left: Avatar + dropdown menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

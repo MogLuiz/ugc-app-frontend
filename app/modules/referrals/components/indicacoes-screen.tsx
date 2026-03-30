@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
-import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { Button } from "~/components/ui/button";
@@ -137,10 +136,8 @@ export function IndicacoesScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:gap-8 lg:p-8 lg:pt-8">
-        <AppHeader title="Indicações" />
-
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:gap-8 lg:px-0">
-          <div className="hidden lg:block">
+          <div>
             <h1 className="text-2xl font-black tracking-[-0.5px] text-[#2c2f30]">
               Indicações
             </h1>

@@ -59,7 +59,7 @@ export function MobileEmptyState({
       className={cn(
         "flex flex-col items-center text-center",
         isCompact ? "py-3" : isExpanded ? "py-5" : "py-6",
-        className
+        className,
       )}
       data-empty-variant={variant}
       data-empty-density={density}
@@ -68,7 +68,7 @@ export function MobileEmptyState({
         <div
           className={cn(
             "flex items-center justify-center",
-            isCompact ? "mb-2" : isExpanded ? "mb-4" : "mb-5"
+            isCompact ? "mb-2" : isExpanded ? "mb-4" : "mb-5",
           )}
           aria-hidden="true"
         >
@@ -83,7 +83,7 @@ export function MobileEmptyState({
             ? "text-base tracking-[-0.35px]"
             : isExpanded
               ? "text-lg tracking-[-0.4px]"
-              : "text-xl tracking-[-0.5px]"
+              : "text-xl tracking-[-0.5px]",
         )}
       >
         {title}
@@ -102,17 +102,31 @@ export function MobileEmptyState({
       </p>
 
       {actions ? (
-        <div className={cn("w-full", isCompact ? "mt-2.5" : isExpanded ? "mt-4" : "mt-6")}>{actions}</div>
+        <div
+          className={cn(
+            "w-full",
+            isCompact ? "mt-2.5" : isExpanded ? "mt-4" : "mt-6",
+          )}
+        >
+          {actions}
+        </div>
       ) : null}
       {footer ? (
-        <div className={cn("w-full", isCompact ? "mt-3" : isExpanded ? "mt-3" : "mt-4")}>{footer}</div>
+        <div
+          className={cn(
+            "w-full",
+            isCompact ? "mt-3" : isExpanded ? "mt-3" : "mt-4",
+          )}
+        >
+          {footer}
+        </div>
       ) : null}
     </div>
   );
 }
 
 /**
- * Bloco de dica contextual "Dica Orbit" — reutilizável no footer de qualquer empty state.
+ * Bloco de dica contextual "Dica" — reutilizável no footer de qualquer empty state.
  */
 export function OrbitTipCard({ text }: { text: string }) {
   return (
@@ -122,7 +136,7 @@ export function OrbitTipCard({ text }: { text: string }) {
       </div>
       <div>
         <p className="text-[11px] font-bold uppercase tracking-[1.65px] text-[#895af6]">
-          Dica Orbit
+          Dica
         </p>
         <p className="mt-1 text-sm leading-relaxed text-slate-500">{text}</p>
       </div>

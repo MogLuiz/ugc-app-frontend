@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
-import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { toast } from "~/components/ui/toast";
 import {
@@ -140,8 +139,6 @@ export function CreatorPendingContractRequestsScreen() {
 
         {/* ══ LEFT COLUMN — list ══ */}
         <aside className="flex flex-col bg-[#f6f5f8] lg:w-[380px] lg:shrink-0 lg:overflow-hidden lg:bg-white lg:border-r lg:border-[rgba(226,232,240,0.3)]">
-
-          <AppHeader />
 
           {/* Header */}
           <div className="px-6 pb-0 pt-6">

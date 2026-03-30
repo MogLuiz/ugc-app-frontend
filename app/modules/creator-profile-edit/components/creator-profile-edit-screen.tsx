@@ -1,6 +1,5 @@
-import { Link } from "react-router";
-import { ArrowLeft } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
+import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/hooks/use-auth";
 import { useCreatorProfileEditController } from "../hooks/use-creator-profile-edit-controller";
@@ -16,8 +15,9 @@ import {
   CreatorPortfolioSection,
 } from "./sections/creator-profile-edit-sections";
 
+
 // ─────────────────────────────────────────────────────────────────────────────
-// MobileStickyFooter — fixed bottom bar with progress + save CTA
+// MobileStickyFooter — floats above CreatorBottomNav (~58px)
 // ─────────────────────────────────────────────────────────────────────────────
 
 function MobileStickyFooter({
@@ -32,10 +32,7 @@ function MobileStickyFooter({
   onSave: () => void;
 }) {
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-30 lg:hidden"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
+    <div className="fixed bottom-[58px] left-0 right-0 z-20 lg:hidden">
       {/* Thin progress bar flush at the top */}
       <div className="h-1 w-full bg-[#f1f5f9]">
         <div
@@ -85,22 +82,6 @@ export function CreatorProfileEditScreen() {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile sticky header — back + title only (save is in sticky footer) */}
-        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-[rgba(137,90,246,0.1)] bg-[rgba(246,245,248,0.9)] px-4 py-4 backdrop-blur-md lg:hidden">
-          <Link
-            to="/dashboard"
-            className="flex size-10 items-center justify-center rounded-full transition-colors hover:bg-[rgba(137,90,246,0.06)]"
-            aria-label="Voltar"
-          >
-            <ArrowLeft className="size-5 text-slate-600" />
-          </Link>
-          <h1 className="text-lg font-bold tracking-[-0.45px] text-[#0f172a]">
-            Editar Perfil
-          </h1>
-          {/* Spacer to keep title centered */}
-          <div className="size-10" />
-        </header>
-
         <main className="flex-1 pb-28 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
 
           {/* ── MOBILE LAYOUT (hidden on lg+) ── */}
@@ -276,13 +257,13 @@ export function CreatorProfileEditScreen() {
         </main>
       </div>
 
-      {/* Mobile sticky footer — save CTA + progress */}
       <MobileStickyFooter
         profileProgress={controller.profileProgress}
         isSaving={controller.isSaving}
         isDirty={controller.isDirty}
         onSave={() => controller.handleSubmit()}
       />
+      <CreatorBottomNav />
     </div>
   );
 }

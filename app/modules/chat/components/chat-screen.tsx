@@ -105,10 +105,7 @@ export function ChatScreen() {
         }`}
       >
         <header className={`${isMobileConversationDetail ? "hidden" : "block"} lg:hidden`}>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#895af6]">
-            Conversas
-          </p>
-          <h1 className="text-2xl font-black text-slate-900 lg:text-4xl">Chat</h1>
+          <h1 className="text-2xl font-black text-slate-900">Conversas</h1>
         </header>
 
         <div

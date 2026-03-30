@@ -1,5 +1,4 @@
 import { AppSidebar } from "~/components/app-sidebar";
-import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 
 const CAMPAIGN_STEPS = [
@@ -18,23 +17,16 @@ export function CreateCampaignScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:gap-8 lg:p-8">
-        <AppHeader title="Criar Campanha" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:gap-8 lg:px-0">
 
-        {/* Desktop title */}
-        <div className="hidden lg:block">
-          <h1 className="text-3xl font-black tracking-[-0.75px] text-slate-900">
+        <div>
+          <h1 className="text-2xl font-black tracking-[-0.5px] text-slate-900 lg:text-3xl lg:tracking-[-0.75px]">
             Criar Campanha
           </h1>
-          <p className="mt-2 text-base text-slate-500">
+          <p className="mt-1.5 text-sm text-slate-500 lg:mt-2 lg:text-base">
             Publique uma nova campanha e encontre creators ideais para a sua marca.
           </p>
         </div>
-
-        {/* Mobile subtitle */}
-        <p className="text-sm text-slate-500 lg:hidden">
-          Preencha as etapas para publicar sua campanha.
-        </p>
 
         {/* Steps overview */}
         <section className="rounded-2xl bg-white p-5 shadow-sm">
