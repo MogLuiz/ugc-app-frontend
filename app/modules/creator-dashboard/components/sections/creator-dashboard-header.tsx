@@ -38,13 +38,13 @@ export function CreatorDashboardHeader({
         </div>
       </div>
 
-      {/* Mobile greeting section (below AppHeader) */}
+      {/* Mobile screen title (below AppHeader) */}
       <section className="mt-2 lg:hidden">
-        <h2 className="text-2xl font-black tracking-[-0.5px] text-[#2c2f30]">
-          Bem-vindo, {creatorName}! 👋
+        <h2 className="text-xl font-black tracking-[-0.5px] text-[#2c2f30]">
+          Dashboard
         </h2>
-        <p className="mt-2 text-sm leading-relaxed text-[#595c5d]">
-          Veja suas campanhas, convites e oportunidades perto de você.
+        <p className="mt-1 text-sm leading-relaxed text-[#595c5d]">
+          Acompanhe convites, campanhas e oportunidades perto de você.
         </p>
       </section>
     </>

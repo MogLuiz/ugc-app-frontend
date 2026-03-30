@@ -23,7 +23,7 @@ export function CreatorDashboardScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:gap-8 lg:p-8 lg:pt-8">
-        <AppHeader mobileBehavior="inline" />
+        <AppHeader mobileBehavior="inline" mobileLabel="Criador" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:gap-8 lg:px-0">
         <CreatorDashboardHeader creatorName={viewModel.creatorName} />
 
