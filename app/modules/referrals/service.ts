@@ -40,13 +40,15 @@ export async function fetchReferralsDashboard(
 
 export async function fetchReferralsList(
   token?: string,
-  page = 1
+  page = 1,
+  status?: string
 ): Promise<ReferralsListResponse> {
   const accessToken = await getAccessToken(token);
   const qs = new URLSearchParams({
     page: String(page),
     limit: String(LIST_LIMIT),
   });
+  if (status) qs.set("status", status);
   return httpClient<ReferralsListResponse>(`/partners/me/referrals?${qs}`, {
     token: accessToken,
   });

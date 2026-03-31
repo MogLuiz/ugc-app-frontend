@@ -5,7 +5,6 @@ import {
   CircleUserRound,
   Info,
   Loader2,
-  MapPin,
   Share2,
   ShieldCheck,
   UserPlus,
@@ -40,41 +39,19 @@ const DATE_FMT = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
 });
 
-function referralStatusLabel(status: ReferralStatusApi): string {
-  switch (status) {
-    case "PENDING":
-      return "Aguardando primeiro trabalho";
-    case "QUALIFIED":
-      return "Primeiro trabalho concluído";
-    case "EXPIRED":
-      return "Indicação expirada";
-    default:
-      return status;
-  }
-}
-
-function referralStatusBadgeFigma(status: ReferralStatusApi): {
+function referralStatusConfig(status: ReferralStatusApi): {
   label: string;
   className: string;
 } {
   switch (status) {
     case "PENDING":
-      return {
-        label: "Em análise",
-        className: "text-[#f59e0b]",
-      };
+      return { label: "Aguardando primeiro trabalho", className: "bg-amber-100 text-amber-900" };
     case "QUALIFIED":
-      return {
-        label: "Finalizado",
-        className: "text-[#895af6]",
-      };
+      return { label: "Qualificado", className: "bg-emerald-100 text-emerald-800" };
     case "EXPIRED":
-      return {
-        label: "Expirado",
-        className: "text-slate-500",
-      };
+      return { label: "Expirado", className: "bg-slate-200 text-slate-600" };
     default:
-      return { label: status, className: "text-slate-600" };
+      return { label: status, className: "bg-slate-100 text-slate-700" };
   }
 }
 
@@ -95,6 +72,95 @@ async function copyText(label: string, text: string) {
   } catch {
     toast.error("Não foi possível copiar. Tente selecionar manualmente.");
   }
+}
+
+function IndicacoesScreenSkeleton() {
+  return (
+    <div className="animate-pulse flex flex-col gap-6">
+      {/* Mobile hero */}
+      <div className="h-[148px] rounded-[32px] bg-[#895af6]/15 xl:hidden" />
+
+      {/* Desktop hero + card roxo */}
+      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:gap-8">
+        <div className="h-[160px] rounded-[28px] bg-slate-100" />
+        <div className="h-[160px] rounded-[28px] bg-[#895af6]/15" />
+      </div>
+
+      {/* Métricas */}
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex min-h-[121px] flex-col justify-between rounded-[32px] bg-slate-100 p-5 xl:min-h-0 xl:rounded-[20px] xl:p-4"
+          >
+            <div className="size-10 rounded-full bg-slate-200" />
+            <div className="space-y-1.5">
+              <div className="h-2.5 w-20 rounded bg-slate-200" />
+              <div className="h-6 w-12 rounded bg-slate-200" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: lista recente + como funciona */}
+      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] xl:gap-8">
+        <div className="rounded-[20px] border border-slate-100 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="h-4 w-32 rounded bg-slate-200" />
+            <div className="h-4 w-16 rounded bg-slate-100" />
+          </div>
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
+                <div className="size-11 rounded-full bg-slate-200 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-28 rounded bg-slate-200" />
+                  <div className="h-3 w-20 rounded bg-slate-100" />
+                </div>
+                <div className="h-5 w-20 rounded-full bg-slate-100 shrink-0" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="rounded-[20px] border border-slate-100 bg-white p-5 shadow-sm">
+          <div className="mb-4 h-4 w-28 rounded bg-slate-200" />
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-3">
+                <div className="size-7 rounded-full bg-slate-200 shrink-0" />
+                <div className="flex-1 space-y-1.5 pt-0.5">
+                  <div className="h-3 w-24 rounded bg-slate-200" />
+                  <div className="h-2.5 w-36 rounded bg-slate-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: recentes + resumo + como funciona */}
+      <div className="flex flex-col gap-6 xl:hidden">
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="h-4 w-32 rounded bg-slate-200" />
+            <div className="h-4 w-16 rounded bg-slate-100" />
+          </div>
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 rounded-[32px] bg-white p-4 shadow-sm">
+              <div className="size-10 rounded-full bg-slate-200 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-24 rounded bg-slate-200" />
+                <div className="h-3 w-16 rounded bg-slate-100" />
+              </div>
+              <div className="h-5 w-16 rounded-full bg-slate-100 shrink-0" />
+            </div>
+          ))}
+        </div>
+        <div className="h-[160px] rounded-[32px] bg-slate-100" />
+        <div className="h-[140px] rounded-[32px] bg-slate-100" />
+      </div>
+    </div>
+  );
 }
 
 export function IndicacoesScreen() {
@@ -123,11 +189,9 @@ export function IndicacoesScreen() {
       : null);
 
   const dashboard = dashboardQuery.data;
-  const referrals = referralsQuery.data?.items ?? [];
+  const allReferrals = referralsQuery.data?.items ?? [];
   const profile =
     profileQuery.data?.kind === "active" ? profileQuery.data.profile : null;
-
-  const ratePercent = profile?.commissionRatePercent ?? 10;
 
   return (
     <div className="min-h-screen bg-[#f5f6f7] lg:flex">
@@ -142,17 +206,12 @@ export function IndicacoesScreen() {
               Indicações
             </h1>
             <p className="mt-1 text-sm text-[#595c5d]">
-              Ganhe comissão quando o indicado concluir o primeiro trabalho
-              válido na plataforma. Não há saque automático nem extrato
-              financeiro completo neste momento.
+              Convide novos criadores para a plataforma e acompanhe o progresso das suas indicações.
             </p>
           </div>
 
           {profileQuery.isLoading ? (
-            <div className="animate-pulse space-y-4 py-8 px-4">
-              <div className="h-24 rounded-[28px] bg-slate-100" />
-              <div className="h-16 rounded-[28px] bg-slate-100" />
-            </div>
+            <IndicacoesScreenSkeleton />
           ) : profileError ? (
             <SectionMessage message={profileError} tone="error" />
           ) : profileQuery.data?.kind === "not_activated" ? (
@@ -201,11 +260,9 @@ export function IndicacoesScreen() {
 
               {profile && (profile.referralLink || profile.referralCode) ? (
                 <>
-                  {/* Mobile / tablet: hero roxo alinhado ao Figma */}
+                  {/* Mobile hero */}
                   <section
-                    className={cn(
-                      "relative min-w-0 overflow-hidden rounded-[32px] bg-[#895af6] p-6 text-white sm:rounded-[40px] lg:rounded-[48px] xl:hidden",
-                    )}
+                    className="relative min-w-0 overflow-hidden rounded-[32px] bg-[#895af6] p-6 text-white sm:rounded-[40px] xl:hidden"
                     style={{
                       boxShadow:
                         "0px 10px 15px -3px rgba(137,90,246,0.2), 0px 4px 6px -4px rgba(137,90,246,0.2)",
@@ -223,7 +280,6 @@ export function IndicacoesScreen() {
                         <span className="block">Ganhe por cada novo criador</span>
                         <span className="block">indicado</span>
                       </h2>
-
                       <div className="flex flex-col gap-3 pt-2">
                         {profile.referralLink ? (
                           <div className="flex min-h-[44px] items-center justify-between gap-3 rounded-full bg-white/10 px-4 py-3 backdrop-blur-[6px]">
@@ -233,29 +289,22 @@ export function IndicacoesScreen() {
                             <Button
                               type="button"
                               className="h-8 shrink-0 rounded-full bg-white px-4 text-xs font-bold text-[#895af6] hover:bg-white/95"
-                              onClick={() =>
-                                void copyText("Link", profile.referralLink!)
-                              }
+                              onClick={() => void copyText("Link", profile.referralLink!)}
                             >
                               Copiar
                             </Button>
                           </div>
                         ) : null}
-
                         {profile.referralCode ? (
                           <div className="flex min-h-[44px] items-center justify-between gap-3 rounded-full bg-white/10 px-4 py-3 backdrop-blur-[6px]">
                             <p className="min-w-0 flex-1 truncate text-sm font-medium text-white">
                               <span>CÓDIGO: </span>
-                              <span className="font-bold">
-                                {profile.referralCode}
-                              </span>
+                              <span className="font-bold">{profile.referralCode}</span>
                             </p>
                             <Button
                               type="button"
                               className="h-8 shrink-0 rounded-full bg-white px-4 text-xs font-bold text-[#895af6] hover:bg-white/95"
-                              onClick={() =>
-                                void copyText("Código", profile.referralCode!)
-                              }
+                              onClick={() => void copyText("Código", profile.referralCode!)}
                             >
                               Copiar
                             </Button>
@@ -265,12 +314,10 @@ export function IndicacoesScreen() {
                     </div>
                   </section>
 
-                  {/* Desktop (xl+): card branco + resumo de comissões */}
+                  {/* Desktop hero + card resumo */}
                   <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
                     <section
-                      className={cn(
-                        "relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6",
-                      )}
+                      className="relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6"
                       style={{
                         boxShadow:
                           "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
@@ -288,7 +335,6 @@ export function IndicacoesScreen() {
                         <h2 className="mt-2 text-xl font-black leading-tight text-[#2c2f30] xl:text-2xl">
                           Compartilhe e convide novos criadores
                         </h2>
-
                         <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
                           {profile.referralLink ? (
                             <div className="min-w-0 flex-1 space-y-2">
@@ -302,21 +348,16 @@ export function IndicacoesScreen() {
                                 <Button
                                   type="button"
                                   className="h-9 shrink-0 rounded-lg bg-[#895af6] px-4 text-xs font-bold text-white hover:bg-[#7c4aeb]"
-                                  onClick={() =>
-                                    void copyText("Link", profile.referralLink!)
-                                  }
+                                  onClick={() => void copyText("Link", profile.referralLink!)}
                                 >
                                   Copiar
                                 </Button>
                               </div>
                             </div>
                           ) : null}
-
                           {profile.referralCode ? (
                             <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
-                              <p className="text-xs font-medium text-slate-600">
-                                Código
-                              </p>
+                              <p className="text-xs font-medium text-slate-600">Código</p>
                               <div className="flex min-h-[44px] items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-slate-100/90 px-3 py-1">
                                 <span className="font-mono text-sm font-bold tracking-wide text-[#0f172a]">
                                   {profile.referralCode}
@@ -324,12 +365,7 @@ export function IndicacoesScreen() {
                                 <Button
                                   type="button"
                                   className="h-9 shrink-0 rounded-lg bg-[#895af6] px-3 text-xs font-bold text-white hover:bg-[#7c4aeb]"
-                                  onClick={() =>
-                                    void copyText(
-                                      "Código",
-                                      profile.referralCode!,
-                                    )
-                                  }
+                                  onClick={() => void copyText("Código", profile.referralCode!)}
                                 >
                                   Copiar
                                 </Button>
@@ -337,15 +373,9 @@ export function IndicacoesScreen() {
                             </div>
                           ) : null}
                         </div>
-
                         <p className="mt-5 flex items-start gap-2 text-xs leading-relaxed text-slate-600">
-                          <Info
-                            className="mt-0.5 size-4 shrink-0 text-[#895af6]"
-                            aria-hidden
-                          />
-                          Convide novos talentos e receba comissão quando
-                          entregarem o primeiro trabalho válido. Sem crédito
-                          imediato em conta neste MVP.
+                          <Info className="mt-0.5 size-4 shrink-0 text-[#895af6]" aria-hidden />
+                          A comissão é gerada conforme as regras vigentes da plataforma.
                         </p>
                       </div>
                     </section>
@@ -370,18 +400,11 @@ export function IndicacoesScreen() {
                               dashboard.currency,
                             )}
                           </p>
-                          <p className="mt-1 text-sm text-white/75">
-                            Total registrado até hoje
-                          </p>
-                          <div
-                            className="my-4 h-px shrink-0 bg-white/25"
-                            role="separator"
-                          />
+                          <p className="mt-1 text-sm text-white/75">Total registrado até hoje</p>
+                          <div className="my-4 h-px shrink-0 bg-white/25" role="separator" />
                           <div className="flex items-end justify-between gap-3">
                             <div>
-                              <p className="text-sm text-white/80">
-                                Comissões pendentes
-                              </p>
+                              <p className="text-sm text-white/80">Comissões pendentes</p>
                               <p className="mt-1 text-xl font-bold tabular-nums">
                                 {formatMoneyFromCents(
                                   dashboard.pendingCommissionAmountCents,
@@ -430,55 +453,36 @@ export function IndicacoesScreen() {
                 </div>
               ) : null}
 
+              {/* Desktop layout */}
               <div className="hidden xl:flex xl:flex-col xl:gap-6">
-                <JourneyBlock ratePercent={ratePercent} />
-
+                <JourneyBlock />
                 <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
                   <DashboardCard>
-                    <SectionHeader title="Indicados recentes" />
+                    <div className="flex items-center justify-between gap-3">
+                      <SectionHeader title="Indicações recentes" />
+                      {allReferrals.length > 0 ? (
+                        <Link
+                          to="/indicacoes/todas"
+                          className="shrink-0 text-xs font-bold text-[#895af6] hover:underline"
+                        >
+                          Ver todas →
+                        </Link>
+                      ) : null}
+                    </div>
                     {referralsQuery.isLoading ? (
                       <div className="animate-pulse space-y-3 py-2">
-                        {Array.from({ length: 3 }).map((_, i) => (
+                        {Array.from({ length: 5 }).map((_, i) => (
                           <div key={i} className="h-14 rounded-2xl bg-slate-100" />
                         ))}
                       </div>
-                    ) : referrals.length === 0 ? (
+                    ) : allReferrals.length === 0 ? (
                       <p className="py-8 text-center text-sm text-slate-500">
                         Nenhuma indicação ainda.
                       </p>
                     ) : (
                       <ul className="mt-4 flex flex-col gap-3">
-                        {referrals.map((r) => (
-                          <li
-                            key={r.id}
-                            className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3"
-                          >
-                            <Avatar
-                              name={r.referredUser.name}
-                              photoUrl={r.referredUser.photoUrl}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate font-semibold text-[#2c2f30]">
-                                {r.referredUser.name}
-                              </p>
-                              <p className="text-xs text-slate-500">
-                                {referralStatusLabel(r.status)} · desde{" "}
-                                {r.createdAt ? DATE_FMT.format(new Date(r.createdAt)) : "—"}
-                              </p>
-                            </div>
-                            <span
-                              className={cn(
-                                "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
-                                r.status === "QUALIFIED"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : r.status === "PENDING"
-                                    ? "bg-amber-100 text-amber-900"
-                                    : "bg-slate-200 text-slate-700",
-                              )}
-                            >
-                              {referralStatusLabel(r.status)}
-                            </span>
-                          </li>
+                        {allReferrals.slice(0, 5).map((r) => (
+                          <ReferralListRow key={r.id} referral={r} />
                         ))}
                       </ul>
                     )}
@@ -487,9 +491,7 @@ export function IndicacoesScreen() {
                   <DashboardCard>
                     <SectionHeader
                       title="Como funciona"
-                      addon={
-                        <Info className="size-4 text-[#895af6]" aria-hidden />
-                      }
+                      addon={<Info className="size-4 text-[#895af6]" aria-hidden />}
                     />
                     <ol className="mt-4 space-y-4 text-sm text-[#595c5d]">
                       <li className="flex gap-3">
@@ -497,8 +499,7 @@ export function IndicacoesScreen() {
                           1
                         </span>
                         <span>
-                          Compartilhe seu link ou código com quem ainda não está
-                          na plataforma.
+                          Compartilhe seu link ou código com quem ainda não está na plataforma.
                         </span>
                       </li>
                       <li className="flex gap-3">
@@ -506,8 +507,7 @@ export function IndicacoesScreen() {
                           2
                         </span>
                         <span>
-                          Quando a pessoa se cadastrar pelo seu link, ela entra
-                          como sua indicação.
+                          Quando a pessoa se cadastrar pelo seu link, ela entra como sua indicação.
                         </span>
                       </li>
                       <li className="flex gap-3">
@@ -515,10 +515,8 @@ export function IndicacoesScreen() {
                           3
                         </span>
                         <span>
-                          Quando o indicado concluir o primeiro trabalho válido
-                          (contrato concluído), geramos a comissão de{" "}
-                          <strong>{ratePercent}%</strong> sobre a base do
-                          trabalho, conforme regras do programa.
+                          Quando o indicado concluir o primeiro trabalho válido, a comissão é
+                          registrada conforme as regras vigentes da plataforma.
                         </span>
                       </li>
                     </ol>
@@ -526,16 +524,17 @@ export function IndicacoesScreen() {
                 </div>
               </div>
 
+              {/* Mobile layout */}
               <div className="flex flex-col gap-6 xl:hidden">
-                <ComoFuncionaMobileBlock />
                 <RecentReferralsMobileBlock
                   isLoading={referralsQuery.isLoading}
-                  referrals={referrals}
+                  referrals={allReferrals}
                 />
                 <ResumoGanhosMobileBlock
                   isLoading={dashboardQuery.isLoading}
                   dashboard={dashboard}
                 />
+                <ComoFuncionaMobileBlock />
               </div>
             </>
           )}
@@ -547,13 +546,36 @@ export function IndicacoesScreen() {
   );
 }
 
-const METRIC_ICON_TONE: Record<"sky" | "violet" | "emerald" | "amber", string> =
-  {
-    sky: "bg-sky-100 text-sky-600",
-    violet: "bg-[rgba(137,90,246,0.15)] text-[#895af6]",
-    emerald: "bg-emerald-100 text-emerald-700",
-    amber: "bg-amber-100 text-amber-800",
-  };
+function ReferralListRow({ referral: r }: { referral: ReferralListItem }) {
+  const badge = referralStatusConfig(r.status);
+  return (
+    <li className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/80 p-3">
+      <Avatar name={r.referredUser.name} photoUrl={r.referredUser.photoUrl} />
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-semibold text-[#2c2f30]">{r.referredUser.name}</p>
+        <p className="text-xs text-slate-500">
+          Desde{" "}
+          {r.createdAt ? DATE_FMT.format(new Date(r.createdAt)) : "—"}
+        </p>
+      </div>
+      <span
+        className={cn(
+          "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
+          badge.className,
+        )}
+      >
+        {badge.label}
+      </span>
+    </li>
+  );
+}
+
+const METRIC_ICON_TONE: Record<"sky" | "violet" | "emerald" | "amber", string> = {
+  sky: "bg-sky-100 text-sky-600",
+  violet: "bg-[rgba(137,90,246,0.15)] text-[#895af6]",
+  emerald: "bg-emerald-100 text-emerald-700",
+  amber: "bg-amber-100 text-amber-800",
+};
 
 function ReferralMetricCard({
   icon,
@@ -598,7 +620,6 @@ function ReferralMetricCard({
   );
 }
 
-/** Bloco “Como funciona” — timeline vertical alinhada ao Figma mobile (280:330). */
 function ComoFuncionaMobileBlock() {
   return (
     <section className="rounded-[32px] bg-[#f1f0f3] p-5">
@@ -606,13 +627,11 @@ function ComoFuncionaMobileBlock() {
         <Info className="size-3.5 shrink-0 text-[#895af6]" strokeWidth={2.5} aria-hidden />
         <h2 className="text-sm font-bold text-[#0f172a]">Como funciona</h2>
       </div>
-
       <div className="relative mt-5 flex flex-col gap-4">
         <div
           className="absolute bottom-2 left-[13px] top-2 w-0.5 bg-[rgba(137,90,246,0.2)]"
           aria-hidden
         />
-
         <div className="relative z-[1] flex gap-3">
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-[10px] font-black text-white shadow-[0px_4px_6px_-1px_rgba(137,90,246,0.2),0px_2px_4px_-2px_rgba(137,90,246,0.2)]">
             1
@@ -624,21 +643,17 @@ function ComoFuncionaMobileBlock() {
             </p>
           </div>
         </div>
-
         <div className="relative z-[1] flex gap-3">
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#895af6] text-[10px] font-black text-white shadow-[0px_4px_6px_-1px_rgba(137,90,246,0.2),0px_2px_4px_-2px_rgba(137,90,246,0.2)]">
             2
           </div>
           <div className="min-w-0 flex-1 pt-0.5">
-            <p className="text-xs font-bold text-[#0f172a]">
-              Primeiro trabalho concluído
-            </p>
+            <p className="text-xs font-bold text-[#0f172a]">Primeiro trabalho concluído</p>
             <p className="mt-1 text-[10px] leading-snug text-[#64748b]">
               O indicado entrega com sucesso o seu primeiro conteúdo UGC.
             </p>
           </div>
         </div>
-
         <div className="relative z-[1] flex gap-3">
           <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#e7e6e9] text-[10px] font-black text-[#64748b]">
             3
@@ -646,7 +661,7 @@ function ComoFuncionaMobileBlock() {
           <div className="min-w-0 flex-1 pt-0.5">
             <p className="text-xs font-bold text-[#0f172a]">Comissão gerada</p>
             <p className="mt-1 text-[10px] leading-snug text-[#64748b]">
-              Comissão gerada após o primeiro trabalho concluído.
+              Comissão registrada conforme as regras vigentes da plataforma.
             </p>
           </div>
         </div>
@@ -663,31 +678,38 @@ function RecentReferralsMobileBlock({
   referrals: ReferralListItem[];
 }) {
   return (
-    <section id="indicacoes-recentes-mobile" className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-bold text-[#0f172a]">Indicações Recentes</h2>
-        <Link
-          to="/indicacoes"
-          className="text-xs font-bold text-[#895af6] hover:underline"
-        >
-          Ver todos
-        </Link>
+        <h2 className="text-sm font-bold text-[#0f172a]">Indicações recentes</h2>
+        {referrals.length > 0 ? (
+          <Link
+            to="/indicacoes/todas"
+            className="text-xs font-bold text-[#895af6] hover:underline"
+          >
+            Ver todas →
+          </Link>
+        ) : null}
       </div>
 
       {isLoading ? (
-        <div className="animate-pulse space-y-3 py-2">
+        <div className="animate-pulse space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-14 rounded-2xl bg-slate-100" />
+            <div key={i} className="flex items-center gap-3 rounded-[32px] bg-white p-4 shadow-sm">
+              <div className="size-10 rounded-full bg-slate-200 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-24 rounded bg-slate-200" />
+                <div className="h-3 w-16 rounded bg-slate-100" />
+              </div>
+              <div className="h-5 w-16 rounded-full bg-slate-100 shrink-0" />
+            </div>
           ))}
         </div>
       ) : referrals.length === 0 ? (
-        <p className="py-6 text-center text-sm text-slate-500">
-          Nenhuma indicação ainda.
-        </p>
+        <p className="py-6 text-center text-sm text-slate-500">Nenhuma indicação ainda.</p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {referrals.map((r) => {
-            const badge = referralStatusBadgeFigma(r.status);
+          {referrals.slice(0, 3).map((r) => {
+            const badge = referralStatusConfig(r.status);
             return (
               <li
                 key={r.id}
@@ -695,34 +717,18 @@ function RecentReferralsMobileBlock({
               >
                 <div className="flex min-w-0 flex-1 items-center gap-3">
                   <AvatarMobile name={r.referredUser.name} photoUrl={r.referredUser.photoUrl} />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-[#0f172a]">
-                      {r.referredUser.name}
-                    </p>
-                    <p className="mt-0.5 flex items-center gap-1 text-[10px] text-[#64748b]">
-                      <MapPin className="size-2.5 shrink-0 opacity-70" aria-hidden />
-                      <span>
-                        Desde {r.createdAt ? DATE_FMT.format(new Date(r.createdAt)) : "—"}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-                <div className="shrink-0 text-right">
-                  <p
-                    className={cn(
-                      "text-[10px] font-bold uppercase tracking-[-0.5px]",
-                      badge.className,
-                    )}
-                  >
-                    {badge.label}
-                  </p>
-                  <p
-                    className="mt-1 text-sm font-black tabular-nums text-[#0f172a]"
-                    title="Valor por indicação disponível em versões futuras da API"
-                  >
-                    —
+                  <p className="truncate text-sm font-bold text-[#0f172a]">
+                    {r.referredUser.name}
                   </p>
                 </div>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
+                    badge.className,
+                  )}
+                >
+                  {badge.label}
+                </span>
               </li>
             );
           })}
@@ -746,10 +752,7 @@ function ResumoGanhosMobileBlock({
       </section>
     );
   }
-
-  if (!dashboard) {
-    return null;
-  }
+  if (!dashboard) return null;
 
   const confirmedCents = Math.max(
     0,
@@ -766,15 +769,11 @@ function ResumoGanhosMobileBlock({
           Resumo de Ganhos
         </p>
       </div>
-
       <div className="flex flex-col gap-2">
         <div className="flex items-end justify-between gap-2 text-sm">
           <span className="text-[#64748b]">Comissões pendentes</span>
           <span className="font-bold tabular-nums text-[#0f172a]">
-            {formatMoneyFromCents(
-              dashboard.pendingCommissionAmountCents,
-              dashboard.currency,
-            )}
+            {formatMoneyFromCents(dashboard.pendingCommissionAmountCents, dashboard.currency)}
           </span>
         </div>
         <div className="flex items-end justify-between gap-2 text-sm">
@@ -784,12 +783,9 @@ function ResumoGanhosMobileBlock({
           </span>
         </div>
         <div className="flex items-end justify-between border-t border-slate-200/20 pt-4">
-          <span className="text-sm font-bold text-[#0f172a]">Saldo Acumulado</span>
+          <span className="text-sm font-bold text-[#0f172a]">Saldo acumulado</span>
           <span className="text-xl font-black tabular-nums text-[#895af6]">
-            {formatMoneyFromCents(
-              dashboard.totalCommissionAmountCents,
-              dashboard.currency,
-            )}
+            {formatMoneyFromCents(dashboard.totalCommissionAmountCents, dashboard.currency)}
           </span>
         </div>
       </div>
@@ -797,36 +793,7 @@ function ResumoGanhosMobileBlock({
   );
 }
 
-function AvatarMobile({
-  name,
-  photoUrl,
-}: {
-  name: string;
-  photoUrl: string | null;
-}) {
-  const initials = name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("");
-  const tint = initialsAvatarTint(name);
-  return (
-    <div
-      className={cn(
-        "flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold uppercase",
-        photoUrl ? "bg-slate-200" : tint,
-      )}
-    >
-      {photoUrl ? (
-        <img src={photoUrl} alt="" className="size-full object-cover" />
-      ) : (
-        initials || "?"
-      )}
-    </div>
-  );
-}
-
-function JourneyBlock({ ratePercent }: { ratePercent: number }) {
+function JourneyBlock() {
   return (
     <DashboardCard>
       <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
@@ -834,15 +801,12 @@ function JourneyBlock({ ratePercent }: { ratePercent: number }) {
           Jornada da indicação
         </h2>
         <p className="max-w-xl text-sm leading-relaxed text-[#595c5d] lg:text-right">
-          Acompanhe o progresso simplificado dos seus indicados.
+          Acompanhe o progresso dos seus indicados.
         </p>
       </div>
-
       <div className="mt-8 flex flex-col gap-10 md:mt-10 md:flex-row md:items-start md:gap-0 md:pt-1">
         <JourneyStep
-          icon={
-            <CircleUserRound className="size-7 text-white" strokeWidth={2} />
-          }
+          icon={<CircleUserRound className="size-7 text-white" strokeWidth={2} />}
           tone="brand"
           title="Cadastro realizado"
           body="Perfil criado na plataforma após usar seu link ou código."
@@ -865,7 +829,7 @@ function JourneyBlock({ ratePercent }: { ratePercent: number }) {
           icon={<Wallet className="size-7 text-slate-600" strokeWidth={2} />}
           tone="muted"
           title="Comissão gerada"
-          body={`Comissão de ${ratePercent}% registrada sobre a base do trabalho. Sem saque automático neste MVP.`}
+          body="Comissão registrada após o primeiro trabalho concluído, conforme as regras vigentes da plataforma."
         />
       </div>
     </DashboardCard>
@@ -909,6 +873,29 @@ function Avatar({ name, photoUrl }: { name: string; photoUrl: string | null }) {
     .join("");
   return (
     <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-xs font-bold text-slate-600">
+      {photoUrl ? (
+        <img src={photoUrl} alt="" className="size-full object-cover" />
+      ) : (
+        initials || "?"
+      )}
+    </div>
+  );
+}
+
+function AvatarMobile({ name, photoUrl }: { name: string; photoUrl: string | null }) {
+  const initials = name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+  const tint = initialsAvatarTint(name);
+  return (
+    <div
+      className={cn(
+        "flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-xs font-bold uppercase",
+        photoUrl ? "bg-slate-200" : tint,
+      )}
+    >
       {photoUrl ? (
         <img src={photoUrl} alt="" className="size-full object-cover" />
       ) : (

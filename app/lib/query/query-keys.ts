@@ -78,8 +78,8 @@ export const referralsKeys = {
   all: ["referrals"] as const,
   profile: () => [...referralsKeys.all, "profile"] as const,
   dashboard: () => [...referralsKeys.all, "dashboard"] as const,
-  referrals: (page: number, limit: number) =>
-    [...referralsKeys.all, "referrals", page, limit] as const,
+  referrals: (page: number, limit: number, status?: string) =>
+    [...referralsKeys.all, "referrals", page, limit, status ?? "ALL"] as const,
   commissions: (page: number, limit: number) =>
     [...referralsKeys.all, "commissions", page, limit] as const,
 };

@@ -63,6 +63,18 @@ export function useReferralsListQuery(enabled: boolean) {
   });
 }
 
+export function useReferralsPagedQuery(
+  page: number,
+  status: string | undefined,
+  enabled: boolean
+) {
+  return useQuery({
+    queryKey: referralsKeys.referrals(page, LIST_LIMIT, status),
+    queryFn: () => fetchReferralsList(undefined, page, status),
+    enabled,
+  });
+}
+
 export function useCommissionsListQuery(enabled: boolean) {
   return useQuery({
     queryKey: referralsKeys.commissions(1, LIST_LIMIT),
