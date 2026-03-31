@@ -71,6 +71,9 @@ type Pages = {
   "/indicacoes": {
     params: {};
   };
+  "/indicacoes/todas": {
+    params: {};
+  };
   "/criador/:creatorId": {
     params: {
       "creatorId": string;
@@ -84,11 +87,11 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -162,6 +165,10 @@ type RouteFiles = {
     id: "routes/indicacoes";
     page: "/indicacoes";
   };
+  "routes/indicacoes.todas.tsx": {
+    id: "routes/indicacoes.todas";
+    page: "/indicacoes/todas";
+  };
   "routes/criador.$creatorId.tsx": {
     id: "routes/criador.$creatorId";
     page: "/criador/:creatorId";
@@ -193,6 +200,7 @@ type RouteModules = {
   "routes/chat": typeof import("./app/routes/chat.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
   "routes/indicacoes": typeof import("./app/routes/indicacoes.tsx");
+  "routes/indicacoes.todas": typeof import("./app/routes/indicacoes.todas.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
   "routes/configuracoes": typeof import("./app/routes/configuracoes.tsx");
 };

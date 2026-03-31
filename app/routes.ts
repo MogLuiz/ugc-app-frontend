@@ -20,6 +20,7 @@ export default [
     route("chat", "routes/chat.tsx"),
     route("perfil", "routes/perfil.tsx"),
     route("indicacoes", "routes/indicacoes.tsx"),
+    route("indicacoes/todas", "routes/indicacoes.todas.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx"),
     route("configuracoes", "routes/configuracoes.tsx")
   ])

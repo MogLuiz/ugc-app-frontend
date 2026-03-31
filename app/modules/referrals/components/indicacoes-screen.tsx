@@ -713,22 +713,22 @@ function RecentReferralsMobileBlock({
             return (
               <li
                 key={r.id}
-                className="flex items-center justify-between gap-3 rounded-[32px] border border-slate-200/10 bg-white p-[17px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+                className="flex items-start gap-3 rounded-[32px] border border-slate-200/10 bg-white p-[17px] shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
               >
-                <div className="flex min-w-0 flex-1 items-center gap-3">
-                  <AvatarMobile name={r.referredUser.name} photoUrl={r.referredUser.photoUrl} />
-                  <p className="truncate text-sm font-bold text-[#0f172a]">
+                <AvatarMobile name={r.referredUser.name} photoUrl={r.referredUser.photoUrl} />
+                <div className="min-w-0 flex-1 flex flex-col gap-2">
+                  <p className="break-words text-sm font-bold leading-snug text-[#0f172a]">
                     {r.referredUser.name}
                   </p>
+                  <span
+                    className={cn(
+                      "w-fit max-w-full rounded-full px-2.5 py-1 text-[10px] font-bold uppercase leading-tight",
+                      badge.className,
+                    )}
+                  >
+                    {badge.label}
+                  </span>
                 </div>
-                <span
-                  className={cn(
-                    "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
-                    badge.className,
-                  )}
-                >
-                  {badge.label}
-                </span>
               </li>
             );
           })}
