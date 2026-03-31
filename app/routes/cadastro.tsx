@@ -147,7 +147,7 @@ export default function AuthRegisterRoute() {
         <div className="flex flex-1 items-start justify-center px-6 pt-4 pb-6 lg:items-center lg:px-10 lg:py-4">
           <div className="w-full max-w-[400px]">
             {/* Heading */}
-            <div className="mb-5">
+            <div className="mb-5 text-center">
               <h1 className="text-2xl font-black tracking-tight text-[#0f172a]">
                 Crie sua conta
               </h1>
@@ -179,7 +179,7 @@ export default function AuthRegisterRoute() {
                     </button>
                   ))}
                 </div>
-                <p className="mt-1.5 pl-1 text-xs font-medium text-[#895af6]">
+                <p className="mt-1.5 text-center text-xs font-medium text-[#895af6]">
                   {ROLE_MICROCOPY[role]}
                 </p>
               </div>
