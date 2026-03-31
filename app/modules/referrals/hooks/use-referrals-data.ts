@@ -47,31 +47,31 @@ export function useActivatePartnerMutation() {
   });
 }
 
-export function useReferralsDashboardQuery(enabled: boolean) {
+export function useReferralsDashboardQuery(isPartnerReady: boolean) {
   return useQuery({
     queryKey: referralsKeys.dashboard(),
     queryFn: () => fetchReferralsDashboard(),
-    enabled,
+    enabled: isPartnerReady,
   });
 }
 
-export function useReferralsListQuery(enabled: boolean) {
+export function useReferralsListQuery(isPartnerReady: boolean) {
   return useQuery({
     queryKey: referralsKeys.referrals(1, LIST_LIMIT),
     queryFn: () => fetchReferralsList(undefined, 1),
-    enabled,
+    enabled: isPartnerReady,
   });
 }
 
 export function useReferralsPagedQuery(
   page: number,
   status: string | undefined,
-  enabled: boolean
+  isPartnerReady: boolean
 ) {
   return useQuery({
     queryKey: referralsKeys.referrals(page, LIST_LIMIT, status),
     queryFn: () => fetchReferralsList(undefined, page, status),
-    enabled,
+    enabled: isPartnerReady,
   });
 }
 

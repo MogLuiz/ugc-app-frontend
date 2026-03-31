@@ -20,19 +20,48 @@ const DATE_FMT = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
 });
 
-function referralStatusConfig(status: ReferralStatusApi): {
-  label: string;
-  className: string;
+/** Data legível e compacta: "31 mar. 2026" (sem "de" repetido). */
+function formatDateCompact(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const raw = DATE_FMT.format(new Date(iso));
+  return raw.replace(/\s*de\s*/gi, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Texto completo para `title` / acessibilidade; badge na lista usa `shortLabel`. */
+function referralStatusListUi(status: ReferralStatusApi): {
+  shortLabel: string;
+  fullLabel: string;
+  badgeClassName: string;
 } {
   switch (status) {
     case "PENDING":
-      return { label: "Aguardando primeiro trabalho", className: "bg-amber-100 text-amber-900" };
+      return {
+        shortLabel: "Aguardando 1º trabalho",
+        fullLabel: "Aguardando primeiro trabalho",
+        badgeClassName:
+          "border border-amber-200/80 bg-amber-50/90 text-[10px] font-medium leading-tight text-amber-900/85",
+      };
     case "QUALIFIED":
-      return { label: "Qualificado", className: "bg-emerald-100 text-emerald-800" };
+      return {
+        shortLabel: "Qualificado",
+        fullLabel: "Qualificado — primeiro trabalho concluído",
+        badgeClassName:
+          "border border-emerald-200/70 bg-emerald-50/90 text-[10px] font-medium leading-tight text-emerald-800/90",
+      };
     case "EXPIRED":
-      return { label: "Expirado", className: "bg-slate-200 text-slate-600" };
+      return {
+        shortLabel: "Expirado",
+        fullLabel: "Expirado",
+        badgeClassName:
+          "border border-slate-200/90 bg-slate-50 text-[10px] font-medium leading-tight text-slate-600",
+      };
     default:
-      return { label: status, className: "bg-slate-100 text-slate-700" };
+      return {
+        shortLabel: status,
+        fullLabel: status,
+        badgeClassName:
+          "border border-slate-200/90 bg-slate-50 text-[10px] font-medium leading-tight text-slate-600",
+      };
   }
 }
 
@@ -40,7 +69,7 @@ type StatusFilter = ReferralStatusApi | "ALL";
 
 const FILTERS: { label: string; value: StatusFilter }[] = [
   { label: "Todos", value: "ALL" },
-  { label: "Aguardando primeiro trabalho", value: "PENDING" },
+  { label: "1º trabalho", value: "PENDING" },
   { label: "Qualificados", value: "QUALIFIED" },
   { label: "Expirados", value: "EXPIRED" },
 ];
@@ -56,13 +85,19 @@ function TodasIndicacoesSkeleton() {
       </div>
       <div className="flex flex-col gap-3">
         {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm">
-            <div className="size-11 rounded-full bg-slate-200 shrink-0" />
-            <div className="flex-1 space-y-2">
-              <div className="h-3.5 w-28 rounded bg-slate-200" />
-              <div className="h-3 w-20 rounded bg-slate-100" />
+          <div
+            key={i}
+            className="flex gap-3 rounded-2xl border border-slate-100/80 bg-white p-4 shadow-sm"
+          >
+            <div className="size-11 shrink-0 rounded-full bg-slate-200" />
+            <div className="min-w-0 flex-1 space-y-2.5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="h-4 max-w-[70%] flex-1 rounded bg-slate-200" />
+                <div className="h-5 w-16 shrink-0 rounded-md bg-slate-100" />
+              </div>
+              <div className="h-3 w-40 max-w-full rounded bg-slate-100" />
+              <div className="h-3 w-32 max-w-full rounded bg-slate-50" />
             </div>
-            <div className="h-5 w-24 rounded-full bg-slate-100 shrink-0" />
           </div>
         ))}
       </div>
@@ -147,7 +182,7 @@ export function TodasIndicacoesScreen() {
                     type="button"
                     onClick={() => handleFilterChange(f.value)}
                     className={cn(
-                      "rounded-full px-4 py-1.5 text-sm font-bold transition-colors",
+                      "rounded-full px-3 py-1.5 text-xs font-bold transition-colors sm:px-4 sm:text-sm",
                       statusFilter === f.value
                         ? "bg-[#895af6] text-white"
                         : "bg-white text-slate-600 shadow-sm hover:bg-slate-50",
@@ -165,39 +200,56 @@ export function TodasIndicacoesScreen() {
                 <>
                   <ul className="flex flex-col gap-3">
                     {items.map((r) => {
-                      const badge = referralStatusConfig(r.status);
+                      const statusUi = referralStatusListUi(r.status);
                       return (
                         <li
                           key={r.id}
-                          className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+                          className="flex gap-3 rounded-2xl border border-slate-100/80 bg-white p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.04)]"
                         >
                           <ReferralAvatar
                             name={r.referredUser.name}
                             photoUrl={r.referredUser.photoUrl}
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-[#2c2f30]">
-                              {r.referredUser.name}
-                            </p>
-                            <p className="text-xs text-slate-500">
-                              Cadastro:{" "}
-                              {r.createdAt ? DATE_FMT.format(new Date(r.createdAt)) : "—"}
-                            </p>
-                            {r.qualifiedAt ? (
-                              <p className="text-xs text-emerald-700">
-                                Qualificado em:{" "}
-                                {DATE_FMT.format(new Date(r.qualifiedAt))}
+                            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
+                              <p className="min-w-0 flex-1 break-words text-[15px] font-semibold leading-snug tracking-tight text-[#2c2f30]">
+                                {r.referredUser.name}
                               </p>
-                            ) : null}
+                              <span
+                                className={cn(
+                                  "inline-flex w-fit max-w-full items-center rounded-md px-1.5 py-0.5 sm:mt-0.5 sm:max-w-[min(11.5rem,46%)] sm:shrink-0 sm:text-right",
+                                  statusUi.badgeClassName,
+                                )}
+                                title={statusUi.fullLabel}
+                              >
+                                {statusUi.shortLabel}
+                              </span>
+                            </div>
+                            <div className="mt-2.5 flex flex-col gap-1 text-[12px] leading-snug">
+                              <p className="text-slate-600">
+                                <span className="font-medium text-slate-500">Cadastro</span>
+                                <span className="mx-1.5 text-slate-300" aria-hidden>
+                                  ·
+                                </span>
+                                <span className="text-slate-700">
+                                  {formatDateCompact(r.createdAt)}
+                                </span>
+                              </p>
+                              {r.qualifiedAt ? (
+                                <p>
+                                  <span className="font-medium text-emerald-700/85">
+                                    Qualificação
+                                  </span>
+                                  <span className="mx-1.5 text-emerald-300/90" aria-hidden>
+                                    ·
+                                  </span>
+                                  <span className="text-emerald-800/90">
+                                    {formatDateCompact(r.qualifiedAt)}
+                                  </span>
+                                </p>
+                              ) : null}
+                            </div>
                           </div>
-                          <span
-                            className={cn(
-                              "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase",
-                              badge.className,
-                            )}
-                          >
-                            {badge.label}
-                          </span>
                         </li>
                       );
                     })}

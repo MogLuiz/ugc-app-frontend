@@ -78,12 +78,12 @@ function IndicacoesScreenSkeleton() {
   return (
     <div className="animate-pulse flex flex-col gap-6">
       {/* Mobile hero */}
-      <div className="h-[148px] rounded-[32px] bg-[#895af6]/15 xl:hidden" />
+      <div className="h-[148px] rounded-[32px] bg-[#895af6]/15 lg:hidden" />
 
       {/* Desktop: “Compartilhe e convide” + resumo — espelha o layout real */}
-      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
+      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] lg:items-stretch lg:gap-8">
         <div
-          className="relative min-h-[220px] overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6"
+          className="relative min-h-[220px] overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm lg:p-6"
           style={{
             boxShadow:
               "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
@@ -94,12 +94,12 @@ function IndicacoesScreenSkeleton() {
             <div className="h-7 max-w-md rounded bg-slate-200" />
             <div className="h-7 max-w-[280px] rounded bg-slate-100" />
           </div>
-          <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
+          <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-6">
             <div className="min-w-0 flex-1 space-y-2">
               <div className="h-3 w-32 rounded bg-slate-200" />
               <div className="h-11 w-full rounded-xl bg-slate-100" />
             </div>
-            <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
+            <div className="w-full shrink-0 space-y-2 lg:max-w-[220px]">
               <div className="h-3 w-14 rounded bg-slate-200" />
               <div className="h-11 w-full rounded-xl bg-slate-100" />
             </div>
@@ -124,11 +124,11 @@ function IndicacoesScreenSkeleton() {
       </div>
 
       {/* Métricas */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="flex min-h-[121px] flex-col justify-between rounded-[32px] bg-slate-100 p-5 xl:min-h-0 xl:rounded-[20px] xl:p-4"
+            className="flex min-h-[121px] flex-col justify-between rounded-[32px] bg-slate-100 p-5 lg:min-h-0 lg:rounded-[20px] lg:p-4"
           >
             <div className="size-10 rounded-full bg-slate-200" />
             <div className="space-y-1.5">
@@ -140,7 +140,7 @@ function IndicacoesScreenSkeleton() {
       </div>
 
       {/* Desktop: lista recente + como funciona */}
-      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] xl:gap-8">
+      <div className="hidden lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
         <div className="rounded-[20px] border border-slate-100 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div className="h-4 w-32 rounded bg-slate-200" />
@@ -176,7 +176,7 @@ function IndicacoesScreenSkeleton() {
       </div>
 
       {/* Mobile: recentes + resumo + como funciona */}
-      <div className="flex flex-col gap-6 xl:hidden">
+      <div className="flex flex-col gap-6 lg:hidden">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="h-4 w-32 rounded bg-slate-200" />
@@ -299,7 +299,7 @@ export function IndicacoesScreen() {
                 <>
                   {/* Mobile hero */}
                   <section
-                    className="relative min-w-0 overflow-hidden rounded-[32px] bg-[#895af6] p-6 text-white sm:rounded-[40px] xl:hidden"
+                    className="relative min-w-0 overflow-hidden rounded-[32px] bg-[#895af6] p-6 text-white sm:rounded-[40px] lg:hidden"
                     style={{
                       boxShadow:
                         "0px 10px 15px -3px rgba(137,90,246,0.2), 0px 4px 6px -4px rgba(137,90,246,0.2)",
@@ -352,9 +352,9 @@ export function IndicacoesScreen() {
                   </section>
 
                   {/* Desktop hero + card resumo */}
-                  <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
+                  <div className="hidden lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] lg:items-stretch lg:gap-8">
                     <section
-                      className="relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6"
+                      className="relative min-w-0 overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm lg:p-6"
                       style={{
                         boxShadow:
                           "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
@@ -369,17 +369,17 @@ export function IndicacoesScreen() {
                         <p className="text-xs font-semibold uppercase tracking-wide text-[#895af6]">
                           Seu link exclusivo
                         </p>
-                        <h2 className="mt-2 text-xl font-black leading-tight text-[#2c2f30] xl:text-2xl">
+                        <h2 className="mt-2 text-xl font-black leading-tight text-[#2c2f30] lg:text-2xl">
                           Compartilhe e convide novos criadores
                         </h2>
-                        <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
+                        <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-6">
                           {profile.referralLink ? (
                             <div className="min-w-0 flex-1 space-y-2">
                               <p className="text-xs font-medium text-slate-600">
                                 Link de indicação
                               </p>
                               <div className="flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-100/90 py-1.5 pl-3 pr-1">
-                                <span className="min-w-0 flex-1 break-all text-sm leading-snug text-[#0f172a] xl:truncate xl:break-normal xl:leading-normal">
+                                <span className="min-w-0 flex-1 break-all text-sm leading-snug text-[#0f172a] lg:truncate lg:break-normal lg:leading-normal">
                                   {profile.referralLink}
                                 </span>
                                 <Button
@@ -393,7 +393,7 @@ export function IndicacoesScreen() {
                             </div>
                           ) : null}
                           {profile.referralCode ? (
-                            <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
+                            <div className="w-full shrink-0 space-y-2 lg:max-w-[220px]">
                               <p className="text-xs font-medium text-slate-600">Código</p>
                               <div className="flex min-h-[44px] items-center justify-between gap-2 rounded-xl border border-slate-200/90 bg-slate-100/90 px-3 py-1">
                                 <span className="font-mono text-sm font-bold tracking-wide text-[#0f172a]">
@@ -458,7 +458,7 @@ export function IndicacoesScreen() {
               ) : null}
 
               {dashboard ? (
-                <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-4">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
                   <ReferralMetricCard
                     icon={<Users className="size-5" strokeWidth={2} />}
                     iconTone="sky"
@@ -490,8 +490,8 @@ export function IndicacoesScreen() {
                 </div>
               ) : null}
 
-              {/* Desktop layout */}
-              <div className="hidden xl:flex xl:flex-col xl:gap-6">
+              {/* Desktop layout (≥lg): métricas já são full-width; aqui tabela + como funciona) */}
+              <div className="hidden lg:flex lg:flex-col lg:gap-6">
                 <JourneyBlock />
                 <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
                   <DashboardCard>
@@ -561,8 +561,8 @@ export function IndicacoesScreen() {
                 </div>
               </div>
 
-              {/* Mobile layout */}
-              <div className="flex flex-col gap-6 xl:hidden">
+              {/* Mobile layout (<lg) */}
+              <div className="flex flex-col gap-6 lg:hidden">
                 <RecentReferralsMobileBlock
                   isLoading={referralsQuery.isLoading}
                   referrals={allReferrals}
@@ -631,7 +631,7 @@ function ReferralMetricCard({
     <div
       className={cn(
         "flex flex-col rounded-[32px] border border-slate-300/30 bg-white p-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]",
-        "min-h-[121px] xl:min-h-0 xl:rounded-[20px] xl:border-[rgba(106,54,213,0.08)] xl:p-4 xl:shadow-[0px_4px_6px_-1px_rgba(106,54,213,0.04),0px_20px_40px_-1px_rgba(44,47,48,0.08)]",
+        "min-h-[121px] lg:min-h-0 lg:rounded-[20px] lg:border-[rgba(106,54,213,0.08)] lg:p-4 lg:shadow-[0px_4px_6px_-1px_rgba(106,54,213,0.04),0px_20px_40px_-1px_rgba(44,47,48,0.08)]",
       )}
     >
       <div className="flex items-start justify-between gap-2">
