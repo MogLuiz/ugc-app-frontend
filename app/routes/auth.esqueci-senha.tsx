@@ -74,7 +74,7 @@ export default function AuthEsqueciSenhaRoute() {
           ) : (
             /* Estado do formulário */
             <>
-              <div className="mb-5">
+              <div className="mb-5 text-center">
                 <h1 className="text-[28px] font-black tracking-tight text-[#0f172a] lg:text-[32px]">
                   Esqueci a senha
                 </h1>
