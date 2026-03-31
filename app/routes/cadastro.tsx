@@ -84,6 +84,13 @@ export default function AuthRegisterRoute() {
         return;
       }
 
+      // Supabase returns 200 with identities:[] when the email already exists
+      // (enumeration protection). Detect and surface a friendly message.
+      if (signUpData.user?.identities?.length === 0) {
+        toast.error("Este e-mail já está cadastrado. Faça login ou recupere sua senha.");
+        return;
+      }
+
       if (signUpData.session) {
         setStoredRole(role);
         await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
