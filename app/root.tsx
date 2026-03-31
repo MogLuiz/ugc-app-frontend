@@ -1,8 +1,28 @@
 import "./instrument.client";
 import type { ReactNode } from "react";
+import type { MetaFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { AppToaster } from "~/components/ui/toast";
 import "./app.css";
+
+export const meta: MetaFunction = () => [
+  { title: "UGC Local | Conecte sua empresa a criadores de conteúdo locais" },
+  {
+    name: "description",
+    content:
+      "Encontre criadores da sua cidade para produzir vídeos reais e autênticos para o seu negócio. Contrate com agilidade, organize demandas e gere conteúdo que vende.",
+  },
+  {
+    property: "og:title",
+    content: "UGC Local | Conecte sua empresa a criadores de conteúdo locais",
+  },
+  {
+    property: "og:description",
+    content:
+      "Encontre criadores da sua cidade para produzir vídeos reais e autênticos para o seu negócio. Contrate com agilidade, organize demandas e gere conteúdo que vende.",
+  },
+  { property: "og:type", content: "website" },
+];
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
