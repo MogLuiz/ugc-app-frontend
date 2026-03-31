@@ -875,7 +875,7 @@ export function CreatorServicesSection({
               )}
             >
               <div className="flex items-start justify-between gap-4">
-                {/* Left: name, mode, duration, price */}
+                {/* Left: name, mode, duration — valor (preço) oculto até definirmos exibição */}
                 <div className="min-w-0 flex-1">
                   <p
                     className={cn(
@@ -900,15 +900,6 @@ export function CreatorServicesSection({
                       {jt.durationMinutes} min
                     </span>
                   </div>
-                  <p
-                    className={cn(
-                      "mt-2 text-base font-black",
-                      jt.selected ? "text-[#895af6]" : "text-slate-400",
-                    )}
-                  >
-                    R${" "}
-                    {jt.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                  </p>
                 </div>
 
                 {/* Right: toggle + active/inactive label */}
