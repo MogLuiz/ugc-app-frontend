@@ -27,10 +27,6 @@ export function BusinessDashboardRecommendedCreators({
         ctaTo="/marketplace"
       />
 
-      {isRefreshing && !isLoading ? (
-        <p className="mt-4 text-xs font-medium text-[#595c5d]/70">Atualizando...</p>
-      ) : null}
-
       <div className="mt-5">
         {isLoading ? <SectionSkeleton rows={3} /> : null}
 

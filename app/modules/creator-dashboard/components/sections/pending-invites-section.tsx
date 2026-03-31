@@ -74,12 +74,6 @@ export function PendingInvitesSection({
         ctaTo="/ofertas"
       />
 
-      {isRefreshing && !isLoading ? (
-        <p className="text-xs font-medium text-[#595c5d]/80">
-          Atualizando convites…
-        </p>
-      ) : null}
-
       {isLoading ? <SectionSkeleton rows={2} /> : null}
 
       {!isLoading && errorMessage ? (

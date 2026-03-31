@@ -149,9 +149,9 @@ export function IndicacoesScreen() {
           </div>
 
           {profileQuery.isLoading ? (
-            <div className="flex items-center justify-center gap-2 py-16 text-slate-500">
-              <Loader2 className="size-6 animate-spin" />
-              <span>Carregando…</span>
+            <div className="animate-pulse space-y-4 py-8 px-4">
+              <div className="h-24 rounded-[28px] bg-slate-100" />
+              <div className="h-16 rounded-[28px] bg-slate-100" />
             </div>
           ) : profileError ? (
             <SectionMessage message={profileError} tone="error" />
@@ -437,9 +437,11 @@ export function IndicacoesScreen() {
                   <DashboardCard>
                     <SectionHeader title="Indicados recentes" />
                     {referralsQuery.isLoading ? (
-                      <p className="py-8 text-center text-sm text-slate-500">
-                        Carregando…
-                      </p>
+                      <div className="animate-pulse space-y-3 py-2">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="h-14 rounded-2xl bg-slate-100" />
+                        ))}
+                      </div>
                     ) : referrals.length === 0 ? (
                       <p className="py-8 text-center text-sm text-slate-500">
                         Nenhuma indicação ainda.
@@ -673,7 +675,11 @@ function RecentReferralsMobileBlock({
       </div>
 
       {isLoading ? (
-        <p className="py-6 text-center text-sm text-slate-500">Carregando…</p>
+        <div className="animate-pulse space-y-3 py-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-14 rounded-2xl bg-slate-100" />
+          ))}
+        </div>
       ) : referrals.length === 0 ? (
         <p className="py-6 text-center text-sm text-slate-500">
           Nenhuma indicação ainda.

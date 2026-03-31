@@ -143,7 +143,11 @@ export function CompanyContractRequestsScreen() {
         </section>
 
         {contractRequestsQuery.isLoading && items.length === 0 ? (
-          <p className="text-sm text-slate-600">Carregando campanhas...</p>
+          <div className="animate-pulse grid gap-4 lg:grid-cols-2 lg:gap-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-[120px] rounded-[32px] bg-white shadow-sm" />
+            ))}
+          </div>
         ) : contractRequestsQuery.error ? (
           <div className="rounded-[32px] bg-white p-6 text-sm text-slate-600 shadow-sm">
             {contractRequestsQuery.error instanceof Error

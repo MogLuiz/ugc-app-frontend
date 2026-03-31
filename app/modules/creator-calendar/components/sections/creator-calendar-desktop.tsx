@@ -70,10 +70,6 @@ export function CreatorCalendarDesktopSection({
       </div>
 
       <CalendarJobDetailsPanel controller={controller} />
-
-      {state.isFetching && !state.isLoading ? (
-        <p className="text-center text-xs text-slate-400">Atualizando agenda...</p>
-      ) : null}
     </>
   );
 }

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Navigate } from "react-router";
 import { useAuth } from "~/hooks/use-auth";
 import type { UserRole } from "~/modules/auth/types";
+import { AppLoadingSplash } from "~/components/ui/app-loading-splash";
 
 type AuthGuardProps = {
   children: ReactNode;
@@ -12,7 +13,7 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps) {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <p className="p-4 text-sm text-slate-600">Carregando sessao...</p>;
+    return <AppLoadingSplash />;
   }
 
   if (!user) {

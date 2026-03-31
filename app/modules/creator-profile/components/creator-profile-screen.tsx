@@ -29,8 +29,35 @@ export function CreatorProfileScreen() {
 
   if (creatorProfileQuery.isLoading && creatorId != null && !profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8]">
-        <p className="text-lg text-[#64748b]">Carregando perfil do criador...</p>
+      <div className="animate-pulse min-h-screen bg-[#f6f5f8] pb-24 lg:px-6 lg:pb-6 lg:pt-6">
+        {/* Back button stub */}
+        <div className="flex items-center gap-4 px-4 py-4">
+          <div className="size-10 rounded-full bg-slate-200" />
+          <div className="h-5 w-32 rounded-lg bg-slate-200 lg:hidden" />
+        </div>
+        {/* Hero section stub */}
+        <div className="mx-4 mt-2 overflow-hidden rounded-[32px] bg-white shadow-sm">
+          <div className="h-36 bg-slate-100" />
+          <div className="flex items-end gap-4 px-5 pb-4 -mt-10">
+            <div className="size-20 shrink-0 rounded-2xl bg-slate-200 ring-4 ring-white" />
+            <div className="flex-1 space-y-2 pb-1">
+              <div className="h-5 w-36 rounded-lg bg-slate-200" />
+              <div className="h-3 w-24 rounded bg-slate-100" />
+            </div>
+          </div>
+          <div className="space-y-2 px-5 pb-5">
+            <div className="h-3 w-full rounded bg-slate-100" />
+            <div className="h-3 w-3/4 rounded bg-slate-100" />
+          </div>
+        </div>
+        {/* Portfolio stub */}
+        <div className="mx-4 mt-4 rounded-[28px] bg-white p-5 shadow-sm">
+          <div className="h-4 w-28 rounded-lg bg-slate-200" />
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="h-28 rounded-2xl bg-slate-100" />
+            <div className="h-28 rounded-2xl bg-slate-100" />
+          </div>
+        </div>
       </div>
     );
   }

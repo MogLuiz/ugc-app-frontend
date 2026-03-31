@@ -139,7 +139,17 @@ export function ChatScreen() {
         </div>
 
         {conversationsQuery.isLoading ? (
-          <p className="text-sm text-slate-600">Carregando conversas...</p>
+          <div className="animate-pulse flex flex-col gap-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 rounded-2xl px-3 py-3">
+                <div className="size-10 shrink-0 rounded-full bg-slate-200" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-28 rounded bg-slate-200" />
+                  <div className="h-2.5 w-44 rounded bg-slate-100" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : conversationsQuery.error ? (
           <div className="rounded-3xl bg-white p-4 text-sm text-slate-600 shadow-sm">
             {conversationsQuery.error instanceof Error

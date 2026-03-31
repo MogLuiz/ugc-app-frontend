@@ -1,8 +1,8 @@
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { ErrorState } from "~/components/ui/error-state";
-import { LoadingState } from "~/components/ui/loading-state";
 import { useCreatorCalendarController } from "../hooks/use-creator-calendar-controller";
+import { CalendarSkeleton } from "./sections/calendar-skeleton";
 import { CreatorCalendarDesktopSection } from "./sections/creator-calendar-desktop";
 import { CreatorCalendarMobileSection } from "./sections/creator-calendar-mobile";
 
@@ -10,7 +10,7 @@ export function CreatorCalendarScreen() {
   const controller = useCreatorCalendarController();
 
   const content = controller.state.isLoading ? (
-    <LoadingState message="Carregando agenda..." />
+    <CalendarSkeleton />
   ) : controller.state.errorMessage ? (
     <div className="space-y-4">
       <ErrorState description={controller.state.errorMessage} />

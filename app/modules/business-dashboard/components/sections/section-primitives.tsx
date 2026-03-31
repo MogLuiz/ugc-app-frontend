@@ -60,6 +60,22 @@ export function SectionMessage({
   );
 }
 
+export function SkeletonBlock({
+  className,
+}: {
+  className?: string;
+}) {
+  return <div className={`rounded-lg bg-slate-200 ${className ?? ""}`} />;
+}
+
+export function SkeletonText({
+  className,
+}: {
+  className?: string;
+}) {
+  return <div className={`h-3 rounded bg-slate-200 ${className ?? ""}`} />;
+}
+
 export function SectionSkeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="space-y-3">

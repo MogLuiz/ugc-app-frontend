@@ -228,7 +228,11 @@ export function CreatorPendingContractRequestsScreen() {
           {/* Scrollable list */}
           <div className="flex-1 overflow-y-auto px-4 pb-28 pt-4 lg:px-4 lg:pb-6">
             {loading ? (
-              <p className="py-8 text-center text-sm text-slate-500">Carregando...</p>
+              <div className="animate-pulse flex flex-col gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-[88px] rounded-[28px] border border-slate-100 bg-white" />
+                ))}
+              </div>
             ) : items.length === 0 ? (
               <OffersEmptyState />
             ) : (

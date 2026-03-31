@@ -45,9 +45,14 @@ export function MarketplaceScreen() {
           ) : null}
 
           {viewModel.isInitialLoading ? (
-            <section className="rounded-3xl border border-[rgba(137,90,246,0.05)] bg-white p-8 text-center text-sm text-slate-500 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
-              Carregando creators...
-            </section>
+            <div className="animate-pulse grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[196px] rounded-[28px] border border-slate-100 bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+                />
+              ))}
+            </div>
           ) : null}
 
           {showEmptyState ? (
@@ -70,11 +75,6 @@ export function MarketplaceScreen() {
                   {viewModel.totalCreators === 1 ? "" : "es"} encontrado
                   {viewModel.totalCreators === 1 ? "" : "s"}
                 </p>
-                {viewModel.isRefreshing ? (
-                  <span className="text-xs font-medium text-slate-400">
-                    Atualizando...
-                  </span>
-                ) : null}
               </div>
 
               <section className="hidden gap-6 lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6 xl:grid-cols-4">

@@ -45,12 +45,6 @@ export function UpcomingCampaignsSection({
         ctaTo={hideSectionHeaderCta ? undefined : "/ofertas?tab=confirmed"}
       />
 
-      {isRefreshing && !isLoading ? (
-        <p className="text-xs font-medium text-[#595c5d]/80">
-          Atualizando agenda…
-        </p>
-      ) : null}
-
       {isLoading ? <SectionSkeleton rows={2} /> : null}
 
       {!isLoading && errorMessage ? (

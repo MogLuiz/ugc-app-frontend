@@ -73,10 +73,6 @@ export function RecentActivitySection({
         <p className="mt-1 text-sm text-[#595c5d]">Últimas movimentações das suas campanhas.</p>
       </div>
 
-      {isRefreshing && !isLoading ? (
-        <p className="mt-4 text-xs font-medium text-[#595c5d]/70">Atualizando…</p>
-      ) : null}
-
       <div className="mt-3">
         {isLoading ? <SectionSkeleton rows={3} /> : null}
 
