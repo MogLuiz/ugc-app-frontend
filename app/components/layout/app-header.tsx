@@ -4,11 +4,7 @@ import { Bell, LogOut, Settings, User } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import { useAuth } from "~/hooks/use-auth";
-import {
-  MOCK_BUSINESS_NOTIFICATIONS,
-  MOCK_NOTIFICATIONS,
-  NotificationsPanel,
-} from "./notifications-panel";
+import { NotificationsPanel } from "./notifications-panel";
 import type { AppNotification } from "./notifications-panel";
 
 type AppHeaderProps = {
@@ -39,11 +35,7 @@ export function AppHeader({
       .map((p) => p[0]?.toUpperCase() ?? "")
       .join("") || "?";
 
-  const defaultNotifications =
-    user?.role === "business"
-      ? MOCK_BUSINESS_NOTIFICATIONS
-      : MOCK_NOTIFICATIONS;
-  const notifications = notificationsProp ?? defaultNotifications;
+  const notifications = notificationsProp ?? [];
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 

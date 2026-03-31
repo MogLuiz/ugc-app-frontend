@@ -21,104 +21,6 @@ const NOTIFICATION_ICONS: Record<AppNotification["type"], LucideIcon> = {
   general: Bell,
 };
 
-/** Notificações mock para o fluxo do creator */
-export const MOCK_NOTIFICATIONS: AppNotification[] = [
-  {
-    id: "1",
-    title: "Nova campanha perto de você",
-    description: "Uma nova oportunidade foi publicada na sua região.",
-    timeAgo: "2h atrás",
-    read: false,
-    type: "campaign",
-    navigationPath: "/ofertas",
-  },
-  {
-    id: "2",
-    title: "Empresa respondeu sua mensagem",
-    description: "Você tem uma nova mensagem não lida.",
-    timeAgo: "4h atrás",
-    read: false,
-    type: "message",
-    navigationPath: "/chat",
-  },
-  {
-    id: "3",
-    title: "Campanha confirmada",
-    description: "Sua participação foi confirmada com sucesso.",
-    timeAgo: "1d atrás",
-    read: true,
-    type: "campaign",
-    navigationPath: "/ofertas",
-  },
-  {
-    id: "4",
-    title: "Pagamento liberado",
-    description: "Um pagamento foi liberado para sua conta.",
-    timeAgo: "2d atrás",
-    read: true,
-    type: "payment",
-    navigationPath: "/perfil",
-  },
-  {
-    id: "5",
-    title: "Nova avaliação recebida",
-    description: "Você recebeu uma nova avaliação de 5 estrelas.",
-    timeAgo: "3d atrás",
-    read: true,
-    type: "review",
-    navigationPath: "/perfil",
-  },
-];
-
-/** Notificações mock para o fluxo da empresa */
-export const MOCK_BUSINESS_NOTIFICATIONS: AppNotification[] = [
-  {
-    id: "b1",
-    title: "Creator aceitou sua proposta",
-    description: "Ana Lima confirmou participação na campanha de lançamento.",
-    timeAgo: "30min atrás",
-    read: false,
-    type: "campaign",
-    navigationPath: "/campanhas",
-  },
-  {
-    id: "b2",
-    title: "Nova mensagem de creator",
-    description: "Pedro Souza enviou uma mensagem sobre a campanha de março.",
-    timeAgo: "2h atrás",
-    read: false,
-    type: "message",
-    navigationPath: "/chat",
-  },
-  {
-    id: "b3",
-    title: "Creator enviou entrega",
-    description: "Mariana Costa enviou o conteúdo para sua aprovação.",
-    timeAgo: "5h atrás",
-    read: true,
-    type: "campaign",
-    navigationPath: "/campanhas",
-  },
-  {
-    id: "b4",
-    title: "Pagamento processado",
-    description: "R$ 350,00 foi debitado para a campanha de vídeo.",
-    timeAgo: "1d atrás",
-    read: true,
-    type: "payment",
-    navigationPath: "/perfil",
-  },
-  {
-    id: "b5",
-    title: "Campanha sem candidatos",
-    description: "Sua campanha de foto ainda não recebeu aplicações.",
-    timeAgo: "2d atrás",
-    read: true,
-    type: "general",
-    navigationPath: "/campanhas",
-  },
-];
-
 type NotificationsPanelProps = {
   open: boolean;
   onClose: () => void;
@@ -128,7 +30,7 @@ type NotificationsPanelProps = {
 export function NotificationsPanel({
   open,
   onClose,
-  notifications = MOCK_NOTIFICATIONS,
+  notifications = [],
 }: NotificationsPanelProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -176,9 +78,16 @@ export function NotificationsPanel({
           {/* Notification list */}
           <div className="flex-1 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-12 text-center">
-                <Bell className="size-8 text-slate-300" />
-                <p className="text-sm text-slate-400">Nenhuma notificação</p>
+              <div className="flex flex-col items-center gap-4 px-5 py-12 text-center">
+                <div className="flex size-14 items-center justify-center rounded-full bg-slate-100">
+                  <Bell className="size-7 text-slate-400" />
+                </div>
+                <div>
+                  <p className="font-bold text-[#2c2f30]">Nenhuma notificação</p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Quando houver novidades, elas aparecerão aqui.
+                  </p>
+                </div>
               </div>
             ) : (
               <ul>
