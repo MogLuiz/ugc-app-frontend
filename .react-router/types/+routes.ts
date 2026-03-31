@@ -14,10 +14,10 @@ type Pages = {
   "/": {
     params: {};
   };
-  "/auth/login": {
+  "/login": {
     params: {};
   };
-  "/auth/register": {
+  "/cadastro": {
     params: {};
   };
   "/auth/esqueci-senha": {
@@ -84,23 +84,23 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/auth/login" | "/auth/register" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/auth/login" | "/auth/register" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/criador/:creatorId" | "/configuracoes";
   };
   "routes/home.tsx": {
     id: "routes/home";
     page: "/";
   };
-  "routes/auth.login.tsx": {
-    id: "routes/auth.login";
-    page: "/auth/login";
+  "routes/login.tsx": {
+    id: "routes/login";
+    page: "/login";
   };
-  "routes/auth.register.tsx": {
-    id: "routes/auth.register";
-    page: "/auth/register";
+  "routes/cadastro.tsx": {
+    id: "routes/cadastro";
+    page: "/cadastro";
   };
   "routes/auth.esqueci-senha.tsx": {
     id: "routes/auth.esqueci-senha";
@@ -176,8 +176,8 @@ type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/_app-layout": typeof import("./app/routes/_app-layout.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
-  "routes/auth.login": typeof import("./app/routes/auth.login.tsx");
-  "routes/auth.register": typeof import("./app/routes/auth.register.tsx");
+  "routes/login": typeof import("./app/routes/login.tsx");
+  "routes/cadastro": typeof import("./app/routes/cadastro.tsx");
   "routes/auth.esqueci-senha": typeof import("./app/routes/auth.esqueci-senha.tsx");
   "routes/auth.redefinir-senha": typeof import("./app/routes/auth.redefinir-senha.tsx");
   "routes/agenda": typeof import("./app/routes/agenda.tsx");

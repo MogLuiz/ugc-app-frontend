@@ -98,7 +98,7 @@ export default function AuthRegisterRoute() {
         toast.success(
           "Conta criada! Verifique seu e-mail para ativar sua conta.",
         );
-        navigate("/auth/login");
+        navigate("/login");
       }
     } catch (err) {
       toast.error(
@@ -126,7 +126,7 @@ export default function AuthRegisterRoute() {
         {/* Mobile nav */}
         <div className="flex items-center bg-white px-4 py-3 lg:hidden mt-4">
           <Link
-            to="/auth/login"
+            to="/login"
             className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 transition-colors hover:bg-slate-100"
             aria-label="Voltar"
           >
@@ -374,7 +374,7 @@ export default function AuthRegisterRoute() {
             <p className="mt-4 text-center text-sm text-slate-500">
               Já possui conta?{" "}
               <Link
-                to="/auth/login"
+                to="/login"
                 className="font-bold text-[#895af6] transition-opacity hover:opacity-75"
               >
                 Faça login

@@ -65,7 +65,7 @@ export default function AuthEsqueciSenhaRoute() {
                 redefinição em breve.
               </p>
               <Link
-                to="/auth/login"
+                to="/login"
                 className="mt-6 inline-block text-sm font-semibold text-[#895af6] transition-opacity hover:opacity-75"
               >
                 Voltar para o login
@@ -132,7 +132,7 @@ export default function AuthEsqueciSenhaRoute() {
 
               <p className="mt-6 text-center text-sm text-slate-500">
                 <Link
-                  to="/auth/login"
+                  to="/login"
                   className="font-semibold text-[#895af6] transition-opacity hover:opacity-75"
                 >
                   Voltar para o login

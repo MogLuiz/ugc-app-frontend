@@ -77,7 +77,7 @@ export default function AuthRedefinirSenhaRoute() {
     try {
       await mutation.mutateAsync(data.password);
       toast.success("Senha redefinida com sucesso! Faça login com a nova senha.");
-      navigate("/auth/login");
+      navigate("/login");
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Erro ao redefinir a senha. Tente novamente."
@@ -127,7 +127,7 @@ export default function AuthRedefinirSenhaRoute() {
               </Link>
               <p className="mt-4 text-sm text-slate-500">
                 <Link
-                  to="/auth/login"
+                  to="/login"
                   className="font-semibold text-[#895af6] transition-opacity hover:opacity-75"
                 >
                   Voltar para o login
