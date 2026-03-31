@@ -77,7 +77,7 @@ export default function AuthRegisterRoute() {
       const { data: signUpData, error } = await signUp(
         data.email,
         data.password,
-        { name: data.name, role },
+        { name: data.name, role, referralCode: referralCodeFromUrl },
       );
       if (error) {
         toast.error(getFriendlyRegisterError(error.message));

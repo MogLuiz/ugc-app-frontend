@@ -205,7 +205,15 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
           ? toFrontendRole(metadataRole)
           : null;
       const role = roleFromMetadata ?? getStoredRole() ?? "business";
-      const bootstrapPayload = await bootstrapUser(role, token);
+      const pendingReferralCode =
+        (session.user?.user_metadata?.referralCode as string | undefined)
+          ?.trim().toLowerCase() || undefined;
+      const bootstrapPayload = await bootstrapUser(role, token, pendingReferralCode);
+      if (pendingReferralCode) {
+        // Clear from metadata after successful bootstrap to avoid stale state.
+        // Non-critical: if this fails, no double-claim risk since this 404 path won't run again.
+        await supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => {});
+      }
       return {
         authenticated: true,
         user: bootstrapToAuthUser(bootstrapPayload),
@@ -290,11 +298,13 @@ export async function signIn(email: string, password: string) {
 export async function signUp(
   email: string,
   password: string,
-  options?: { name?: string; role?: UserRole }
+  options?: { name?: string; role?: UserRole; referralCode?: string }
 ) {
   const data: Record<string, string> = {};
   if (options?.name) data.name = options.name;
   if (options?.role) data.role = toBackendRole(options.role);
+  const sanitizedReferralCode = options?.referralCode?.trim().toLowerCase();
+  if (sanitizedReferralCode) data.referralCode = sanitizedReferralCode;
   return supabase.auth.signUp({
     email,
     password,
