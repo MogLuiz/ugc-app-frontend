@@ -80,10 +80,47 @@ function IndicacoesScreenSkeleton() {
       {/* Mobile hero */}
       <div className="h-[148px] rounded-[32px] bg-[#895af6]/15 xl:hidden" />
 
-      {/* Desktop hero + card roxo */}
-      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:gap-8">
-        <div className="h-[160px] rounded-[28px] bg-slate-100" />
-        <div className="h-[160px] rounded-[28px] bg-[#895af6]/15" />
+      {/* Desktop: “Compartilhe e convide” + resumo — espelha o layout real */}
+      <div className="hidden xl:grid xl:grid-cols-[minmax(0,1.65fr)_minmax(260px,1fr)] xl:items-stretch xl:gap-8">
+        <div
+          className="relative min-h-[220px] overflow-hidden rounded-[28px] border border-slate-100 bg-white p-5 shadow-sm xl:p-6"
+          style={{
+            boxShadow:
+              "0px 4px 6px -1px rgba(106,54,213,0.04), 0px 20px 40px -1px rgba(44,47,48,0.08)",
+          }}
+        >
+          <div className="h-3 w-28 rounded bg-slate-200" />
+          <div className="mt-2 space-y-2">
+            <div className="h-7 max-w-md rounded bg-slate-200" />
+            <div className="h-7 max-w-[280px] rounded bg-slate-100" />
+          </div>
+          <div className="mt-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:gap-6">
+            <div className="min-w-0 flex-1 space-y-2">
+              <div className="h-3 w-32 rounded bg-slate-200" />
+              <div className="h-11 w-full rounded-xl bg-slate-100" />
+            </div>
+            <div className="w-full shrink-0 space-y-2 xl:max-w-[220px]">
+              <div className="h-3 w-14 rounded bg-slate-200" />
+              <div className="h-11 w-full rounded-xl bg-slate-100" />
+            </div>
+          </div>
+          <div className="mt-5 flex items-start gap-2">
+            <div className="mt-0.5 size-4 shrink-0 rounded bg-slate-200" />
+            <div className="h-3 flex-1 rounded bg-slate-100" />
+          </div>
+        </div>
+        <div className="flex min-h-[200px] flex-col justify-between rounded-[28px] bg-gradient-to-br from-[#895af6] to-[#6a2fc4] p-6 shadow-lg">
+          <div className="space-y-3">
+            <div className="h-3 w-36 rounded bg-white/30" />
+            <div className="h-10 w-44 max-w-full rounded bg-white/20" />
+            <div className="h-4 w-52 max-w-full rounded bg-white/15" />
+          </div>
+          <div className="my-4 h-px shrink-0 bg-white/25" role="presentation" />
+          <div className="space-y-2">
+            <div className="h-3.5 w-32 rounded bg-white/30" />
+            <div className="h-8 w-28 rounded bg-white/20" />
+          </div>
+        </div>
       </div>
 
       {/* Métricas */}
