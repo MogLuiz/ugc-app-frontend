@@ -1,7 +1,6 @@
 import { httpClient } from "~/lib/http/client";
 import { getAccessToken } from "~/modules/auth/service";
 import type {
-  ActivatePartnerResponse,
   CommissionsListResponse,
   PartnerProfileResponse,
   ReferralsDashboardResponse,
@@ -15,16 +14,6 @@ export async function fetchPartnerProfile(
 ): Promise<PartnerProfileResponse> {
   const accessToken = await getAccessToken(token);
   return httpClient<PartnerProfileResponse>("/partners/me", {
-    token: accessToken,
-  });
-}
-
-export async function activatePartner(
-  token?: string
-): Promise<ActivatePartnerResponse> {
-  const accessToken = await getAccessToken(token);
-  return httpClient<ActivatePartnerResponse>("/partners/me/activate", {
-    method: "POST",
     token: accessToken,
   });
 }

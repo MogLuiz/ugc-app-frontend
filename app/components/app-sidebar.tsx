@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChart3,
   Briefcase,
@@ -25,6 +25,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { useAuth } from "~/hooks/use-auth";
 import { cn } from "~/lib/utils";
+import { usePartnerProfileQuery } from "~/modules/referrals/hooks/use-referrals-data";
 import type { AuthUser, UserRole } from "~/modules/auth/types";
 
 type AppSidebarProps = {
@@ -123,6 +124,13 @@ const SIDEBAR_CONFIG: Record<
 export function AppSidebar({ variant }: AppSidebarProps) {
   const { pathname } = useLocation();
   const config = SIDEBAR_CONFIG[variant];
+  const partnerQuery = usePartnerProfileQuery();
+
+  const navItems = useMemo(() => {
+    const showIndicacoes = partnerQuery.data?.kind === "active";
+    if (showIndicacoes) return config.navItems;
+    return config.navItems.filter((item) => item.id !== "indicacoes");
+  }, [config.navItems, partnerQuery.data?.kind]);
 
   return (
     <aside className="sticky top-0 flex h-screen w-[288px] shrink-0 flex-col justify-between self-start border-r border-[rgba(137,90,246,0.1)] bg-white px-6 py-6">
@@ -144,7 +152,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
         </div>
 
         <nav className="flex flex-1 flex-col gap-2">
-          {config.navItems.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.to !== "#" && pathname === item.to;
             const className = cn(

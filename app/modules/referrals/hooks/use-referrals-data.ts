@@ -1,8 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { HttpError } from "~/lib/http/errors";
 import { referralsKeys } from "~/lib/query/query-keys";
 import {
-  activatePartner,
   fetchCommissionsList,
   fetchPartnerProfile,
   fetchReferralsDashboard,
@@ -32,17 +31,6 @@ export function usePartnerProfileQuery() {
         }
         throw e;
       }
-    },
-  });
-}
-
-export function useActivatePartnerMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => activatePartner(),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: referralsKeys.all });
     },
   });
 }

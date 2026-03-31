@@ -27,7 +27,6 @@ import {
 import type { ReferralListItem, ReferralsDashboardResponse, ReferralStatusApi } from "../types";
 import { formatMoneyFromCents } from "../lib/format-money";
 import {
-  useActivatePartnerMutation,
   usePartnerProfileQuery,
   useReferralsDashboardQuery,
   useReferralsListQuery,
@@ -210,8 +209,6 @@ export function IndicacoesScreen() {
   const dashboardQuery = useReferralsDashboardQuery(isPartnerReady);
   const referralsQuery = useReferralsListQuery(isPartnerReady);
 
-  const activateMutation = useActivatePartnerMutation();
-
   const profileError =
     profileQuery.isError && profileQuery.error instanceof Error
       ? profileQuery.error.message
@@ -251,44 +248,6 @@ export function IndicacoesScreen() {
             <IndicacoesScreenSkeleton />
           ) : profileError ? (
             <SectionMessage message={profileError} tone="error" />
-          ) : profileQuery.data?.kind === "not_activated" ? (
-            <DashboardCard className="max-w-lg">
-              <h2 className="text-lg font-bold text-[#2c2f30]">
-                Ative o programa de indicações
-              </h2>
-              <p className="mt-2 text-sm text-[#595c5d]">
-                Ao ativar, você recebe um link e um código para convidar novos
-                criadores. A comissão é gerada quando o indicado concluir o
-                primeiro trabalho válido.
-              </p>
-              <Button
-                className="mt-6 w-full rounded-full bg-[#895af6] font-bold text-white hover:bg-[#7c4aeb] lg:w-auto"
-                disabled={activateMutation.isPending}
-                onClick={() => {
-                  activateMutation.mutate(undefined, {
-                    onError: (e) => {
-                      toast.error(
-                        e instanceof Error
-                          ? e.message
-                          : "Não foi possível ativar. Tente novamente.",
-                      );
-                    },
-                    onSuccess: () => {
-                      toast.success("Programa de indicações ativado.");
-                    },
-                  });
-                }}
-              >
-                {activateMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                    Ativando…
-                  </>
-                ) : (
-                  "Ativar indicações"
-                )}
-              </Button>
-            </DashboardCard>
           ) : (
             <>
               {dataError ? (

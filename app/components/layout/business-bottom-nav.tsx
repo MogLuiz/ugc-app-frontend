@@ -1,7 +1,9 @@
 import type { ElementType } from "react";
-import { Briefcase, Home, MessageCircle, Plus, User } from "lucide-react";
+import { useMemo } from "react";
+import { Briefcase, Home, MessageCircle, Plus, User, UserPlus } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "~/lib/utils";
+import { usePartnerProfileQuery } from "~/modules/referrals/hooks/use-referrals-data";
 
 type NavItem = {
   id: string;
@@ -11,16 +13,31 @@ type NavItem = {
   special?: boolean;
 };
 
-const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { id: "inicio",    label: "Início",    icon: Home,          to: "/dashboard"  },
-  { id: "campanhas", label: "Campanhas", icon: Briefcase,     to: "/campanhas"  },
-  { id: "criar",     label: "Criar",     icon: Plus,          to: "/criar",     special: true },
-  { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat"       },
-  { id: "perfil",    label: "Perfil",    icon: User,          to: "/perfil"     },
-];
+/**
+ * Mesma lógica do creator: com parceiro ativo, "Mensagens" vira "Indicações" no mobile
+ * (decisão temporária por espaço na barra).
+ */
+function buildBusinessBottomItems(showIndicacoes: boolean): NavItem[] {
+  const fourth: NavItem = showIndicacoes
+    ? { id: "indicacoes", label: "Indicações", icon: UserPlus, to: "/indicacoes" }
+    : { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" };
+  return [
+    { id: "inicio", label: "Início", icon: Home, to: "/dashboard" },
+    { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "/campanhas" },
+    { id: "criar", label: "Criar", icon: Plus, to: "/criar", special: true },
+    fourth,
+    { id: "perfil", label: "Perfil", icon: User, to: "/perfil" },
+  ];
+}
 
 export function BusinessBottomNav() {
   const location = useLocation();
+  const partnerQuery = usePartnerProfileQuery();
+  const showIndicacoes = partnerQuery.data?.kind === "active";
+  const items = useMemo(
+    () => buildBusinessBottomItems(showIndicacoes),
+    [showIndicacoes],
+  );
 
   return (
     <nav
@@ -28,9 +45,12 @@ export function BusinessBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex items-center justify-around px-2 py-3">
-        {BOTTOM_NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.to;
+          const isActive =
+            item.to === "/indicacoes"
+              ? location.pathname.startsWith("/indicacoes")
+              : location.pathname === item.to;
 
           if (item.special) {
             return (
