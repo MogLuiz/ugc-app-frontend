@@ -463,7 +463,7 @@ export function IndicacoesScreen() {
                               </p>
                               <p className="text-xs text-slate-500">
                                 {referralStatusLabel(r.status)} · desde{" "}
-                                {DATE_FMT.format(new Date(r.createdAt))}
+                                {r.createdAt ? DATE_FMT.format(new Date(r.createdAt)) : "—"}
                               </p>
                             </div>
                             <span
@@ -702,7 +702,7 @@ function RecentReferralsMobileBlock({
                     <p className="mt-0.5 flex items-center gap-1 text-[10px] text-[#64748b]">
                       <MapPin className="size-2.5 shrink-0 opacity-70" aria-hidden />
                       <span>
-                        Desde {DATE_FMT.format(new Date(r.createdAt))}
+                        Desde {r.createdAt ? DATE_FMT.format(new Date(r.createdAt)) : "—"}
                       </span>
                     </p>
                   </div>
