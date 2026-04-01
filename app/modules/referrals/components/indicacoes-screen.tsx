@@ -227,6 +227,10 @@ export function IndicacoesScreen() {
   const profile =
     profileQuery.data?.kind === "active" ? profileQuery.data.profile : null;
 
+  const referralLinkWithRole = profile?.referralLink
+    ? `${profile.referralLink}${profile.referralLink.includes("?") ? "&" : "?"}role=${role === "business" ? "business" : "creator"}`
+    : null;
+
   return (
     <div className="min-h-screen bg-[#f5f6f7] lg:flex">
       <div className="hidden lg:block">
@@ -254,7 +258,7 @@ export function IndicacoesScreen() {
                 <SectionMessage message={dataError} tone="error" />
               ) : null}
 
-              {profile && (profile.referralLink || profile.referralCode) ? (
+              {profile && (referralLinkWithRole || profile.referralCode) ? (
                 <>
                   {/* Mobile hero */}
                   <section
@@ -277,15 +281,15 @@ export function IndicacoesScreen() {
                         <span className="block">indicado</span>
                       </h2>
                       <div className="flex flex-col gap-3 pt-2">
-                        {profile.referralLink ? (
+                        {referralLinkWithRole ? (
                           <div className="flex min-h-[44px] items-center justify-between gap-3 rounded-full bg-white/10 px-4 py-3 backdrop-blur-[6px]">
                             <span className="min-w-0 flex-1 truncate text-sm font-medium text-white">
-                              {profile.referralLink}
+                              {referralLinkWithRole}
                             </span>
                             <Button
                               type="button"
                               className="h-8 shrink-0 rounded-full bg-white px-4 text-xs font-bold text-[#895af6] hover:bg-white/95"
-                              onClick={() => void copyText("Link", profile.referralLink!)}
+                              onClick={() => void copyText("Link", referralLinkWithRole)}
                             >
                               Copiar
                             </Button>
@@ -332,19 +336,19 @@ export function IndicacoesScreen() {
                           Compartilhe e convide novos criadores
                         </h2>
                         <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:gap-6">
-                          {profile.referralLink ? (
+                          {referralLinkWithRole ? (
                             <div className="min-w-0 flex-1 space-y-2">
                               <p className="text-xs font-medium text-slate-600">
                                 Link de indicação
                               </p>
                               <div className="flex min-h-[44px] items-center gap-1 rounded-xl border border-slate-200/90 bg-slate-100/90 py-1.5 pl-3 pr-1">
                                 <span className="min-w-0 flex-1 break-all text-sm leading-snug text-[#0f172a] lg:truncate lg:break-normal lg:leading-normal">
-                                  {profile.referralLink}
+                                  {referralLinkWithRole}
                                 </span>
                                 <Button
                                   type="button"
                                   className="h-9 shrink-0 rounded-lg bg-[#895af6] px-4 text-xs font-bold text-white hover:bg-[#7c4aeb]"
-                                  onClick={() => void copyText("Link", profile.referralLink!)}
+                                  onClick={() => void copyText("Link", referralLinkWithRole)}
                                 >
                                   Copiar
                                 </Button>
