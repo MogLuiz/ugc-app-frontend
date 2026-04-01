@@ -197,7 +197,7 @@ export function CreatorProfileInfoSection({
             placeholder="Conte um pouco sobre você e seu trabalho"
             rows={3}
             maxLength={500}
-            className="min-h-0 w-full resize-y rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-base text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
+            className="w-full resize-y overflow-y-auto rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-base text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
           />
           <p className="text-right text-xs text-[#94a3b8]">{bio.length}/500</p>
         </div>
@@ -343,7 +343,7 @@ export function CreatorPrimaryInfoSection({
           placeholder="Conte um pouco sobre você e seu trabalho"
           rows={3}
           maxLength={500}
-          className="min-h-0 w-full resize-none rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-base text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
+          className="w-full resize-none overflow-y-auto rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-base text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
         />
         <p className="text-right text-xs text-[#94a3b8]">{bio.length}/500</p>
       </div>
