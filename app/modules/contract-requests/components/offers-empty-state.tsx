@@ -44,13 +44,13 @@ export function OffersEmptyState() {
       </p>
 
       {/* CTA */}
-      <Link
+      {/* <Link
         to="/marketplace"
         className="inline-flex w-full max-w-[260px] items-center justify-center gap-2 rounded-full bg-[#895af6] px-6 py-3 text-sm font-bold text-white shadow-[0px_8px_15px_-3px_rgba(137,90,246,0.3)] transition-colors hover:bg-[#7c4aed]"
       >
         Explorar Campanhas
         <ArrowRight className="size-4" />
-      </Link>
+      </Link> */}
 
       {/* Tip chip */}
       <div className="mt-4 flex items-center gap-2 rounded-full border border-white bg-white/60 px-4 py-2.5 shadow-sm backdrop-blur-sm">

@@ -13,7 +13,10 @@ import {
 
 function UpcomingEmptyIllustration() {
   return (
-    <div className="relative flex size-8 items-center justify-center rounded-xl bg-[#f0ebff]" aria-hidden>
+    <div
+      className="relative flex size-8 items-center justify-center rounded-xl bg-[#f0ebff]"
+      aria-hidden
+    >
       <CalendarDays className="size-3.5 text-[#6a36d5]" />
       <span className="absolute -bottom-0.5 -right-0.5 flex size-3 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100/90">
         <Video className="size-2 text-[#6a36d5]" aria-hidden />
@@ -59,18 +62,18 @@ export function UpcomingCampaignsSection({
             illustration={<UpcomingEmptyIllustration />}
             title="Nenhuma gravação agendada"
             description="Campanhas aceitas e confirmadas aparecerão aqui."
-            actions={
-              <div className="flex justify-center">
-                <Button
-                  asChild
-                  variant="outline"
-                  size="sm"
-                  className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
-                >
-                  <Link to="/marketplace">Explorar campanhas</Link>
-                </Button>
-              </div>
-            }
+            // actions={
+            //   <div className="flex justify-center">
+            //     <Button
+            //       asChild
+            //       variant="outline"
+            //       size="sm"
+            //       className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
+            //     >
+            //       <Link to="/marketplace">Explorar campanhas</Link>
+            //     </Button>
+            //   </div>
+            // }
           />
         </DashboardCard>
       ) : null}
@@ -79,7 +82,11 @@ export function UpcomingCampaignsSection({
         {!isLoading &&
           !errorMessage &&
           items.map((row) => (
-            <Link key={row.id} to={`/ofertas/${row.id}`} className="block overflow-hidden rounded-[32px]">
+            <Link
+              key={row.id}
+              to={`/ofertas/${row.id}`}
+              className="block overflow-hidden rounded-[32px]"
+            >
               <div className="flex items-stretch gap-0">
                 <div className="flex w-[76px] shrink-0 flex-col items-center justify-center rounded-l-[28px] bg-[#6a36d5]/10 px-2 py-4 text-center lg:w-[84px]">
                   <span className="text-[10px] font-bold uppercase leading-tight text-[#6a36d5]">
