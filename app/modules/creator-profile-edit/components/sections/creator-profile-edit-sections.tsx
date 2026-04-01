@@ -23,7 +23,7 @@ import {
 import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 import type { PortfolioMediaPayload } from "~/modules/auth/types";
 import type { ProfileProgress } from "../../hooks/use-creator-profile-edit-controller";
-import { lookupCep, formatCep } from "../../lib/cep-lookup";
+import { lookupCep, formatCep, formatCpf } from "../../lib/cep-lookup";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Internal helper
@@ -106,6 +106,8 @@ type ProfileInfoSectionProps = {
   onBioChange: (value: string) => void;
   phone: string;
   onPhoneChange: (value: string) => void;
+  cpf: string;
+  onCpfChange: (value: string) => void;
   instagramUsername: string;
   onInstagramUsernameChange: (value: string) => void;
   tiktokUsername: string;
@@ -126,6 +128,8 @@ export function CreatorProfileInfoSection({
   onBioChange,
   phone,
   onPhoneChange,
+  cpf,
+  onCpfChange,
   instagramUsername,
   onInstagramUsernameChange,
   tiktokUsername,
@@ -208,6 +212,17 @@ export function CreatorProfileInfoSection({
           />
         </div>
         <div className="flex flex-col gap-1.5">
+          <FieldLabel>CPF</FieldLabel>
+          <Input
+            value={cpf}
+            onChange={(e) => onCpfChange(formatCpf(e.target.value))}
+            placeholder="000.000.000-00"
+            inputMode="numeric"
+            maxLength={14}
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
           <FieldLabel>Data de Nascimento</FieldLabel>
           <Input
             type="date"
@@ -248,6 +263,10 @@ type PrimaryInfoProps = {
   onDisplayNameChange: (value: string) => void;
   bio: string;
   onBioChange: (value: string) => void;
+  phone: string;
+  onPhoneChange: (value: string) => void;
+  cpf: string;
+  onCpfChange: (value: string) => void;
   photoUrl?: string;
   initials: string;
   onAvatarChange?: (file: File) => void;
@@ -259,6 +278,10 @@ export function CreatorPrimaryInfoSection({
   onDisplayNameChange,
   bio,
   onBioChange,
+  phone,
+  onPhoneChange,
+  cpf,
+  onCpfChange,
   photoUrl,
   initials,
   onAvatarChange,
@@ -324,6 +347,27 @@ export function CreatorPrimaryInfoSection({
         />
         <p className="text-right text-xs text-[#94a3b8]">{bio.length}/500</p>
       </div>
+      <div className="flex flex-col gap-1.5">
+        <FieldLabel>Telefone</FieldLabel>
+        <Input
+          type="tel"
+          value={phone}
+          onChange={(e) => onPhoneChange(e.target.value)}
+          placeholder="(00) 00000-0000"
+          className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+        />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <FieldLabel>CPF</FieldLabel>
+        <Input
+          value={cpf}
+          onChange={(e) => onCpfChange(formatCpf(e.target.value))}
+          placeholder="000.000.000-00"
+          inputMode="numeric"
+          maxLength={14}
+          className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+        />
+      </div>
     </section>
   );
 }
@@ -333,8 +377,6 @@ export function CreatorPrimaryInfoSection({
 // ─────────────────────────────────────────────────────────────────────────────
 
 type SupplementaryProps = {
-  phone: string;
-  onPhoneChange: (value: string) => void;
   instagramUsername: string;
   onInstagramUsernameChange: (value: string) => void;
   tiktokUsername: string;
@@ -344,8 +386,6 @@ type SupplementaryProps = {
 };
 
 export function CreatorSupplementarySection({
-  phone,
-  onPhoneChange,
   instagramUsername,
   onInstagramUsernameChange,
   tiktokUsername,
@@ -353,7 +393,7 @@ export function CreatorSupplementarySection({
   birthDate,
   onBirthDateChange,
 }: SupplementaryProps) {
-  const hasAnyValue = !!(phone || instagramUsername || tiktokUsername || birthDate);
+  const hasAnyValue = !!(instagramUsername || tiktokUsername || birthDate);
   const [open, setOpen] = useState(hasAnyValue);
 
   return (
@@ -376,16 +416,6 @@ export function CreatorSupplementarySection({
 
       {open && (
         <div className="flex flex-col gap-4 px-6 pb-6">
-          <div className="flex flex-col gap-1.5">
-            <FieldLabel>Telefone</FieldLabel>
-            <Input
-              type="tel"
-              value={phone}
-              onChange={(e) => onPhoneChange(e.target.value)}
-              placeholder="(00) 00000-0000"
-              className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
-            />
-          </div>
           <div className="flex flex-col gap-1.5">
             <FieldLabel>Instagram</FieldLabel>
             <Input

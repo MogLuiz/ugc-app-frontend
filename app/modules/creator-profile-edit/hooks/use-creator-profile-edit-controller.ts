@@ -26,6 +26,7 @@ import type { CreatorJobTypeItem } from "~/modules/creator-job-types/types";
 type CreatorProfileExt = {
   instagramUsername?: string;
   tiktokUsername?: string;
+  cpf?: string;
 };
 
 export type ProfileProgressItem = { label: string; done: boolean };
@@ -44,6 +45,7 @@ function getInitialState(user: AuthUser) {
     phone: user.phone ?? "",
     instagramUsername: creatorProfile?.instagramUsername ?? "",
     tiktokUsername: creatorProfile?.tiktokUsername ?? "",
+    cpf: creatorProfile?.cpf ?? "",
     addressStreet: user.profile?.addressStreet ?? "",
     addressNumber: user.profile?.addressNumber ?? "",
     addressCity: user.profile?.addressCity ?? "",
@@ -65,6 +67,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
   const [phone, setPhone] = useState(getInitialState(user).phone);
   const [instagramUsername, setInstagramUsername] = useState(getInitialState(user).instagramUsername);
   const [tiktokUsername, setTiktokUsername] = useState(getInitialState(user).tiktokUsername);
+  const [cpf, setCpf] = useState(getInitialState(user).cpf);
   const [addressStreet, setAddressStreet] = useState(getInitialState(user).addressStreet);
   const [addressNumber, setAddressNumber] = useState(getInitialState(user).addressNumber);
   const [addressCity, setAddressCity] = useState(getInitialState(user).addressCity);
@@ -115,6 +118,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setPhone(init.phone);
     setInstagramUsername(init.instagramUsername);
     setTiktokUsername(init.tiktokUsername);
+    setCpf(init.cpf);
     setAddressStreet(init.addressStreet);
     setAddressNumber(init.addressNumber);
     setAddressCity(init.addressCity);
@@ -165,6 +169,10 @@ export function useCreatorProfileEditController(user: AuthUser) {
         label: "Telefone",
         done: phone.trim().length > 0,
       },
+      {
+        label: "CPF",
+        done: cpf.trim().length > 0,
+      },
     ];
     const completedCount = items.filter((i) => i.done).length;
     return {
@@ -182,6 +190,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
     addressState,
     instagramUsername,
     phone,
+    cpf,
   ]);
 
   // Split dirty tracking per endpoint to avoid unnecessary requests
@@ -204,9 +213,10 @@ export function useCreatorProfileEditController(user: AuthUser) {
     const init = getInitialState(user);
     return (
       instagramUsername !== init.instagramUsername ||
-      tiktokUsername !== init.tiktokUsername
+      tiktokUsername !== init.tiktokUsername ||
+      cpf !== init.cpf
     );
-  }, [user, instagramUsername, tiktokUsername]);
+  }, [user, instagramUsername, tiktokUsername, cpf]);
 
   const isDirty = isProfileFieldsDirty || isCreatorProfileFieldsDirty || isAvailabilityDirty || isJobTypesDirty;
 
@@ -252,6 +262,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setPhone(init.phone);
     setInstagramUsername(init.instagramUsername);
     setTiktokUsername(init.tiktokUsername);
+    setCpf(init.cpf);
     setAddressStreet(init.addressStreet);
     setAddressNumber(init.addressNumber);
     setAddressCity(init.addressCity);
@@ -328,6 +339,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
             data: {
               instagramUsername: instagramUsername || undefined,
               tiktokUsername: tiktokUsername || undefined,
+              cpf: cpf || undefined,
             },
           })
         );
@@ -372,6 +384,8 @@ export function useCreatorProfileEditController(user: AuthUser) {
     setInstagramUsername,
     tiktokUsername,
     setTiktokUsername,
+    cpf,
+    setCpf,
     addressStreet,
     setAddressStreet,
     addressNumber,

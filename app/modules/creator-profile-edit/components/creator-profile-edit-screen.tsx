@@ -104,6 +104,10 @@ export function CreatorProfileEditScreen() {
               onDisplayNameChange={controller.setDisplayName}
               bio={controller.bio}
               onBioChange={controller.setBio}
+              phone={controller.phone}
+              onPhoneChange={controller.setPhone}
+              cpf={controller.cpf}
+              onCpfChange={controller.setCpf}
               photoUrl={user.profile?.photoUrl}
               initials={initials}
               onAvatarChange={controller.handleAvatarChange}
@@ -152,8 +156,6 @@ export function CreatorProfileEditScreen() {
 
             {/* 8. Supplementary info (collapsible accordion) */}
             <CreatorSupplementarySection
-              phone={controller.phone}
-              onPhoneChange={controller.setPhone}
               instagramUsername={controller.instagramUsername}
               onInstagramUsernameChange={controller.setInstagramUsername}
               tiktokUsername={controller.tiktokUsername}
@@ -195,6 +197,8 @@ export function CreatorProfileEditScreen() {
                   onBioChange={controller.setBio}
                   phone={controller.phone}
                   onPhoneChange={controller.setPhone}
+                  cpf={controller.cpf}
+                  onCpfChange={controller.setCpf}
                   instagramUsername={controller.instagramUsername}
                   onInstagramUsernameChange={controller.setInstagramUsername}
                   tiktokUsername={controller.tiktokUsername}
