@@ -69,8 +69,12 @@ export function RecentActivitySection({
   return (
     <DashboardCard>
       <div>
-        <h2 className="text-lg font-black tracking-[-0.3px] text-[#2c2f30]">Atividade recente</h2>
-        <p className="mt-1 text-sm text-[#595c5d]">Últimas movimentações das suas campanhas.</p>
+        <h2 className="text-lg font-black tracking-[-0.3px] text-[#2c2f30]">
+          Atividade recente
+        </h2>
+        <p className="mt-1 text-sm text-[#595c5d]">
+          Últimas movimentações das suas campanhas.
+        </p>
       </div>
 
       <div className="mt-3">
@@ -97,7 +101,7 @@ export function RecentActivitySection({
                   <ArrowRight className="size-3.5" aria-hidden="true" />
                 </Link>
                 <Link
-                  to="/campanhas"
+                  to="/ofertas"
                   className="inline-flex w-full items-center justify-center rounded-full py-1.5 text-xs font-semibold text-[#895af6]/60 transition-colors hover:text-[#895af6]"
                 >
                   Ver minhas campanhas
@@ -122,7 +126,9 @@ export function RecentActivitySection({
                   >
                     <TimelineDot />
                     <div className="min-w-0 flex-1 pb-5">
-                      <p className="text-sm font-bold text-[#2c2f30]">{item.title}</p>
+                      <p className="text-sm font-bold text-[#2c2f30]">
+                        {item.title}
+                      </p>
                       <p className="mt-1 text-sm leading-snug text-[#595c5d]">
                         {item.description}
                       </p>
@@ -135,7 +141,9 @@ export function RecentActivitySection({
                   <div className="flex min-w-0 flex-1 gap-3 py-1">
                     <TimelineDot />
                     <div className="min-w-0 flex-1 pb-5">
-                      <p className="text-sm font-bold text-[#2c2f30]">{item.title}</p>
+                      <p className="text-sm font-bold text-[#2c2f30]">
+                        {item.title}
+                      </p>
                       <p className="mt-1 text-sm leading-snug text-[#595c5d]">
                         {item.description}
                       </p>
