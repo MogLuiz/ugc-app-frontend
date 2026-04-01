@@ -1,4 +1,5 @@
-import { Rocket, Star, Users2 } from "lucide-react";
+import { Star, Users2 } from "lucide-react";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 
 // ── Login panel avatars (Figma, valid 7 days) ──────────────────────────────
 const loginUser1 =
@@ -85,11 +86,9 @@ function LoginPanel() {
         </div>
       </div>
 
-      {/* Logo */}
+      {/* Logo — mesma marca do splash (roxo + foguete) */}
       <div className="relative flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-          <Rocket className="h-5 w-5 text-white" />
-        </div>
+        <AppLogoMark preset="visualPanel" />
         <span className="text-xl font-black tracking-tight text-white">
           UGC Local
         </span>
@@ -162,11 +161,9 @@ function RegisterPanel() {
         <Users2 className="h-[480px] w-[480px] text-white" strokeWidth={0.5} />
       </div>
 
-      {/* Logo */}
+      {/* Logo — mesma marca do splash (roxo + foguete) */}
       <div className="absolute left-16 top-16 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-          <Rocket className="h-5 w-5 text-white" />
-        </div>
+        <AppLogoMark preset="visualPanel" />
         <span className="text-xl font-black tracking-tight text-white">
           UGC Local
         </span>

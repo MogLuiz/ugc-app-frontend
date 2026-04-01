@@ -10,11 +10,11 @@ import {
   EyeOff,
   Lock,
   Mail,
-  Rocket,
   User,
   Video,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
 import {
@@ -177,9 +177,7 @@ export default function AuthRegisterRoute() {
             <ChevronLeft className="h-5 w-5" />
           </Link>
           <div className="flex flex-1 items-center justify-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#895af6]">
-              <Rocket className="h-4 w-4 text-white" />
-            </div>
+            <AppLogoMark preset="sm" />
             <span className="text-base font-black tracking-tight text-[#0f172a]">
               UGC Local
             </span>

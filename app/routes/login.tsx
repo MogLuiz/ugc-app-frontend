@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router";
-import { Lock, Mail, Rocket, Eye, EyeOff } from "lucide-react";
+import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { toast } from "~/components/ui/toast";
 import { signIn } from "~/modules/auth/service";
 import { loginSchema, type LoginForm } from "~/modules/auth/schemas/login";
@@ -81,9 +82,7 @@ export default function AuthLoginRoute() {
         <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
           <div className="mb-4 flex flex-col items-center lg:hidden">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#895af6]">
-              <Rocket className="h-6 w-6 text-white" />
-            </div>
+            <AppLogoMark preset="md" />
             <span className="mt-2 text-lg font-black tracking-tight text-[#0f172a]">
               UGC Local
             </span>

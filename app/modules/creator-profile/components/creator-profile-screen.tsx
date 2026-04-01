@@ -9,6 +9,7 @@ import {
 } from "./sections/creator-profile-sections";
 import { useCreatorProfileQuery } from "../queries";
 import { ArrowRight } from "lucide-react";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { cn } from "~/lib/utils";
 import type { CreatorProfile } from "../types";
 import type { MarketplaceCreator } from "~/modules/marketplace/types";
@@ -124,9 +125,7 @@ function CreatorProfileContent({
             Perfil do Criador
           </h1>
           <div className="hidden lg:flex lg:items-center lg:gap-3">
-            <div className="flex h-9 w-9 items-center justify-center">
-              <div className="h-8 w-8 rounded-lg bg-[#895af6]/20" />
-            </div>
+            <AppLogoMark preset="visualPanel" />
             <span className="text-2xl font-bold tracking-tight text-[#0f172a]">
               UGC Local
             </span>

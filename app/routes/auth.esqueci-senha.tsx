@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
-import { Mail, Rocket } from "lucide-react";
+import { Mail } from "lucide-react";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { z } from "zod/v3";
 import { toast } from "~/components/ui/toast";
 import { useForgotPasswordMutation } from "~/modules/auth/mutations";
@@ -43,9 +44,7 @@ export default function AuthEsqueciSenhaRoute() {
         <div className="w-full max-w-[420px]">
           {/* Mobile logo */}
           <div className="mb-4 flex flex-col items-center lg:hidden">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#895af6]">
-              <Rocket className="h-6 w-6 text-white" />
-            </div>
+            <AppLogoMark preset="md" />
             <span className="mt-2 text-lg font-black tracking-tight text-[#0f172a]">
               UGC Local
             </span>

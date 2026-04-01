@@ -1,12 +1,18 @@
 import "./instrument.client";
 import type { ReactNode } from "react";
-import type { MetaFunction } from "react-router";
+import type { LinksFunction, MetaFunction } from "react-router";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router";
 import { AppToaster } from "~/components/ui/toast";
 import "./app.css";
 
+export const links: LinksFunction = () => [
+  { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+  { rel: "apple-touch-icon", href: "/favicon.svg" },
+];
+
 export const meta: MetaFunction = () => [
   { title: "UGC Local | Conecte sua empresa a criadores de conteúdo locais" },
+  { name: "theme-color", content: "#895af6" },
   {
     name: "description",
     content:

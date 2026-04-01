@@ -9,7 +9,6 @@ import {
   LogOut,
   MapPin,
   MessageCircle,
-  Rocket,
   Settings,
   User,
   UserPlus,
@@ -24,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useAuth } from "~/hooks/use-auth";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { cn } from "~/lib/utils";
 import { usePartnerProfileQuery } from "~/modules/referrals/hooks/use-referrals-data";
 import type { AuthUser, UserRole } from "~/modules/auth/types";
@@ -137,9 +137,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
       <div className="flex flex-col">
         <div className="mb-10 flex items-center gap-3">
           <Link to={config.homeTo} className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-[48px] bg-[#895af6]">
-              <Rocket className="size-5 text-white" />
-            </div>
+            <AppLogoMark preset="lg" />
             <div>
               <p className="text-xl font-bold tracking-[-0.5px] text-slate-900">
                 UGC Local

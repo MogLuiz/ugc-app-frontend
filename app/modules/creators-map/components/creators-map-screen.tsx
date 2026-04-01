@@ -1,5 +1,6 @@
 import { Bell, ChevronDown, MapPin, Search, Sparkles } from "lucide-react";
 import { Link } from "react-router";
+import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { Button } from "~/components/ui/button";
 import { GoogleCreatorsMap } from "~/modules/creators-map/components/google-creators-map";
 import type { CreatorCategory, CreatorMapModel } from "~/modules/creators-map/types";
@@ -76,7 +77,10 @@ function DesktopLayout({
   return (
     <div className="hidden h-screen flex-col lg:flex">
       <header className="flex h-[68px] items-center border-b border-slate-200 bg-white px-6">
-        <strong className="text-[32px] font-bold text-slate-900">UGC Local</strong>
+        <div className="flex items-center gap-2.5">
+          <AppLogoMark preset="lg" />
+          <strong className="text-[32px] font-bold text-slate-900">UGC Local</strong>
+        </div>
         <div className="mx-6 flex h-11 w-[420px] items-center rounded-full bg-[#f3efff] px-4 text-sm text-[#94a3b8]">
           <Search size={16} className="mr-2 text-[#8b5cf6]" />
           <input
