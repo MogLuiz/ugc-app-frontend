@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authKeys } from "~/lib/query/query-keys";
 import {
-  bootstrapUser,
   changePassword,
   forgotPassword,
   resetPassword,
@@ -16,26 +15,10 @@ import type {
   UpdateProfileData,
   UpdateCreatorProfileData,
 } from "~/modules/auth/service";
-import type { UserRole } from "~/modules/auth/types";
 
-export function useBootstrapMutation() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({
-      role,
-      token,
-      referralCode,
-    }: {
-      role: UserRole;
-      token?: string;
-      referralCode?: string;
-    }) => bootstrapUser(role, token, referralCode),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: authKeys.session() });
-    },
-  });
-}
+// useBootstrapMutation foi removido: bootstrap é responsabilidade exclusiva de
+// getSession() (owner único). Não exponha esta mutation para evitar que fluxos
+// externos disparem bootstrap fora do caminho controlado.
 
 export function useUpdateProfileMutation() {
   const queryClient = useQueryClient();

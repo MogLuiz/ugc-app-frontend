@@ -56,6 +56,7 @@ export type BootstrapPayload = {
   companyProfile?: CompanyProfilePayload | null;
   portfolio?: PortfolioPayload | null;
   warnings?: string[];
+  referralStatus?: 'ok' | 'error';
 };
 
 export type PortfolioMediaPayload = {

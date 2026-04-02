@@ -174,6 +174,18 @@ export function setStoredRole(role: UserRole): void {
   localStorage.setItem(ROLE_STORAGE_KEY, role);
 }
 
+export function clearStoredRole(): void {
+  localStorage.removeItem(ROLE_STORAGE_KEY);
+}
+
+/**
+ * Owner único do bootstrap: getSession() é o único responsável por acionar
+ * POST /users/bootstrap no fluxo normal. O acionamento ocorre quando o usuário
+ * existe no Supabase mas ainda não foi criado no banco da aplicação (primeiro
+ * acesso após cadastro ou recuperação de conta via re-link de authUserId).
+ *
+ * Nenhum outro ponto do frontend deve acionar bootstrap diretamente.
+ */
 export async function getSession(signal?: AbortSignal): Promise<SessionResponse> {
   const {
     data: { session },
@@ -208,10 +220,21 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
       const pendingReferralCode =
         (session.user?.user_metadata?.referralCode as string | undefined)
           ?.trim().toLowerCase() || undefined;
-      const bootstrapPayload = await bootstrapUser(role, token, pendingReferralCode);
-      if (pendingReferralCode) {
-        // Clear from metadata after successful bootstrap to avoid stale state.
-        // Non-critical: if this fails, no double-claim risk since this 404 path won't run again.
+      // Lê nome dos metadados do Supabase para usar na criação do profile.
+      const pendingName =
+        (session.user?.user_metadata?.name as string | undefined)?.trim() || undefined;
+      const bootstrapPayload = await bootstrapUser(role, token, pendingReferralCode, pendingName);
+
+      // storedRole foi usado como fallback neste path (404). Limpa após bootstrap
+      // bem-sucedido para evitar contaminação em futuros fluxos no mesmo navegador.
+      // Não limpar no path 200 — o fallback nem chegou a ser necessário.
+      clearStoredRole();
+
+      // Só limpa referralCode dos metadados se o claim não falhou inesperadamente.
+      // undefined = backend antigo sem o campo → tratar como seguro limpar (backward compat).
+      // 'error' = erro transiente → manter o código para permitir retry futuro.
+      const canClearReferral = bootstrapPayload.referralStatus !== 'error';
+      if (pendingReferralCode && canClearReferral) {
         await supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => {});
       }
       return {
@@ -224,13 +247,21 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
 }
 
 export async function logout(): Promise<void> {
+  clearStoredRole();
   await supabase.auth.signOut();
 }
+
+// Deduplicação de bootstraps em memória — camada de defesa secundária.
+// Evita requests HTTP duplicados quando getSession() é chamado concorrentemente
+// por múltiplos subscribers da session query. Chave: accessToken (estável na
+// janela de race de milissegundos; troca apenas a cada ~1h em token refresh).
+const _bootstrapInFlight = new Map<string, Promise<BootstrapPayload>>();
 
 export async function bootstrapUser(
   role: UserRole,
   token?: string,
-  referralCode?: string
+  referralCode?: string,
+  name?: string,
 ): Promise<BootstrapPayload> {
   const session = token
     ? { access_token: token }
@@ -241,19 +272,30 @@ export async function bootstrapUser(
     throw new Error("Usuário não autenticado");
   }
 
-  const body: { role: ReturnType<typeof toBackendRole>; referralCode?: string } = {
-    role: toBackendRole(role),
-  };
-  const trimmed = referralCode?.trim();
-  if (trimmed) {
-    body.referralCode = trimmed;
-  }
+  // Se já há uma Promise de bootstrap em voo para este token, reutiliza.
+  const inflight = _bootstrapInFlight.get(accessToken);
+  if (inflight) return inflight;
 
-  return httpClient<BootstrapPayload>("/users/bootstrap", {
+  const body: {
+    role: ReturnType<typeof toBackendRole>;
+    referralCode?: string;
+    name?: string;
+  } = { role: toBackendRole(role) };
+  const trimmed = referralCode?.trim();
+  if (trimmed) body.referralCode = trimmed;
+  const trimmedName = name?.trim();
+  if (trimmedName) body.name = trimmedName;
+
+  const promise = httpClient<BootstrapPayload>("/users/bootstrap", {
     method: "POST",
     body,
     token: accessToken,
+  }).finally(() => {
+    _bootstrapInFlight.delete(accessToken);
   });
+
+  _bootstrapInFlight.set(accessToken, promise);
+  return promise;
 }
 
 export async function forgotPassword(email: string) {

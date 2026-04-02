@@ -18,10 +18,6 @@ import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
 import {
-  useBootstrapMutation,
-  useUpdateProfileMutation,
-} from "~/modules/auth/mutations";
-import {
   registerSchema,
   type RegisterForm,
 } from "~/modules/auth/schemas/register";
@@ -80,8 +76,6 @@ export default function AuthRegisterRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const referralCodeFromUrl = searchParams.get("ref")?.trim() || undefined;
-  const bootstrapMutation = useBootstrapMutation();
-  const updateProfileMutation = useUpdateProfileMutation();
 
   const [role, setRole] = useState<UserRole | null>(() =>
     parseRoleFromSearch(searchParams.get("role")),
@@ -93,9 +87,7 @@ export default function AuthRegisterRoute() {
   }, [searchParams]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const isSubmitting =
-    bootstrapMutation.isPending || updateProfileMutation.isPending;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -114,6 +106,7 @@ export default function AuthRegisterRoute() {
 
   async function onSubmit(data: RegisterForm) {
     if (!role) return;
+    setIsSubmitting(true);
     try {
       const { data: signUpData, error } = await signUp(
         data.email,
@@ -130,14 +123,12 @@ export default function AuthRegisterRoute() {
         return;
       }
 
+      // Bootstrap é responsabilidade exclusiva de getSession() (owner único).
+      // name, role e referralCode já foram salvos nos metadados do Supabase via signUp().
+      // O AuthProvider detecta SIGNED_IN → invalida session query → getSession() →
+      // /profiles/me → 404 → bootstrap com os dados dos metadados.
+      setStoredRole(role);
       if (signUpData.session) {
-        setStoredRole(role);
-        await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
-        if (data.name?.trim()) {
-          await updateProfileMutation.mutateAsync({
-            data: { name: data.name.trim() },
-          });
-        }
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
@@ -152,6 +143,8 @@ export default function AuthRegisterRoute() {
           ? getFriendlyRegisterError(err.message)
           : "Erro ao criar conta. Tente novamente.",
       );
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
