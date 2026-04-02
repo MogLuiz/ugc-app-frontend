@@ -22,6 +22,8 @@ export default [
     route("indicacoes", "routes/indicacoes.tsx"),
     route("indicacoes/todas", "routes/indicacoes.todas.tsx"),
     route("criador/:creatorId", "routes/criador.$creatorId.tsx"),
-    route("configuracoes", "routes/configuracoes.tsx")
+    route("configuracoes", "routes/configuracoes.tsx"),
+    route("termos", "routes/termos.tsx"),
+    route("politica", "routes/politica.tsx"),
   ])
 ] satisfies RouteConfig;

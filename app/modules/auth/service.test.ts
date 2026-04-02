@@ -113,7 +113,7 @@ describe("bootstrapUser", () => {
     const token = uniqueToken();
     vi.mocked(httpClient).mockResolvedValue({ id: "u1" } as any);
     await bootstrapUser("creator", token, undefined, "João Silva");
-    const body = (vi.mocked(httpClient).mock.calls[0][1] as any).body;
+    const body = (vi.mocked(httpClient).mock.calls[0]![1] as any).body;
     expect(body.name).toBe("João Silva");
   });
 
@@ -121,7 +121,7 @@ describe("bootstrapUser", () => {
     const token = uniqueToken();
     vi.mocked(httpClient).mockResolvedValue({ id: "u1" } as any);
     await bootstrapUser("creator", token);
-    const body = (vi.mocked(httpClient).mock.calls[0][1] as any).body;
+    const body = (vi.mocked(httpClient).mock.calls[0]![1] as any).body;
     expect(body).not.toHaveProperty("name");
   });
 
@@ -129,7 +129,7 @@ describe("bootstrapUser", () => {
     const token = uniqueToken();
     vi.mocked(httpClient).mockResolvedValue({ id: "u1" } as any);
     await bootstrapUser("creator", token, "  REF123  ");
-    const body = (vi.mocked(httpClient).mock.calls[0][1] as any).body;
+    const body = (vi.mocked(httpClient).mock.calls[0]![1] as any).body;
     expect(body.referralCode).toBe("REF123");
   });
 
@@ -169,7 +169,7 @@ describe("getSession", () => {
 
     expect(result.authenticated).toBe(true);
     expect(httpClient).toHaveBeenCalledTimes(1);
-    expect(vi.mocked(httpClient).mock.calls[0][0]).not.toContain("bootstrap");
+    expect(vi.mocked(httpClient).mock.calls[0]![0]).not.toContain("bootstrap");
   });
 
   it("aciona bootstrap como owner único quando /profiles/me retorna 404", async () => {

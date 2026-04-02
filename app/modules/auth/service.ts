@@ -235,7 +235,9 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
       // 'error' = erro transiente → manter o código para permitir retry futuro.
       const canClearReferral = bootstrapPayload.referralStatus !== 'error';
       if (pendingReferralCode && canClearReferral) {
-        await supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => {});
+        // Non-critical: limpa referralCode dos metadados em background.
+        // Não aguardar — não afeta o usuário e pode ocorrer após getSession() retornar.
+        void supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => {});
       }
       return {
         authenticated: true,

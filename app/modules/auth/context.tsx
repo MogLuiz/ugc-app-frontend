@@ -63,9 +63,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSupabaseSession(session ?? null);
-      if (session) {
+      // Invalida apenas em eventos que indicam nova sessão ou login.
+      // USER_UPDATED é disparado pelo próprio getSession() ao limpar referralCode dos
+      // metadados do Supabase — invalidar aqui causaria um GET /profiles/me extra desnecessário.
+      // SIGNED_OUT é tratado pela ausência de session (query fica disabled).
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         void queryClient.invalidateQueries({ queryKey: authKeys.session() });
       }
     });

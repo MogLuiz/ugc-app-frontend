@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
+import { AppLoadingSplash } from "~/components/ui/app-loading-splash";
 import { toast } from "~/components/ui/toast";
 import { signIn } from "~/modules/auth/service";
 import { loginSchema, type LoginForm } from "~/modules/auth/schemas/login";
 import { AuthVisualPanel } from "~/modules/auth/components/auth-visual-panel";
+import { useAuth } from "~/hooks/use-auth";
 
 const EMAIL_NOT_CONFIRMED_PT =
   "Confirme seu e-mail antes de entrar. Abra o link que enviamos na caixa de entrada (e na pasta de spam) e depois tente de novo.";
@@ -39,6 +41,7 @@ function getFriendlyLoginError(rawMessage?: string | null): string {
 }
 
 export default function AuthLoginRoute() {
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, setIsPending] = useState(false);
@@ -50,6 +53,9 @@ export default function AuthLoginRoute() {
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
   });
+
+  if (loading) return <AppLoadingSplash />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   async function onSubmit(data: LoginForm) {
     setIsPending(true);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate, useSearchParams } from "react-router";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import {
   Building2,
   CheckCircle2,
@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
+import { AppLoadingSplash } from "~/components/ui/app-loading-splash";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
+import { useAuth } from "~/hooks/use-auth";
 import {
   registerSchema,
   type RegisterForm,
@@ -73,6 +75,7 @@ const roleCardFocus =
   "focus-visible:ring-2 focus-visible:ring-[#895af6] focus-visible:ring-offset-2";
 
 export default function AuthRegisterRoute() {
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const referralCodeFromUrl = searchParams.get("ref")?.trim() || undefined;
@@ -153,6 +156,9 @@ export default function AuthRegisterRoute() {
   const inputOk =
     "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
   const inputErr = "border-red-400 focus:border-red-400";
+
+  if (loading) return <AppLoadingSplash />;
+  if (user) return <Navigate to="/dashboard" replace />;
 
   const ctaDisabled = isSubmitting || !role;
 
@@ -412,19 +418,23 @@ export default function AuthRegisterRoute() {
                   />
                   <span className="min-w-0 flex-1 text-xs leading-snug text-slate-600">
                     Eu aceito os{" "}
-                    <button
-                      type="button"
-                      className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
+                    <Link
+                      to="/termos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-0.5 font-semibold text-[#895af6] hover:underline"
                     >
                       Termos e Condições
-                    </button>{" "}
+                    </Link>{" "}
                     e a{" "}
-                    <button
-                      type="button"
-                      className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
+                    <Link
+                      to="/politica"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="py-0.5 font-semibold text-[#895af6] hover:underline"
                     >
                       Política de Privacidade
-                    </button>
+                    </Link>
                     <span className="text-slate-500"> do UGC Local.</span>
                   </span>
                 </label>
