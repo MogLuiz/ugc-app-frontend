@@ -212,7 +212,7 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
       if (pendingReferralCode) {
         // Clear from metadata after successful bootstrap to avoid stale state.
         // Non-critical: if this fails, no double-claim risk since this 404 path won't run again.
-        await supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => {});
+        await supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => { });
       }
       return {
         authenticated: true,
@@ -258,7 +258,7 @@ export async function bootstrapUser(
 
 export async function forgotPassword(email: string) {
   return supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/redefinir-senha`,
+    redirectTo: 'https://ugclocal.com.br/auth/redefinir-senha',
   });
 }
 
