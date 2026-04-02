@@ -31,8 +31,13 @@ export default function AuthEsqueciSenhaRoute() {
     try {
       await mutation.mutateAsync(data.email);
       setSubmitted(true);
-    } catch {
-      toast.error("Erro ao enviar o link. Tente novamente em alguns instantes.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message.toLowerCase() : "";
+      if (message.includes("rate limit") || message.includes("email rate limit")) {
+        toast.error("Muitas tentativas. Aguarde alguns minutos antes de solicitar um novo link.");
+      } else {
+        toast.error("Erro ao enviar o link. Tente novamente em alguns instantes.");
+      }
     }
   }
 

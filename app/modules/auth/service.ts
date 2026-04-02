@@ -256,10 +256,11 @@ export async function bootstrapUser(
   });
 }
 
-export async function forgotPassword(email: string) {
-  return supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://ugclocal.com.br/auth/redefinir-senha',
+export async function forgotPassword(email: string): Promise<void> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/redefinir-senha`,
   });
+  if (error) throw new Error(error.message);
 }
 
 export async function resetPassword(newPassword: string): Promise<void> {
