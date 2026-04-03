@@ -29,12 +29,11 @@ type CreatorProfileExt = {
   cpf?: string;
 };
 
-export type ProfileProgressItem = { label: string; done: boolean };
-export type ProfileProgress = {
-  percent: number;
-  completedCount: number;
-  items: ProfileProgressItem[];
-};
+import type {
+  ProfileProgress,
+  ProfileProgressItem,
+} from "~/components/ui/profile-progress-block";
+export type { ProfileProgress, ProfileProgressItem };
 
 function getInitialState(user: AuthUser) {
   const creatorProfile = user.creatorProfile as CreatorProfileExt | undefined;
