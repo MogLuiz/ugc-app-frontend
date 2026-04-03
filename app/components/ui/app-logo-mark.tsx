@@ -1,30 +1,27 @@
-import { Rocket } from "lucide-react";
 import { cn } from "~/lib/utils";
 
+/** Caminho público do ícone da marca (favicon, splash, sidebar, auth). */
+export const UGC_APP_ICON_PATH = "/ugc-app-icon.svg" as const;
+
 /**
- * Marca visual UGC Local — mesmo padrão do splash de carregamento:
- * fundo #895af6, cantos bem arredondados, ícone Rocket branco.
+ * Marca visual UGC Local — mesmo asset do favicon (`ugc-app-icon.svg`):
+ * gradiente roxo, cantos arredondados, pin de localização.
  */
 const PRESETS = {
   splash: {
-    box: "size-14 rounded-[48px] shadow-[0_8px_24px_-4px_rgba(137,90,246,0.35)]",
-    icon: "size-7",
+    box: "size-14 rounded-[25%] shadow-[0_8px_24px_-4px_rgba(137,90,246,0.35)]",
   },
   lg: {
-    box: "size-10 rounded-[48px]",
-    icon: "size-5",
+    box: "size-10 rounded-[25%]",
   },
   md: {
-    box: "size-12 rounded-[48px]",
-    icon: "size-6",
+    box: "size-12 rounded-[25%]",
   },
   sm: {
-    box: "size-7 rounded-[24px]",
-    icon: "size-4",
+    box: "size-7 rounded-[25%]",
   },
   visualPanel: {
-    box: "size-9 rounded-[48px]",
-    icon: "size-5",
+    box: "size-9 rounded-[25%]",
   },
 } as const;
 
@@ -46,14 +43,19 @@ export function AppLogoMark({
   return (
     <div
       className={cn(
-        "flex shrink-0 items-center justify-center bg-[#895af6]",
+        "flex shrink-0 items-center justify-center overflow-hidden",
         p.box,
         hideShadow && "shadow-none",
         className,
       )}
       aria-hidden
     >
-      <Rocket className={cn(p.icon, "text-white")} strokeWidth={2} />
+      <img
+        src={UGC_APP_ICON_PATH}
+        alt=""
+        className="size-full object-cover"
+        draggable={false}
+      />
     </div>
   );
 }
