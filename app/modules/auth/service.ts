@@ -258,7 +258,7 @@ export async function bootstrapUser(
 
 export async function forgotPassword(email: string): Promise<void> {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/redefinir-senha`,
+    redirectTo: 'https://www.ugclocal.com.br/auth/redefinir-senha',
   });
   if (error) throw new Error(error.message);
 }
