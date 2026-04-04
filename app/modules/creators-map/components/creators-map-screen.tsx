@@ -156,7 +156,7 @@ export function CreatorsMapScreen() {
         {/* Map — fills space between header and bottom nav */}
         <div className="relative flex-1">
           <GoogleCreatorsMap
-            className="absolute inset-0"
+            className="h-full w-full"
             creators={viewModel.creators}
             selectedCreatorId={viewModel.selectedCreatorId}
             onSelectCreator={actions.setSelectedCreatorId}
