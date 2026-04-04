@@ -8,6 +8,7 @@ type CreatorMapCardProps = {
   creator: CreatorMapModel;
   isActive: boolean;
   onSelect: () => void;
+  variant?: "desktop" | "mobile";
 };
 
 const AVAILABILITY_CONFIG = {
@@ -57,12 +58,132 @@ function CreatorAvatar({
   );
 }
 
-export function CreatorMapCard({ creator, isActive, onSelect }: CreatorMapCardProps) {
+export function CreatorMapCard({
+  creator,
+  isActive,
+  onSelect,
+  variant = "desktop",
+}: CreatorMapCardProps) {
   const availability = creator.availability ? AVAILABILITY_CONFIG[creator.availability] : null;
   const hasRating = creator.rating > 0;
   const hasRegion = Boolean(creator.region);
   const hasSpecialty = Boolean(creator.specialty);
   const hasPrice = creator.priceFrom != null;
+  const hasDistance = creator.distanceKm != null;
+  const mobileTypeLabel = "UGC";
+
+  if (variant === "mobile") {
+    return (
+      <article
+        role="button"
+        tabIndex={0}
+        onClick={onSelect}
+        onKeyDown={(e) => e.key === "Enter" && onSelect()}
+        className={cn(
+          "cursor-pointer select-none rounded-2xl border bg-white transition-all duration-150",
+          isActive
+            ? "border-purple-300 shadow-[0_10px_28px_rgba(137,90,246,0.18)] ring-1 ring-purple-200"
+            : "border-slate-200/90 shadow-[0_6px_20px_rgba(15,23,42,0.06)]",
+        )}
+      >
+        <div className="p-3.5">
+          <div className="flex items-start gap-3">
+            <div className="relative shrink-0">
+              <CreatorAvatar
+                avatarUrl={creator.avatarUrl}
+                name={creator.name}
+                className="h-12 w-12 text-lg"
+              />
+              {availability && (
+                <div
+                  className={cn(
+                    "absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-md border text-[9px] font-bold",
+                    availability.className,
+                  )}
+                >
+                  {availability.symbol}
+                </div>
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-slate-900">
+                    {creator.name}
+                  </p>
+
+                  {(hasDistance || hasRegion) && (
+                    <div className="mt-1 flex items-center gap-1.5">
+                      {hasDistance && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-0.5 text-[11px] font-semibold text-purple-700">
+                          <MapPin size={10} />
+                          {creator.distanceKm!.toFixed(1)} km
+                        </span>
+                      )}
+                      {hasRegion && (
+                        <span className="truncate text-xs text-slate-500">
+                          {creator.region}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {hasRating && (
+                    <div className="mt-1 flex items-center gap-1">
+                      <Star size={11} className="fill-amber-400 text-amber-400" />
+                      <span className="text-xs font-semibold text-slate-800">
+                        {creator.rating.toFixed(1)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {hasPrice && (
+                  <div className="shrink-0 text-right">
+                    <p className="text-[10px] uppercase tracking-[0.08em] text-slate-400">
+                      A partir de
+                    </p>
+                    <p className="text-[1.05rem] font-bold leading-tight text-slate-900">
+                      R$ {creator.priceFrom}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-3 flex gap-2 text-[11px]">
+            {hasSpecialty && (
+              <span className="flex-1 rounded-xl bg-slate-50 px-2.5 py-2 text-slate-700">
+                <span className="text-slate-400">Nicho: </span>
+                <span className="font-medium">{creator.specialty}</span>
+              </span>
+            )}
+            <span className="flex-1 rounded-xl bg-slate-50 px-2.5 py-2 text-slate-700">
+              <span className="text-slate-400">Tipo: </span>
+              <span className="font-medium">{mobileTypeLabel}</span>
+            </span>
+          </div>
+
+          <div className="mt-3">
+            <Link
+              to={`/criador/${creator.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className={cn(
+                "block w-full rounded-xl py-2.5 text-center text-sm font-semibold transition-colors",
+                isActive
+                  ? "bg-[#895af6] text-white hover:bg-[#7c4ee0]"
+                  : "bg-purple-50 text-purple-700 hover:bg-purple-100",
+              )}
+            >
+              {isActive ? "Ver perfil completo" : "Ver detalhes"}
+            </Link>
+          </div>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article

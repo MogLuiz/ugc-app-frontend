@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
-import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
 import { GoogleCreatorsMap } from "~/modules/creators-map/components/google-creators-map";
@@ -11,7 +10,10 @@ import {
   type DistanceFilter,
 } from "../hooks/use-creators-map-controller";
 import { CreatorMapCard } from "./creator-map-card";
-import { CreatorMapMobileSheet } from "./creator-map-mobile-sheet";
+import {
+  CreatorMapMobileSheet,
+  type SheetState,
+} from "./creator-map-mobile-sheet";
 
 const DISTANCE_FILTERS: Array<{ id: DistanceFilter; label: string }> = [
   { id: "all", label: "Todos" },
@@ -31,6 +33,57 @@ const CATEGORIES: Array<{ id: CategoryFilter; label: string }> = [
 export function CreatorsMapScreen() {
   const controller = useCreatorsMapController();
   const { viewModel, actions } = controller;
+  const [mobileSheetState, setMobileSheetState] = useState<SheetState>("collapsed");
+  const [mobileTopInset, setMobileTopInset] = useState(118);
+  const [bottomNavHeight, setBottomNavHeight] = useState(88);
+  const mobileTopRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const topEl = mobileTopRef.current;
+    if (!topEl) return;
+
+    const measureTop = () => {
+      setMobileTopInset(Math.ceil(topEl.getBoundingClientRect().height));
+    };
+
+    measureTop();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measureTop);
+      return () => window.removeEventListener("resize", measureTop);
+    }
+
+    const observer = new ResizeObserver(measureTop);
+    observer.observe(topEl);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const measureBottomNav = () => {
+      const navEl = document.querySelector<HTMLElement>("[data-business-bottom-nav]");
+      if (!navEl) return;
+      setBottomNavHeight(Math.ceil(navEl.getBoundingClientRect().height));
+    };
+
+    measureBottomNav();
+    window.addEventListener("resize", measureBottomNav);
+
+    const navEl = document.querySelector<HTMLElement>("[data-business-bottom-nav]");
+    if (typeof ResizeObserver === "undefined" || !navEl) {
+      return () => window.removeEventListener("resize", measureBottomNav);
+    }
+
+    const observer = new ResizeObserver(measureBottomNav);
+    observer.observe(navEl);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measureBottomNav);
+    };
+  }, []);
+
+  const mobileBottomOffset = `${bottomNavHeight}px`;
 
   return (
     <div className="bg-[#f6f5f8]">
@@ -151,7 +204,63 @@ export function CreatorsMapScreen() {
 
       {/* ── Mobile layout ── */}
       <div className="relative flex h-screen flex-col lg:hidden">
-        <AppHeader title="Mapa de Criadores" />
+        <div
+          ref={mobileTopRef}
+          className="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4"
+        >
+          <div className="pointer-events-auto rounded-[28px] border border-white/70 bg-white/92 p-3 shadow-[0_16px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+            <div className="pointer-events-auto flex items-center gap-3">
+              <AppLogoMark
+                preset="sm"
+                className="size-10 rounded-[14px] shadow-[0_10px_24px_rgba(137,90,246,0.2)]"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-slate-900">
+                  UGC Local
+                </p>
+                <p className="truncate text-xs text-slate-500">
+                  Mapa de Criadores
+                </p>
+              </div>
+              <button
+                type="button"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50 text-slate-600 shadow-sm"
+                aria-label="Filtros"
+              >
+                <SlidersHorizontal size={16} />
+              </button>
+            </div>
+
+            <div className="pointer-events-auto mt-3">
+              <div className="flex items-center gap-2 rounded-2xl border border-slate-200/80 bg-slate-50/80 px-4 py-3 shadow-inner shadow-slate-100/70">
+                <Search size={16} className="text-slate-400" />
+                <input
+                  value={viewModel.search}
+                  onChange={(e) => actions.setSearch(e.target.value)}
+                  placeholder="Buscar creators próximos..."
+                  className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="pointer-events-auto mt-2.5 flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => actions.setActiveCategory(cat.id)}
+                  className={
+                    viewModel.activeCategory === cat.id
+                      ? "shrink-0 rounded-full bg-[#895af6] px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(137,90,246,0.28)]"
+                      : "shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600"
+                  }
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Map — fills space between header and bottom nav */}
         <div className="relative flex-1">
@@ -164,38 +273,12 @@ export function CreatorsMapScreen() {
             companyLatLng={viewModel.companyLatLng}
             onSearchInArea={(bounds) => actions.setBoundsFilter(bounds)}
             onReturnToCompany={() => actions.setBoundsFilter(null)}
+            uiVariant="mobile"
+            showCreatorCountBadge={false}
+            topInset={mobileTopInset}
+            bottomInset={bottomNavHeight}
+            mobileSheetState={mobileSheetState}
           />
-
-          {/* Mobile search overlay */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 bg-gradient-to-b from-white/80 to-transparent px-4 pb-6 pt-3">
-            <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-slate-200/80 bg-white px-4 py-2.5 shadow-sm">
-              <Search size={15} className="text-purple-500" />
-              <input
-                value={viewModel.search}
-                onChange={(e) => actions.setSearch(e.target.value)}
-                placeholder="Buscar em BH..."
-                className="flex-1 bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
-              />
-            </div>
-
-            {/* Category chips */}
-            <div className="pointer-events-auto mt-2.5 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => actions.setActiveCategory(cat.id)}
-                  className={
-                    viewModel.activeCategory === cat.id
-                      ? "shrink-0 rounded-full bg-[#895af6] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm"
-                      : "shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600"
-                  }
-                >
-                  {cat.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* Bottom sheet — sits above the bottom nav */}
@@ -203,6 +286,9 @@ export function CreatorsMapScreen() {
           creators={viewModel.creators}
           selectedCreatorId={viewModel.selectedCreatorId}
           onSelectCreator={actions.setSelectedCreatorId}
+          state={mobileSheetState}
+          onStateChange={setMobileSheetState}
+          bottomOffset={mobileBottomOffset}
         />
 
         <BusinessBottomNav />

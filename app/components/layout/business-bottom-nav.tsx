@@ -41,6 +41,7 @@ export function BusinessBottomNav() {
 
   return (
     <nav
+      data-business-bottom-nav
       className="fixed bottom-0 left-0 right-0 z-30 border-t border-slate-200 bg-white/90 backdrop-blur-md lg:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >

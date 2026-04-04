@@ -82,10 +82,13 @@ function buildCreatorMarkerEl(
 
 // ─── Preview card HTML builder ────────────────────────────────────────────────
 
-function buildPreviewCardEl(creator: CreatorMapModel): HTMLDivElement {
+function buildPreviewCardEl(
+  creator: CreatorMapModel,
+  options?: { compact?: boolean },
+): HTMLDivElement {
+  const compact = options?.compact ?? false;
   const el = document.createElement("div");
-  el.style.cssText =
-    "background:white;border-radius:14px;padding:14px;border:1px solid rgba(137,90,246,0.2);box-shadow:0 8px 30px rgba(15,23,42,0.15);opacity:0;transition:opacity 150ms ease-out;width:272px;";
+  el.style.cssText = `background:rgba(255,255,255,0.98);border-radius:${compact ? 18 : 14}px;padding:${compact ? 12 : 14}px;border:1px solid rgba(137,90,246,0.18);box-shadow:0 12px 36px rgba(15,23,42,0.16);opacity:0;transition:opacity 150ms ease-out;width:${compact ? 248 : 272}px;backdrop-filter:blur(10px);`;
 
   const initial = creator.name
     .trim()
@@ -104,15 +107,15 @@ function buildPreviewCardEl(creator: CreatorMapModel): HTMLDivElement {
     : "";
 
   const distanceHtml = creator.distanceKm != null
-    ? `<div style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;background:#f3f0ff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;color:#895af6;">${creator.distanceKm.toFixed(1)}km de você</div>`
+    ? `<div style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;background:#f3f0ff;border-radius:999px;padding:${compact ? "2px 7px" : "1px 5px"};font-size:10px;font-weight:700;color:#895af6;">${creator.distanceKm.toFixed(1)}km de você</div>`
     : "";
 
   const nicheHtml = creator.specialty
-    ? `<div style="flex:1;background:#f8fafc;border-radius:8px;padding:5px 8px;font-size:10px;color:#64748b;overflow:hidden;">Nicho: <strong style="color:#0f172a;">${creator.specialty}</strong></div>`
+    ? `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:6px 9px;font-size:10px;color:#64748b;overflow:hidden;">Nicho: <strong style="color:#0f172a;">${creator.specialty}</strong></div>`
     : "";
 
   const priceHtml = creator.priceFrom != null
-    ? `<div style="flex:1;background:#f8fafc;border-radius:8px;padding:5px 8px;font-size:10px;color:#64748b;text-align:right;">A partir de<br/><strong style="font-size:13px;color:#0f172a;">R$ ${creator.priceFrom}</strong></div>`
+    ? `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:6px 9px;font-size:10px;color:#64748b;text-align:right;">A partir de<br/><strong style="font-size:13px;color:#0f172a;">R$ ${creator.priceFrom}</strong></div>`
     : "";
 
   const tagsRowHtml = nicheHtml || priceHtml
@@ -123,13 +126,13 @@ function buildPreviewCardEl(creator: CreatorMapModel): HTMLDivElement {
     <div style="display:flex;gap:10px;margin-bottom:10px;">
       ${avatarHtml}
       <div style="min-width:0;flex:1;">
-        <div style="font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${creator.name}</div>
+        <div style="font-size:${compact ? 12 : 13}px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${creator.name}</div>
         ${regionHtml}
         ${distanceHtml}
       </div>
     </div>
     ${tagsRowHtml}
-    <a href="/criador/${creator.id}" style="display:block;text-align:center;background:#895af6;color:white;border-radius:8px;padding:7px;font-size:12px;font-weight:600;text-decoration:none;">Ver perfil completo</a>
+    <a href="/criador/${creator.id}" style="display:block;text-align:center;background:#895af6;color:white;border-radius:12px;padding:${compact ? "8px" : "7px"};font-size:12px;font-weight:600;text-decoration:none;">Ver perfil completo</a>
   `;
   return el;
 }
@@ -160,6 +163,11 @@ type GoogleCreatorsMapProps = {
   onSearchInArea: (bounds: MapBounds) => void;
   onReturnToCompany: () => void;
   className?: string;
+  uiVariant?: "desktop" | "mobile";
+  showCreatorCountBadge?: boolean;
+  topInset?: number;
+  bottomInset?: number;
+  mobileSheetState?: "collapsed" | "medium" | "expanded";
 };
 
 export function GoogleCreatorsMap({
@@ -171,6 +179,11 @@ export function GoogleCreatorsMap({
   onSearchInArea,
   onReturnToCompany,
   className,
+  uiVariant = "desktop",
+  showCreatorCountBadge = true,
+  topInset = 16,
+  bottomInset = 0,
+  mobileSheetState = "collapsed",
 }: GoogleCreatorsMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -192,6 +205,13 @@ export function GoogleCreatorsMap({
   const mapId =
     (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) ??
     "DEMO_MAP_ID";
+  const isMobileUi = uiVariant === "mobile";
+  const shouldShowMobilePreview = !isMobileUi || mobileSheetState === "collapsed";
+  const topOffset = isMobileUi ? topInset + 12 : 16;
+  const mobileFloatingBottom = bottomInset + 18;
+  const showSearchButton = !isMobileUi || mobileSheetState === "collapsed";
+  const mobileControlButtonClassName =
+    "flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-white/95 text-slate-700 shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm hover:bg-slate-50";
 
   // ── Initialize map ──
   useEffect(() => {
@@ -396,11 +416,11 @@ export function GoogleCreatorsMap({
     previewOverlayRef.current = null;
 
     const creator = creators.find((c) => c.id === selectedCreatorId);
-    if (!creator || !container) return;
+    if (!creator || !container || !shouldShowMobilePreview) return;
 
-    const cardEl = buildPreviewCardEl(creator);
-    const CARD_W = 272;
-    const CARD_H = 160;
+    const cardEl = buildPreviewCardEl(creator, { compact: isMobileUi });
+    const CARD_W = isMobileUi ? 248 : 272;
+    const CARD_H = isMobileUi ? 144 : 160;
     const ARROW_GAP = 12;
     const MARKER_H = 58;
 
@@ -443,7 +463,9 @@ export function GoogleCreatorsMap({
         left = Math.max(8, Math.min(left, mapW - CARD_W - 8));
 
         // Vertical clamp
-        top = Math.max(8, Math.min(top, mapH - CARD_H - 8));
+        const topSafeInset = isMobileUi ? topInset + 8 : 8;
+        const bottomSafeInset = isMobileUi ? bottomInset + 24 : 8;
+        top = Math.max(topSafeInset, Math.min(top, mapH - CARD_H - bottomSafeInset));
 
         this.el.style.left = `${left}px`;
         this.el.style.top = `${top}px`;
@@ -467,7 +489,7 @@ export function GoogleCreatorsMap({
         if (cardEl.isConnected) cardEl.style.opacity = "1";
       });
     });
-  }, [selectedCreatorId, creators]);
+  }, [selectedCreatorId, creators, shouldShowMobilePreview, isMobileUi, topInset, bottomInset]);
 
   // ── Zoom controls ──
   function updateZoom(delta: number) {
@@ -529,8 +551,8 @@ export function GoogleCreatorsMap({
       )}
 
       {/* Creator count badge — top-left */}
-      {!mapError && (
-        <div className="absolute left-4 top-4 z-10">
+      {!mapError && showCreatorCountBadge && (
+        <div className="absolute left-4 z-10" style={{ top: topOffset }}>
           <div className="flex items-center gap-1.5 rounded-lg border border-slate-200/80 bg-white/95 px-3 py-2 shadow-sm backdrop-blur-sm">
             <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-purple-500" />
             <span className="text-xs font-semibold text-slate-700">
@@ -541,11 +563,11 @@ export function GoogleCreatorsMap({
       )}
 
       {/* Zoom + geolocation controls — top-right */}
-      <div className="absolute right-4 top-4 z-10 flex flex-col gap-2">
+      <div className="absolute right-4 z-10 flex flex-col gap-2" style={{ top: topOffset }}>
         <button
           type="button"
           onClick={() => updateZoom(1)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"
+          className={isMobileUi ? mobileControlButtonClassName : "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"}
           aria-label="Aproximar"
         >
           <Plus size={16} />
@@ -553,7 +575,7 @@ export function GoogleCreatorsMap({
         <button
           type="button"
           onClick={() => updateZoom(-1)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"
+          className={isMobileUi ? mobileControlButtonClassName : "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"}
           aria-label="Afastar"
         >
           <Minus size={16} />
@@ -561,16 +583,29 @@ export function GoogleCreatorsMap({
         <button
           type="button"
           onClick={focusUserLocation}
-          className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#895af6] text-white shadow-sm hover:bg-[#7c4ee0]"
+          className={isMobileUi ? "flex h-10 w-10 items-center justify-center rounded-2xl bg-[#895af6] text-white shadow-[0_10px_24px_rgba(137,90,246,0.35)] hover:bg-[#7c4ee0]" : "flex h-9 w-9 items-center justify-center rounded-lg bg-[#895af6] text-white shadow-sm hover:bg-[#7c4ee0]"}
           aria-label="Minha localização"
         >
           <Locate size={15} />
         </button>
+        {isMobileUi && (
+          <button
+            type="button"
+            onClick={handleReturnToCompany}
+            className={mobileControlButtonClassName}
+            aria-label="Voltar para empresa"
+          >
+            <Building2 size={15} />
+          </button>
+        )}
       </div>
 
       {/* "Buscar nesta área" — bottom-center, appears after manual map move */}
-      {showSearchHere && (
-        <div className="absolute bottom-16 left-1/2 z-10 -translate-x-1/2">
+      {showSearchHere && showSearchButton && (
+        <div
+          className="absolute left-1/2 z-10 -translate-x-1/2"
+          style={{ bottom: isMobileUi ? mobileFloatingBottom : 64 }}
+        >
           <button
             type="button"
             onClick={handleSearchInArea}
@@ -584,7 +619,8 @@ export function GoogleCreatorsMap({
       )}
 
       {/* "Voltar para empresa" — bottom-right, always visible */}
-      <div className="absolute bottom-4 right-4 z-10">
+      {!isMobileUi && (
+        <div className="absolute bottom-4 right-4 z-10">
         <button
           type="button"
           onClick={handleReturnToCompany}
@@ -593,7 +629,8 @@ export function GoogleCreatorsMap({
           <Building2 size={15} />
           Voltar para empresa
         </button>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
