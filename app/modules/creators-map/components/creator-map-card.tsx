@@ -1,4 +1,5 @@
 import { MapPin, Star } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import type { CreatorMapModel } from "../types";
@@ -15,8 +16,53 @@ const AVAILABILITY_CONFIG = {
   busy: { symbol: "×", className: "bg-slate-100 text-slate-500 border-slate-200" },
 } as const;
 
+function CreatorAvatar({
+  avatarUrl,
+  name,
+  className,
+}: {
+  avatarUrl: string | null;
+  name: string;
+  className?: string;
+}) {
+  const [broken, setBroken] = useState(false);
+  const initial = name
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?";
+
+  if (!avatarUrl || broken) {
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-center rounded-lg bg-purple-100",
+          className,
+        )}
+      >
+        <span className="font-bold leading-none text-purple-600">{initial}</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={avatarUrl}
+      alt={name}
+      className={cn("rounded-lg object-cover ring-1 ring-slate-100", className)}
+      onError={() => setBroken(true)}
+    />
+  );
+}
+
 export function CreatorMapCard({ creator, isActive, onSelect }: CreatorMapCardProps) {
   const availability = creator.availability ? AVAILABILITY_CONFIG[creator.availability] : null;
+  const hasRating = creator.rating > 0;
+  const hasRegion = Boolean(creator.region);
+  const hasSpecialty = Boolean(creator.specialty);
+  const hasPrice = creator.priceFrom != null;
 
   return (
     <article
@@ -25,29 +71,21 @@ export function CreatorMapCard({ creator, isActive, onSelect }: CreatorMapCardPr
       onClick={onSelect}
       onKeyDown={(e) => e.key === "Enter" && onSelect()}
       className={cn(
-        "cursor-pointer rounded-xl border transition-all select-none",
+        "cursor-pointer rounded-xl border transition-all duration-150 select-none",
         isActive
-          ? "border-purple-300 bg-white shadow-md shadow-purple-100/50"
-          : "border-slate-200 bg-slate-50/50 hover:border-purple-200 hover:bg-white",
+          ? "border-purple-300 bg-white shadow-md shadow-purple-100/60 ring-1 ring-purple-200"
+          : "border-slate-200 bg-slate-50/50 hover:border-purple-200 hover:bg-white hover:shadow-sm",
       )}
     >
       {/* Top row: photo + info + price */}
-      <div className="flex items-center gap-3 p-3.5">
+      <div className="flex items-start gap-3 p-3.5">
         {/* Photo with availability badge */}
         <div className="relative flex-shrink-0">
-          {creator.avatarUrl ? (
-            <img
-              src={creator.avatarUrl}
-              alt={creator.name}
-              className="h-12 w-12 rounded-lg object-cover ring-1 ring-slate-100"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 ring-1 ring-slate-100">
-              <span className="text-lg font-bold text-purple-600">
-                {creator.name[0]?.toUpperCase() ?? "?"}
-              </span>
-            </div>
-          )}
+          <CreatorAvatar
+            avatarUrl={creator.avatarUrl}
+            name={creator.name}
+            className="h-12 w-12 text-lg"
+          />
           {availability && (
             <div
               className={cn(
@@ -63,36 +101,46 @@ export function CreatorMapCard({ creator, isActive, onSelect }: CreatorMapCardPr
         {/* Main info */}
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-slate-900">{creator.name}</p>
-          <div className="mt-0.5 flex items-center gap-1.5">
-            {creator.distanceKm != null && (
-              <span className="flex items-center gap-0.5 rounded bg-purple-50 px-1.5 py-0.5 text-[11px] font-semibold text-purple-700">
-                <MapPin size={10} />
-                {creator.distanceKm.toFixed(1)}km
+          {(creator.distanceKm != null || hasRegion) && (
+            <div className="mt-0.5 flex items-center gap-1.5">
+              {creator.distanceKm != null && (
+                <span className="flex items-center gap-0.5 rounded bg-purple-50 px-1.5 py-0.5 text-[11px] font-semibold text-purple-700">
+                  <MapPin size={10} />
+                  {creator.distanceKm.toFixed(1)}km
+                </span>
+              )}
+              {hasRegion && (
+                <span className="truncate text-xs text-slate-500">{creator.region}</span>
+              )}
+            </div>
+          )}
+          {hasRating && (
+            <div className="mt-0.5 flex items-center gap-1">
+              <Star size={11} className="fill-amber-400 text-amber-400" />
+              <span className="text-xs font-semibold text-slate-800">
+                {creator.rating.toFixed(1)}
               </span>
-            )}
-            <span className="truncate text-xs text-slate-500">{creator.region}</span>
-          </div>
-          <div className="mt-0.5 flex items-center gap-1">
-            <Star size={11} className="fill-amber-400 text-amber-400" />
-            <span className="text-xs font-semibold text-slate-800">{creator.rating.toFixed(1)}</span>
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Price */}
-        <div className="flex-shrink-0 text-right">
-          <p className="text-[10px] text-slate-400">a partir de</p>
-          <p className="text-base font-bold text-slate-900">
-            {creator.priceFrom != null ? `R$ ${creator.priceFrom}` : "—"}
-          </p>
-        </div>
+        {hasPrice && (
+          <div className="flex-shrink-0 self-start text-right">
+            <p className="text-[10px] text-slate-400">a partir de</p>
+            <p className="text-base font-bold text-slate-900">R$ {creator.priceFrom}</p>
+          </div>
+        )}
       </div>
 
-      {/* Niche + type tags */}
+      {/* Niche + type tags — always rendered for height consistency */}
       <div className="flex gap-2 px-3.5 pb-3 text-xs">
-        <span className="flex-1 truncate rounded-lg bg-slate-50 px-2 py-1.5 text-slate-700">
-          <span className="text-slate-400">Nicho: </span>
-          <span className="font-medium">{creator.specialty}</span>
-        </span>
+        {hasSpecialty && (
+          <span className="flex-1 truncate rounded-lg bg-slate-50 px-2 py-1.5 text-slate-700">
+            <span className="text-slate-400">Nicho: </span>
+            <span className="font-medium">{creator.specialty}</span>
+          </span>
+        )}
         <span className="flex-1 truncate rounded-lg bg-slate-50 px-2 py-1.5 text-slate-700">
           <span className="text-slate-400">Tipo: </span>
           <span className="font-medium">UGC</span>

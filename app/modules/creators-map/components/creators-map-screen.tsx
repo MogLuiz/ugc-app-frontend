@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
+import { AppSidebar } from "~/components/app-sidebar";
 import { GoogleCreatorsMap } from "~/modules/creators-map/components/google-creators-map";
 import {
   useCreatorsMapController,
@@ -34,8 +36,11 @@ export function CreatorsMapScreen() {
     <div className="bg-[#f6f5f8]">
       {/* ── Desktop layout ── */}
       <div className="hidden h-screen overflow-hidden lg:flex">
+        {/* Global nav sidebar */}
+        <AppSidebar variant="business" />
+
         {/* Discovery panel */}
-        <aside className="flex w-[400px] flex-shrink-0 flex-col border-r border-slate-200 bg-white">
+        <aside className="flex min-w-[300px] w-[400px] flex-shrink-0 flex-col border-r border-slate-200 bg-white">
           {/* Panel header */}
           <div className="border-b border-slate-100 px-5 py-4">
             <div className="mb-4 flex items-center gap-2.5">
@@ -116,7 +121,7 @@ export function CreatorsMapScreen() {
         </aside>
 
         {/* Map area */}
-        <div className="relative flex-1 p-4">
+        <div className="relative min-w-0 flex-1 p-4">
           <GoogleCreatorsMap
             className="h-full w-full overflow-hidden rounded-2xl"
             creators={viewModel.creators}

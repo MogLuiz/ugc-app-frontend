@@ -3,6 +3,7 @@ import {
   BarChart3,
   Briefcase,
   CalendarDays,
+  ChevronLeft,
   ChevronRight,
   CreditCard,
   Home,
@@ -121,10 +122,34 @@ const SIDEBAR_CONFIG: Record<
   },
 };
 
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem("sidebar-collapsed") === "true";
+  } catch {
+    return false;
+  }
+}
+
+function writeCollapsed(value: boolean) {
+  try {
+    localStorage.setItem("sidebar-collapsed", String(value));
+  } catch {
+    // ignore
+  }
+}
+
 export function AppSidebar({ variant }: AppSidebarProps) {
   const { pathname } = useLocation();
   const config = SIDEBAR_CONFIG[variant];
   const partnerQuery = usePartnerProfileQuery();
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+
+  function toggle() {
+    setCollapsed((v) => {
+      writeCollapsed(!v);
+      return !v;
+    });
+  }
 
   const navItems = useMemo(() => {
     const showIndicacoes = partnerQuery.data?.kind === "active";
@@ -133,53 +158,111 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   }, [config.navItems, partnerQuery.data?.kind]);
 
   return (
-    <aside className="sticky top-0 flex h-screen w-[288px] shrink-0 flex-col justify-between self-start border-r border-[rgba(137,90,246,0.1)] bg-white px-6 py-6">
+    <aside
+      className={cn(
+        "sticky top-0 flex h-screen shrink-0 flex-col justify-between self-start border-r border-[rgba(137,90,246,0.1)] bg-white py-6 transition-all duration-200 ease-in-out",
+        collapsed ? "w-[68px] px-3" : "w-[288px] px-6",
+      )}
+    >
       <div className="flex flex-col">
-        <div className="mb-10 flex items-center gap-3">
-          <Link to={config.homeTo} className="flex items-center gap-3">
-            <AppLogoMark preset="lg" />
-            <div>
-              <p className="text-xl font-bold tracking-[-0.5px] text-slate-900">
-                UGC Local
-              </p>
-              <p className="text-xs font-medium text-[#895af6]">
-                {config.subtitle}
-              </p>
-            </div>
+        {/* Header */}
+        <div
+          className={cn(
+            "mb-10 flex items-center",
+            collapsed ? "flex-col gap-3" : "justify-between gap-3",
+          )}
+        >
+          <Link
+            to={config.homeTo}
+            className={cn(
+              "flex items-center gap-3",
+              collapsed && "justify-center",
+            )}
+          >
+            <AppLogoMark preset={collapsed ? "sm" : "lg"} />
+            {!collapsed && (
+              <div className="overflow-hidden">
+                <p className="whitespace-nowrap text-xl font-bold tracking-[-0.5px] text-slate-900">
+                  UGC Local
+                </p>
+                <p className="whitespace-nowrap text-xs font-medium text-[#895af6]">
+                  {config.subtitle}
+                </p>
+              </div>
+            )}
           </Link>
+
+          <button
+            type="button"
+            onClick={toggle}
+            title={collapsed ? "Expandir menu" : "Recolher menu"}
+            className={cn(
+              "flex items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-50 hover:text-slate-700",
+              collapsed ? "h-7 w-7" : "h-7 w-7 flex-shrink-0",
+            )}
+            aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
+          >
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
         </div>
 
+        {/* Nav */}
         <nav className="flex flex-1 flex-col gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = item.to !== "#" && pathname === item.to;
-            const className = cn(
-              "flex items-center gap-3 rounded-[48px] px-4 py-3 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-[#895af6] text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2),0px_4px_6px_-4px_rgba(137,90,246,0.2)]"
-                : "text-slate-600 hover:bg-slate-50",
+
+            const itemClass = cn(
+              "flex items-center transition-colors",
+              collapsed
+                ? cn(
+                    "justify-center rounded-xl p-2.5",
+                    isActive
+                      ? "bg-[#895af6] text-white shadow-[0px_4px_10px_-2px_rgba(137,90,246,0.35)]"
+                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-700",
+                  )
+                : cn(
+                    "gap-3 rounded-[48px] px-4 py-3 text-sm font-medium",
+                    isActive
+                      ? "bg-[#895af6] text-white shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2),0px_4px_6px_-4px_rgba(137,90,246,0.2)]"
+                      : "text-slate-600 hover:bg-slate-50",
+                  ),
             );
 
             if (item.to === "#") {
               return (
-                <a key={item.id} href="#" className={className}>
-                  <Icon className="size-[18px]" />
-                  {item.label}
+                <a
+                  key={item.id}
+                  href="#"
+                  title={collapsed ? item.label : undefined}
+                  className={itemClass}
+                >
+                  <Icon className="size-[18px] shrink-0" />
+                  {!collapsed && item.label}
                 </a>
               );
             }
 
             return (
-              <Link key={item.id} to={item.to} className={className}>
-                <Icon className="size-[18px]" />
-                {item.label}
+              <Link
+                key={item.id}
+                to={item.to}
+                title={collapsed ? item.label : undefined}
+                className={itemClass}
+              >
+                <Icon className="size-[18px] shrink-0" />
+                {!collapsed && item.label}
               </Link>
             );
           })}
         </nav>
       </div>
 
-      {config.footer === "business" ? <BusinessFooter /> : <CreatorFooter />}
+      {config.footer === "business" ? (
+        <BusinessFooter collapsed={collapsed} />
+      ) : (
+        <CreatorFooter collapsed={collapsed} />
+      )}
     </aside>
   );
 }
@@ -201,6 +284,7 @@ type SidebarUserMenuProps = {
   initials: string;
   photoUrl?: string;
   subtitle?: string;
+  collapsed?: boolean;
   onLogout?: () => Promise<void>;
 };
 
@@ -209,29 +293,67 @@ function SidebarUserMenu({
   initials,
   photoUrl,
   subtitle,
+  collapsed,
   onLogout,
 }: SidebarUserMenuProps) {
   const [avatarError, setAvatarError] = useState(false);
   const showImage = photoUrl && !avatarError;
 
+  const avatar = (
+    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200">
+      {showImage ? (
+        <img
+          src={photoUrl}
+          alt={displayName}
+          className="size-full object-cover"
+          onError={() => setAvatarError(true)}
+        />
+      ) : (
+        <span className="text-xs font-bold text-slate-600">{initials}</span>
+      )}
+    </div>
+  );
+
+  if (collapsed) {
+    if (onLogout) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              title={displayName}
+              className="flex w-full justify-center rounded-lg p-1 transition-colors hover:bg-slate-50"
+            >
+              {avatar}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="min-w-[12rem]">
+            <DropdownMenuItem
+              className="cursor-pointer text-red-600 focus:text-red-600"
+              onSelect={(e) => {
+                e.preventDefault();
+                void onLogout();
+              }}
+            >
+              <LogOut className="size-4" />
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+    return (
+      <div className="flex justify-center p-1" title={displayName}>
+        {avatar}
+      </div>
+    );
+  }
+
   const content = (
     <div className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-slate-50">
-      <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200">
-        {showImage ? (
-          <img
-            src={photoUrl}
-            alt={displayName}
-            className="size-full object-cover"
-            onError={() => setAvatarError(true)}
-          />
-        ) : (
-          <span className="text-xs font-bold text-slate-600">{initials}</span>
-        )}
-      </div>
+      {avatar}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-bold text-slate-900">
-          {displayName}
-        </p>
+        <p className="truncate text-xs font-bold text-slate-900">{displayName}</p>
         {subtitle && (
           <p className="truncate text-[10px] text-slate-500">{subtitle}</p>
         )}
@@ -267,7 +389,7 @@ function SidebarUserMenu({
   return content;
 }
 
-function BusinessFooter() {
+function BusinessFooter({ collapsed }: { collapsed: boolean }) {
   const { user, logout } = useAuth();
 
   if (!user) return null;
@@ -277,31 +399,34 @@ function BusinessFooter() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-2xl border border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.05)] p-4">
-        <p className="text-xs font-semibold uppercase text-[#895af6]">
-          Suporte Premium
-        </p>
-        <p className="mt-2 text-xs leading-4 text-slate-500">
-          Precisa de ajuda com sua estratégia de conteúdo?
-        </p>
-        <Button
-          variant="secondary"
-          className="mt-3 w-full rounded-[32px] border-[rgba(137,90,246,0.1)] bg-white text-slate-900 shadow-sm"
-        >
-          Falar com Consultor
-        </Button>
-      </div>
+      {!collapsed && (
+        <div className="rounded-2xl border border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.05)] p-4">
+          <p className="text-xs font-semibold uppercase text-[#895af6]">
+            Suporte Premium
+          </p>
+          <p className="mt-2 text-xs leading-4 text-slate-500">
+            Precisa de ajuda com sua estratégia de conteúdo?
+          </p>
+          <Button
+            variant="secondary"
+            className="mt-3 w-full rounded-[32px] border-[rgba(137,90,246,0.1)] bg-white text-slate-900 shadow-sm"
+          >
+            Falar com Consultor
+          </Button>
+        </div>
+      )}
       <SidebarUserMenu
         displayName={firstName}
         initials={initials}
         photoUrl={photoUrl}
+        collapsed={collapsed}
         onLogout={logout}
       />
     </div>
   );
 }
 
-function CreatorFooter() {
+function CreatorFooter({ collapsed }: { collapsed: boolean }) {
   const { user, logout } = useAuth();
 
   if (!user) return null;
@@ -309,12 +434,13 @@ function CreatorFooter() {
   const { displayName, initials, photoUrl } = getUserDisplayData(user);
 
   return (
-    <div className="border-t border-slate-200 pt-4">
+    <div className={cn("border-t border-slate-200 pt-4", collapsed && "border-0 pt-0")}>
       <SidebarUserMenu
         displayName={displayName}
         initials={initials}
         photoUrl={photoUrl}
-        subtitle="Criador de conteúdo"
+        subtitle={collapsed ? undefined : "Criador de conteúdo"}
+        collapsed={collapsed}
         onLogout={logout}
       />
     </div>

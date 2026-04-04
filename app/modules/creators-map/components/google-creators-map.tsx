@@ -37,9 +37,18 @@ function buildCreatorMarkerEl(
   isSelected: boolean,
 ): HTMLElement {
   const el = document.createElement("div");
-  el.style.cssText = "position:relative;cursor:pointer;width:42px;height:58px;";
+  // Selected markers are slightly larger (48px vs 42px) for clear visual feedback
+  const size = isSelected ? 48 : 42;
+  const totalH = isSelected ? 66 : 58;
+  el.style.cssText = `position:relative;cursor:pointer;width:${size}px;height:${totalH}px;`;
 
-  const initial = creator.name[0]?.toUpperCase() ?? "?";
+  const initial = creator.name
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?";
   const hasAvatar = Boolean(creator.avatarUrl);
   const borderColor = isSelected ? "#895af6" : "#ffffff";
   const outline = isSelected
@@ -54,14 +63,16 @@ function buildCreatorMarkerEl(
   const badgeText =
     creator.distanceKm != null
       ? `${creator.distanceKm.toFixed(1)}km`
-      : `★${creator.rating.toFixed(1)}`;
+      : creator.rating > 0
+        ? `★${creator.rating.toFixed(1)}`
+        : creator.name.split(/\s+/)[0] ?? "";
 
   el.innerHTML = `
-    <div style="width:42px;height:42px;border-radius:50%;border:3px solid ${borderColor};${shadow}${outline}overflow:hidden;background:#e9d5ff;display:flex;align-items:center;justify-content:center;">
+    <div style="width:${size}px;height:${size}px;border-radius:50%;border:3px solid ${borderColor};${shadow}${outline}overflow:hidden;background:#e9d5ff;display:flex;align-items:center;justify-content:center;">
       ${
         hasAvatar
-          ? `<img src="${creator.avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#7c3aed">${initial}</span>`
-          : `<span style="font-size:16px;font-weight:700;color:#7c3aed">${initial}</span>`
+          ? `<img src="${creator.avatarUrl}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:${isSelected ? 18 : 16}px;font-weight:700;color:#7c3aed">${initial}</span>`
+          : `<span style="font-size:${isSelected ? 18 : 16}px;font-weight:700;color:#7c3aed">${initial}</span>`
       }
     </div>
     <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};font-size:10px;font-weight:700;padding:1px 5px;border-radius:5px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,0.12);">${badgeText}</div>
@@ -76,23 +87,48 @@ function buildPreviewCardEl(creator: CreatorMapModel): HTMLDivElement {
   el.style.cssText =
     "background:white;border-radius:14px;padding:14px;border:1px solid rgba(137,90,246,0.2);box-shadow:0 8px 30px rgba(15,23,42,0.15);opacity:0;transition:opacity 150ms ease-out;width:272px;";
 
+  const initial = creator.name
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "?";
+
+  const avatarHtml = creator.avatarUrl
+    ? `<img src="${creator.avatarUrl}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0;border:2px solid #e9d5ff" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div style="display:none;width:48px;height:48px;border-radius:10px;background:#e9d5ff;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:700;color:#7c3aed">${initial}</div>`
+    : `<div style="width:48px;height:48px;border-radius:10px;background:#e9d5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:700;color:#7c3aed">${initial}</div>`;
+
+  const regionHtml = creator.region
+    ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">${creator.region}</div>`
+    : "";
+
+  const distanceHtml = creator.distanceKm != null
+    ? `<div style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;background:#f3f0ff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;color:#895af6;">${creator.distanceKm.toFixed(1)}km de você</div>`
+    : "";
+
+  const nicheHtml = creator.specialty
+    ? `<div style="flex:1;background:#f8fafc;border-radius:8px;padding:5px 8px;font-size:10px;color:#64748b;overflow:hidden;">Nicho: <strong style="color:#0f172a;">${creator.specialty}</strong></div>`
+    : "";
+
+  const priceHtml = creator.priceFrom != null
+    ? `<div style="flex:1;background:#f8fafc;border-radius:8px;padding:5px 8px;font-size:10px;color:#64748b;text-align:right;">A partir de<br/><strong style="font-size:13px;color:#0f172a;">R$ ${creator.priceFrom}</strong></div>`
+    : "";
+
+  const tagsRowHtml = nicheHtml || priceHtml
+    ? `<div style="display:flex;gap:6px;margin-bottom:10px;">${nicheHtml}${priceHtml}</div>`
+    : "";
+
   el.innerHTML = `
     <div style="display:flex;gap:10px;margin-bottom:10px;">
-      ${
-        creator.avatarUrl
-          ? `<img src="${creator.avatarUrl}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0;border:2px solid #e9d5ff"/>`
-          : `<div style="width:48px;height:48px;border-radius:10px;background:#e9d5ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:700;color:#7c3aed">${creator.name[0]?.toUpperCase() ?? "?"}</div>`
-      }
+      ${avatarHtml}
       <div style="min-width:0;flex:1;">
         <div style="font-size:13px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${creator.name}</div>
-        <div style="font-size:11px;color:#64748b;margin-top:2px;">${creator.region}</div>
-        ${creator.distanceKm != null ? `<div style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;background:#f3f0ff;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:700;color:#895af6;">${creator.distanceKm.toFixed(1)}km de você</div>` : ""}
+        ${regionHtml}
+        ${distanceHtml}
       </div>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:10px;">
-      <div style="flex:1;background:#f8fafc;border-radius:8px;padding:5px 8px;font-size:10px;color:#64748b;overflow:hidden;">Nicho: <strong style="color:#0f172a;">${creator.specialty}</strong></div>
-      ${creator.priceFrom != null ? `<div style="flex:1;background:#f8fafc;border-radius:8px;padding:5px 8px;font-size:10px;color:#64748b;text-align:right;">A partir de<br/><strong style="font-size:13px;color:#0f172a;">R$ ${creator.priceFrom}</strong></div>` : ""}
-    </div>
+    ${tagsRowHtml}
     <a href="/criador/${creator.id}" style="display:block;text-align:center;background:#895af6;color:white;border-radius:8px;padding:7px;font-size:12px;font-weight:600;text-decoration:none;">Ver perfil completo</a>
   `;
   return el;
