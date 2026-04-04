@@ -16,7 +16,7 @@ export function loadGoogleMapsApi(apiKey: string) {
 
   mapsApiPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&libraries=marker`;
     script.async = true;
     script.defer = true;
 
