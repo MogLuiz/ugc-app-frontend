@@ -6,7 +6,6 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { GoogleCreatorsMap } from "~/modules/creators-map/components/google-creators-map";
 import {
   useCreatorsMapController,
-  type CategoryFilter,
   type DistanceFilter,
 } from "../hooks/use-creators-map-controller";
 import { CreatorMapCard } from "./creator-map-card";
@@ -20,14 +19,6 @@ const DISTANCE_FILTERS: Array<{ id: DistanceFilter; label: string }> = [
   { id: "1km", label: "Até 1km" },
   { id: "3km", label: "Até 3km" },
   { id: "5km", label: "Até 5km" },
-];
-
-const CATEGORIES: Array<{ id: CategoryFilter; label: string }> = [
-  { id: "all", label: "Todos" },
-  { id: "beleza", label: "Beleza" },
-  { id: "gastronomia", label: "Gastronomia" },
-  { id: "tech", label: "Tech" },
-  { id: "fitness", label: "Saúde" },
 ];
 
 export function CreatorsMapScreen() {
@@ -244,18 +235,18 @@ export function CreatorsMapScreen() {
             </div>
 
             <div className="pointer-events-auto mt-2.5 flex gap-2 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {CATEGORIES.map((cat) => (
+              {DISTANCE_FILTERS.map((filter) => (
                 <button
-                  key={cat.id}
+                  key={filter.id}
                   type="button"
-                  onClick={() => actions.setActiveCategory(cat.id)}
+                  onClick={() => actions.setDistanceFilter(filter.id)}
                   className={
-                    viewModel.activeCategory === cat.id
+                    viewModel.distanceFilter === filter.id
                       ? "shrink-0 rounded-full bg-[#895af6] px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(137,90,246,0.28)]"
                       : "shrink-0 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-600"
                   }
                 >
-                  {cat.label}
+                  {filter.label}
                 </button>
               ))}
             </div>

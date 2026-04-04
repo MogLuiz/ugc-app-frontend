@@ -30,6 +30,8 @@ const DISTANCE_RADIUS_M: Record<DistanceFilter, number> = {
   "5km": 5000,
 };
 
+const MOBILE_COLLAPSED_SHEET_HEIGHT = 76;
+
 // ─── Marker HTML builder ──────────────────────────────────────────────────────
 
 function buildCreatorMarkerEl(
@@ -88,7 +90,7 @@ function buildPreviewCardEl(
 ): HTMLDivElement {
   const compact = options?.compact ?? false;
   const el = document.createElement("div");
-  el.style.cssText = `background:rgba(255,255,255,0.98);border-radius:${compact ? 18 : 14}px;padding:${compact ? 12 : 14}px;border:1px solid rgba(137,90,246,0.18);box-shadow:0 12px 36px rgba(15,23,42,0.16);opacity:0;transition:opacity 150ms ease-out;width:${compact ? 248 : 272}px;backdrop-filter:blur(10px);`;
+  el.style.cssText = `background:rgba(255,255,255,0.98);border-radius:${compact ? 18 : 14}px;padding:${compact ? 12 : 14}px;border:1px solid rgba(137,90,246,0.18);box-shadow:0 12px 36px rgba(15,23,42,0.16);opacity:0;transition:opacity 150ms ease-out;width:${compact ? 220 : 272}px;backdrop-filter:blur(10px);`;
 
   const initial = creator.name
     .trim()
@@ -118,7 +120,7 @@ function buildPreviewCardEl(
     ? `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:6px 9px;font-size:10px;color:#64748b;text-align:right;">A partir de<br/><strong style="font-size:13px;color:#0f172a;">R$ ${creator.priceFrom}</strong></div>`
     : "";
 
-  const tagsRowHtml = nicheHtml || priceHtml
+  const tagsRowHtml = !compact && (nicheHtml || priceHtml)
     ? `<div style="display:flex;gap:6px;margin-bottom:10px;">${nicheHtml}${priceHtml}</div>`
     : "";
 
@@ -419,10 +421,9 @@ export function GoogleCreatorsMap({
     if (!creator || !container || !shouldShowMobilePreview) return;
 
     const cardEl = buildPreviewCardEl(creator, { compact: isMobileUi });
-    const CARD_W = isMobileUi ? 248 : 272;
-    const CARD_H = isMobileUi ? 144 : 160;
     const ARROW_GAP = 12;
     const MARKER_H = 58;
+    const MARKER_OFFSET_Y = 18;
 
     class CreatorPreviewOverlay extends g.maps.OverlayView {
       private el: HTMLDivElement;
@@ -448,24 +449,36 @@ export function GoogleCreatorsMap({
         const mapW = this.getMap()!.getDiv().offsetWidth;
         const mapH = this.getMap()!.getDiv().offsetHeight;
 
-        // Prefer above the marker; fall back below if not enough space
-        const spaceAbove = point.y - MARKER_H - ARROW_GAP;
-        let top: number;
-        if (spaceAbove >= CARD_H + 8) {
-          top = point.y - MARKER_H - ARROW_GAP - CARD_H;
-        } else {
-          // Show below the marker
-          top = point.y + ARROW_GAP + 8;
-        }
+        const cardW = this.el.offsetWidth;
+        const cardH = this.el.offsetHeight;
+        const horizontalPadding = isMobileUi ? 12 : 8;
+        const topSafeInset = isMobileUi ? topInset + 10 : 8;
+        const collapsedSheetInset =
+          isMobileUi && mobileSheetState === "collapsed"
+            ? MOBILE_COLLAPSED_SHEET_HEIGHT + 12
+            : 0;
+        const bottomSafeInset = isMobileUi
+          ? bottomInset + collapsedSheetInset
+          : 8;
+        const usableBottom = mapH - bottomSafeInset;
 
-        // Horizontal: center on marker, clamp to viewport
-        let left = point.x - CARD_W / 2;
-        left = Math.max(8, Math.min(left, mapW - CARD_W - 8));
+        const markerTop = point.y - MARKER_H - MARKER_OFFSET_Y;
+        const markerBottom = point.y + ARROW_GAP + 8;
+        const spaceAbove = markerTop - topSafeInset;
+        const spaceBelow = usableBottom - markerBottom;
 
-        // Vertical clamp
-        const topSafeInset = isMobileUi ? topInset + 8 : 8;
-        const bottomSafeInset = isMobileUi ? bottomInset + 24 : 8;
-        top = Math.max(topSafeInset, Math.min(top, mapH - CARD_H - bottomSafeInset));
+        let top =
+          spaceAbove >= cardH || spaceAbove >= spaceBelow
+            ? markerTop - cardH
+            : markerBottom;
+
+        let left = point.x - cardW / 2;
+        left = Math.max(
+          horizontalPadding,
+          Math.min(left, mapW - cardW - horizontalPadding),
+        );
+
+        top = Math.max(topSafeInset, Math.min(top, usableBottom - cardH));
 
         this.el.style.left = `${left}px`;
         this.el.style.top = `${top}px`;
@@ -489,7 +502,15 @@ export function GoogleCreatorsMap({
         if (cardEl.isConnected) cardEl.style.opacity = "1";
       });
     });
-  }, [selectedCreatorId, creators, shouldShowMobilePreview, isMobileUi, topInset, bottomInset]);
+  }, [
+    selectedCreatorId,
+    creators,
+    shouldShowMobilePreview,
+    isMobileUi,
+    mobileSheetState,
+    topInset,
+    bottomInset,
+  ]);
 
   // ── Zoom controls ──
   function updateZoom(delta: number) {
