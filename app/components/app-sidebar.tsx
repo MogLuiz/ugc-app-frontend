@@ -160,7 +160,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "sticky top-0 flex h-screen shrink-0 flex-col justify-between self-start border-r border-[rgba(137,90,246,0.1)] bg-white py-6 transition-all duration-200 ease-in-out",
+        "sticky top-0 z-40 flex h-screen shrink-0 flex-col justify-between self-start border-r border-[rgba(137,90,246,0.1)] bg-white py-6 transition-all duration-200 ease-in-out",
         collapsed ? "w-[68px] px-3" : "w-[288px] px-6",
       )}
     >
@@ -229,30 +229,40 @@ export function AppSidebar({ variant }: AppSidebarProps) {
                   ),
             );
 
+            const inner = (
+              <>
+                <Icon className="size-[18px] shrink-0" />
+                {!collapsed && item.label}
+                {/* Tooltip shown only when collapsed */}
+                {collapsed && (
+                  <span
+                    className="pointer-events-none absolute left-full z-[100] ml-3 whitespace-nowrap rounded-lg bg-[#895af6] px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-[0px_4px_10px_-2px_rgba(137,90,246,0.35)] transition-opacity duration-150 group-hover:opacity-100"
+                    role="tooltip"
+                  >
+                    {item.label}
+                    {/* Arrow */}
+                    <span className="absolute -left-1 top-1/2 -translate-y-1/2 border-4 border-transparent border-r-[#895af6]" />
+                  </span>
+                )}
+              </>
+            );
+
             if (item.to === "#") {
               return (
-                <a
-                  key={item.id}
-                  href="#"
-                  title={collapsed ? item.label : undefined}
-                  className={itemClass}
-                >
-                  <Icon className="size-[18px] shrink-0" />
-                  {!collapsed && item.label}
-                </a>
+                <div key={item.id} className={cn(collapsed && "relative group")}>
+                  <a href="#" className={itemClass}>
+                    {inner}
+                  </a>
+                </div>
               );
             }
 
             return (
-              <Link
-                key={item.id}
-                to={item.to}
-                title={collapsed ? item.label : undefined}
-                className={itemClass}
-              >
-                <Icon className="size-[18px] shrink-0" />
-                {!collapsed && item.label}
-              </Link>
+              <div key={item.id} className={cn(collapsed && "relative group")}>
+                <Link to={item.to} className={itemClass}>
+                  {inner}
+                </Link>
+              </div>
             );
           })}
         </nav>

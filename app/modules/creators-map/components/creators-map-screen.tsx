@@ -44,10 +44,14 @@ export function CreatorsMapScreen() {
           {/* Panel header */}
           <div className="border-b border-slate-100 px-5 py-4">
             <div className="mb-4 flex items-center gap-2.5">
-              <AppLogoMark preset="lg" />
+              {/* <AppLogoMark preset="lg" /> */}
               <div>
-                <h1 className="text-base font-semibold text-slate-900">Mapa de Criadores</h1>
-                <p className="text-xs text-slate-500">Encontre creators próximos à sua empresa</p>
+                <h1 className="text-base font-semibold text-slate-900">
+                  Mapa de Criadores
+                </h1>
+                <p className="text-xs text-slate-500">
+                  Encontre creators próximos à sua empresa
+                </p>
               </div>
             </div>
 
@@ -94,7 +98,9 @@ export function CreatorsMapScreen() {
             <div className="flex items-center gap-2 rounded-lg border border-purple-100/60 bg-purple-50/50 px-3 py-2">
               <MapPin size={14} className="text-purple-600" />
               <span className="text-xs text-slate-600">
-                <span className="font-semibold text-slate-900">{viewModel.creators.length} creators</span>{" "}
+                <span className="font-semibold text-slate-900">
+                  {viewModel.creators.length} creators
+                </span>{" "}
                 na sua região
               </span>
             </div>
@@ -113,8 +119,12 @@ export function CreatorsMapScreen() {
             {viewModel.creators.length === 0 && (
               <div className="py-16 text-center">
                 <MapPin size={32} className="mx-auto mb-3 text-slate-300" />
-                <p className="text-sm text-slate-500">Nenhum creator encontrado.</p>
-                <p className="mt-1 text-xs text-slate-400">Tente ajustar os filtros.</p>
+                <p className="text-sm text-slate-500">
+                  Nenhum creator encontrado.
+                </p>
+                <p className="mt-1 text-xs text-slate-400">
+                  Tente ajustar os filtros.
+                </p>
               </div>
             )}
           </div>
