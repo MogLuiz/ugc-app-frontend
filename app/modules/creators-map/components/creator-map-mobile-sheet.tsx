@@ -23,6 +23,9 @@ const PEEK_HEIGHTS: Record<SheetState, string> = {
 };
 
 const STATE_ORDER: SheetState[] = ["collapsed", "medium", "expanded"];
+const SHEET_TOP_CLEARANCE = 8;
+const SHEET_CHROME_HEIGHT = 96;
+const SHEET_CONTENT_BOTTOM_PADDING = 12;
 
 export function CreatorMapMobileSheet({
   creators,
@@ -64,12 +67,23 @@ export function CreatorMapMobileSheet({
     });
   }
 
-  function handleHandleTap() {
-    setState((s) => {
-      const idx = STATE_ORDER.indexOf(s);
-      // Cycle: collapsed → medium → expanded → collapsed
-      return STATE_ORDER[(idx + 1) % STATE_ORDER.length] ?? "collapsed";
-    });
+  function openSheet() {
+    setState("medium");
+  }
+
+  function collapseSheet() {
+    setState("collapsed");
+  }
+
+  function handleArrowAction(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+
+    if (state === "collapsed") {
+      openSheet();
+      return;
+    }
+
+    collapseSheet();
   }
 
   function onTouchStart(e: React.TouchEvent) {
@@ -118,75 +132,76 @@ export function CreatorMapMobileSheet({
     dragStartY.current = null;
   }
 
-  const translateY = `calc(100% - ${PEEK_HEIGHTS[state]})`;
-  const maxHeight = `calc(100dvh - ${bottomOffset} - 20px)`;
+  const visibleHeight = `calc(${PEEK_HEIGHTS[state]} + ${bottomOffset})`;
+  const translateY = `calc(100% - ${visibleHeight})`;
+  const maxHeight = `calc(100dvh - ${SHEET_TOP_CLEARANCE}px)`;
+  const listMaxHeight =
+    state === "expanded"
+      ? `calc(${maxHeight} - ${SHEET_CHROME_HEIGHT}px - ${bottomOffset})`
+      : "calc(44dvh - 96px)";
+  const containerPaddingBottom = bottomOffset;
+  const listPaddingBottom = `${SHEET_CONTENT_BOTTOM_PADDING}px`;
 
   return (
     <div
       className="fixed left-0 right-0 z-30 overflow-hidden rounded-t-[28px] border border-slate-200/80 bg-white/98 shadow-[0_-18px_48px_rgba(15,23,42,0.14)] backdrop-blur-xl"
       style={{
-        bottom: bottomOffset,
+        bottom: 0,
         transform: `translateY(${translateY})`,
         transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
         maxHeight,
+        paddingBottom: containerPaddingBottom,
       }}
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
     >
-      {/* Handle + tap zone */}
-      <button
-        type="button"
-        onClick={handleHandleTap}
-        className="flex w-full flex-col items-center bg-white/90 pb-2 pt-3"
-        aria-label={state === "expanded" ? "Recolher lista" : "Expandir lista"}
+      {/* Handle + header */}
+      <div
+        className={cn(
+          "block w-full bg-white/90 text-left",
+          state === "collapsed" && "cursor-pointer",
+        )}
       >
-        <div className="h-1.5 w-11 rounded-full bg-slate-200" />
-      </button>
-
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-100/80 px-4 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" />
-          <span className="text-[15px] font-semibold text-slate-900">
-            {creators.length} creators próximos
-          </span>
+        <div className="flex items-center justify-center pb-2 pt-3">
+          <div className="h-1.5 w-11 rounded-full bg-slate-200" />
         </div>
 
-        <div className="flex items-center gap-1">
-          {state === "collapsed" && (
-            <span className="text-xs text-slate-400">Toque para abrir</span>
+        <div
+          className={cn(
+            "flex items-center justify-between px-4 pb-3",
+            state === "collapsed" ? "pt-0" : "border-b border-slate-100/80 pt-0",
           )}
-          {state === "medium" && (
-            <button
-              type="button"
-              onClick={advance}
-              className="rounded-full p-1.5 hover:bg-slate-100"
-              aria-label="Expandir"
-            >
-              <ChevronUp size={16} className="text-slate-500" />
-            </button>
-          )}
-          {state === "expanded" && (
-            <button
-              type="button"
-              onClick={retreat}
-              className="rounded-full p-1.5 hover:bg-slate-100"
-              aria-label="Recolher"
-            >
-              <ChevronDown size={16} className="text-slate-500" />
-            </button>
-          )}
+        >
+          <button
+            type="button"
+            onClick={state === "collapsed" ? openSheet : undefined}
+            className={cn(
+              "flex min-w-0 flex-1 items-center gap-2 text-left",
+              state === "collapsed" && "cursor-pointer",
+            )}
+            aria-label={state === "collapsed" ? "Abrir lista de creators próximos" : undefined}
+          >
+            <div className="h-2 w-2 animate-pulse rounded-full bg-purple-500" />
+            <span className="truncate text-[15px] font-semibold text-slate-900">
+              {creators.length} creators próximos
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleArrowAction}
+            className="ml-3 shrink-0 rounded-full border border-slate-200/80 bg-white p-2 text-slate-500 transition hover:bg-slate-50"
+            aria-label={state === "collapsed" ? "Expandir lista" : "Recolher lista"}
+          >
+            {state === "collapsed" ? (
+              <ChevronUp size={16} />
+            ) : (
+              <ChevronDown size={16} />
+            )}
+          </button>
         </div>
       </div>
-
-      {state === "collapsed" && (
-        <div className="border-b border-slate-100/70 px-4 pb-3">
-          <p className="text-xs text-slate-500">
-            Deslize para ver todos os creators
-          </p>
-        </div>
-      )}
 
       {/* List — only shown when not collapsed */}
       <div
@@ -198,10 +213,8 @@ export function CreatorMapMobileSheet({
             : "overflow-y-auto",
         )}
         style={{
-          maxHeight:
-            state === "expanded"
-              ? `calc(${maxHeight} - 116px)`
-              : "calc(44dvh - 108px)",
+          maxHeight: listMaxHeight,
+          paddingBottom: listPaddingBottom,
         }}
       >
         {creators.map((creator) => (
@@ -213,7 +226,7 @@ export function CreatorMapMobileSheet({
             onSelect={() => {
               onSelectCreator(creator.id);
               // Bring sheet to at least medium when selecting a creator
-              if (state === "collapsed") setState("medium");
+              if (state === "collapsed") openSheet();
             }}
           />
         ))}
