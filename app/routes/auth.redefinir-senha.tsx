@@ -7,8 +7,8 @@ import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { z } from "zod/v3";
 import { toast } from "~/components/ui/toast";
 import { supabase } from "~/lib/supabase";
-import { useResetPasswordMutation } from "~/modules/auth/mutations";
 import { AuthVisualPanel } from "~/modules/auth/components/auth-visual-panel";
+import { useResetPasswordMutation } from "~/modules/auth/mutations";
 
 type LinkState = "checking" | "valid" | "invalid";
 
@@ -54,7 +54,10 @@ export default function AuthRedefinirSenhaRoute() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
         resolve("valid");
-      } else if (event === "SIGNED_OUT" || (event === "INITIAL_SESSION" && !session)) {
+      } else if (
+        event === "SIGNED_OUT" ||
+        (event === "INITIAL_SESSION" && !session)
+      ) {
         resolve("invalid");
       }
     });
@@ -77,11 +80,15 @@ export default function AuthRedefinirSenhaRoute() {
   async function onSubmit(data: ResetPasswordForm) {
     try {
       await mutation.mutateAsync(data.password);
-      toast.success("Senha redefinida com sucesso! Faça login com a nova senha.");
+      toast.success(
+        "Senha redefinida com sucesso! Faça login com a nova senha.",
+      );
       navigate("/login");
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Erro ao redefinir a senha. Tente novamente."
+        err instanceof Error
+          ? err.message
+          : "Erro ao redefinir a senha. Tente novamente.",
       );
     }
   }
@@ -116,7 +123,8 @@ export default function AuthRedefinirSenhaRoute() {
                 Link inválido ou expirado
               </h1>
               <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                Este link de redefinição não é mais válido. Solicite um novo link abaixo.
+                Este link de redefinição não é mais válido. Solicite um novo
+                link abaixo.
               </p>
               <Link
                 to="/auth/esqueci-senha"
@@ -146,7 +154,11 @@ export default function AuthRedefinirSenhaRoute() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                noValidate
+                className="space-y-5"
+              >
                 {/* Nova senha */}
                 <div>
                   <label
@@ -174,9 +186,15 @@ export default function AuthRedefinirSenhaRoute() {
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
-                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      aria-label={
+                        showPassword ? "Ocultar senha" : "Mostrar senha"
+                      }
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.password && (
@@ -213,9 +231,15 @@ export default function AuthRedefinirSenhaRoute() {
                       type="button"
                       onClick={() => setShowConfirm((v) => !v)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
-                      aria-label={showConfirm ? "Ocultar senha" : "Mostrar senha"}
+                      aria-label={
+                        showConfirm ? "Ocultar senha" : "Mostrar senha"
+                      }
                     >
-                      {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showConfirm ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                   {errors.confirmPassword && (
