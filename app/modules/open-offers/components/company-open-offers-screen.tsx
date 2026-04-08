@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { EmptyState } from "~/components/ui/empty-state";
+import { cn } from "~/lib/utils";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
 import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/company-campaigns-location-state";
 import { useMyCompanyOpenOffersQuery } from "../queries";
@@ -16,6 +17,54 @@ const TABS: Array<{ id: OffersTabId; label: string }> = [
   { id: "IN_PROGRESS", label: "Em andamento" },
   { id: "FINALIZED", label: "Finalizadas" },
 ];
+
+function CompanyOffersStatusFilter({
+  resolvedTab,
+  onTabChange,
+  counts,
+}: {
+  resolvedTab: OffersTabId;
+  onTabChange: (id: OffersTabId) => void;
+  counts: Record<OffersTabId, number>;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Filtrar ofertas por status"
+      className="flex w-full rounded-full bg-[#e7e6e9] p-1 lg:w-fit lg:self-start"
+    >
+      {TABS.map((tab) => {
+        const isActive = resolvedTab === tab.id;
+        const count = counts[tab.id];
+        return (
+          <button
+            key={tab.id}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onTabChange(tab.id)}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm transition lg:flex-none",
+              isActive
+                ? "bg-white font-bold text-slate-900 shadow-sm"
+                : "font-semibold text-slate-600 hover:text-slate-800"
+            )}
+          >
+            <span>{tab.label}</span>
+            <span
+              className={cn(
+                "tabular-nums text-xs font-semibold leading-none",
+                isActive ? "text-slate-800" : "text-slate-600"
+              )}
+            >
+              {count}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 function EmptyTabState({
   title,
@@ -92,6 +141,23 @@ export function CompanyOpenOffersScreen() {
     () => buildFinalizedSections(contracts, openOffers, now),
     [contracts, now, openOffers]
   );
+
+  const tabCounts = useMemo(() => {
+    const pendingDirectInvites = pendingContracts.filter((c) => c.openOfferId == null).length;
+    // Total de ofertas abertas na API + convites diretos pendentes (fora da paginação da lista).
+    const openOffersTotal = openOffersQuery.data?.pagination.total ?? 0;
+    return {
+      OPEN: openOffersTotal + pendingDirectInvites,
+      IN_PROGRESS: inProgressItems.length,
+      FINALIZED: finalizedSections.contracts.length + finalizedSections.offersWithoutHire.length,
+    } satisfies Record<OffersTabId, number>;
+  }, [
+    pendingContracts,
+    openOffersQuery.data?.pagination.total,
+    inProgressItems.length,
+    finalizedSections.contracts.length,
+    finalizedSections.offersWithoutHire.length,
+  ]);
 
   const isLoading =
     openOffersQuery.isLoading ||
@@ -276,7 +342,7 @@ export function CompanyOpenOffersScreen() {
       </div>
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:p-8">
-        <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:px-0">
+        <div className="flex min-w-0 flex-1 flex-col px-4 lg:px-0">
           <header className="flex flex-col gap-4 rounded-[32px] bg-[radial-gradient(circle_at_top_left,rgba(137,90,246,0.18),transparent_45%),linear-gradient(135deg,#15171a,#23262b)] px-6 py-7 text-white shadow-sm lg:flex-row lg:items-end lg:justify-between lg:px-8">
             <div className="max-w-3xl">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/65">
@@ -298,24 +364,15 @@ export function CompanyOpenOffersScreen() {
             </Link>
           </header>
 
-          <section className="flex flex-wrap gap-2 rounded-[24px] bg-white p-2 shadow-sm">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-                  resolvedTab === tab.id
-                    ? "bg-[#895af6] text-white shadow-[0_10px_25px_-16px_rgba(137,90,246,0.75)]"
-                    : "text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </section>
+          <div className="mt-3">
+            <CompanyOffersStatusFilter
+              resolvedTab={resolvedTab}
+              onTabChange={setActiveTab}
+              counts={tabCounts}
+            />
+          </div>
 
-          {content}
+          <div className="mt-4">{content}</div>
         </div>
       </main>
 
