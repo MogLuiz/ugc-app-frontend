@@ -16,7 +16,6 @@ import {
   Users,
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
-import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -416,31 +415,13 @@ function BusinessFooter({ collapsed }: { collapsed: boolean }) {
   const firstName = displayName.split(" ")[0] ?? displayName;
 
   return (
-    <div className="flex flex-col gap-4">
-      {!collapsed && (
-        <div className="rounded-2xl border border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.05)] p-4">
-          <p className="text-xs font-semibold uppercase text-[#895af6]">
-            Suporte Premium
-          </p>
-          <p className="mt-2 text-xs leading-4 text-slate-500">
-            Precisa de ajuda com sua estratégia de conteúdo?
-          </p>
-          <Button
-            variant="secondary"
-            className="mt-3 w-full rounded-[32px] border-[rgba(137,90,246,0.1)] bg-white text-slate-900 shadow-sm"
-          >
-            Falar com Consultor
-          </Button>
-        </div>
-      )}
-      <SidebarUserMenu
-        displayName={firstName}
-        initials={initials}
-        photoUrl={photoUrl}
-        collapsed={collapsed}
-        onLogout={logout}
-      />
-    </div>
+    <SidebarUserMenu
+      displayName={firstName}
+      initials={initials}
+      photoUrl={photoUrl}
+      collapsed={collapsed}
+      onLogout={logout}
+    />
   );
 }
 
