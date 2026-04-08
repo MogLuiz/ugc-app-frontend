@@ -1,5 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, ChevronLeft, Loader2, MapPin, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronLeft,
+  Loader2,
+  MapPin,
+  XCircle,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
@@ -11,8 +17,15 @@ import { Button } from "~/components/ui/button";
 import { HttpError } from "~/lib/http/errors";
 import { cn } from "~/lib/utils";
 import { useAuthContext } from "~/modules/auth/context";
-import { lookupCep, formatCep } from "~/modules/creator-profile-edit/lib/cep-lookup";
-import { formatCurrency, formatDateShort, formatDuration } from "~/modules/contract-requests/utils";
+import {
+  lookupCep,
+  formatCep,
+} from "~/modules/creator-profile-edit/lib/cep-lookup";
+import {
+  formatCurrency,
+  formatDateShort,
+  formatDuration,
+} from "~/modules/contract-requests/utils";
 import { useCreateOpenOfferMutation } from "../mutations";
 import { useOpenOfferJobTypesQuery } from "../queries";
 import { formatProfileAddress, hasUsableCompanyAddress } from "../helpers";
@@ -36,7 +49,7 @@ const formSchema = z
           required_error: "Informe o valor do trabalho.",
           invalid_type_error: "Informe o valor do trabalho.",
         })
-        .min(0.01, "Digite um valor válido.")
+        .min(0.01, "Digite um valor válido."),
     ),
     durationMinutes: z.coerce.number().min(1),
     // Address mode: true = use company's registered address; false = structured fields
@@ -51,7 +64,10 @@ const formSchema = z
     const startsAt = new Date(data.startsAt);
     const expiresAt = new Date(data.expiresAt);
 
-    if (!Number.isNaN(startsAt.getTime()) && !Number.isNaN(expiresAt.getTime())) {
+    if (
+      !Number.isNaN(startsAt.getTime()) &&
+      !Number.isNaN(expiresAt.getTime())
+    ) {
       if (expiresAt <= new Date()) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -71,15 +87,35 @@ const formSchema = z
 
     if (!data.useCompanyAddress) {
       if (!data.zipCode?.trim())
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["zipCode"], message: "Informe o CEP." });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["zipCode"],
+          message: "Informe o CEP.",
+        });
       if (!data.street?.trim())
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["street"], message: "Informe o logradouro." });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["street"],
+          message: "Informe o logradouro.",
+        });
       if (!data.number?.trim())
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["number"], message: "Informe o número." });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["number"],
+          message: "Informe o número.",
+        });
       if (!data.city?.trim())
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["city"], message: "Informe a cidade." });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["city"],
+          message: "Informe a cidade.",
+        });
       if (!data.state?.trim())
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["state"], message: "Informe o estado." });
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["state"],
+          message: "Informe o estado.",
+        });
     }
   });
 
@@ -109,20 +145,23 @@ export function CompanyOpenOfferCreateScreen() {
   const jobTypesQuery = useOpenOfferJobTypesQuery();
 
   const jobTypeOptions = useMemo(
-    () => (jobTypesQuery.data ?? []).filter((item) => item.mode === "PRESENTIAL"),
-    [jobTypesQuery.data]
+    () =>
+      (jobTypesQuery.data ?? []).filter((item) => item.mode === "PRESENTIAL"),
+    [jobTypesQuery.data],
   );
 
   const companyHasAddress = useMemo(
     () => hasUsableCompanyAddress(user?.profile),
-    [user?.profile]
+    [user?.profile],
   );
 
   // ─── Default dates ──────────────────────────────────────────────────────────
   const defaultStartsAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
   defaultStartsAt.setMinutes(0, 0, 0);
   defaultStartsAt.setHours(Math.max(8, defaultStartsAt.getHours()), 0, 0, 0);
-  const defaultExpiresAt = new Date(defaultStartsAt.getTime() - 4 * 60 * 60 * 1000);
+  const defaultExpiresAt = new Date(
+    defaultStartsAt.getTime() - 4 * 60 * 60 * 1000,
+  );
 
   // ─── Form ───────────────────────────────────────────────────────────────────
   const form = useForm<FormValues>({
@@ -144,12 +183,24 @@ export function CompanyOpenOfferCreateScreen() {
   });
 
   // ─── Watched values for preview ─────────────────────────────────────────────
-  const selectedJobTypeId = useWatch({ control: form.control, name: "jobTypeId" });
+  const selectedJobTypeId = useWatch({
+    control: form.control,
+    name: "jobTypeId",
+  });
   const startsAtValue = useWatch({ control: form.control, name: "startsAt" });
   const expiresAtValue = useWatch({ control: form.control, name: "expiresAt" });
-  const amountValue = useWatch({ control: form.control, name: "offeredAmount" });
-  const descriptionValue = useWatch({ control: form.control, name: "description" });
-  const useCompanyAddressValue = useWatch({ control: form.control, name: "useCompanyAddress" });
+  const amountValue = useWatch({
+    control: form.control,
+    name: "offeredAmount",
+  });
+  const descriptionValue = useWatch({
+    control: form.control,
+    name: "description",
+  });
+  const useCompanyAddressValue = useWatch({
+    control: form.control,
+    name: "useCompanyAddress",
+  });
   const zipCodeValue = useWatch({ control: form.control, name: "zipCode" });
   const streetValue = useWatch({ control: form.control, name: "street" });
   const numberValue = useWatch({ control: form.control, name: "number" });
@@ -158,7 +209,7 @@ export function CompanyOpenOfferCreateScreen() {
 
   const selectedJobType = useMemo(
     () => jobTypeOptions.find((item) => item.id === selectedJobTypeId) ?? null,
-    [jobTypeOptions, selectedJobTypeId]
+    [jobTypeOptions, selectedJobTypeId],
   );
 
   const startsAtDate = startsAtValue ? new Date(startsAtValue) : null;
@@ -194,7 +245,9 @@ export function CompanyOpenOfferCreateScreen() {
       const floor = new Date(Date.now() + 60_000);
       let candidate = auto < floor ? floor : auto;
       if (candidate >= startDate) candidate = new Date(startsMs - 60_000);
-      form.setValue("expiresAt", toInputDateTime(candidate), { shouldValidate: false });
+      form.setValue("expiresAt", toInputDateTime(candidate), {
+        shouldValidate: false,
+      });
     }
   }, [startsAtValue, form]);
 
@@ -208,7 +261,15 @@ export function CompanyOpenOfferCreateScreen() {
       addressState: stateValue,
       addressZipCode: zipCodeValue,
     });
-  }, [useCompanyAddressValue, user?.profile, streetValue, numberValue, cityValue, stateValue, zipCodeValue]);
+  }, [
+    useCompanyAddressValue,
+    user?.profile,
+    streetValue,
+    numberValue,
+    cityValue,
+    stateValue,
+    zipCodeValue,
+  ]);
 
   // ─── CEP lookup ─────────────────────────────────────────────────────────────
   const [cepStatus, setCepStatus] = useState<CepStatus>("idle");
@@ -250,7 +311,7 @@ export function CompanyOpenOfferCreateScreen() {
         setCepStatus("error");
       }
     },
-    [form]
+    [form],
   );
 
   function switchToCompanyAddress() {
@@ -340,44 +401,46 @@ export function CompanyOpenOfferCreateScreen() {
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 max-lg:pb-44 lg:p-8">
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:px-0">
-          <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex min-w-0 flex-col gap-3">
-              <div className="flex min-w-0 items-center justify-between gap-3 lg:hidden">
-                <Link
-                  to="/ofertas"
-                  className="inline-flex min-w-0 items-center gap-1 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
-                >
-                  <ChevronLeft className="size-4 shrink-0" aria-hidden />
-                  <span className="truncate">Ofertas</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => navigate("/ofertas")}
-                  className="shrink-0 text-sm font-medium text-slate-400 transition-colors hover:text-slate-600"
-                >
-                  Cancelar
-                </button>
-              </div>
+          <header className="rounded-[32px] bg-white p-5 shadow-sm lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+            {/* Mobile: barra alinhada ao padrão “detalhe” — voltar + título centralizado + simetria */}
+            <div className="relative flex min-h-10 items-center justify-center lg:hidden">
+              <Link
+                to="/ofertas"
+                className="absolute left-0 inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition-colors hover:bg-slate-100"
+                aria-label="Voltar para ofertas"
+              >
+                <ChevronLeft className="size-5" aria-hidden />
+              </Link>
+              <h1 className="px-10 text-center text-lg font-bold tracking-[-0.02em] text-slate-900">
+                Nova oferta
+              </h1>
+              <span className="absolute right-0 size-10 shrink-0" aria-hidden />
+            </div>
+            <p className="mt-3 text-center text-xs leading-5 text-slate-500 lg:hidden">
+              Defina tipo, descrição e prazos. O transporte será calculado ao
+              selecionar o creator.
+            </p>
 
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#895af6]">
+            {/* Desktop / tablet: voltar + título em coluna, sem competição no topo */}
+            <div className="hidden min-w-0 gap-4 lg:flex lg:items-start">
+              <Link
+                to="/ofertas"
+                className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+                aria-label="Voltar para ofertas"
+              >
+                <ChevronLeft className="size-5" aria-hidden />
+              </Link>
+              <div className="min-w-0 flex-1 pt-0.5">
+                <h1 className="text-3xl font-black tracking-[-0.04em] text-slate-900">
                   Nova oferta
-                </p>
-                <h1 className="mt-2 text-3xl font-black tracking-[-0.04em] text-slate-900">
-                  Publicar oferta aberta
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 max-lg:text-xs max-lg:leading-5">
-                  Defina o tipo, a descrição e o prazo para receber candidaturas. O transporte será calculado apenas quando você selecionar o creator.
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+                  Defina o tipo, a descrição e o prazo para receber
+                  candidaturas. O transporte será calculado apenas quando você
+                  selecionar o creator.
                 </p>
               </div>
             </div>
-
-            <Link
-              to="/ofertas"
-              className="hidden items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white lg:inline-flex"
-            >
-              Voltar para ofertas
-            </Link>
           </header>
 
           <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
@@ -388,295 +451,359 @@ export function CompanyOpenOfferCreateScreen() {
                 className="min-w-0 space-y-6 rounded-[32px] bg-white p-6 shadow-sm"
               >
                 <section className="grid min-w-0 gap-5 md:grid-cols-2">
-
-                {/* Tipo de serviço */}
-                <label className="min-w-0 space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Tipo de serviço</span>
-                  <select
-                    {...form.register("jobTypeId", {
-                      onChange: (event) => {
-                        const next = jobTypeOptions.find((item) => item.id === event.target.value);
-                        if (next) {
-                          form.setValue("durationMinutes", next.durationMinutes, {
-                            shouldValidate: true,
-                          });
-                          if (!form.getValues("offeredAmount")) {
-                            form.setValue("offeredAmount", next.minimumOfferedAmount);
+                  {/* Tipo de serviço */}
+                  <label className="min-w-0 space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Tipo de serviço
+                    </span>
+                    <select
+                      {...form.register("jobTypeId", {
+                        onChange: (event) => {
+                          const next = jobTypeOptions.find(
+                            (item) => item.id === event.target.value,
+                          );
+                          if (next) {
+                            form.setValue(
+                              "durationMinutes",
+                              next.durationMinutes,
+                              {
+                                shouldValidate: true,
+                              },
+                            );
+                            if (!form.getValues("offeredAmount")) {
+                              form.setValue(
+                                "offeredAmount",
+                                next.minimumOfferedAmount,
+                              );
+                            }
                           }
-                        }
-                      },
-                    })}
-                    className="box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900"
-                  >
-                    <option value="">Selecione</option>
-                    {jobTypeOptions.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </select>
-                  {form.formState.errors.jobTypeId ? (
-                    <p className="text-xs font-medium text-rose-600">
-                      {form.formState.errors.jobTypeId.message}
-                    </p>
-                  ) : null}
-                </label>
+                        },
+                      })}
+                      className="box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900"
+                    >
+                      <option value="">Selecione</option>
+                      {jobTypeOptions.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+                    {form.formState.errors.jobTypeId ? (
+                      <p className="text-xs font-medium text-rose-600">
+                        {form.formState.errors.jobTypeId.message}
+                      </p>
+                    ) : null}
+                  </label>
 
-                {/* Valor do trabalho */}
-                <label className="min-w-0 space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Valor do trabalho</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    placeholder="Ex: 150,00"
-                    {...form.register("offeredAmount")}
-                    className="box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
-                  />
-                  {selectedJobType ? (
-                    <p className="text-xs text-slate-500">
-                      Mínimo para este tipo:{" "}
-                      {formatCurrency(selectedJobType.minimumOfferedAmount, "BRL")}
-                    </p>
-                  ) : null}
-                  {form.formState.errors.offeredAmount ? (
-                    <p className="text-xs font-medium text-rose-600">
-                      {form.formState.errors.offeredAmount.message}
-                    </p>
-                  ) : null}
-                </label>
+                  {/* Valor do trabalho */}
+                  <label className="min-w-0 space-y-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Valor do trabalho
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="Ex: 150,00"
+                      {...form.register("offeredAmount")}
+                      className="box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
+                    />
+                    {selectedJobType ? (
+                      <p className="text-xs text-slate-500">
+                        Mínimo para este tipo:{" "}
+                        {formatCurrency(
+                          selectedJobType.minimumOfferedAmount,
+                          "BRL",
+                        )}
+                      </p>
+                    ) : null}
+                    {form.formState.errors.offeredAmount ? (
+                      <p className="text-xs font-medium text-rose-600">
+                        {form.formState.errors.offeredAmount.message}
+                      </p>
+                    ) : null}
+                  </label>
 
-                {/* Data e hora */}
-                <label className="min-w-0 space-y-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-700">Data e hora</span>
-                  <input
-                    type="datetime-local"
-                    min={nowInputMin}
-                    {...form.register("startsAt")}
-                    className={datetimeInputClass}
-                  />
-                  {form.formState.errors.startsAt ? (
-                    <p className="text-xs font-medium text-rose-600">
-                      {form.formState.errors.startsAt.message}
-                    </p>
-                  ) : null}
-                </label>
+                  {/* Data e hora */}
+                  <label className="min-w-0 space-y-2 md:col-span-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Data e hora
+                    </span>
+                    <input
+                      type="datetime-local"
+                      min={nowInputMin}
+                      {...form.register("startsAt")}
+                      className={datetimeInputClass}
+                    />
+                    {form.formState.errors.startsAt ? (
+                      <p className="text-xs font-medium text-rose-600">
+                        {form.formState.errors.startsAt.message}
+                      </p>
+                    ) : null}
+                  </label>
 
-                {/* Receber candidaturas até */}
-                <label className="min-w-0 space-y-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-700">Receber candidaturas até</span>
-                  <input
-                    type="datetime-local"
-                    min={nowInputMin}
-                    max={expiresAtMax}
-                    {...form.register("expiresAt", {
-                      onChange: () => { hasManualExpiresAt.current = true; },
-                    })}
-                    className={datetimeInputClass}
-                  />
-                  {form.formState.errors.expiresAt ? (
-                    <p className="text-xs font-medium text-rose-600">
-                      {form.formState.errors.expiresAt.message}
-                    </p>
-                  ) : null}
-                </label>
+                  {/* Receber candidaturas até */}
+                  <label className="min-w-0 space-y-2 md:col-span-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Receber candidaturas até
+                    </span>
+                    <input
+                      type="datetime-local"
+                      min={nowInputMin}
+                      max={expiresAtMax}
+                      {...form.register("expiresAt", {
+                        onChange: () => {
+                          hasManualExpiresAt.current = true;
+                        },
+                      })}
+                      className={datetimeInputClass}
+                    />
+                    {form.formState.errors.expiresAt ? (
+                      <p className="text-xs font-medium text-rose-600">
+                        {form.formState.errors.expiresAt.message}
+                      </p>
+                    ) : null}
+                  </label>
 
-                {/* Onde acontece? */}
-                <div className="min-w-0 space-y-3 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-700">Onde acontece?</span>
+                  {/* Onde acontece? */}
+                  <div className="min-w-0 space-y-3 md:col-span-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Onde acontece?
+                    </span>
 
-                  {useCompanyAddressValue ? (
-                    /* ── Endereço salvo compacto ── */
-                    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                      <div className="flex min-w-0 items-center gap-2">
-                        <MapPin className="size-4 shrink-0 text-[#895af6]" />
-                        <span className="truncate text-sm font-medium text-slate-800">
-                          {formatProfileAddress(user?.profile)}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={switchToCustomAddress}
-                        className="shrink-0 text-xs font-semibold text-[#895af6] underline underline-offset-2 hover:opacity-70"
-                      >
-                        Alterar endereço
-                      </button>
-                    </div>
-                  ) : (
-                    /* ── Inline form ── */
-                    <div className="space-y-3">
-                      {companyHasAddress ? (
+                    {useCompanyAddressValue ? (
+                      /* ── Endereço salvo compacto ── */
+                      <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <MapPin className="size-4 shrink-0 text-[#895af6]" />
+                          <span className="truncate text-sm font-medium text-slate-800">
+                            {formatProfileAddress(user?.profile)}
+                          </span>
+                        </div>
                         <button
                           type="button"
-                          onClick={switchToCompanyAddress}
-                          className="text-xs font-semibold text-[#895af6] underline underline-offset-2 hover:opacity-70"
+                          onClick={switchToCustomAddress}
+                          className="shrink-0 text-xs font-semibold text-[#895af6] underline underline-offset-2 hover:opacity-70"
                         >
-                          ← Usar endereço cadastrado
+                          Alterar endereço
                         </button>
-                      ) : null}
+                      </div>
+                    ) : (
+                      /* ── Inline form ── */
+                      <div className="space-y-3">
+                        {companyHasAddress ? (
+                          <button
+                            type="button"
+                            onClick={switchToCompanyAddress}
+                            className="text-xs font-semibold text-[#895af6] underline underline-offset-2 hover:opacity-70"
+                          >
+                            ← Usar endereço cadastrado
+                          </button>
+                        ) : null}
 
-                      {/* CEP */}
-                      <div className="space-y-1.5">
-                        <label htmlFor="zipCode" className="text-xs font-semibold text-slate-600">
-                          CEP
-                        </label>
-                        <div className="relative">
-                          <input
-                            id="zipCode"
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={9}
-                            value={zipCodeValue ?? ""}
-                            onChange={handleCepChange}
-                            placeholder="00000-000"
-                            className={cn(
-                              "h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900",
-                              cepIcon && "pr-10"
-                            )}
-                          />
-                          {cepIcon ? (
-                            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
-                              {cepIcon}
-                            </span>
+                        {/* CEP */}
+                        <div className="space-y-1.5">
+                          <label
+                            htmlFor="zipCode"
+                            className="text-xs font-semibold text-slate-600"
+                          >
+                            CEP
+                          </label>
+                          <div className="relative">
+                            <input
+                              id="zipCode"
+                              type="text"
+                              inputMode="numeric"
+                              maxLength={9}
+                              value={zipCodeValue ?? ""}
+                              onChange={handleCepChange}
+                              placeholder="00000-000"
+                              className={cn(
+                                "h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900",
+                                cepIcon && "pr-10",
+                              )}
+                            />
+                            {cepIcon ? (
+                              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+                                {cepIcon}
+                              </span>
+                            ) : null}
+                          </div>
+                          {cepHint ? (
+                            <p className="text-xs text-slate-400">{cepHint}</p>
+                          ) : null}
+                          {form.formState.errors.zipCode ? (
+                            <p className="text-xs font-medium text-rose-600">
+                              {form.formState.errors.zipCode.message}
+                            </p>
                           ) : null}
                         </div>
-                        {cepHint ? (
-                          <p className="text-xs text-slate-400">{cepHint}</p>
-                        ) : null}
-                        {form.formState.errors.zipCode ? (
-                          <p className="text-xs font-medium text-rose-600">
-                            {form.formState.errors.zipCode.message}
-                          </p>
-                        ) : null}
-                      </div>
 
-                      {/* Logradouro */}
-                      <div className="space-y-1.5">
-                        <label htmlFor="street" className="text-xs font-semibold text-slate-600">
-                          Logradouro
-                        </label>
-                        <input
-                          id="street"
-                          type="text"
-                          {...form.register("street")}
-                          placeholder="Rua, Avenida, Travessa…"
-                          className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
-                        />
-                        {form.formState.errors.street ? (
-                          <p className="text-xs font-medium text-rose-600">
-                            {form.formState.errors.street.message}
-                          </p>
-                        ) : null}
-                      </div>
-
-                      {/* Número */}
-                      <div className="grid grid-cols-2 gap-3">
+                        {/* Logradouro */}
                         <div className="space-y-1.5">
-                          <label htmlFor="number" className="text-xs font-semibold text-slate-600">
-                            Número
+                          <label
+                            htmlFor="street"
+                            className="text-xs font-semibold text-slate-600"
+                          >
+                            Logradouro
                           </label>
                           <input
-                            id="number"
+                            id="street"
                             type="text"
-                            {...form.register("number")}
-                            placeholder="Ex: 123"
+                            {...form.register("street")}
+                            placeholder="Rua, Avenida, Travessa…"
                             className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
                           />
-                          {form.formState.errors.number ? (
+                          {form.formState.errors.street ? (
                             <p className="text-xs font-medium text-rose-600">
-                              {form.formState.errors.number.message}
+                              {form.formState.errors.street.message}
                             </p>
                           ) : null}
                         </div>
-                        <div />
+
+                        {/* Número */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label
+                              htmlFor="number"
+                              className="text-xs font-semibold text-slate-600"
+                            >
+                              Número
+                            </label>
+                            <input
+                              id="number"
+                              type="text"
+                              {...form.register("number")}
+                              placeholder="Ex: 123"
+                              className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
+                            />
+                            {form.formState.errors.number ? (
+                              <p className="text-xs font-medium text-rose-600">
+                                {form.formState.errors.number.message}
+                              </p>
+                            ) : null}
+                          </div>
+                          <div />
+                        </div>
+
+                        {/* Cidade + Estado */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label
+                              htmlFor="city"
+                              className="text-xs font-semibold text-slate-600"
+                            >
+                              Cidade
+                            </label>
+                            <input
+                              id="city"
+                              type="text"
+                              {...form.register("city")}
+                              placeholder="Cidade"
+                              disabled={cityStateLocked}
+                              title={
+                                cityStateLocked
+                                  ? "Definida pelo CEP"
+                                  : undefined
+                              }
+                              className={cn(
+                                "h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900",
+                                cityStateLocked &&
+                                  "cursor-not-allowed bg-slate-50 text-slate-400",
+                              )}
+                            />
+                            {form.formState.errors.city ? (
+                              <p className="text-xs font-medium text-rose-600">
+                                {form.formState.errors.city.message}
+                              </p>
+                            ) : null}
+                          </div>
+                          <div className="space-y-1.5">
+                            <label
+                              htmlFor="state"
+                              className="text-xs font-semibold text-slate-600"
+                            >
+                              Estado
+                            </label>
+                            <input
+                              id="state"
+                              type="text"
+                              {...form.register("state")}
+                              placeholder="UF"
+                              maxLength={2}
+                              disabled={cityStateLocked}
+                              title={
+                                cityStateLocked
+                                  ? "Definido pelo CEP"
+                                  : undefined
+                              }
+                              className={cn(
+                                "h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm uppercase text-slate-900",
+                                cityStateLocked &&
+                                  "cursor-not-allowed bg-slate-50 text-slate-400",
+                              )}
+                            />
+                            {form.formState.errors.state ? (
+                              <p className="text-xs font-medium text-rose-600">
+                                {form.formState.errors.state.message}
+                              </p>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {cityStateLocked ? (
+                          <p className="text-xs text-slate-400">
+                            Cidade e estado são definidos pelo CEP. Para
+                            alterá-los, mude o CEP.
+                          </p>
+                        ) : null}
                       </div>
+                    )}
+                  </div>
 
-                      {/* Cidade + Estado */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <label htmlFor="city" className="text-xs font-semibold text-slate-600">
-                            Cidade
-                          </label>
-                          <input
-                            id="city"
-                            type="text"
-                            {...form.register("city")}
-                            placeholder="Cidade"
-                            disabled={cityStateLocked}
-                            title={cityStateLocked ? "Definida pelo CEP" : undefined}
-                            className={cn(
-                              "h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900",
-                              cityStateLocked && "cursor-not-allowed bg-slate-50 text-slate-400"
-                            )}
-                          />
-                          {form.formState.errors.city ? (
-                            <p className="text-xs font-medium text-rose-600">
-                              {form.formState.errors.city.message}
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="space-y-1.5">
-                          <label htmlFor="state" className="text-xs font-semibold text-slate-600">
-                            Estado
-                          </label>
-                          <input
-                            id="state"
-                            type="text"
-                            {...form.register("state")}
-                            placeholder="UF"
-                            maxLength={2}
-                            disabled={cityStateLocked}
-                            title={cityStateLocked ? "Definido pelo CEP" : undefined}
-                            className={cn(
-                              "h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm uppercase text-slate-900",
-                              cityStateLocked && "cursor-not-allowed bg-slate-50 text-slate-400"
-                            )}
-                          />
-                          {form.formState.errors.state ? (
-                            <p className="text-xs font-medium text-rose-600">
-                              {form.formState.errors.state.message}
-                            </p>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      {cityStateLocked ? (
-                        <p className="text-xs text-slate-400">
-                          Cidade e estado são definidos pelo CEP. Para alterá-los, mude o CEP.
-                        </p>
-                      ) : null}
-                    </div>
-                  )}
-                </div>
-
-                <input type="hidden" {...form.register("durationMinutes", { valueAsNumber: true })} />
-
-                {/* Descreva o trabalho */}
-                <label className="min-w-0 space-y-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-700">Descreva o trabalho</span>
-                  <textarea
-                    {...form.register("description")}
-                    rows={8}
-                    className="box-border w-full min-w-0 max-w-full rounded-[24px] border border-slate-200 px-4 py-3 text-sm text-slate-900"
-                    placeholder="Explique o objetivo, o que será produzido, contexto da marca e observações importantes."
+                  <input
+                    type="hidden"
+                    {...form.register("durationMinutes", {
+                      valueAsNumber: true,
+                    })}
                   />
-                  {form.formState.errors.description ? (
-                    <p className="text-xs font-medium text-rose-600">
-                      {form.formState.errors.description.message}
-                    </p>
-                  ) : null}
-                </label>
+
+                  {/* Descreva o trabalho */}
+                  <label className="min-w-0 space-y-2 md:col-span-2">
+                    <span className="text-sm font-semibold text-slate-700">
+                      Descreva o trabalho
+                    </span>
+                    <textarea
+                      {...form.register("description")}
+                      rows={8}
+                      className="box-border w-full min-w-0 max-w-full rounded-[24px] border border-slate-200 px-4 py-3 text-sm text-slate-900"
+                      placeholder="Explique o objetivo, o que será produzido, contexto da marca e observações importantes."
+                    />
+                    {form.formState.errors.description ? (
+                      <p className="text-xs font-medium text-rose-600">
+                        {form.formState.errors.description.message}
+                      </p>
+                    ) : null}
+                  </label>
                 </section>
 
                 <div className="hidden flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end lg:flex xl:hidden">
-                  <Button type="button" variant="outline" onClick={() => navigate("/ofertas")}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate("/ofertas")}
+                  >
                     Cancelar
                   </Button>
                   <Button
                     type="submit"
                     variant="purple"
-                    disabled={createMutation.isPending || jobTypesQuery.isLoading}
+                    disabled={
+                      createMutation.isPending || jobTypesQuery.isLoading
+                    }
                   >
-                    {createMutation.isPending ? "Publicando..." : "Publicar oferta"}
+                    {createMutation.isPending
+                      ? "Publicando..."
+                      : "Publicar oferta"}
                   </Button>
                 </div>
               </form>
@@ -692,19 +819,20 @@ export function CompanyOpenOfferCreateScreen() {
                 <p className="mt-1.5 text-base font-bold text-slate-900">
                   {selectedJobType?.name ?? "Selecione um tipo"}
                 </p>
-                <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
-                    Valor
-                  </span>
-                  {amountValue ? (
-                    <span className="text-lg font-black text-[#895af6]">
-                      {formatCurrency(amountValue, "BRL")}
-                    </span>
-                  ) : (
-                    <span className="text-sm font-medium text-slate-400">—</span>
-                  )}
-                </div>
                 <dl className="mt-3 space-y-2 text-xs text-slate-600">
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 text-slate-400">Valor</dt>
+                    <dd
+                      className={cn(
+                        "min-w-0 flex-1 tabular-nums leading-snug",
+                        amountValue
+                          ? "font-black text-[#895af6]"
+                          : "font-medium text-slate-800",
+                      )}
+                    >
+                      {amountValue ? formatCurrency(amountValue, "BRL") : "—"}
+                    </dd>
+                  </div>
                   <div className="flex gap-2">
                     <dt className="w-24 shrink-0 text-slate-400">Início</dt>
                     <dd className="min-w-0 flex-1 font-medium text-slate-800">
@@ -714,7 +842,9 @@ export function CompanyOpenOfferCreateScreen() {
                     </dd>
                   </div>
                   <div className="flex gap-2">
-                    <dt className="w-24 shrink-0 text-slate-400">Candidaturas</dt>
+                    <dt className="w-24 shrink-0 text-slate-400">
+                      Candidaturas
+                    </dt>
                     <dd className="min-w-0 flex-1 font-medium text-slate-800">
                       {expiresAtDate && !Number.isNaN(expiresAtDate.getTime())
                         ? `${formatDateShort(expiresAtDate.toISOString())} · ${expiresAtDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
@@ -724,11 +854,15 @@ export function CompanyOpenOfferCreateScreen() {
                   <div className="flex gap-2">
                     <dt className="w-24 shrink-0 text-slate-400">Duração</dt>
                     <dd className="min-w-0 flex-1 font-medium text-slate-800">
-                      {selectedJobType ? formatDuration(selectedJobType.durationMinutes) : "—"}
+                      {selectedJobType
+                        ? formatDuration(selectedJobType.durationMinutes)
+                        : "—"}
                     </dd>
                   </div>
                   <div className="flex gap-2">
-                    <dt className="w-24 shrink-0 self-start text-slate-400">Local</dt>
+                    <dt className="w-24 shrink-0 self-start text-slate-400">
+                      Local
+                    </dt>
                     <dd className="min-w-0 flex-1 font-medium leading-snug text-slate-800 line-clamp-2 break-words">
                       {previewAddress || "—"}
                     </dd>
@@ -740,7 +874,6 @@ export function CompanyOpenOfferCreateScreen() {
             {/* ── Painel lateral (desktop / tablet) ── */}
             <aside className="hidden min-w-0 lg:block lg:sticky lg:top-8 lg:self-start">
               <section className="rounded-[32px] bg-[#111318] p-6 text-white shadow-sm">
-
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/55">
                   Resumo da oferta
                 </p>
@@ -749,18 +882,25 @@ export function CompanyOpenOfferCreateScreen() {
                   {selectedJobType?.name ?? "Selecione um tipo"}
                 </h2>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/70">
-                  {descriptionValue?.trim() || "A descrição aparecerá aqui conforme você preencher o formulário."}
+                  {descriptionValue?.trim() ||
+                    "A descrição aparecerá aqui conforme você preencher o formulário."}
                 </p>
 
                 <div className="mt-6 rounded-[24px] bg-white/6 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
                     Valor do trabalho
                   </p>
-                  {amountValue ? (
-                    <p className="mt-2 text-3xl font-black">{formatCurrency(amountValue, "BRL")}</p>
-                  ) : (
-                    <p className="mt-2 text-xl font-semibold text-white/35">Defina o valor</p>
-                  )}
+                  <div className="mt-2 flex min-h-[2.5rem] items-center">
+                    {amountValue ? (
+                      <p className="text-3xl font-black tabular-nums leading-none">
+                        {formatCurrency(amountValue, "BRL")}
+                      </p>
+                    ) : (
+                      <p className="text-xl font-semibold leading-snug text-white/35">
+                        Defina o valor
+                      </p>
+                    )}
+                  </div>
                   <p className="mt-3 text-xs text-white/55">
                     Transporte calculado apenas na seleção do creator.
                   </p>
@@ -788,7 +928,9 @@ export function CompanyOpenOfferCreateScreen() {
                   <div className="flex items-start justify-between gap-3">
                     <dt className="shrink-0 text-white/45">Duração</dt>
                     <dd className="text-right font-semibold">
-                      {selectedJobType ? formatDuration(selectedJobType.durationMinutes) : "Selecione um tipo"}
+                      {selectedJobType
+                        ? formatDuration(selectedJobType.durationMinutes)
+                        : "Selecione um tipo"}
                     </dd>
                   </div>
                   <div className="flex items-start justify-between gap-3">
@@ -806,9 +948,10 @@ export function CompanyOpenOfferCreateScreen() {
                   className="mt-6 w-full"
                   disabled={createMutation.isPending || jobTypesQuery.isLoading}
                 >
-                  {createMutation.isPending ? "Publicando..." : "Publicar oferta"}
+                  {createMutation.isPending
+                    ? "Publicando..."
+                    : "Publicar oferta"}
                 </Button>
-
               </section>
             </aside>
           </div>
