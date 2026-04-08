@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Loader2, MapPin, XCircle } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod/v3";
 import { toast } from "sonner";
@@ -123,7 +123,7 @@ export function CompanyOpenOfferCreateScreen() {
 
   // ─── Form ───────────────────────────────────────────────────────────────────
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as Resolver<FormValues>,
     defaultValues: {
       jobTypeId: "",
       description: "",
@@ -160,6 +160,40 @@ export function CompanyOpenOfferCreateScreen() {
 
   const startsAtDate = startsAtValue ? new Date(startsAtValue) : null;
   const expiresAtDate = expiresAtValue ? new Date(expiresAtValue) : null;
+
+  // ─── Date constraints ───────────────────────────────────────────────────────
+  const hasManualExpiresAt = useRef(false);
+  const nowInputMin = useMemo(() => toInputDateTime(new Date()), []);
+
+  const expiresAtMax = useMemo(() => {
+    if (!startsAtValue) return undefined;
+    const start = new Date(startsAtValue);
+    if (Number.isNaN(start.getTime())) return undefined;
+    return toInputDateTime(new Date(start.getTime() - 60_000));
+  }, [startsAtValue]);
+
+  useEffect(() => {
+    if (!startsAtValue) return;
+    const startDate = new Date(startsAtValue);
+    if (Number.isNaN(startDate.getTime())) return;
+
+    const currentExpires = form.getValues("expiresAt");
+    const expiresDate = currentExpires ? new Date(currentExpires) : null;
+    const isInvalid =
+      !expiresDate ||
+      Number.isNaN(expiresDate.getTime()) ||
+      expiresDate >= startDate ||
+      expiresDate <= new Date();
+
+    if (!hasManualExpiresAt.current || isInvalid) {
+      const startsMs = startDate.getTime();
+      const auto = new Date(startsMs - 4 * 60 * 60 * 1000);
+      const floor = new Date(Date.now() + 60_000);
+      let candidate = auto < floor ? floor : auto;
+      if (candidate >= startDate) candidate = new Date(startsMs - 60_000);
+      form.setValue("expiresAt", toInputDateTime(candidate), { shouldValidate: false });
+    }
+  }, [startsAtValue, form]);
 
   // ─── Address preview ────────────────────────────────────────────────────────
   const previewAddress = useMemo(() => {
@@ -393,6 +427,7 @@ export function CompanyOpenOfferCreateScreen() {
                   <span className="text-sm font-semibold text-slate-700">Data e hora</span>
                   <input
                     type="datetime-local"
+                    min={nowInputMin}
                     {...form.register("startsAt")}
                     className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
                   />
@@ -408,7 +443,11 @@ export function CompanyOpenOfferCreateScreen() {
                   <span className="text-sm font-semibold text-slate-700">Receber candidaturas até</span>
                   <input
                     type="datetime-local"
-                    {...form.register("expiresAt")}
+                    min={nowInputMin}
+                    max={expiresAtMax}
+                    {...form.register("expiresAt", {
+                      onChange: () => { hasManualExpiresAt.current = true; },
+                    })}
                     className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
                   />
                   {form.formState.errors.expiresAt ? (

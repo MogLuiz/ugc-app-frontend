@@ -41,7 +41,7 @@ export default function OfferDetailRoute() {
 
   if (isLoading && !item) {
     return (
-      <AuthGuard allowedRoles={["creator"]}>
+      <AuthGuard>
         <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8]">
           <div className="size-6 animate-spin rounded-full border-2 border-[#6a36d5] border-t-transparent" />
         </div>
