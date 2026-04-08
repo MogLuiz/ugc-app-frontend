@@ -51,7 +51,7 @@ function CompanyOffersStatusFilter({
                 : "font-semibold text-slate-600 hover:text-slate-800"
             )}
           >
-            <span className="min-w-0 flex-1 truncate">{tab.label}</span>
+            <span className="min-w-0 truncate">{tab.label}</span>
             <span
               className={cn(
                 "shrink-0 tabular-nums text-[10px] font-bold leading-none lg:text-xs lg:font-semibold",
