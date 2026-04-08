@@ -79,7 +79,6 @@ const SIDEBAR_CONFIG: Record<
         to: "/marketplace",
       },
       { id: "mapa", label: "Mapa de Criadores", icon: MapPin, to: "/mapa" },
-      { id: "relatorios", label: "Relatórios", icon: BarChart3, to: "#" },
       { id: "chat", label: "Chat", icon: MessageCircle, to: "/chat" },
       { id: "perfil", label: "Perfil da Empresa", icon: Users, to: "/perfil" },
       {
@@ -253,7 +252,10 @@ export function AppSidebar({ variant }: AppSidebarProps) {
 
             if (item.to === "#") {
               return (
-                <div key={item.id} className={cn(collapsed && "relative group")}>
+                <div
+                  key={item.id}
+                  className={cn(collapsed && "relative group")}
+                >
                   <a href="#" className={itemClass}>
                     {inner}
                   </a>
@@ -367,7 +369,9 @@ function SidebarUserMenu({
     <div className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-slate-50">
       {avatar}
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-bold text-slate-900">{displayName}</p>
+        <p className="truncate text-xs font-bold text-slate-900">
+          {displayName}
+        </p>
         {subtitle && (
           <p className="truncate text-[10px] text-slate-500">{subtitle}</p>
         )}
@@ -448,7 +452,12 @@ function CreatorFooter({ collapsed }: { collapsed: boolean }) {
   const { displayName, initials, photoUrl } = getUserDisplayData(user);
 
   return (
-    <div className={cn("border-t border-slate-200 pt-4", collapsed && "border-0 pt-0")}>
+    <div
+      className={cn(
+        "border-t border-slate-200 pt-4",
+        collapsed && "border-0 pt-0",
+      )}
+    >
       <SidebarUserMenu
         displayName={displayName}
         initials={initials}
