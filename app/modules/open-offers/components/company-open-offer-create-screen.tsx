@@ -22,10 +22,22 @@ import { formatProfileAddress, hasUsableCompanyAddress } from "../helpers";
 const formSchema = z
   .object({
     jobTypeId: z.string().min(1, "Selecione o tipo de serviço."),
-    description: z.string().trim().min(10, "Descreva melhor o serviço."),
+    description: z.string().trim().min(10, "Descreva melhor o trabalho."),
     startsAt: z.string().min(1, "Informe data e hora de início."),
     expiresAt: z.string().min(1, "Informe o prazo para receber candidaturas."),
-    offeredAmount: z.coerce.number().min(0.01, "Informe um valor válido."),
+    offeredAmount: z.preprocess(
+      (v) => {
+        if (v === "" || v === null || v === undefined) return undefined;
+        const n = Number(v);
+        return Number.isNaN(n) ? undefined : n;
+      },
+      z
+        .number({
+          required_error: "Informe o valor do trabalho.",
+          invalid_type_error: "Informe o valor do trabalho.",
+        })
+        .min(0.01, "Digite um valor válido.")
+    ),
     durationMinutes: z.coerce.number().min(1),
     // Address mode: true = use company's registered address; false = structured fields
     useCompanyAddress: z.boolean(),
@@ -52,7 +64,7 @@ const formSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["expiresAt"],
-          message: "O prazo deve ser anterior à data de início do serviço.",
+          message: "O prazo deve ser anterior à data de início.",
         });
       }
     }
@@ -117,7 +129,7 @@ export function CompanyOpenOfferCreateScreen() {
       description: "",
       startsAt: toInputDateTime(defaultStartsAt),
       expiresAt: toInputDateTime(defaultExpiresAt),
-      offeredAmount: 0,
+      offeredAmount: undefined,
       durationMinutes: 60,
       useCompanyAddress: companyHasAddress,
       zipCode: "",
@@ -223,6 +235,14 @@ export function CompanyOpenOfferCreateScreen() {
 
   // ─── Submit ─────────────────────────────────────────────────────────────────
   async function onSubmit(values: FormValues) {
+    const jobType = jobTypeOptions.find((jt) => jt.id === values.jobTypeId);
+    if (jobType && values.offeredAmount < jobType.minimumOfferedAmount) {
+      form.setError("offeredAmount", {
+        message: `O valor mínimo para este tipo é ${formatCurrency(jobType.minimumOfferedAmount, "BRL")}.`,
+      });
+      return;
+    }
+
     const jobAddress = values.useCompanyAddress
       ? formatProfileAddress(user?.profile)
       : formatProfileAddress({
@@ -292,7 +312,7 @@ export function CompanyOpenOfferCreateScreen() {
                 Publicar oferta aberta
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                Defina o serviço, a descrição e o prazo para receber candidaturas. O transporte será calculado apenas quando você selecionar o creator.
+                Defina o tipo, a descrição e o prazo para receber candidaturas. O transporte será calculado apenas quando você selecionar o creator.
               </p>
             </div>
 
@@ -306,13 +326,14 @@ export function CompanyOpenOfferCreateScreen() {
 
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
             <form
+              id="open-offer-form"
               onSubmit={form.handleSubmit(onSubmit)}
               className="space-y-6 rounded-[32px] bg-white p-6 shadow-sm"
             >
               <section className="grid gap-5 md:grid-cols-2">
 
                 {/* Tipo de serviço */}
-                <label className="space-y-2 md:col-span-2">
+                <label className="space-y-2">
                   <span className="text-sm font-semibold text-slate-700">Tipo de serviço</span>
                   <select
                     {...form.register("jobTypeId", {
@@ -340,6 +361,29 @@ export function CompanyOpenOfferCreateScreen() {
                   {form.formState.errors.jobTypeId ? (
                     <p className="text-xs font-medium text-rose-600">
                       {form.formState.errors.jobTypeId.message}
+                    </p>
+                  ) : null}
+                </label>
+
+                {/* Valor do trabalho */}
+                <label className="space-y-2">
+                  <span className="text-sm font-semibold text-slate-700">Valor do trabalho</span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Ex: 150,00"
+                    {...form.register("offeredAmount")}
+                    className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
+                  />
+                  {selectedJobType ? (
+                    <p className="text-xs text-slate-500">
+                      Mínimo para este tipo:{" "}
+                      {formatCurrency(selectedJobType.minimumOfferedAmount, "BRL")}
+                    </p>
+                  ) : null}
+                  {form.formState.errors.offeredAmount ? (
+                    <p className="text-xs font-medium text-rose-600">
+                      {form.formState.errors.offeredAmount.message}
                     </p>
                   ) : null}
                 </label>
@@ -374,63 +418,25 @@ export function CompanyOpenOfferCreateScreen() {
                   ) : null}
                 </label>
 
-                {/* Duração (read-only) */}
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Duração</span>
-                  <input
-                    type="text"
-                    value={selectedJobType ? (formatDuration(selectedJobType.durationMinutes) ?? "") : "Selecione um tipo"}
-                    disabled
-                    className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-500"
-                  />
-                  <input type="hidden" {...form.register("durationMinutes", { valueAsNumber: true })} />
-                </label>
-
-                {/* Valor do trabalho */}
-                <label className="space-y-2">
-                  <span className="text-sm font-semibold text-slate-700">Valor do trabalho</span>
-                  <input
-                    type="number"
-                    min={selectedJobType?.minimumOfferedAmount ?? 0}
-                    step="0.01"
-                    {...form.register("offeredAmount", { valueAsNumber: true })}
-                    className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
-                  />
-                  <p className="text-xs text-slate-500">
-                    Mínimo para este tipo:{" "}
-                    {formatCurrency(selectedJobType?.minimumOfferedAmount ?? 0, "BRL")}
-                  </p>
-                  {form.formState.errors.offeredAmount ? (
-                    <p className="text-xs font-medium text-rose-600">
-                      {form.formState.errors.offeredAmount.message}
-                    </p>
-                  ) : null}
-                </label>
-
-                {/* Local do serviço */}
+                {/* Onde acontece? */}
                 <div className="space-y-3 md:col-span-2">
-                  <span className="text-sm font-semibold text-slate-700">Local do serviço</span>
+                  <span className="text-sm font-semibold text-slate-700">Onde acontece?</span>
 
                   {useCompanyAddressValue ? (
-                    /* ── Bloco pré-selecionado ── */
-                    <div className="space-y-2">
-                      <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                        <MapPin className="mt-0.5 size-4 shrink-0 text-[#895af6]" />
-                        <div className="min-w-0 flex-1">
-                          <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#895af6]">
-                            Meu endereço
-                          </span>
-                          <p className="mt-1 text-sm font-semibold leading-5 text-slate-900">
-                            {formatProfileAddress(user?.profile)}
-                          </p>
-                        </div>
+                    /* ── Endereço salvo compacto ── */
+                    <div className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <MapPin className="size-4 shrink-0 text-[#895af6]" />
+                        <span className="truncate text-sm font-medium text-slate-800">
+                          {formatProfileAddress(user?.profile)}
+                        </span>
                       </div>
                       <button
                         type="button"
                         onClick={switchToCustomAddress}
-                        className="text-xs text-slate-500 underline underline-offset-2 hover:text-slate-700"
+                        className="shrink-0 text-xs font-semibold text-[#895af6] underline underline-offset-2 hover:opacity-70"
                       >
-                        Usar outro endereço
+                        Alterar endereço
                       </button>
                     </div>
                   ) : (
@@ -442,7 +448,7 @@ export function CompanyOpenOfferCreateScreen() {
                           onClick={switchToCompanyAddress}
                           className="text-xs font-semibold text-[#895af6] underline underline-offset-2 hover:opacity-70"
                         >
-                          ← Usar meu endereço cadastrado
+                          ← Usar endereço cadastrado
                         </button>
                       ) : null}
 
@@ -580,6 +586,8 @@ export function CompanyOpenOfferCreateScreen() {
                   )}
                 </div>
 
+                <input type="hidden" {...form.register("durationMinutes", { valueAsNumber: true })} />
+
                 {/* Descreva o trabalho */}
                 <label className="space-y-2 md:col-span-2">
                   <span className="text-sm font-semibold text-slate-700">Descreva o trabalho</span>
@@ -597,7 +605,7 @@ export function CompanyOpenOfferCreateScreen() {
                 </label>
               </section>
 
-              <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end xl:hidden">
                 <Button type="button" variant="outline" onClick={() => navigate("/ofertas")}>
                   Cancelar
                 </Button>
@@ -611,69 +619,78 @@ export function CompanyOpenOfferCreateScreen() {
               </div>
             </form>
 
-            {/* ── Preview lateral ── */}
-            <aside className="space-y-4 lg:sticky lg:top-8 lg:self-start">
+            {/* ── Painel lateral ── */}
+            <aside className="lg:sticky lg:top-8 lg:self-start">
               <section className="rounded-[32px] bg-[#111318] p-6 text-white shadow-sm">
+
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/55">
-                  Preview da oferta
+                  Resumo da oferta
                 </p>
+
                 <h2 className="mt-3 text-2xl font-black">
-                  {selectedJobType?.name ?? "Selecione um tipo de serviço"}
+                  {selectedJobType?.name ?? "Selecione um tipo"}
                 </h2>
-                <p className="mt-3 text-sm leading-6 text-white/70">
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/70">
                   {descriptionValue?.trim() || "A descrição aparecerá aqui conforme você preencher o formulário."}
                 </p>
 
-                <div className="mt-6 space-y-4 rounded-[24px] bg-white/6 p-4">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-                      Valor do trabalho
-                    </p>
-                    <p className="mt-2 text-3xl font-black">
-                      {formatCurrency(amountValue || 0, "BRL")}
-                    </p>
-                  </div>
-                  <div className="text-sm text-white/70">
-                    <p>Transporte calculado apenas na seleção do creator.</p>
-                    <p className="mt-1">Sem compromisso de contratação até a escolha final.</p>
-                  </div>
+                <div className="mt-6 rounded-[24px] bg-white/6 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+                    Valor do trabalho
+                  </p>
+                  {amountValue ? (
+                    <p className="mt-2 text-3xl font-black">{formatCurrency(amountValue, "BRL")}</p>
+                  ) : (
+                    <p className="mt-2 text-xl font-semibold text-white/35">Defina o valor</p>
+                  )}
+                  <p className="mt-3 text-xs text-white/55">
+                    Transporte calculado apenas na seleção do creator.
+                  </p>
                 </div>
-              </section>
 
-              <section className="rounded-[28px] bg-white p-5 shadow-sm">
-                <h3 className="text-sm font-black uppercase tracking-[0.16em] text-slate-400">
-                  Resumo rápido
-                </h3>
-                <dl className="mt-4 space-y-3 text-sm">
+                <div className="my-5 border-t border-white/10" />
+
+                <dl className="space-y-3 text-sm">
                   <div className="flex items-start justify-between gap-3">
-                    <dt className="text-slate-500">Início</dt>
-                    <dd className="text-right font-semibold text-slate-900">
+                    <dt className="shrink-0 text-white/45">Início</dt>
+                    <dd className="text-right font-semibold">
                       {startsAtDate && !Number.isNaN(startsAtDate.getTime())
                         ? `${formatDateShort(startsAtDate.toISOString())} ${startsAtDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
                         : "Defina a data"}
                     </dd>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <dt className="text-slate-500">Candidaturas até</dt>
-                    <dd className="text-right font-semibold text-slate-900">
+                    <dt className="shrink-0 text-white/45">Candidaturas até</dt>
+                    <dd className="text-right font-semibold">
                       {expiresAtDate && !Number.isNaN(expiresAtDate.getTime())
                         ? `${formatDateShort(expiresAtDate.toISOString())} ${expiresAtDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
                         : "Defina o prazo"}
                     </dd>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <dt className="text-slate-500">Duração</dt>
-                    <dd className="text-right font-semibold text-slate-900">
-                      {selectedJobType ? formatDuration(selectedJobType.durationMinutes) : "Selecione um serviço"}
+                    <dt className="shrink-0 text-white/45">Duração</dt>
+                    <dd className="text-right font-semibold">
+                      {selectedJobType ? formatDuration(selectedJobType.durationMinutes) : "Selecione um tipo"}
                     </dd>
                   </div>
                   <div className="flex items-start justify-between gap-3">
-                    <dt className="shrink-0 text-slate-500">Local</dt>
-                    <dd className="max-w-[220px] text-right font-semibold text-slate-900">
+                    <dt className="shrink-0 text-white/45">Local</dt>
+                    <dd className="min-w-0 flex-1 text-right font-semibold line-clamp-2">
                       {previewAddress || "Defina o local"}
                     </dd>
                   </div>
                 </dl>
+
+                <Button
+                  type="submit"
+                  form="open-offer-form"
+                  variant="purple"
+                  className="mt-6 w-full"
+                  disabled={createMutation.isPending || jobTypesQuery.isLoading}
+                >
+                  {createMutation.isPending ? "Publicando..." : "Publicar oferta"}
+                </Button>
+
               </section>
             </aside>
           </div>
