@@ -401,7 +401,7 @@ export function CompanyOpenOfferCreateScreen() {
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 max-lg:pb-44 lg:p-8">
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:px-0">
-          <header className="rounded-[32px] bg-white p-5 shadow-sm lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none">
+          <header className="bg-transparent p-0 shadow-none">
             {/* Mobile: barra alinhada ao padrão “detalhe” — voltar + título centralizado + simetria */}
             <div className="relative flex min-h-10 items-center justify-center lg:hidden">
               <Link
@@ -416,7 +416,7 @@ export function CompanyOpenOfferCreateScreen() {
               </h1>
               <span className="absolute right-0 size-10 shrink-0" aria-hidden />
             </div>
-            <p className="mt-3 text-center text-xs leading-5 text-slate-500 lg:hidden">
+            <p className="text-center text-xs leading-5 text-slate-500 lg:hidden">
               Defina tipo, descrição e prazos. O transporte será calculado ao
               selecionar o creator.
             </p>
