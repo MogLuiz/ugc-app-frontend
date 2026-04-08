@@ -74,7 +74,7 @@ export function ErrorBoundary() {
             : "Não foi possível carregar esta página. Tente novamente em instantes."}
         </p>
         <Link
-          to="/"
+          to="/dashboard"
           className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
         >
           Ir ao início
@@ -85,10 +85,12 @@ export function ErrorBoundary() {
 
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-lg font-semibold text-neutral-900">Algo deu errado</h1>
+      <h1 className="text-lg font-semibold text-neutral-900">
+        Algo deu errado
+      </h1>
       <p className="max-w-md text-sm text-neutral-600">
-        Ocorreu um erro inesperado. Se o problema persistir, entre em contato com o
-        suporte.
+        Ocorreu um erro inesperado. Se o problema persistir, entre em contato
+        com o suporte.
       </p>
       <Link
         to="/"

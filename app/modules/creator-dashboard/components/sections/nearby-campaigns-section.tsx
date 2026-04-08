@@ -1,4 +1,4 @@
-import { Clock, MapPin, Search, ArrowRight } from "lucide-react";
+import { Clock, MapPin, Search } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -10,45 +10,16 @@ import {
 } from "~/modules/business-dashboard/components/sections/section-primitives";
 import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 
-function CampaignsIllustration() {
+function NearbyEmptyIllustration() {
   return (
-    <div className="relative flex size-[110px] items-center justify-center">
-      {/* Radar rings */}
-      <div className="absolute size-12 rounded-full bg-[#895af6]/20" />
-      <div className="absolute size-20 rounded-full bg-[#895af6]/10" />
-
-      {/* Container principal */}
-      <div className="relative flex size-[110px] items-center justify-center overflow-hidden rounded-[22px] bg-white shadow-[0_12px_24px_-6px_rgba(0,0,0,0.15)]">
-        {/* Pin composto */}
-        <div className="relative -mt-2 flex flex-col items-center">
-          {/* Cabeça do pin */}
-          <div className="relative flex size-9 items-center justify-center rounded-full bg-[#895af6] shadow-[0_6px_10px_-2px_rgba(137,90,246,0.4)]">
-            <Search className="size-3.5 text-white" aria-hidden="true" />
-            <div className="absolute inset-0.5 rounded-full border-2 border-white/20" />
-          </div>
-          {/* Cauda do pin */}
-          <div
-            className="h-2.5 w-2.5 bg-[#895af6]"
-            style={{ clipPath: "polygon(20% 0%, 80% 0%, 50% 100%)" }}
-          />
-        </div>
-
-        {/* Badge "0 campanhas" */}
-        <div className="absolute bottom-2 flex items-center gap-1 rounded-full border border-slate-100 bg-[#f8fafc] px-1.5 py-0.5">
-          <div className="size-1 rounded-full bg-slate-300" />
-          <span className="text-[8px] font-bold uppercase tracking-[0.8px] text-slate-400">
-            0 campanhas
-          </span>
-        </div>
-      </div>
-
-      {/* Chip flutuante "Buscando..." */}
-      <div className="absolute right-0 top-2 flex items-center gap-1 rounded-lg bg-[#895af6] px-1.5 py-0.5 shadow-sm">
-        <div className="size-1 rounded-full bg-white/60" />
-        <span className="text-[8px] font-black uppercase tracking-[0.5px] text-white">
-          Buscando...
-        </span>
-      </div>
+    <div
+      className="relative flex size-8 items-center justify-center rounded-xl bg-[#f0ebff]"
+      aria-hidden
+    >
+      <MapPin className="size-3.5 text-[#6a36d5]" />
+      <span className="absolute -bottom-0.5 -right-0.5 flex size-3 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100/90">
+        <Search className="size-2 text-[#6a36d5]" aria-hidden />
+      </span>
     </div>
   );
 }
@@ -62,22 +33,13 @@ export function NearbyCampaignsSection({
     return (
       <section className="flex flex-col gap-4">
         <SectionHeader title="Campanhas disponíveis perto de você" />
-        <DashboardCard>
+        <DashboardCard className="p-3 lg:p-3">
           <MobileEmptyState
-            variant="initial"
-            className="py-6"
-            illustration={<CampaignsIllustration />}
+            density="compact"
+            variant="no-data"
+            illustration={<NearbyEmptyIllustration />}
             title="Sem campanhas por perto"
             description="Ainda não há campanhas na sua região. Tente atualizar seu perfil para atrair marcas de qualquer lugar."
-            actions={
-              <Link
-                to="/perfil"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-8 py-4 text-base font-bold text-white shadow-[0_10px_15px_-3px_rgba(137,90,246,0.25)] transition-colors hover:bg-[#7c4aed]"
-              >
-                Atualizar perfil
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            }
           />
         </DashboardCard>
       </section>
