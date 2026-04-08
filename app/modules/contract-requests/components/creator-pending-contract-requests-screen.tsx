@@ -13,7 +13,7 @@ import {
 import type { ContractRequestItem } from "../types";
 import { OfferDetailPanel } from "./offer-detail-panel";
 import { OfferListCard } from "./offer-list-card";
-import { OffersEmptyState } from "./offers-empty-state";
+import { CreatorOffersEmptyState } from "./offers-empty-state";
 
 type Tab = "pending" | "confirmed" | "finalized";
 
@@ -234,7 +234,7 @@ export function CreatorPendingContractRequestsScreen() {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              <OffersEmptyState />
+              <CreatorOffersEmptyState />
             ) : (
               <div className="flex flex-col gap-3">
                 {items.map((item) => (

@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
-import { EmptyState } from "~/components/ui/empty-state";
+import { OffersEmptyState } from "~/modules/contract-requests/components/offers-empty-state";
 import { cn } from "~/lib/utils";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
 import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/company-campaigns-location-state";
@@ -66,16 +67,18 @@ function CompanyOffersStatusFilter({
   );
 }
 
-function EmptyTabState({
+function CompanyOffersEmptySection({
   title,
   description,
+  footer,
 }: {
   title: string;
   description: string;
+  footer?: ReactNode;
 }) {
   return (
     <section className="rounded-[28px] bg-white p-6 shadow-sm">
-      <EmptyState title={title} description={description} />
+      <OffersEmptyState title={title} description={description} footer={footer} />
     </section>
   );
 }
@@ -230,9 +233,18 @@ export function CompanyOpenOffersScreen() {
     if (resolvedTab === "OPEN") {
       if (openItems.length === 0) {
         return (
-          <EmptyTabState
+          <CompanyOffersEmptySection
             title="Nenhuma oferta aberta no momento"
-            description="Publique uma nova oferta ou acompanhe convites diretos aguardando resposta."
+            description="Publique uma oferta aberta para receber candidaturas ou acompanhe convites diretos aguardando resposta."
+            footer={
+              <Link
+                to="/ofertas/criar"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#895af6] px-6 py-3 text-sm font-bold text-white shadow-[0px_8px_15px_-3px_rgba(137,90,246,0.3)] transition-colors hover:bg-[#7c4aed]"
+              >
+                Criar oferta
+                <ArrowRight className="size-4 shrink-0" aria-hidden />
+              </Link>
+            }
           />
         );
       }
@@ -265,9 +277,9 @@ export function CompanyOpenOffersScreen() {
     if (resolvedTab === "IN_PROGRESS") {
       if (inProgressItems.length === 0) {
         return (
-          <EmptyTabState
-            title="Nenhum contrato ativo"
-            description="Quando uma seleção virar contrato ou um trabalho entrar em andamento, ele aparecerá aqui."
+          <CompanyOffersEmptySection
+            title="Nenhum contrato em andamento"
+            description="Quando você selecionar um creator e o contrato avançar, ele aparecerá nesta aba."
           />
         );
       }
@@ -291,9 +303,9 @@ export function CompanyOpenOffersScreen() {
             </p>
           </div>
           {finalizedSections.contracts.length === 0 ? (
-            <EmptyTabState
+            <CompanyOffersEmptySection
               title="Nenhum contrato encerrado"
-              description="Contratos concluídos ou cancelados aparecerão nesta seção."
+              description="Contratos concluídos ou cancelados após a seleção aparecerão nesta seção."
             />
           ) : (
             <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
@@ -312,9 +324,9 @@ export function CompanyOpenOffersScreen() {
             </p>
           </div>
           {finalizedSections.offersWithoutHire.length === 0 ? (
-            <EmptyTabState
-              title="Nenhuma oferta encerrada"
-              description="Ofertas canceladas ou expiradas aparecerão nesta seção."
+            <CompanyOffersEmptySection
+              title="Nenhuma oferta encerrada sem contratação"
+              description="Ofertas que expiraram ou foram canceladas antes de gerar contrato aparecerão aqui."
             />
           ) : (
             <div className="min-w-0 space-y-4">
