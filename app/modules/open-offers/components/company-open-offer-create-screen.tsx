@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2, MapPin, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronLeft, Loader2, MapPin, XCircle } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
@@ -96,6 +96,9 @@ function toInputDateTime(value: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(value.getDate())}T${pad(value.getHours())}:${pad(value.getMinutes())}`;
 }
+
+const datetimeInputClass =
+  "box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900";
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -335,39 +338,59 @@ export function CompanyOpenOfferCreateScreen() {
         <AppSidebar variant="business" />
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:p-8">
+      <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 max-lg:pb-44 lg:p-8">
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:px-0">
           <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#895af6]">
-                Nova oferta
-              </p>
-              <h1 className="mt-2 text-3xl font-black tracking-[-0.04em] text-slate-900">
-                Publicar oferta aberta
-              </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                Defina o tipo, a descrição e o prazo para receber candidaturas. O transporte será calculado apenas quando você selecionar o creator.
-              </p>
+            <div className="flex min-w-0 flex-col gap-3">
+              <div className="flex min-w-0 items-center justify-between gap-3 lg:hidden">
+                <Link
+                  to="/ofertas"
+                  className="inline-flex min-w-0 items-center gap-1 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+                >
+                  <ChevronLeft className="size-4 shrink-0" aria-hidden />
+                  <span className="truncate">Ofertas</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => navigate("/ofertas")}
+                  className="shrink-0 text-sm font-medium text-slate-400 transition-colors hover:text-slate-600"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+              <div className="min-w-0">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#895af6]">
+                  Nova oferta
+                </p>
+                <h1 className="mt-2 text-3xl font-black tracking-[-0.04em] text-slate-900">
+                  Publicar oferta aberta
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 max-lg:text-xs max-lg:leading-5">
+                  Defina o tipo, a descrição e o prazo para receber candidaturas. O transporte será calculado apenas quando você selecionar o creator.
+                </p>
+              </div>
             </div>
 
             <Link
               to="/ofertas"
-              className="inline-flex items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white"
+              className="hidden items-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-white lg:inline-flex"
             >
               Voltar para ofertas
             </Link>
           </header>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
-            <form
-              id="open-offer-form"
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6 rounded-[32px] bg-white p-6 shadow-sm"
-            >
-              <section className="grid gap-5 md:grid-cols-2">
+          <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1.2fr)_360px]">
+            <div className="min-w-0 space-y-6">
+              <form
+                id="open-offer-form"
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="min-w-0 space-y-6 rounded-[32px] bg-white p-6 shadow-sm"
+              >
+                <section className="grid min-w-0 gap-5 md:grid-cols-2">
 
                 {/* Tipo de serviço */}
-                <label className="space-y-2">
+                <label className="min-w-0 space-y-2">
                   <span className="text-sm font-semibold text-slate-700">Tipo de serviço</span>
                   <select
                     {...form.register("jobTypeId", {
@@ -383,7 +406,7 @@ export function CompanyOpenOfferCreateScreen() {
                         }
                       },
                     })}
-                    className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900"
+                    className="box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900"
                   >
                     <option value="">Selecione</option>
                     {jobTypeOptions.map((item) => (
@@ -400,14 +423,14 @@ export function CompanyOpenOfferCreateScreen() {
                 </label>
 
                 {/* Valor do trabalho */}
-                <label className="space-y-2">
+                <label className="min-w-0 space-y-2">
                   <span className="text-sm font-semibold text-slate-700">Valor do trabalho</span>
                   <input
                     type="number"
                     step="0.01"
                     placeholder="Ex: 150,00"
                     {...form.register("offeredAmount")}
-                    className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
+                    className="box-border h-12 w-full min-w-0 max-w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
                   />
                   {selectedJobType ? (
                     <p className="text-xs text-slate-500">
@@ -423,13 +446,13 @@ export function CompanyOpenOfferCreateScreen() {
                 </label>
 
                 {/* Data e hora */}
-                <label className="space-y-2">
+                <label className="min-w-0 space-y-2 md:col-span-2">
                   <span className="text-sm font-semibold text-slate-700">Data e hora</span>
                   <input
                     type="datetime-local"
                     min={nowInputMin}
                     {...form.register("startsAt")}
-                    className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
+                    className={datetimeInputClass}
                   />
                   {form.formState.errors.startsAt ? (
                     <p className="text-xs font-medium text-rose-600">
@@ -439,7 +462,7 @@ export function CompanyOpenOfferCreateScreen() {
                 </label>
 
                 {/* Receber candidaturas até */}
-                <label className="space-y-2">
+                <label className="min-w-0 space-y-2 md:col-span-2">
                   <span className="text-sm font-semibold text-slate-700">Receber candidaturas até</span>
                   <input
                     type="datetime-local"
@@ -448,7 +471,7 @@ export function CompanyOpenOfferCreateScreen() {
                     {...form.register("expiresAt", {
                       onChange: () => { hasManualExpiresAt.current = true; },
                     })}
-                    className="h-12 w-full rounded-2xl border border-slate-200 px-4 text-sm text-slate-900"
+                    className={datetimeInputClass}
                   />
                   {form.formState.errors.expiresAt ? (
                     <p className="text-xs font-medium text-rose-600">
@@ -458,7 +481,7 @@ export function CompanyOpenOfferCreateScreen() {
                 </label>
 
                 {/* Onde acontece? */}
-                <div className="space-y-3 md:col-span-2">
+                <div className="min-w-0 space-y-3 md:col-span-2">
                   <span className="text-sm font-semibold text-slate-700">Onde acontece?</span>
 
                   {useCompanyAddressValue ? (
@@ -628,12 +651,12 @@ export function CompanyOpenOfferCreateScreen() {
                 <input type="hidden" {...form.register("durationMinutes", { valueAsNumber: true })} />
 
                 {/* Descreva o trabalho */}
-                <label className="space-y-2 md:col-span-2">
+                <label className="min-w-0 space-y-2 md:col-span-2">
                   <span className="text-sm font-semibold text-slate-700">Descreva o trabalho</span>
                   <textarea
                     {...form.register("description")}
                     rows={8}
-                    className="w-full rounded-[24px] border border-slate-200 px-4 py-3 text-sm text-slate-900"
+                    className="box-border w-full min-w-0 max-w-full rounded-[24px] border border-slate-200 px-4 py-3 text-sm text-slate-900"
                     placeholder="Explique o objetivo, o que será produzido, contexto da marca e observações importantes."
                   />
                   {form.formState.errors.description ? (
@@ -642,24 +665,80 @@ export function CompanyOpenOfferCreateScreen() {
                     </p>
                   ) : null}
                 </label>
+                </section>
+
+                <div className="hidden flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end lg:flex xl:hidden">
+                  <Button type="button" variant="outline" onClick={() => navigate("/ofertas")}>
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="purple"
+                    disabled={createMutation.isPending || jobTypesQuery.isLoading}
+                  >
+                    {createMutation.isPending ? "Publicando..." : "Publicar oferta"}
+                  </Button>
+                </div>
+              </form>
+
+              {/* ── Resumo compacto (mobile) ── */}
+              <section
+                className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:hidden"
+                aria-label="Resumo da oferta"
+              >
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Resumo
+                </p>
+                <p className="mt-1.5 text-base font-bold text-slate-900">
+                  {selectedJobType?.name ?? "Selecione um tipo"}
+                </p>
+                <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                    Valor
+                  </span>
+                  {amountValue ? (
+                    <span className="text-lg font-black text-[#895af6]">
+                      {formatCurrency(amountValue, "BRL")}
+                    </span>
+                  ) : (
+                    <span className="text-sm font-medium text-slate-400">—</span>
+                  )}
+                </div>
+                <dl className="mt-3 space-y-2 text-xs text-slate-600">
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 text-slate-400">Início</dt>
+                    <dd className="min-w-0 flex-1 font-medium text-slate-800">
+                      {startsAtDate && !Number.isNaN(startsAtDate.getTime())
+                        ? `${formatDateShort(startsAtDate.toISOString())} · ${startsAtDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 text-slate-400">Candidaturas</dt>
+                    <dd className="min-w-0 flex-1 font-medium text-slate-800">
+                      {expiresAtDate && !Number.isNaN(expiresAtDate.getTime())
+                        ? `${formatDateShort(expiresAtDate.toISOString())} · ${expiresAtDate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 text-slate-400">Duração</dt>
+                    <dd className="min-w-0 flex-1 font-medium text-slate-800">
+                      {selectedJobType ? formatDuration(selectedJobType.durationMinutes) : "—"}
+                    </dd>
+                  </div>
+                  <div className="flex gap-2">
+                    <dt className="w-24 shrink-0 self-start text-slate-400">Local</dt>
+                    <dd className="min-w-0 flex-1 font-medium leading-snug text-slate-800 line-clamp-2 break-words">
+                      {previewAddress || "—"}
+                    </dd>
+                  </div>
+                </dl>
               </section>
+            </div>
 
-              <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end xl:hidden">
-                <Button type="button" variant="outline" onClick={() => navigate("/ofertas")}>
-                  Cancelar
-                </Button>
-                <Button
-                  type="submit"
-                  variant="purple"
-                  disabled={createMutation.isPending || jobTypesQuery.isLoading}
-                >
-                  {createMutation.isPending ? "Publicando..." : "Publicar oferta"}
-                </Button>
-              </div>
-            </form>
-
-            {/* ── Painel lateral ── */}
-            <aside className="lg:sticky lg:top-8 lg:self-start">
+            {/* ── Painel lateral (desktop / tablet) ── */}
+            <aside className="hidden min-w-0 lg:block lg:sticky lg:top-8 lg:self-start">
               <section className="rounded-[32px] bg-[#111318] p-6 text-white shadow-sm">
 
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/55">
@@ -735,6 +814,26 @@ export function CompanyOpenOfferCreateScreen() {
           </div>
         </div>
       </main>
+
+      {/* CTA único no mobile: acima da BusinessBottomNav (~5rem) + safe area do rodapé do sistema */}
+      <div
+        className="fixed inset-x-0 z-20 border-t border-slate-200/90 bg-white/95 px-4 pt-3 shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.12)] backdrop-blur-md supports-[backdrop-filter]:bg-white/90 lg:hidden"
+        style={{
+          /* ~py-3 + maior linha da BusinessBottomNav + paddingBottom da nav com safe-area */
+          bottom: "calc(5.5rem + env(safe-area-inset-bottom, 0px))",
+          paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 0px))",
+        }}
+      >
+        <Button
+          type="submit"
+          form="open-offer-form"
+          variant="purple"
+          className="h-12 w-full"
+          disabled={createMutation.isPending || jobTypesQuery.isLoading}
+        >
+          {createMutation.isPending ? "Publicando..." : "Publicar oferta"}
+        </Button>
+      </div>
 
       <BusinessBottomNav />
     </div>
