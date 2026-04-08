@@ -28,7 +28,7 @@ export function BusinessDashboardPendingRequests({
         title="Aguardando resposta"
         description="Solicitações aguardando ação do creator."
         ctaLabel="Ver todas"
-        ctaTo="/campanhas"
+        ctaTo="/ofertas"
         addon={
           items.length > 0 ? (
             <span className="rounded-full bg-[#6a36d5]/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#6a36d5]">
@@ -90,7 +90,7 @@ export function BusinessDashboardPendingRequests({
                   <button
                     type="button"
                     onClick={() =>
-                      navigate("/campanhas", {
+                      navigate("/ofertas", {
                         state: { openContractRequestId: item.id } satisfies CompanyCampaignsLocationState,
                       })
                     }

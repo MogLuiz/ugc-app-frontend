@@ -25,19 +25,22 @@ export function useMyCompanyContractRequestsQuery(
   });
 }
 
-export function useMyCreatorPendingContractRequestsQuery() {
+export function useMyCreatorPendingContractRequestsQuery(enabled = true) {
   return useQuery({
     queryKey: contractRequestKeys.creatorPending(),
     queryFn: () => getMyCreatorPendingContractRequests(),
+    enabled,
   });
 }
 
 export function useMyCreatorContractRequestsQuery(
-  status: "ACCEPTED" | "COMPLETED"
+  status: "ACCEPTED" | "COMPLETED",
+  enabled = true
 ) {
   return useQuery({
     queryKey: contractRequestKeys.creatorList(status),
     queryFn: () => getMyCreatorContractRequests(status),
+    enabled,
   });
 }
 

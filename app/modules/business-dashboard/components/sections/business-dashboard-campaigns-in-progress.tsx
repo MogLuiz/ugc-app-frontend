@@ -66,7 +66,7 @@ export function BusinessDashboardCampaignsInProgress({
         title="Campanhas em andamento"
         description="Próximas gravações e logística."
         ctaLabel="Ver todas"
-        ctaTo="/campanhas"
+        ctaTo="/ofertas"
       />
 
       <div className="mt-5">
@@ -161,7 +161,7 @@ export function BusinessDashboardCampaignsInProgress({
                     <button
                       type="button"
                       onClick={() =>
-                        navigate("/campanhas", {
+                        navigate("/ofertas", {
                           state: { openContractRequestId: item.id } satisfies CompanyCampaignsLocationState,
                         })
                       }

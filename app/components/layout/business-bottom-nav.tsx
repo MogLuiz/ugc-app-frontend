@@ -23,8 +23,8 @@ function buildBusinessBottomItems(showIndicacoes: boolean): NavItem[] {
     : { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" };
   return [
     { id: "inicio", label: "Início", icon: Home, to: "/dashboard" },
-    { id: "campanhas", label: "Campanhas", icon: Briefcase, to: "/campanhas" },
-    { id: "criar", label: "Criar", icon: Plus, to: "/criar", special: true },
+    { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "/ofertas" },
+    { id: "criar", label: "Criar", icon: Plus, to: "/ofertas/criar", special: true },
     fourth,
     { id: "perfil", label: "Perfil", icon: User, to: "/perfil" },
   ];
@@ -51,6 +51,8 @@ export function BusinessBottomNav() {
           const isActive =
             item.to === "/indicacoes"
               ? location.pathname.startsWith("/indicacoes")
+              : item.to === "/ofertas"
+                ? location.pathname === "/ofertas" || location.pathname.startsWith("/ofertas/")
               : location.pathname === item.to;
 
           if (item.special) {

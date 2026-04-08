@@ -303,7 +303,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     try {
       await createMutation.mutateAsync(payload);
       toast.success("Solicitação enviada com sucesso.");
-      void navigate("/campanhas");
+      void navigate("/ofertas");
     } catch (error) {
       const message =
         error instanceof Error

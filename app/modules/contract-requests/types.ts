@@ -56,6 +56,7 @@ export type ContractRequestItem = {
   creatorNameSnapshot: string;
   creatorAvatarUrlSnapshot: string | null;
   rejectionReason: string | null;
+  openOfferId?: string | null;
   createdAt?: string;
   updatedAt?: string;
   /** Payload enriquecido (my-creator/pending) */

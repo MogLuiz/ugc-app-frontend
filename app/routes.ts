@@ -16,6 +16,7 @@ export default [
     route("campanhas", "routes/campanhas.tsx"),
     route("criar", "routes/criar.tsx"),
     route("ofertas", "routes/ofertas.tsx"),
+    route("ofertas/criar", "routes/ofertas.criar.tsx"),
     route("ofertas/:id", "routes/ofertas.$id.tsx"),
     route("chat", "routes/chat.tsx"),
     route("perfil", "routes/perfil.tsx"),

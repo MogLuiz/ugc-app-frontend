@@ -67,10 +67,10 @@ const SIDEBAR_CONFIG: Record<
         to: "/indicacoes",
       },
       {
-        id: "campanhas",
-        label: "Campanhas",
+        id: "ofertas",
+        label: "Ofertas",
         icon: Briefcase,
-        to: "/campanhas",
+        to: "/ofertas",
       },
       {
         id: "criadores",
@@ -210,7 +210,11 @@ export function AppSidebar({ variant }: AppSidebarProps) {
         <nav className="flex flex-1 flex-col gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = item.to !== "#" && pathname === item.to;
+            const isActive =
+              item.to !== "#" &&
+              (item.to === "/ofertas"
+                ? pathname === "/ofertas" || pathname.startsWith("/ofertas/")
+                : pathname === item.to);
 
             const itemClass = cn(
               "flex items-center transition-colors",

@@ -5,7 +5,7 @@ import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/
 
 /**
  * Rota canónica `/campanha/:contractRequestId` — redireciona conforme o papel:
- * - empresa: abre a campanha em `/campanhas` (estado consumido por CompanyContractRequestsScreen)
+ * - empresa: abre a campanha em `/ofertas` (estado consumido por CompanyOpenOffersScreen)
  * - criador: detalhe da oferta em `/ofertas/:id`
  */
 function CampanhaRedirect() {
@@ -19,7 +19,7 @@ function CampanhaRedirect() {
   if (user?.role === "business") {
     return (
       <Navigate
-        to="/campanhas"
+        to="/ofertas"
         replace
         state={
           { openContractRequestId: contractRequestId } satisfies CompanyCampaignsLocationState

@@ -58,6 +58,19 @@ export const contractRequestKeys = {
     [...contractRequestKeys.all, "creator", status] as const,
 };
 
+export const openOfferKeys = {
+  all: ["open-offers"] as const,
+  companyList: (params?: { page?: number; limit?: number; status?: string }) =>
+    [
+      ...openOfferKeys.all,
+      "company",
+      params?.page ?? 1,
+      params?.limit ?? 20,
+      params?.status ?? "all",
+    ] as const,
+  companyDetail: (id: string) => [...openOfferKeys.all, "company", id] as const,
+};
+
 export const creatorDashboardKeys = {
   all: ["creator-dashboard"] as const,
   summary: () => [...creatorDashboardKeys.all, "summary"] as const,

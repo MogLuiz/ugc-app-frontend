@@ -121,9 +121,7 @@ export function ChatThread({
     );
   }
 
-  const campaignHref = `${
-    user?.role === "creator" ? "/ofertas" : "/campanhas"
-  }?contractRequestId=${conversation.contractRequestId}`;
+  const campaignHref = `/ofertas?contractRequestId=${conversation.contractRequestId}`;
   const systemMessageDate = new Date(
     conversation.lastMessageAt ?? conversation.createdAt,
   ).toLocaleDateString("pt-BR", {
