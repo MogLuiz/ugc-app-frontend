@@ -421,25 +421,24 @@ export function CompanyOpenOfferCreateScreen() {
               selecionar o creator.
             </p>
 
-            {/* Desktop / tablet: voltar + título em coluna, sem competição no topo */}
-            <div className="hidden min-w-0 gap-4 lg:flex lg:items-start">
-              <Link
-                to="/ofertas"
-                className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
-                aria-label="Voltar para ofertas"
-              >
-                <ChevronLeft className="size-5" aria-hidden />
-              </Link>
-              <div className="min-w-0 flex-1 pt-0.5">
-                <h1 className="text-3xl font-black tracking-[-0.04em] text-slate-900">
+            {/* Desktop / tablet: voltar + título na mesma linha; subtítulo alinhado à esquerda com o ícone */}
+            <div className="hidden min-w-0 flex-col gap-2 lg:flex">
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/ofertas"
+                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+                  aria-label="Voltar para ofertas"
+                >
+                  <ChevronLeft className="size-5" aria-hidden />
+                </Link>
+                <h1 className="min-w-0 text-3xl font-black tracking-[-0.04em] text-slate-900">
                   Nova oferta
                 </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                  Defina o tipo, a descrição e o prazo para receber
-                  candidaturas. O transporte será calculado apenas quando você
-                  selecionar o creator.
-                </p>
               </div>
+              <p className="max-w-2xl text-sm leading-6 text-slate-500">
+                Defina o tipo, a descrição e o prazo para receber candidaturas. O
+                transporte será calculado apenas quando você selecionar o creator.
+              </p>
             </div>
           </header>
 
