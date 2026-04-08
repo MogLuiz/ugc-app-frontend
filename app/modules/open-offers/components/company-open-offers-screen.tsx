@@ -31,7 +31,7 @@ function CompanyOffersStatusFilter({
     <div
       role="tablist"
       aria-label="Filtrar ofertas por status"
-      className="flex w-full rounded-full bg-[#e7e6e9] p-1 lg:w-fit lg:self-start"
+      className="flex min-w-0 w-full rounded-full bg-[#e7e6e9] p-1 lg:w-fit lg:self-start"
     >
       {TABS.map((tab) => {
         const isActive = resolvedTab === tab.id;
@@ -44,16 +44,16 @@ function CompanyOffersStatusFilter({
             aria-selected={isActive}
             onClick={() => onTabChange(tab.id)}
             className={cn(
-              "flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-sm transition lg:flex-none",
+              "flex min-w-0 flex-1 items-center justify-center gap-1 overflow-hidden rounded-full px-2 py-2 text-xs transition lg:flex-none lg:gap-1.5 lg:px-4 lg:py-2 lg:text-sm",
               isActive
                 ? "bg-white font-bold text-slate-900 shadow-sm"
                 : "font-semibold text-slate-600 hover:text-slate-800"
             )}
           >
-            <span>{tab.label}</span>
+            <span className="min-w-0 flex-1 truncate">{tab.label}</span>
             <span
               className={cn(
-                "tabular-nums text-xs font-semibold leading-none",
+                "shrink-0 tabular-nums text-[10px] font-bold leading-none lg:text-xs lg:font-semibold",
                 isActive ? "text-slate-800" : "text-slate-600"
               )}
             >
@@ -92,7 +92,7 @@ function PaginationBar({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-end gap-2">
+    <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
       <button
         type="button"
         onClick={() => onPageChange(page - 1)}
@@ -211,7 +211,7 @@ export function CompanyOpenOffersScreen() {
   const content = (() => {
     if (isLoading) {
       return (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="h-[260px] animate-pulse rounded-[28px] bg-white shadow-sm" />
           ))}
@@ -238,8 +238,8 @@ export function CompanyOpenOffersScreen() {
       }
 
       return (
-        <div className="space-y-4">
-          <div className="grid gap-4 lg:grid-cols-2">
+        <div className="min-w-0 space-y-4">
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
             {openItems.map((item) => (
               <OpenOfferHubCard
                 key={`${item.kind}:${item.id}`}
@@ -273,7 +273,7 @@ export function CompanyOpenOffersScreen() {
       }
 
       return (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
           {inProgressItems.map((item) => (
             <OpenOfferHubCard key={item.id} item={item} />
           ))}
@@ -282,8 +282,8 @@ export function CompanyOpenOffersScreen() {
     }
 
     return (
-      <div className="space-y-6">
-        <section className="space-y-4">
+      <div className="min-w-0 space-y-6">
+        <section className="min-w-0 space-y-4">
           <div>
             <h2 className="text-lg font-black text-slate-900">Contratos encerrados</h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -296,7 +296,7 @@ export function CompanyOpenOffersScreen() {
               description="Contratos concluídos ou cancelados aparecerão nesta seção."
             />
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
               {finalizedSections.contracts.map((item) => (
                 <OpenOfferHubCard key={item.id} item={item} />
               ))}
@@ -304,7 +304,7 @@ export function CompanyOpenOffersScreen() {
           )}
         </section>
 
-        <section className="space-y-4">
+        <section className="min-w-0 space-y-4">
           <div>
             <h2 className="text-lg font-black text-slate-900">Ofertas encerradas sem contratação</h2>
             <p className="mt-1 text-sm text-slate-500">
@@ -317,8 +317,8 @@ export function CompanyOpenOffersScreen() {
               description="Ofertas canceladas ou expiradas aparecerão nesta seção."
             />
           ) : (
-            <div className="space-y-4">
-              <div className="grid gap-4 lg:grid-cols-2">
+            <div className="min-w-0 space-y-4">
+              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
                 {finalizedSections.offersWithoutHire.map((item) => (
                   <OpenOfferHubCard key={item.id} item={item} />
                 ))}
@@ -343,8 +343,8 @@ export function CompanyOpenOffersScreen() {
 
       <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:p-8">
         <div className="flex min-w-0 flex-1 flex-col px-4 lg:px-0">
-          <header className="flex flex-col gap-4 rounded-[32px] bg-[radial-gradient(circle_at_top_left,rgba(137,90,246,0.18),transparent_45%),linear-gradient(135deg,#15171a,#23262b)] px-6 py-7 text-white shadow-sm lg:flex-row lg:items-end lg:justify-between lg:px-8">
-            <div className="max-w-3xl">
+          <header className="flex min-w-0 flex-col gap-4 rounded-[32px] bg-[radial-gradient(circle_at_top_left,rgba(137,90,246,0.18),transparent_45%),linear-gradient(135deg,#15171a,#23262b)] px-6 py-7 text-white shadow-sm lg:flex-row lg:items-end lg:justify-between lg:px-8">
+            <div className="min-w-0 max-w-3xl">
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-white/65">
                 Ofertas
               </p>
@@ -364,7 +364,7 @@ export function CompanyOpenOffersScreen() {
             </Link>
           </header>
 
-          <div className="mt-3">
+          <div className="mt-3 min-w-0">
             <CompanyOffersStatusFilter
               resolvedTab={resolvedTab}
               onTabChange={setActiveTab}
@@ -372,7 +372,7 @@ export function CompanyOpenOffersScreen() {
             />
           </div>
 
-          <div className="mt-4">{content}</div>
+          <div className="mt-4 min-w-0">{content}</div>
         </div>
       </main>
 

@@ -29,11 +29,11 @@ export function OpenOfferHubCard({
 
   return (
     <article
-      className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:p-6"
+      className="w-full min-w-0 max-w-full rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:p-6"
       onClick={onClick}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <span
             className={cn(
               "inline-flex rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em]",
@@ -48,7 +48,7 @@ export function OpenOfferHubCard({
           <p className="mt-1 text-sm font-semibold text-slate-500">{item.subtitle}</p>
         </div>
 
-        <div className="text-right">
+        <div className="shrink-0 text-right">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
             Valor bruto
           </p>
@@ -59,34 +59,36 @@ export function OpenOfferHubCard({
       </div>
 
       <div className="mt-4 rounded-[22px] bg-[#f6f5f8] p-4">
-        <p className="text-sm leading-6 text-slate-700">{item.description}</p>
+        <p className="break-words text-sm leading-6 text-slate-700">{item.description}</p>
       </div>
 
-      <div className="mt-4 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="size-4 text-[#895af6]" />
-          <span>
+      <div className="mt-4 grid min-w-0 gap-3 text-sm text-slate-600 sm:grid-cols-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <CalendarDays className="size-4 shrink-0 text-[#895af6]" />
+          <span className="min-w-0">
             {dateLabel} · {timeLabel}
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <Clock3 className="size-4 text-[#895af6]" />
-          <span>{durationLabel ?? "Duração a combinar"}</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <Clock3 className="size-4 shrink-0 text-[#895af6]" />
+          <span className="min-w-0">{durationLabel ?? "Duração a combinar"}</span>
         </div>
-        <div className="flex items-center gap-2 sm:col-span-2">
-          <MapPin className="size-4 text-[#895af6]" />
-          <span className="truncate">{item.address}</span>
+        <div className="flex min-w-0 items-start gap-2 sm:col-span-2">
+          <MapPin className="mt-0.5 size-4 shrink-0 text-[#895af6]" />
+          <span className="min-w-0 flex-1 leading-snug line-clamp-2">
+            {item.address}
+          </span>
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
-        <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+      <div className="mt-5 flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 border-t border-slate-100 pt-4">
+        <div className="min-w-0 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
           {item.statusLabel}
         </div>
         {item.href ? (
           <Link
             to={item.href}
-            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
           >
             Ver detalhes
             <ChevronRight className="size-4" />
