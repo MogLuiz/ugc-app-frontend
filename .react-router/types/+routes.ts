@@ -88,12 +88,20 @@ type Pages = {
   "/configuracoes": {
     params: {};
   };
+  "/oportunidades": {
+    params: {};
+  };
+  "/oportunidades/:id": {
+    params: {
+      "id": string;
+    };
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id";
   };
   "routes/well-known.chrome-devtools.tsx": {
     id: "routes/well-known.chrome-devtools";
@@ -101,7 +109,7 @@ type RouteFiles = {
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -191,6 +199,14 @@ type RouteFiles = {
     id: "routes/configuracoes";
     page: "/configuracoes";
   };
+  "routes/oportunidades.tsx": {
+    id: "routes/oportunidades";
+    page: "/oportunidades";
+  };
+  "routes/oportunidades.$id.tsx": {
+    id: "routes/oportunidades.$id";
+    page: "/oportunidades/:id";
+  };
 };
 
 type RouteModules = {
@@ -219,4 +235,6 @@ type RouteModules = {
   "routes/indicacoes.todas": typeof import("./app/routes/indicacoes.todas.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
   "routes/configuracoes": typeof import("./app/routes/configuracoes.tsx");
+  "routes/oportunidades": typeof import("./app/routes/oportunidades.tsx");
+  "routes/oportunidades.$id": typeof import("./app/routes/oportunidades.$id.tsx");
 };

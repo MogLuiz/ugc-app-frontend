@@ -87,6 +87,13 @@ export const chatKeys = {
     [...chatKeys.all, "messages", conversationId ?? "none"] as const,
 };
 
+export const opportunityKeys = {
+  all: ["opportunities"] as const,
+  list: (params?: { page?: number; limit?: number }) =>
+    [...opportunityKeys.all, "list", params?.page ?? 1, params?.limit ?? 50] as const,
+  detail: (id: string) => [...opportunityKeys.all, "detail", id] as const,
+};
+
 export const referralsKeys = {
   all: ["referrals"] as const,
   profile: () => [...referralsKeys.all, "profile"] as const,

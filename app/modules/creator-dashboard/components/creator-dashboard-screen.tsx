@@ -7,6 +7,7 @@ import {
   CreatorKPICards,
   CreatorTipsCard,
   NearbyCampaignsSection,
+  OpportunitiesDashboardSection,
   PendingInvitesSection,
   RecentActivitySection,
   UpcomingCampaignsSection,
@@ -50,6 +51,7 @@ export function CreatorDashboardScreen() {
             <NearbyCampaignsSection
               items={viewModel.nearbyCampaigns}
             />
+            <OpportunitiesDashboardSection />
           </div>
 
           <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
