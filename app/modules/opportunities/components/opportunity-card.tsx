@@ -69,9 +69,9 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 col-span-2">
+        <div className="flex items-center gap-2 col-span-2 min-w-0">
           <MapPin className="size-4 shrink-0 text-slate-400" />
-          <div>
+          <div className="min-w-0">
             <div className="text-xs text-slate-500">
               Local &bull; {formatDistance(opportunity.distanceKm)}
             </div>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ChevronDown, Sparkles } from "lucide-react";
-import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
 import { Button } from "~/components/ui/button";
@@ -67,22 +66,16 @@ export function CreatorOpportunitiesScreen() {
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Header compacto branco */}
-        <div className="border-b border-slate-200 bg-white">
-          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-5">
-            <AppHeader mobileBehavior="inline" mobileLabel="Oportunidades" />
-            <div className="mt-3 hidden sm:block">
-              <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-                Oportunidades
-              </h1>
-              <p className="mt-1 text-sm text-slate-600 sm:text-base">
-                Encontre vagas abertas e candidate-se para trabalhar com empresas locais.
-              </p>
-            </div>
-          </div>
-        </div>
-
         <main className="mx-auto w-full max-w-7xl px-4 py-6 pb-24 sm:px-6 sm:py-8 lg:pb-8">
+          {/* Título e subtítulo — visível em todas as resoluções */}
+          <div className="mb-6 flex flex-col gap-2">
+            <h1 className="text-[30px] font-black leading-9 tracking-[-0.75px] text-[#0f172a]">
+              Oportunidades
+            </h1>
+            <p className="text-base text-[#64748b]">
+              Encontre vagas abertas e candidate-se para trabalhar com empresas locais.
+            </p>
+          </div>
           {/* Filtros — só renderiza com opções disponíveis */}
           {!isLoading && allItems.length > 0 ? (
             <div className="mb-6">
