@@ -11,7 +11,6 @@ import {
   Star,
 } from "lucide-react";
 import { Link } from "react-router";
-import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
 import { Button } from "~/components/ui/button";
@@ -36,7 +35,11 @@ interface OpportunityDetailScreenProps {
 
 export function OpportunityDetailScreen({ id }: OpportunityDetailScreenProps) {
   const { user } = useAuth();
-  const { data: opportunity, isLoading, isError } = useOpportunityDetailQuery(id);
+  const {
+    data: opportunity,
+    isLoading,
+    isError,
+  } = useOpportunityDetailQuery(id);
   const applyMutation = useApplyToOpportunityMutation();
 
   const hasPortfolio = hasEligiblePortfolio(user?.portfolio);
@@ -102,18 +105,15 @@ export function OpportunityDetailScreen({ id }: OpportunityDetailScreenProps) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Sticky back header */}
-        <div className="sticky top-0 z-10 border-b border-slate-200 bg-white">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <AppHeader mobileBehavior="inline" mobileLabel="Oportunidade" />
-            <div className="hidden py-4 sm:block">
-              <Link
-                to="/oportunidades"
-                className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900"
-              >
-                <ArrowLeft className="mr-2 size-4" />
-                Voltar para oportunidades
-              </Link>
-            </div>
+        <div className="sticky top-0 z-10">
+          <div className="mx-auto max-w-6xl px-4 pb-0 pt-6 sm:px-6 sm:pt-8">
+            <Link
+              to="/oportunidades"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900"
+            >
+              <ArrowLeft className="size-4 shrink-0" />
+              Voltar para oportunidades
+            </Link>
           </div>
         </div>
 
@@ -140,8 +140,8 @@ export function OpportunityDetailScreen({ id }: OpportunityDetailScreenProps) {
                   <p className="flex items-center gap-2 text-slate-500">
                     <MapPin className="size-4 shrink-0" />
                     <span className="truncate">
-                      {opportunity.jobFormattedAddress ?? "Local a combinar"} &bull;{" "}
-                      {formatDistance(opportunity.distanceKm)}
+                      {opportunity.jobFormattedAddress ?? "Local a combinar"}{" "}
+                      &bull; {formatDistance(opportunity.distanceKm)}
                     </span>
                   </p>
                 </div>
@@ -304,7 +304,7 @@ export function OpportunityDetailScreen({ id }: OpportunityDetailScreenProps) {
                             <div className="mt-0.5 text-xs text-red-500">
                               Candidaturas até{" "}
                               {new Date(
-                                opportunity.expiresAt
+                                opportunity.expiresAt,
                               ).toLocaleDateString("pt-BR", {
                                 day: "2-digit",
                                 month: "short",
