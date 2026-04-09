@@ -82,6 +82,13 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
         </div>
       </div>
 
+      {/* Descrição curta */}
+      {opportunity.description ? (
+        <p className="mb-4 line-clamp-2 text-sm leading-snug text-slate-500">
+          {opportunity.description}
+        </p>
+      ) : null}
+
       {/* Deadline */}
       <div className="border-t border-slate-100 pt-4">
         <div
