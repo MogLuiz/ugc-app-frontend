@@ -50,8 +50,6 @@ export function useCreatorDashboardController() {
       invites,
       upcoming,
       activityItems,
-      nearbyCampaigns: [],
-      nearbyNewCount: 0,
       isKpiLoading: dashboardQuery.isLoading && !dashboardQuery.data,
       isKpiRefreshing: dashboardQuery.isFetching,
       kpiErrorMessage: getQueryErrorMessage(
