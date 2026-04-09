@@ -284,7 +284,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
 
 function getUserDisplayData(user: AuthUser) {
   const displayName =
-    user.profile?.name ?? user.name ?? user.email?.split("@")[0] ?? "Usuário";
+    user.profile?.name ?? user.name ?? "Usuário";
   const initials = displayName
     .split(" ")
     .slice(0, 2)
