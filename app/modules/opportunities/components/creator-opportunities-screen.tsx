@@ -85,7 +85,7 @@ export function CreatorOpportunitiesScreen() {
     setFiltersOpen(false);
   };
 
-  const SortDropdown = ({ size = "default" }: { size?: "sm" | "default" }) => (
+  const SortDropdown = ({ size = "md" }: { size?: "sm" | "md" }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
