@@ -34,7 +34,7 @@ export function useMyCreatorPendingContractRequestsQuery(enabled = true) {
 }
 
 export function useMyCreatorContractRequestsQuery(
-  status: "ACCEPTED" | "COMPLETED",
+  status: "ACCEPTED" | "COMPLETED" | "REJECTED" | "CANCELLED",
   enabled = true
 ) {
   return useQuery({

@@ -21,22 +21,35 @@ export default function OfferDetailRoute() {
   const stateItem = (location.state as { item?: ContractRequestItem } | null)?.item;
   const itemFromState = stateItem?.id === id ? stateItem : null;
 
-  // Fallback: busca em pending e accepted quando não há state (ex: navegação do calendário ou dashboard)
-  const { data: pendingItems, isLoading: isPendingLoading } = useMyCreatorPendingContractRequestsQuery(
-    user?.role === "creator"
-  );
-  const { data: acceptedItems, isLoading: isAcceptedLoading } = useMyCreatorContractRequestsQuery(
-    "ACCEPTED",
-    user?.role === "creator"
-  );
+  // Fallback: busca em todas as queries do creator quando não há state
+  const isCreator = user?.role === "creator";
+  const { data: pendingItems, isLoading: isPendingLoading } =
+    useMyCreatorPendingContractRequestsQuery(isCreator);
+  const { data: acceptedItems, isLoading: isAcceptedLoading } =
+    useMyCreatorContractRequestsQuery("ACCEPTED", isCreator);
+  const { data: completedItems, isLoading: isCompletedLoading } =
+    useMyCreatorContractRequestsQuery("COMPLETED", isCreator);
+  const { data: rejectedItems, isLoading: isRejectedLoading } =
+    useMyCreatorContractRequestsQuery("REJECTED", isCreator);
+  const { data: cancelledItems, isLoading: isCancelledLoading } =
+    useMyCreatorContractRequestsQuery("CANCELLED", isCreator);
+
   const itemFromQuery =
     pendingItems?.find((i) => i.id === id) ??
     acceptedItems?.find((i) => i.id === id) ??
+    completedItems?.find((i) => i.id === id) ??
+    rejectedItems?.find((i) => i.id === id) ??
+    cancelledItems?.find((i) => i.id === id) ??
     null;
 
-  const isLoading = user?.role === "business"
-    ? companyOfferQuery.isLoading
-    : isPendingLoading || isAcceptedLoading;
+  const isLoading =
+    user?.role === "business"
+      ? companyOfferQuery.isLoading
+      : isPendingLoading ||
+        isAcceptedLoading ||
+        isCompletedLoading ||
+        isRejectedLoading ||
+        isCancelledLoading;
   const item = itemFromState ?? itemFromQuery;
 
   if (isLoading && !item) {

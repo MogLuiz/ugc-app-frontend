@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { ArrowLeft, MoreVertical, AlertCircle } from "lucide-react";
+import { ArrowLeft, MoreVertical, AlertCircle, Clock } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/toast";
 import {
@@ -34,8 +34,16 @@ export function OfferDetailScreen({ item }: OfferDetailScreenProps) {
   const cancelMutation = useCancelContractRequestMutation();
   const [isMutating, setIsMutating] = useState(false);
 
-  const isExpired = item.status === "EXPIRED";
+  const isExpired = item.status === "EXPIRED" ||
+    (item.status === "PENDING_ACCEPTANCE" &&
+      !!item.expiresAt &&
+      new Date(item.expiresAt).getTime() <= Date.now());
   const isAccepted = item.status === "ACCEPTED";
+  const isReadOnly =
+    isExpired ||
+    item.status === "COMPLETED" ||
+    item.status === "REJECTED" ||
+    item.status === "CANCELLED";
   const expiryLabel = getExpiryLabel(item.expiresAt);
 
   const handleAccept = async (id: string) => {
@@ -73,7 +81,7 @@ export function OfferDetailScreen({ item }: OfferDetailScreenProps) {
     try {
       await cancelMutation.mutateAsync(id);
       toast.success("Trabalho desmarcado.");
-      void navigate("/ofertas?tab=confirmed");
+      void navigate("/ofertas?tab=ACCEPTED");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Não foi possível desmarcar o trabalho."
@@ -124,7 +132,14 @@ export function OfferDetailScreen({ item }: OfferDetailScreenProps) {
 
       {/* ── Fixed footer with actions ── */}
       <div className="fixed bottom-0 left-0 right-0 border-t border-[#f1f5f9] bg-white px-5 pb-8 pt-4">
-        {isAccepted ? (
+        {isReadOnly ? (
+          <div className="flex items-center justify-center gap-2 py-1">
+            <Clock className="size-4 shrink-0 text-slate-400" />
+            <p className="text-sm font-medium text-slate-500">
+              {isExpired ? "Oferta expirada" : "Esta oferta foi encerrada"}
+            </p>
+          </div>
+        ) : isAccepted ? (
           <Button
             variant="outline"
             size="lg"
@@ -142,7 +157,7 @@ export function OfferDetailScreen({ item }: OfferDetailScreenProps) {
                 size="lg"
                 className="flex-1 rounded-full shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2),0px_4px_6px_-4px_rgba(137,90,246,0.2)]"
                 onClick={() => void handleAccept(item.id)}
-                disabled={isMutating || isExpired}
+                disabled={isMutating}
               >
                 {isMutating && acceptMutation.isPending ? "Aguarde..." : "Aceitar"}
               </Button>
@@ -151,7 +166,7 @@ export function OfferDetailScreen({ item }: OfferDetailScreenProps) {
                 size="lg"
                 className="rounded-full border-red-100 bg-red-50 px-6 text-red-500 hover:bg-red-100"
                 onClick={() => void handleReject(item.id)}
-                disabled={isMutating || isExpired}
+                disabled={isMutating}
               >
                 Recusar
               </Button>
