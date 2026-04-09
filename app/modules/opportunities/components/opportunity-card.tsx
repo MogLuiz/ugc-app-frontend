@@ -1,4 +1,10 @@
-import { CalendarDays, ChevronRight, Clock3, MapPin } from "lucide-react";
+import {
+  CalendarDays,
+  ChevronRight,
+  Clock3,
+  FileText,
+  MapPin,
+} from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import type { OpportunityListItem } from "../types";
@@ -36,7 +42,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
       {/* Header: título + cache */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-black tracking-[-0.02em] text-[#6a36d5]">
+          <h3 className="text-lg font-black tracking-[-0.02em] text-slate-900 text-[#6a36d5]">
             {opportunity.jobType?.name ?? "Oportunidade"}
           </h3>
         </div>
@@ -52,8 +58,9 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
       </div>
 
       {/* Descrição */}
-      <div className="mt-4 rounded-[22px] bg-[#f6f5f8] p-4">
-        <p className="truncate text-sm leading-6 text-slate-700">
+      <div className="mt-2 flex items-start gap-1.5">
+        <FileText className="mt-0.5 size-3.5 shrink-0 text-[#895af6]" />
+        <p className="line-clamp-2 text-sm text-slate-600">
           {opportunity.description || "Sem descrição"}
         </p>
       </div>
