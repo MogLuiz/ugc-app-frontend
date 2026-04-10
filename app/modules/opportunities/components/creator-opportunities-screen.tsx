@@ -87,6 +87,9 @@ export function CreatorOpportunitiesScreen() {
     setFiltersOpen(false);
   };
 
+  const addressBlocked =
+    isError && isOpportunitiesAddressRequiredError(error);
+
   const SortDropdown = ({ size = "md" }: { size?: "sm" | "md" }) => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -133,19 +136,21 @@ export function CreatorOpportunitiesScreen() {
             </p>
           </div>
 
-          {/* Banner educacional — compacto */}
-          <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-            <div className="flex gap-2.5">
-              <Sparkles className="mt-0.5 size-4 shrink-0 text-blue-600" />
-              <p className="text-sm leading-snug text-blue-700">
-                <strong className="text-blue-900">
-                  Como funcionam as oportunidades?
-                </strong>{" "}
-                São vagas abertas para candidatura. As empresas analisam os
-                perfis e escolhem os creators.
-              </p>
+          {/* Banner educacional — oculto quando falta endereço (evita ruído com o estado guiado) */}
+          {!addressBlocked ? (
+            <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+              <div className="flex gap-2.5">
+                <Sparkles className="mt-0.5 size-4 shrink-0 text-blue-600" />
+                <p className="text-sm leading-snug text-blue-700">
+                  <strong className="text-blue-900">
+                    Como funcionam as oportunidades?
+                  </strong>{" "}
+                  São vagas abertas para candidatura. As empresas analisam os
+                  perfis e escolhem os creators.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : null}
 
           {/* Toolbar: título + contador + filtros + ordenação */}
           {!isLoading && !isError ? (
@@ -230,8 +235,11 @@ export function CreatorOpportunitiesScreen() {
                 <OpportunityCardSkeleton key={i} />
               ))}
             </div>
-          ) : isError && isOpportunitiesAddressRequiredError(error) ? (
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8">
+          ) : addressBlocked ? (
+            <div className="mx-auto w-full max-w-xl">
+              <h2 className="mb-4 text-xl font-semibold text-slate-900">
+                Oportunidades disponíveis
+              </h2>
               <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
                 <div className="flex items-start gap-2 sm:gap-3">
                   <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600" />
@@ -240,14 +248,14 @@ export function CreatorOpportunitiesScreen() {
                       Complete seu endereço
                     </p>
                     <p className="mb-4 text-sm text-amber-700">
-                      Você precisa completar seu endereço no perfil para
-                      visualizar oportunidades perto de você.
+                      Complete seu endereço no perfil para visualizar
+                      oportunidades perto de você.
                     </p>
                     <Button
                       asChild
                       className="w-full bg-[#895af6] hover:bg-[#6a36d5] sm:w-auto"
                     >
-                      <Link to="/perfil">Ir para o perfil</Link>
+                      <Link to="/perfil">→ Ir para o perfil</Link>
                     </Button>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-import { AlertCircle, Compass } from "lucide-react";
+import { Compass } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
@@ -49,27 +49,16 @@ export function NearbyCampaignsSection() {
       <section className="flex flex-col gap-4">
         <SectionHeader title="Oportunidades disponíveis" />
         <DashboardCard className="p-3 lg:p-3">
-          <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="mt-0.5 size-4 shrink-0 text-amber-600" />
-              <div className="min-w-0 flex-1">
-                <p className="mb-0.5 text-xs font-medium text-amber-900">
-                  Complete seu endereço
-                </p>
-                <p className="mb-3 text-xs leading-snug text-amber-700">
-                  Você precisa completar seu endereço no perfil para visualizar
-                  oportunidades perto de você.
-                </p>
-                <Button
-                  asChild
-                  size="sm"
-                  className="h-8 w-full bg-[#895af6] text-xs hover:bg-[#6a36d5] sm:w-auto"
-                >
-                  <Link to="/perfil">Ir para o perfil</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
+          <p className="text-sm leading-snug text-slate-600">
+            Para ver oportunidades aqui,{" "}
+            <Link
+              to="/perfil"
+              className="font-semibold text-[#895af6] underline-offset-2 hover:underline"
+            >
+              complete seu endereço no perfil
+            </Link>
+            . O resumo completo fica em Oportunidades.
+          </p>
         </DashboardCard>
       </section>
     );
