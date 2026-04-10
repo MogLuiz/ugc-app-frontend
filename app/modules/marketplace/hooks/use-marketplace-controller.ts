@@ -15,6 +15,9 @@ export function useMarketplaceController() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [serviceTypeId, setServiceTypeId] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<"relevancia" | "preco" | "avaliacao">("relevancia");
+  const [minAge, setMinAge] = useState<number | undefined>(undefined);
+  const [maxAge, setMaxAge] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -30,6 +33,9 @@ export function useMarketplaceController() {
     limit: ITEMS_PER_PAGE,
     search: debouncedSearch || undefined,
     serviceTypeId: serviceTypeId || undefined,
+    sortBy,
+    minAge,
+    maxAge,
   });
   const serviceTypesQuery = useMarketplaceServiceTypesQuery();
 
@@ -56,12 +62,30 @@ export function useMarketplaceController() {
   const isRefreshing =
     creatorsQuery.isFetching || serviceTypesQuery.isFetching;
 
-  const hasActiveFilters = Boolean(debouncedSearch || serviceTypeId);
+  const hasActiveFilters = Boolean(debouncedSearch || serviceTypeId || minAge || maxAge);
+
+  const handleSortByChange = (value: "relevancia" | "preco" | "avaliacao") => {
+    setSortBy(value);
+    setCurrentPage(1);
+  };
+
+  const handleMinAgeChange = (value: number | undefined) => {
+    setMinAge(value);
+    setCurrentPage(1);
+  };
+
+  const handleMaxAgeChange = (value: number | undefined) => {
+    setMaxAge(value);
+    setCurrentPage(1);
+  };
 
   return {
     viewModel: {
       search,
       serviceTypeId,
+      sortBy,
+      minAge,
+      maxAge,
       creators,
       currentPage,
       totalPages,
@@ -75,6 +99,9 @@ export function useMarketplaceController() {
     actions: {
       setSearch,
       setServiceTypeId: handleServiceTypeChange,
+      setSortBy: handleSortByChange,
+      setMinAge: handleMinAgeChange,
+      setMaxAge: handleMaxAgeChange,
       setCurrentPage,
       onHire: (creator: MarketplaceCreator) => {
         void navigate(`/criador/${creator.id}/contratar`, {

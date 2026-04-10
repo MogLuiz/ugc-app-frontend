@@ -13,6 +13,9 @@ export type MarketplaceCreator = {
   creatorLatitude?: number | null;
   creatorLongitude?: number | null;
   creatorHasValidCoordinates?: boolean;
+  totalReviews?: number | null;
+  videoCount?: number | null;
+  distanceKm?: number | null;
 };
 
 export type MarketplaceServiceTypeOption = {

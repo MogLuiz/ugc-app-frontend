@@ -8,6 +8,7 @@ export function useMarketplaceCreatorsQuery(params: {
   serviceTypeId?: string;
   minAge?: number;
   maxAge?: number;
+  sortBy?: "relevancia" | "preco" | "avaliacao";
 }) {
   return useQuery({
     queryKey: marketplaceKeys.creators(params),

@@ -17,13 +17,14 @@ export async function getMarketplaceCreators(params: {
   serviceTypeId?: string;
   minAge?: number;
   maxAge?: number;
+  sortBy?: "relevancia" | "preco" | "avaliacao";
   token?: string;
 }): Promise<MarketplaceCreatorsResponse> {
   const accessToken = await getAccessToken(params.token);
   const searchParams = new URLSearchParams({
     page: String(params.page),
     limit: String(params.limit),
-    sortBy: "relevancia",
+    sortBy: params.sortBy ?? "relevancia",
   });
 
   if (params.search) {
