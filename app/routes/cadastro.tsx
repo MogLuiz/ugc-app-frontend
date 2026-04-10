@@ -17,10 +17,7 @@ import type { LucideIcon } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
-import {
-  useBootstrapMutation,
-  useUpdateProfileMutation,
-} from "~/modules/auth/mutations";
+import { useBootstrapMutation } from "~/modules/auth/mutations";
 import {
   registerSchema,
   type RegisterForm,
@@ -81,7 +78,6 @@ export default function AuthRegisterRoute() {
   const [searchParams] = useSearchParams();
   const referralCodeFromUrl = searchParams.get("ref")?.trim() || undefined;
   const bootstrapMutation = useBootstrapMutation();
-  const updateProfileMutation = useUpdateProfileMutation();
 
   const [role, setRole] = useState<UserRole | null>(() =>
     parseRoleFromSearch(searchParams.get("role")),
@@ -94,8 +90,7 @@ export default function AuthRegisterRoute() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const isSubmitting =
-    bootstrapMutation.isPending || updateProfileMutation.isPending;
+  const isSubmitting = bootstrapMutation.isPending;
 
   const {
     register,
@@ -133,11 +128,6 @@ export default function AuthRegisterRoute() {
       if (signUpData.session) {
         setStoredRole(role);
         await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
-        if (data.name?.trim()) {
-          await updateProfileMutation.mutateAsync({
-            data: { name: data.name.trim() },
-          });
-        }
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
