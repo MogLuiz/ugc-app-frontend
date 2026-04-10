@@ -201,11 +201,14 @@ export function useBusinessDashboardController() {
     }));
 
     const activeCampaignCount = activeCampaignsRaw.length;
-    const activeCreatorCount = new Set(activeCampaignsRaw.map((item) => item.source.creatorId)).size;
-    const completedCampaignCount = campaigns.filter(
-      (item) => getCompanyStatus(item) === "COMPLETED"
+    const pendingApplicationCount = pendingRequestsRaw.length;
+    const upcomingRecordingCount = activeCampaignsRaw.filter(
+      (item) => item.recordingInstant !== null && item.recordingInstant.getTime() > Date.now()
     ).length;
-    const pendingRequestCount = pendingRequestsRaw.length;
+    const unreadMessageCount = conversations.reduce(
+      (sum, conv) => sum + (conv.unreadCount ?? 0),
+      0
+    );
 
     const companyName = user?.companyProfile?.companyName ?? user?.profile?.name ?? user?.name;
 
@@ -229,27 +232,31 @@ export function useBusinessDashboardController() {
           value: activeCampaignCount,
           subtitle: "Aceitas ou em andamento",
           tone: "default",
+          href: "/ofertas",
         },
         {
-          id: "active-creators",
-          label: "Criadores ativos",
-          value: activeCreatorCount,
-          subtitle: "Nas campanhas atuais",
+          id: "pending-applications",
+          label: "Candidaturas pendentes",
+          value: pendingApplicationCount,
+          subtitle: pendingApplicationCount > 0 ? "Creators esperando sua decisão" : "Nenhuma pendência",
+          tone: pendingApplicationCount > 0 ? "highlight" : "default",
+          href: "/ofertas",
+        },
+        {
+          id: "upcoming-recordings",
+          label: "Próximas gravações",
+          value: upcomingRecordingCount,
+          subtitle: "Agendadas nos próximos dias",
           tone: "default",
+          href: "/agenda",
         },
         {
-          id: "completed-campaigns",
-          label: "Campanhas concluídas",
-          value: completedCampaignCount,
-          subtitle: "Histórico finalizado",
-          tone: "default",
-        },
-        {
-          id: "pending-requests",
-          label: "Solicitações pendentes",
-          value: pendingRequestCount,
-          subtitle: pendingRequestCount > 0 ? "Ação requerida" : "Nenhuma pendência",
-          tone: pendingRequestCount > 0 ? "highlight" : "default",
+          id: "unread-messages",
+          label: "Mensagens não lidas",
+          value: unreadMessageCount,
+          subtitle: unreadMessageCount > 0 ? "Nova atividade" : "Tudo em dia",
+          tone: unreadMessageCount > 0 ? "highlight" : "default",
+          href: "/chat",
         },
       ],
       activeCampaigns: activeCampaignsRaw,

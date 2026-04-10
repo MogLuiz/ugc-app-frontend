@@ -2,9 +2,9 @@ import type { CompanyCampaignStatus, ContractRequestItem } from "~/modules/contr
 
 export type CompanyDashboardMetricId =
   | "active-campaigns"
-  | "active-creators"
-  | "completed-campaigns"
-  | "pending-requests";
+  | "pending-applications"
+  | "upcoming-recordings"
+  | "unread-messages";
 
 export type CompanyDashboardMetric = {
   id: CompanyDashboardMetricId;
@@ -12,6 +12,7 @@ export type CompanyDashboardMetric = {
   value: number;
   subtitle: string;
   tone: "default" | "highlight";
+  href: string;
 };
 
 export type OperationalStatusVariant = "confirmed" | "pending_schedule" | "in_progress" | "completed";
