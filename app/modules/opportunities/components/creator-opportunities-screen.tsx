@@ -236,9 +236,6 @@ export function CreatorOpportunitiesScreen() {
             </div>
           ) : addressBlocked ? (
             <div className="mx-auto w-full max-w-xl">
-              <h2 className="mb-4 text-xl font-semibold text-slate-900">
-                Oportunidades disponíveis
-              </h2>
               <OpportunitiesAddressPendingCard />
             </div>
           ) : isError ? (
