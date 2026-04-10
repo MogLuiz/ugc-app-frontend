@@ -147,16 +147,14 @@ export function CompanyOpenOffersScreen() {
 
   const tabCounts = useMemo(() => {
     const pendingDirectInvites = pendingContracts.filter((c) => c.openOfferId == null).length;
-    // Total de ofertas abertas na API + convites diretos pendentes (fora da paginação da lista).
-    const openOffersTotal = openOffersQuery.data?.pagination.total ?? 0;
     return {
-      OPEN: openOffersTotal + pendingDirectInvites,
+      OPEN: openItems.length + pendingDirectInvites,
       IN_PROGRESS: inProgressItems.length,
       FINALIZED: finalizedSections.contracts.length + finalizedSections.offersWithoutHire.length,
     } satisfies Record<OffersTabId, number>;
   }, [
     pendingContracts,
-    openOffersQuery.data?.pagination.total,
+    openItems.length,
     inProgressItems.length,
     finalizedSections.contracts.length,
     finalizedSections.offersWithoutHire.length,
