@@ -10,6 +10,7 @@ export function useOpportunitiesQuery(params?: {
     queryKey: opportunityKeys.list(params),
     queryFn: () => getOpportunities(params),
     placeholderData: (previousData) => previousData,
+    retry: false,
   });
 }
 
@@ -18,5 +19,6 @@ export function useOpportunityDetailQuery(id?: string) {
     queryKey: opportunityKeys.detail(id ?? "none"),
     queryFn: () => getOpportunityDetail(id!),
     enabled: Boolean(id),
+    retry: false,
   });
 }
