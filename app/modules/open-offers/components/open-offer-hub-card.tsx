@@ -5,6 +5,17 @@ import { formatDateShort, formatDuration } from "~/modules/contract-requests/uti
 import { formatOfferMoney } from "../helpers";
 import type { OpenOfferListItemViewModel } from "../types";
 
+function ApplicationsToReviewBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  const label = count === 1 ? "1 candidatura para avaliar" : `${count} candidaturas para avaliar`;
+  return (
+    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 ring-1 ring-inset ring-amber-200">
+      <span className="size-2 shrink-0 rounded-full bg-amber-500" aria-hidden />
+      <span className="text-[12px] font-bold leading-none text-amber-700">{label}</span>
+    </div>
+  );
+}
+
 function labelClass(label: OpenOfferListItemViewModel["visualLabel"]) {
   return label === "Oferta aberta"
     ? "bg-[#895af6]/10 text-[#6a36d5]"
@@ -45,7 +56,7 @@ export function OpenOfferHubCard({
           <h3 className="mt-3 text-lg font-black tracking-[-0.02em] text-slate-900">
             {item.title}
           </h3>
-          <p className="mt-1 text-sm font-semibold text-slate-500">{item.subtitle}</p>
+          <ApplicationsToReviewBadge count={item.applicationsToReviewCount ?? 0} />
         </div>
 
         <div className="shrink-0 text-right">
@@ -83,14 +94,14 @@ export function OpenOfferHubCard({
 
       <div className="mt-5 flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 border-t border-slate-100 pt-4">
         <div className="min-w-0 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-          {item.statusLabel}
+          {item.subtitle}
         </div>
         {item.href ? (
           <Link
             to={item.href}
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
           >
-            Ver detalhes
+            {(item.applicationsToReviewCount ?? 0) > 0 ? "Avaliar candidaturas" : "Ver detalhes"}
             <ChevronRight className="size-4" />
           </Link>
         ) : null}

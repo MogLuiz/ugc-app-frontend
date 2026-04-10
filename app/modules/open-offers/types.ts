@@ -30,6 +30,7 @@ export type OpenOfferItem = {
   status: OpenOfferStatus;
   platformFeeRateSnapshot: number;
   minimumOfferedAmountSnapshot?: number;
+  applicationsToReviewCount?: number;
   createdAt: string;
   updatedAt?: string;
 };
@@ -106,6 +107,7 @@ export type OpenOfferListItemViewModel = {
   href?: string;
   contractRequestId?: string;
   offerId?: string;
+  applicationsToReviewCount?: number;
 };
 
 export type OpenOfferFinalizedSectionViewModel = {

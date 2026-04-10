@@ -69,12 +69,15 @@ export function sortMixedOpenItems(
   left: OpenOfferListItemViewModel,
   right: OpenOfferListItemViewModel
 ) {
+  // Ofertas com candidaturas para avaliar primeiro
+  const leftHas = (left.applicationsToReviewCount ?? 0) > 0 ? 0 : 1;
+  const rightHas = (right.applicationsToReviewCount ?? 0) > 0 ? 0 : 1;
+  if (leftHas !== rightHas) return leftHas - rightHas;
+
+  // Dentro do mesmo grupo, expiração mais próxima primeiro
   const leftExpires = left.expiresInMs ?? Number.POSITIVE_INFINITY;
   const rightExpires = right.expiresInMs ?? Number.POSITIVE_INFINITY;
-
-  if (leftExpires !== rightExpires) {
-    return leftExpires - rightExpires;
-  }
+  if (leftExpires !== rightExpires) return leftExpires - rightExpires;
 
   return sortByCreatedAtDesc(left, right);
 }
@@ -95,9 +98,10 @@ export function mapOpenOfferToListItem(item: OpenOfferItem, now = Date.now()): O
     durationMinutes: item.durationMinutes,
     expiresAt: item.expiresAt,
     expiresInMs: getRemainingMs(item.expiresAt, now),
-    statusLabel: item.status,
+    statusLabel: undefined,
     href: `/ofertas/${item.id}`,
     offerId: item.id,
+    applicationsToReviewCount: item.applicationsToReviewCount ?? 0,
   };
 }
 
