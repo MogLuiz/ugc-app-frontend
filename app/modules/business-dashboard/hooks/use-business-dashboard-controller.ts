@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useAuth } from "~/hooks/use-auth";
 import { useConversationsQuery } from "~/modules/chat/queries";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
+import { isOpenOfferExpired } from "~/modules/open-offers/helpers";
+import { useMyCompanyOpenOffersQuery } from "~/modules/open-offers/queries";
 import { getInitials } from "~/modules/contract-requests/utils";
 import type { CompanyCampaignStatus, ContractRequestItem } from "~/modules/contract-requests/types";
 import { useMarketplaceCreatorsQuery } from "~/modules/marketplace/queries";
@@ -163,6 +165,7 @@ export function useBusinessDashboardController() {
   const { user } = useAuth();
 
   const campaignsQuery = useMyCompanyContractRequestsQuery();
+  const openOffersQuery = useMyCompanyOpenOffersQuery();
   const creatorsQuery = useMarketplaceCreatorsQuery({
     page: 1,
     limit: RECOMMENDED_CREATORS_LIMIT,
@@ -170,6 +173,7 @@ export function useBusinessDashboardController() {
   const conversationsQuery = useConversationsQuery();
 
   const campaigns = campaignsQuery.data ?? [];
+  const openOffers = openOffersQuery.data?.items ?? [];
   const creators = creatorsQuery.data?.items ?? [];
   const conversations = conversationsQuery.data ?? [];
 
@@ -201,7 +205,9 @@ export function useBusinessDashboardController() {
     }));
 
     const activeCampaignCount = activeCampaignsRaw.length;
-    const pendingApplicationCount = pendingRequestsRaw.length;
+    const pendingApplicationCount = openOffers
+      .filter((o) => o.status === "OPEN" && !isOpenOfferExpired(o.expiresAt))
+      .reduce((sum, o) => sum + (o.applicationsToReviewCount ?? 0), 0);
     const upcomingRecordingCount = activeCampaignsRaw.filter(
       (item) => item.recordingInstant !== null && item.recordingInstant.getTime() > Date.now()
     ).length;
@@ -291,6 +297,7 @@ export function useBusinessDashboardController() {
     campaignsQuery.error,
     campaignsQuery.isFetching,
     campaignsQuery.isLoading,
+    openOffers,
     conversations,
     conversationsQuery.data,
     conversationsQuery.error,
