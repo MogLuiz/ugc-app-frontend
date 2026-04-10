@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { ChevronDown, Filter, Sparkles, X } from "lucide-react";
+import { AlertCircle, ChevronDown, Filter, Sparkles, X } from "lucide-react";
+import { Link } from "react-router";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
 import { Button } from "~/components/ui/button";
@@ -11,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { useOpportunitiesQuery } from "../queries";
+import { isOpportunitiesAddressRequiredError } from "../errors";
 import {
   extractWorkTypeNames,
   filterOpportunities,
@@ -54,7 +56,7 @@ export function CreatorOpportunitiesScreen() {
   const [tempFilters, setTempFilters] =
     useState<OpportunityFilters>(DEFAULT_FILTERS);
 
-  const { data, isLoading, isError, refetch } = useOpportunitiesQuery();
+  const { data, isLoading, isError, error, refetch } = useOpportunitiesQuery();
 
   const hasActiveFilters =
     filters.workType !== "all" || filters.distance !== "all";
@@ -227,6 +229,29 @@ export function CreatorOpportunitiesScreen() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <OpportunityCardSkeleton key={i} />
               ))}
+            </div>
+          ) : isError && isOpportunitiesAddressRequiredError(error) ? (
+            <div className="rounded-[28px] border border-slate-200 bg-white p-6 sm:p-8">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
+                <div className="flex items-start gap-2 sm:gap-3">
+                  <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600" />
+                  <div className="min-w-0 flex-1">
+                    <p className="mb-1 text-sm font-medium text-amber-900">
+                      Complete seu endereço
+                    </p>
+                    <p className="mb-4 text-sm text-amber-700">
+                      Você precisa completar seu endereço no perfil para
+                      visualizar oportunidades perto de você.
+                    </p>
+                    <Button
+                      asChild
+                      className="w-full bg-[#895af6] hover:bg-[#6a36d5] sm:w-auto"
+                    >
+                      <Link to="/perfil">Ir para o perfil</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
           ) : isError ? (
             <div className="rounded-[28px] border border-slate-200 bg-white p-12 text-center">
