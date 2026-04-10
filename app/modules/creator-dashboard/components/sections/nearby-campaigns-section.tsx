@@ -2,6 +2,7 @@ import { Compass } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
+import { OpportunitiesAddressPendingCard } from "~/modules/opportunities/components/opportunities-address-pending-card";
 import { OpportunityCard } from "~/modules/opportunities/components/opportunity-card";
 import { isOpportunitiesAddressRequiredError } from "~/modules/opportunities/errors";
 import { useOpportunitiesQuery } from "~/modules/opportunities/queries";
@@ -48,18 +49,7 @@ export function NearbyCampaignsSection() {
     return (
       <section className="flex flex-col gap-4">
         <SectionHeader title="Oportunidades disponíveis" />
-        <DashboardCard className="p-3 lg:p-3">
-          <p className="text-sm leading-snug text-slate-600">
-            Para ver oportunidades aqui,{" "}
-            <Link
-              to="/perfil"
-              className="font-semibold text-[#895af6] underline-offset-2 hover:underline"
-            >
-              complete seu endereço no perfil
-            </Link>
-            . O resumo completo fica em Oportunidades.
-          </p>
-        </DashboardCard>
+        <OpportunitiesAddressPendingCard />
       </section>
     );
   }

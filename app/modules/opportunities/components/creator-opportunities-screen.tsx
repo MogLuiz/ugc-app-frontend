@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { AlertCircle, ChevronDown, Filter, Sparkles, X } from "lucide-react";
-import { Link } from "react-router";
+import { ChevronDown, Filter, Sparkles, X } from "lucide-react";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
 import { Button } from "~/components/ui/button";
@@ -19,6 +18,7 @@ import {
   sortOpportunities,
 } from "../helpers";
 import type { OpportunityFilters, SortOption } from "../types";
+import { OpportunitiesAddressPendingCard } from "./opportunities-address-pending-card";
 import { OpportunityCard } from "./opportunity-card";
 
 function OpportunityCardSkeleton() {
@@ -87,8 +87,7 @@ export function CreatorOpportunitiesScreen() {
     setFiltersOpen(false);
   };
 
-  const addressBlocked =
-    isError && isOpportunitiesAddressRequiredError(error);
+  const addressBlocked = isError && isOpportunitiesAddressRequiredError(error);
 
   const SortDropdown = ({ size = "md" }: { size?: "sm" | "md" }) => (
     <DropdownMenu>
@@ -240,26 +239,7 @@ export function CreatorOpportunitiesScreen() {
               <h2 className="mb-4 text-xl font-semibold text-slate-900">
                 Oportunidades disponíveis
               </h2>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 sm:p-5">
-                <div className="flex items-start gap-2 sm:gap-3">
-                  <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600" />
-                  <div className="min-w-0 flex-1">
-                    <p className="mb-1 text-sm font-medium text-amber-900">
-                      Complete seu endereço
-                    </p>
-                    <p className="mb-4 text-sm text-amber-700">
-                      Complete seu endereço no perfil para visualizar
-                      oportunidades perto de você.
-                    </p>
-                    <Button
-                      asChild
-                      className="w-full bg-[#895af6] hover:bg-[#6a36d5] sm:w-auto"
-                    >
-                      <Link to="/perfil">→ Ir para o perfil</Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <OpportunitiesAddressPendingCard />
             </div>
           ) : isError ? (
             <div className="rounded-[28px] border border-slate-200 bg-white p-12 text-center">
