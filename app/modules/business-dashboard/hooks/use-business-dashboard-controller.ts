@@ -230,7 +230,7 @@ export function useBusinessDashboardController() {
     return {
       greetingName: getGreetingName(companyName),
       subtitle:
-        "Acompanhe campanhas, creators e oportunidades próximas. Sua curadoria editorial começa aqui.",
+        "Acompanhe campanhas, creators e oportunidades próximas.",
       metrics: [
         {
           id: "pending-applications",
