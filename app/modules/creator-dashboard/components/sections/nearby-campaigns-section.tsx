@@ -33,7 +33,7 @@ export function NearbyCampaignsSection() {
     return (
       <section className="flex flex-col gap-4">
         <SectionHeader title="Oportunidades disponíveis" />
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 min-[1134px]:grid-cols-2">
           {Array.from({ length: 1 }).map((_, i) => (
             <DashboardCard key={i} className="animate-pulse p-5">
               <div className="h-4 w-40 rounded bg-slate-200" />
@@ -119,7 +119,7 @@ export function NearbyCampaignsSection() {
         ctaLabel="Ver todas"
         ctaTo="/oportunidades"
       />
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 min-[1134px]:grid-cols-2">
         {items.map((opp) => (
           <OpportunityCard key={opp.id} opportunity={opp} />
         ))}

@@ -39,13 +39,11 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
       to={`/oportunidades/${opportunity.id}`}
       className="block w-full min-w-0 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:p-6"
     >
-      {/* Header: título + cache */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-black tracking-[-0.02em] text-slate-900 text-[#6a36d5]">
-            {opportunity.jobType?.name ?? "Oportunidade"}
-          </h3>
-        </div>
+      {/* Header: título + cache (grid evita sobreposição quando a coluna fica estreita) */}
+      <div className="grid items-start gap-3 [grid-template-columns:minmax(0,1fr)_auto]">
+        <h3 className="min-w-0 break-words text-lg font-black tracking-[-0.02em] text-[#6a36d5]">
+          {opportunity.jobType?.name ?? "Oportunidade"}
+        </h3>
 
         <div className="shrink-0 text-right">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
