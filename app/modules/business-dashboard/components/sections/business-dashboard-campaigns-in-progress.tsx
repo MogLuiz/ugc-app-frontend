@@ -1,10 +1,25 @@
-import { CalendarDays, Clock3, MapPin, MessageCircle, Timer } from "lucide-react";
-import { useNavigate } from "react-router";
-import { EmptyState } from "~/components/ui/empty-state";
+import { CalendarDays, Clock3, MapPin, MessageCircle, Timer, Video } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { Button } from "~/components/ui/button";
+import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
 import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/company-campaigns-location-state";
 import { cn } from "~/lib/utils";
 import type { CompanyDashboardCampaignItem, OperationalStatusVariant } from "../../types";
 import { DashboardCard, SectionHeader, SectionMessage, SectionSkeleton } from "./section-primitives";
+
+function CampaignsInProgressEmptyIllustration() {
+  return (
+    <div
+      className="relative flex size-8 items-center justify-center rounded-xl bg-[#f0ebff]"
+      aria-hidden
+    >
+      <CalendarDays className="size-3.5 text-[#6a36d5]" />
+      <span className="absolute -bottom-0.5 -right-0.5 flex size-3 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-slate-100/90">
+        <Video className="size-2 text-[#6a36d5]" aria-hidden />
+      </span>
+    </div>
+  );
+}
 
 function OperationalBadge({
   label,
@@ -61,7 +76,7 @@ export function BusinessDashboardCampaignsInProgress({
   const navigate = useNavigate();
 
   return (
-    <DashboardCard>
+    <section className="flex flex-col gap-4">
       <SectionHeader
         title="Campanhas em andamento"
         description="Próximas gravações e logística."
@@ -69,34 +84,66 @@ export function BusinessDashboardCampaignsInProgress({
         ctaTo="/ofertas"
       />
 
-      <div className="mt-5">
-        {isLoading ? <SectionSkeleton rows={3} /> : null}
+      {isLoading ? <SectionSkeleton rows={3} /> : null}
 
-        {!isLoading && errorMessage ? (
-          <SectionMessage message={errorMessage} tone="error" />
-        ) : null}
+      {!isLoading && errorMessage ? (
+        <SectionMessage message={errorMessage} tone="error" />
+      ) : null}
 
-        {!isLoading && !errorMessage && items.length === 0 ? (
-          hasCampaignData ? (
-            <EmptyState
+      {!isLoading && !errorMessage && items.length === 0 ? (
+        <DashboardCard shadowTone="neutral" className="p-3 lg:p-3">
+          {hasCampaignData ? (
+            <MobileEmptyState
+              density="compact"
+              variant="no-data"
+              illustration={<CampaignsInProgressEmptyIllustration />}
               title="Nenhuma campanha ativa"
               description="Quando uma campanha for aceita ou entrar em andamento, ela aparecerá aqui."
+              actions={
+                <div className="flex justify-center">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
+                  >
+                    <Link to="/ofertas">Ver ofertas</Link>
+                  </Button>
+                </div>
+              }
             />
           ) : (
-            <EmptyState
+            <MobileEmptyState
+              density="compact"
+              variant="no-data"
+              illustration={<CampaignsInProgressEmptyIllustration />}
               title="Você ainda não possui campanhas"
               description="Use o marketplace para encontrar creators e iniciar novas solicitações."
+              actions={
+                <div className="flex justify-center">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
+                  >
+                    <Link to="/marketplace">Explorar marketplace</Link>
+                  </Button>
+                </div>
+              }
             />
-          )
-        ) : null}
+          )}
+        </DashboardCard>
+      ) : null}
 
-        {!isLoading && !errorMessage && items.length > 0 ? (
-          <div className="space-y-4">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className="relative rounded-[24px] border border-slate-100 bg-white p-4 lg:p-5"
-              >
+      {!isLoading && !errorMessage && items.length > 0 ? (
+        <div className="space-y-4">
+          {items.map((item) => (
+            <DashboardCard
+              key={item.id}
+              shadowTone="neutral"
+              className="relative p-4 lg:p-5"
+            >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="flex min-w-0 gap-4">
                     <div className="relative shrink-0">
@@ -179,11 +226,10 @@ export function BusinessDashboardCampaignsInProgress({
                     </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    </DashboardCard>
+            </DashboardCard>
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }

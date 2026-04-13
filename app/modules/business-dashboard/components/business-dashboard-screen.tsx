@@ -37,8 +37,6 @@ export function BusinessDashboardScreen() {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(300px,1fr)] lg:gap-8">
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
-              <BusinessDashboardExploreHero />
-
               <BusinessDashboardPendingRequests
                 items={controller.viewModel.pendingRequests}
                 isLoading={controller.viewModel.isCampaignsLoading}
@@ -60,6 +58,8 @@ export function BusinessDashboardScreen() {
                   controller.actions.getCreatorFallbackInitials
                 }
               />
+
+              <BusinessDashboardExploreHero />
             </div>
 
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
