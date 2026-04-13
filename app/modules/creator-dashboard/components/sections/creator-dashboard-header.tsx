@@ -21,13 +21,6 @@ export function CreatorDashboardHeader({
           </div>
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
             <Link
-              to="/mapa"
-              className="inline-flex h-12 items-center gap-2 rounded-full bg-[#6a36d5] px-6 text-sm font-bold text-white shadow-md transition-colors hover:bg-[#5b2fc4]"
-            >
-              <MapPin className="size-4" />
-              Oportunidades no mapa
-            </Link>
-            <Link
               to="/chat"
               className="inline-flex h-12 items-center gap-2 rounded-full border border-[rgba(106,54,213,0.25)] px-6 text-sm font-semibold text-[#6a36d5] transition-colors hover:bg-[rgba(106,54,213,0.05)]"
             >

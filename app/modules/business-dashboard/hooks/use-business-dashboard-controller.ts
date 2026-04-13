@@ -233,19 +233,19 @@ export function useBusinessDashboardController() {
         "Acompanhe campanhas, creators e oportunidades próximas. Sua curadoria editorial começa aqui.",
       metrics: [
         {
-          id: "active-campaigns",
-          label: "Campanhas ativas",
-          value: activeCampaignCount,
-          subtitle: "Aceitas ou em andamento",
-          tone: "default",
-          href: "/ofertas",
-        },
-        {
           id: "pending-applications",
           label: "Candidaturas pendentes",
           value: pendingApplicationCount,
           subtitle: pendingApplicationCount > 0 ? "Creators esperando sua decisão" : "Nenhuma pendência",
           tone: pendingApplicationCount > 0 ? "highlight" : "default",
+          href: "/ofertas",
+        },
+        {
+          id: "active-campaigns",
+          label: "Campanhas ativas",
+          value: activeCampaignCount,
+          subtitle: "Aceitas ou em andamento",
+          tone: "default",
           href: "/ofertas",
         },
         {
