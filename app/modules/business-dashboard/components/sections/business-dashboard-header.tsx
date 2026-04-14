@@ -17,9 +17,11 @@ export function BusinessDashboardHeader({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <h1 className="text-3xl font-black leading-tight tracking-[-0.75px] text-[#2c2f30]">
-              Resumo do dia
+              Painel da empresa
             </h1>
-            <p className="mt-2 max-w-xl text-base text-[#595c5d]">{subtitle}</p>
+            <p className="mt-2 max-w-xl text-base text-[#595c5d]">
+              Campanhas, creators e oportunidades.
+            </p>
           </div>
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
             <Link

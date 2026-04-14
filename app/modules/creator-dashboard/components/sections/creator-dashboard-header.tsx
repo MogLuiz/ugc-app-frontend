@@ -13,10 +13,10 @@ export function CreatorDashboardHeader({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 flex-1">
             <h1 className="text-3xl font-black leading-tight tracking-[-0.75px] text-[#2c2f30]">
-              Bem-vindo, {creatorName}! 👋
+              Início
             </h1>
             <p className="mt-2 max-w-xl text-base text-[#595c5d]">
-              Veja suas campanhas, convites e oportunidades perto de você.
+              Convites, campanhas e oportunidades.
             </p>
           </div>
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap lg:justify-end">
