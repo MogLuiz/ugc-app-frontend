@@ -129,6 +129,7 @@ function mapCampaignItem(item: ContractRequestItem): CompanyDashboardCampaignIte
     timeLine,
     durationLine,
     dayUrgency: getDayUrgencyBanner(recordingInstant),
+    progressSummary: null,
     source: item,
   };
 }
@@ -178,12 +179,38 @@ export function useBusinessDashboardController() {
   const conversations = conversationsQuery.data ?? [];
 
   const viewModel = useMemo<CompanyDashboardViewModel>(() => {
+    // Compute per-job progress summary (confirmed vs pending count)
+    const jobProgressMap = new Map<string, { confirmed: number; pending: number }>();
+    for (const item of campaigns) {
+      const jobId = item.job?.title ?? "unknown";
+      const status = getCompanyStatus(item);
+      if (!jobProgressMap.has(jobId)) jobProgressMap.set(jobId, { confirmed: 0, pending: 0 });
+      const entry = jobProgressMap.get(jobId)!;
+      if (status === "ACCEPTED" || status === "IN_PROGRESS") entry.confirmed += 1;
+      else if (status === "PENDING") entry.pending += 1;
+    }
+
+    function buildProgressSummary(item: ReturnType<typeof mapCampaignItem>): string | null {
+      const jobId = item.source.job?.title ?? "unknown";
+      const entry = jobProgressMap.get(jobId);
+      if (!entry) return null;
+      const { confirmed, pending } = entry;
+      if (confirmed === 0 && pending === 0) return null;
+      const parts: string[] = [];
+      if (confirmed > 0) parts.push(`${confirmed} ${confirmed === 1 ? "confirmado" : "confirmados"}`);
+      if (pending > 0) parts.push(`${pending} aguardando resposta`);
+      return parts.join(" · ");
+    }
+
     const activeCampaignsRaw = campaigns
       .filter((item) => {
         const status = getCompanyStatus(item);
         return status === "ACCEPTED" || status === "IN_PROGRESS";
       })
-      .map(mapCampaignItem)
+      .map((item) => {
+        const mapped = mapCampaignItem(item);
+        return { ...mapped, progressSummary: buildProgressSummary(mapped) };
+      })
       .sort(compareActiveCampaigns);
 
     const pendingRequestsRaw = campaigns
@@ -241,6 +268,14 @@ export function useBusinessDashboardController() {
           href: "/ofertas",
         },
         {
+          id: "unread-messages",
+          label: "Mensagens não lidas",
+          value: unreadMessageCount,
+          subtitle: unreadMessageCount > 0 ? "Nova atividade" : "Tudo em dia",
+          tone: unreadMessageCount > 0 ? "highlight" : "default",
+          href: "/chat",
+        },
+        {
           id: "active-campaigns",
           label: "Campanhas ativas",
           value: activeCampaignCount,
@@ -255,14 +290,6 @@ export function useBusinessDashboardController() {
           subtitle: "Agendadas nos próximos dias",
           tone: "default",
           href: "/agenda",
-        },
-        {
-          id: "unread-messages",
-          label: "Mensagens não lidas",
-          value: unreadMessageCount,
-          subtitle: unreadMessageCount > 0 ? "Nova atividade" : "Tudo em dia",
-          tone: unreadMessageCount > 0 ? "highlight" : "default",
-          href: "/chat",
         },
       ],
       activeCampaigns: activeCampaignsRaw,

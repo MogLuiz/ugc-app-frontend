@@ -22,7 +22,7 @@ export function BusinessDashboardRecommendedCreators({
     <DashboardCard>
       <SectionHeader
         title="Criadores recomendados"
-        description="Sugestões do marketplace."
+        description="Creators que combinam com suas campanhas."
         ctaLabel="Ver todos"
         ctaTo="/marketplace"
       />

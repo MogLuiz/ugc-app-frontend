@@ -144,7 +144,7 @@ export function BusinessDashboardCampaignsInProgress({
               shadowTone="neutral"
               className="relative p-4 lg:p-5"
             >
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex min-w-0 gap-4">
                     <div className="relative shrink-0">
                       {item.dayUrgency ? <UrgencyRibbon urgency={item.dayUrgency} /> : null}
@@ -182,6 +182,9 @@ export function BusinessDashboardCampaignsInProgress({
                         />
                       </div>
                       <p className="mt-1 text-sm font-medium text-[#6a36d5]">{item.creatorName}</p>
+                      {item.progressSummary ? (
+                        <p className="mt-1 text-xs text-[#595c5d]/80">{item.progressSummary}</p>
+                      ) : null}
 
                       <ul className="mt-4 grid grid-cols-1 gap-2 text-sm text-[#595c5d] sm:grid-cols-2">
                         <li className="flex items-center gap-2">
@@ -204,7 +207,7 @@ export function BusinessDashboardCampaignsInProgress({
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center lg:flex-col">
+                  <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center lg:w-fit lg:flex-col lg:items-stretch">
                     <button
                       type="button"
                       onClick={() =>
@@ -212,14 +215,14 @@ export function BusinessDashboardCampaignsInProgress({
                           state: { openContractRequestId: item.id } satisfies CompanyCampaignsLocationState,
                         })
                       }
-                      className="rounded-[32px] border border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-bold text-[#2c2f30] transition hover:bg-slate-100"
+                      className="rounded-[32px] border border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-bold text-[#2c2f30] transition hover:bg-slate-100 lg:w-full lg:cursor-pointer"
                     >
                       Ver campanha
                     </button>
                     <button
                       type="button"
                       onClick={() => navigate(`/chat?contractRequestId=${item.id}`)}
-                      className="flex items-center justify-center gap-2 rounded-[32px] bg-[#6a36d5] px-5 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#5b2fc4]"
+                      className="flex items-center justify-center gap-2 rounded-[32px] bg-[#6a36d5] px-5 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#5b2fc4] lg:w-full lg:cursor-pointer"
                     >
                       <MessageCircle className="size-4" aria-hidden />
                       Chat

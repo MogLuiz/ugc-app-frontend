@@ -35,6 +35,7 @@ export type CompanyDashboardCampaignItem = {
   timeLine: string;
   durationLine: string;
   dayUrgency: "HOJE" | "AMANHÃ" | null;
+  progressSummary: string | null;
   source: ContractRequestItem;
 };
 

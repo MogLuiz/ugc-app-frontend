@@ -136,7 +136,7 @@ export function BusinessDashboardPendingRequests({
                   }
                   className="min-h-11 flex-1 rounded-[32px] bg-[#6a36d5] py-3 text-center text-xs font-bold text-white shadow-sm transition hover:bg-[#5b2fc4]"
                 >
-                  Aprovar / Revisar
+                  Ver candidatura
                 </button>
                 <button
                   type="button"

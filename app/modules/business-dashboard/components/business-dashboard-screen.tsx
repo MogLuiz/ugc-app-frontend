@@ -36,6 +36,7 @@ export function BusinessDashboardScreen() {
           <BusinessDashboardStats stats={controller.viewModel.metrics} />
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(300px,1fr)] lg:gap-8">
+            {/* Left column — operational content */}
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
               <BusinessDashboardPendingRequests
                 items={controller.viewModel.pendingRequests}
@@ -62,11 +63,8 @@ export function BusinessDashboardScreen() {
               <BusinessDashboardExploreHero />
             </div>
 
+            {/* Right column — discovery + activity (Recommended first) */}
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
-              <BusinessDashboardMapNearby
-                highlights={controller.viewModel.mapHighlights}
-              />
-
               <BusinessDashboardRecommendedCreators
                 items={controller.viewModel.recommendedCreators}
                 isLoading={controller.viewModel.isRecommendedLoading}
@@ -78,6 +76,10 @@ export function BusinessDashboardScreen() {
                 getCreatorFallbackInitials={
                   controller.actions.getCreatorFallbackInitials
                 }
+              />
+
+              <BusinessDashboardMapNearby
+                highlights={controller.viewModel.mapHighlights}
               />
 
               <BusinessDashboardRecentActivity
