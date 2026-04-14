@@ -42,15 +42,14 @@ export function BusinessDashboardHeader({
 
       {/* Mobile greeting section (below the AppHeader) */}
       <div className="lg:hidden">
-        <p className="text-sm font-medium text-[#595c5d]">
-          Bem-vindo de volta,
-        </p>
-        <h1 className="text-[28px] font-extrabold leading-tight tracking-[-0.75px] text-[#2c2f30]">
-          {greetingName}
-        </h1>
-        <p className="mt-2 text-sm leading-relaxed text-[#595c5d]">
-          {subtitle}
-        </p>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-xl font-semibold text-[#2c2f30]">
+            Painel da empresa
+          </h1>
+          <p className="text-sm text-slate-500">
+            Campanhas, creators e oportunidades.
+          </p>
+        </div>
       </div>
     </>
   );
