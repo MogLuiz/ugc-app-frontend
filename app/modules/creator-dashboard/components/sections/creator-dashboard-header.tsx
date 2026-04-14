@@ -32,13 +32,13 @@ export function CreatorDashboardHeader({
       </div>
 
       {/* Mobile screen title (below AppHeader) */}
-      <section className="mt-2 lg:hidden">
-        <h2 className="text-xl font-black tracking-[-0.5px] text-[#2c2f30]">
-          Dashboard
-        </h2>
-        <p className="mt-1 text-sm leading-relaxed text-[#595c5d]">
-          Acompanhe convites, campanhas e oportunidades perto de você.
-        </p>
+      <section className="lg:hidden">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-xl font-semibold text-[#2c2f30]">Início</h2>
+          <p className="text-sm leading-snug text-slate-500">
+            Convites, campanhas e oportunidades.
+          </p>
+        </div>
       </section>
     </>
   );
