@@ -18,10 +18,8 @@ import { CompanyPortfolioSection } from "./sections/company-portfolio-section";
 // MobileStickyFooter — fixed above BusinessBottomNav
 // ─────────────────────────────────────────────────────────────────────────────
 
-// BusinessBottomNav is taller than CreatorBottomNav due to the size-12 Criar button
-// (~88px vs ~58px), so the offset needs to be larger than the creator's 4rem.
 const MOBILE_BOTTOM_NAV_OFFSET =
-  "calc(5.5rem + env(safe-area-inset-bottom, 0px))" as const;
+  "calc(4rem + env(safe-area-inset-bottom, 0px))" as const;
 
 function MobileStickyFooter({
   profileProgress,

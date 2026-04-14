@@ -12,8 +12,13 @@ type NavItem = {
 
 const BUSINESS_NAV_ITEMS: NavItem[] = [
   { id: "inicio", label: "Início", icon: Home, to: "/dashboard" },
-  { id: "ofertas", label: "Ofertas", icon: Briefcase, to: "/ofertas" },
-  { id: "marketplace", label: "Marketplace", icon: Compass, to: "/marketplace" },
+  { id: "ofertas", label: "Campanhas", icon: Briefcase, to: "/ofertas" },
+  {
+    id: "marketplace",
+    label: "Marketplace",
+    icon: Compass,
+    to: "/marketplace",
+  },
   { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" },
   { id: "perfil", label: "Perfil", icon: User, to: "/perfil" },
 ];
@@ -32,9 +37,11 @@ export function BusinessBottomNav() {
           const Icon = item.icon;
           const isActive =
             item.to === "/marketplace"
-              ? location.pathname === "/marketplace" || location.pathname.startsWith("/marketplace/")
+              ? location.pathname === "/marketplace" ||
+                location.pathname.startsWith("/marketplace/")
               : item.to === "/ofertas"
-                ? location.pathname === "/ofertas" || location.pathname.startsWith("/ofertas/")
+                ? location.pathname === "/ofertas" ||
+                  location.pathname.startsWith("/ofertas/")
                 : location.pathname === item.to;
 
           return (
@@ -52,7 +59,12 @@ export function BusinessBottomNav() {
                 )}
               >
                 <Icon className="size-5" />
-                <span className={cn("text-[10px]", isActive ? "font-bold" : "font-medium")}>
+                <span
+                  className={cn(
+                    "text-[10px]",
+                    isActive ? "font-bold" : "font-medium",
+                  )}
+                >
                   {item.label}
                 </span>
               </div>

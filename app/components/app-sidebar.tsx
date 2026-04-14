@@ -67,7 +67,7 @@ const SIDEBAR_CONFIG: Record<
       },
       {
         id: "ofertas",
-        label: "Ofertas",
+        label: "Campanhas",
         icon: Briefcase,
         to: "/ofertas",
       },
@@ -283,8 +283,7 @@ export function AppSidebar({ variant }: AppSidebarProps) {
 }
 
 function getUserDisplayData(user: AuthUser) {
-  const displayName =
-    user.profile?.name ?? user.name ?? "Usuário";
+  const displayName = user.profile?.name ?? user.name ?? "Usuário";
   const initials = displayName
     .split(" ")
     .slice(0, 2)
