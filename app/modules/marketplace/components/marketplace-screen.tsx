@@ -1,3 +1,5 @@
+import { MapPin } from "lucide-react";
+import { Link } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useMarketplaceController } from "../hooks/use-marketplace-controller";
@@ -85,6 +87,13 @@ export function MarketplaceScreen() {
                     {viewModel.totalCreators === 1 ? "" : "es"} encontrado
                     {viewModel.totalCreators === 1 ? "" : "s"}
                   </p>
+                  <Link
+                    to="/mapa"
+                    className="flex items-center gap-1.5 rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-500 hover:bg-slate-50 lg:hidden"
+                  >
+                    <MapPin className="size-3.5" />
+                    Ver no mapa
+                  </Link>
                 </div>
 
                 <section className="hidden gap-6 lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6 xl:grid-cols-4">

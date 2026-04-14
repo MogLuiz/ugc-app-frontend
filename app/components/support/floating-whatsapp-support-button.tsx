@@ -31,10 +31,6 @@ export function FloatingWhatsAppSupportButton({
   context: SupportWhatsAppContext;
 }) {
   const href = getSupportWhatsAppUrl(context);
-  const mobileBottomClass =
-    context === "creator"
-      ? "max-lg:bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))]"
-      : "max-lg:bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))]";
 
   return (
     <a
@@ -47,8 +43,7 @@ export function FloatingWhatsAppSupportButton({
         "hover:bg-white hover:shadow-lg",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6a36d5]",
         "active:scale-[0.97] active:shadow-md",
-        "right-4 lg:bottom-6 lg:right-6 lg:px-4 lg:py-3",
-        mobileBottomClass,
+        "right-4 max-lg:bottom-[calc(4.25rem+env(safe-area-inset-bottom,0px))] lg:bottom-6 lg:right-6 lg:px-4 lg:py-3",
       )}
     >
       <WhatsAppGlyph className="size-5 shrink-0 text-[#25D366]" />
