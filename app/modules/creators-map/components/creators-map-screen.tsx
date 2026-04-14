@@ -259,7 +259,10 @@ export function CreatorsMapScreen() {
             className="h-full w-full"
             creators={viewModel.creators}
             selectedCreatorId={viewModel.selectedCreatorId}
-            onSelectCreator={actions.setSelectedCreatorId}
+            onSelectCreator={(id) => {
+              actions.setSelectedCreatorId(id);
+              if (mobileSheetState === "collapsed") setMobileSheetState("medium");
+            }}
             distanceFilter={viewModel.distanceFilter}
             companyLatLng={viewModel.companyLatLng}
             onSearchInArea={(bounds) => actions.setBoundsFilter(bounds)}

@@ -462,22 +462,20 @@ export function GoogleCreatorsMap({
           : 8;
         const usableBottom = mapH - bottomSafeInset;
 
-        const markerTop = point.y - MARKER_H - MARKER_OFFSET_Y;
-        const markerBottom = point.y + ARROW_GAP + 8;
-        const spaceAbove = markerTop - topSafeInset;
-        const spaceBelow = usableBottom - markerBottom;
+        // Position card beside the avatar (right side, flip to left if needed)
+        const MARKER_AVATAR_SIZE = 48;
+        const MARKER_TOTAL_H = 66;
+        const SIDE_GAP = 10;
+        const avatarCenterY = point.y - MARKER_TOTAL_H + MARKER_AVATAR_SIZE / 2;
+        const avatarHalfW = MARKER_AVATAR_SIZE / 2;
 
-        let top =
-          spaceAbove >= cardH || spaceAbove >= spaceBelow
-            ? markerTop - cardH
-            : markerBottom;
+        let left = point.x + avatarHalfW + SIDE_GAP;
+        if (left + cardW + horizontalPadding > mapW) {
+          left = point.x - avatarHalfW - SIDE_GAP - cardW;
+        }
+        left = Math.max(horizontalPadding, Math.min(left, mapW - cardW - horizontalPadding));
 
-        let left = point.x - cardW / 2;
-        left = Math.max(
-          horizontalPadding,
-          Math.min(left, mapW - cardW - horizontalPadding),
-        );
-
+        let top = avatarCenterY - cardH / 2;
         top = Math.max(topSafeInset, Math.min(top, usableBottom - cardH));
 
         this.el.style.left = `${left}px`;
