@@ -19,7 +19,7 @@ export function BusinessDashboardRecommendedCreators({
   getCreatorFallbackInitials: (name: string) => string;
 }) {
   return (
-    <DashboardCard>
+    <section className="flex flex-col gap-4">
       <SectionHeader
         title="Criadores recomendados"
         description="Creators que combinam com suas campanhas."
@@ -27,15 +27,15 @@ export function BusinessDashboardRecommendedCreators({
         ctaTo="/marketplace"
       />
 
-      <div className="mt-5">
-        {isLoading ? <SectionSkeleton rows={3} /> : null}
+      {isLoading ? <SectionSkeleton rows={3} /> : null}
 
-        {!isLoading && errorMessage ? (
-          <SectionMessage message={errorMessage} tone="error" />
-        ) : null}
+      {!isLoading && errorMessage ? (
+        <SectionMessage message={errorMessage} tone="error" />
+      ) : null}
 
-        {!isLoading && !errorMessage && items.length === 0 ? (
-          hasRecommendedCreators ? (
+      {!isLoading && !errorMessage && items.length === 0 ? (
+        <DashboardCard shadowTone="neutral" className="p-3 lg:p-3">
+          {hasRecommendedCreators ? (
             <EmptyState
               title="Nenhum creator para exibir"
               description="Abra o marketplace para ver mais opções."
@@ -45,15 +45,17 @@ export function BusinessDashboardRecommendedCreators({
               title="Sem creators recomendados"
               description="Quando houver creators disponíveis, eles aparecerão aqui."
             />
-          )
-        ) : null}
+          )}
+        </DashboardCard>
+      ) : null}
 
-        {!isLoading && !errorMessage && items.length > 0 ? (
-          <div className="flex gap-3 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
+      {!isLoading && !errorMessage && items.length > 0 ? (
+        <div className="lg:rounded-2xl lg:border lg:border-slate-100 lg:bg-white lg:p-4 lg:shadow-sm">
+          <div className="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory lg:flex-col lg:overflow-visible lg:snap-none">
             {items.map((creator) => (
               <div
                 key={creator.id}
-                className="min-w-[280px] shrink-0 rounded-2xl border border-slate-100 p-4 lg:min-w-0"
+                className="w-[280px] shrink-0 snap-start rounded-2xl border border-slate-100 bg-white p-4 lg:w-auto"
               >
                 <div className="flex items-start gap-3">
                   {creator.avatarUrl ? (
@@ -86,8 +88,8 @@ export function BusinessDashboardRecommendedCreators({
               </div>
             ))}
           </div>
-        ) : null}
-      </div>
-    </DashboardCard>
+        </div>
+      ) : null}
+    </section>
   );
 }
