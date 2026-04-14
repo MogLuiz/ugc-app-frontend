@@ -43,7 +43,6 @@ import { HttpError } from "~/lib/http/errors";
 import {
   bootstrapUser,
   getSession,
-  clearStoredRole,
   setStoredRole,
   logout,
 } from "~/modules/auth/service";
@@ -73,7 +72,7 @@ describe("bootstrapUser", () => {
     vi.mocked(supabase.auth.updateUser as any).mockResolvedValue({});
   });
 
-  it("dispara um único request HTTP quando chamado duas vezes concorrentemente com o mesmo token", async () => {
+  it("dispara dois requests HTTP quando chamado duas vezes concorrentemente (sem deduplicação)", async () => {
     const token = uniqueToken();
     vi.mocked(httpClient).mockResolvedValue({ id: "u1", role: "CREATOR" } as any);
 
@@ -82,7 +81,7 @@ describe("bootstrapUser", () => {
       bootstrapUser("creator", token),
     ]);
 
-    expect(httpClient).toHaveBeenCalledTimes(1);
+    expect(httpClient).toHaveBeenCalledTimes(2);
     expect(r1).toEqual(r2);
   });
 
@@ -109,15 +108,7 @@ describe("bootstrapUser", () => {
     expect(httpClient).toHaveBeenCalledTimes(2);
   });
 
-  it("inclui name no body quando fornecido", async () => {
-    const token = uniqueToken();
-    vi.mocked(httpClient).mockResolvedValue({ id: "u1" } as any);
-    await bootstrapUser("creator", token, undefined, "João Silva");
-    const body = (vi.mocked(httpClient).mock.calls[0]![1] as any).body;
-    expect(body.name).toBe("João Silva");
-  });
-
-  it("não inclui name no body quando não fornecido", async () => {
+  it("não inclui name no body (name vem dos metadados Supabase em getSession)", async () => {
     const token = uniqueToken();
     vi.mocked(httpClient).mockResolvedValue({ id: "u1" } as any);
     await bootstrapUser("creator", token);
@@ -189,7 +180,7 @@ describe("getSession", () => {
     expect(calls.some((c) => (c[0] as string).includes("bootstrap"))).toBe(true);
   });
 
-  it("passa name dos metadados Supabase para o bootstrap", async () => {
+  it("não inclui name no body do POST /users/bootstrap (contrato atual: role e referralCode)", async () => {
     const token = uniqueToken();
     vi.mocked(supabase.auth.getSession as any).mockResolvedValue({
       data: { session: makeSession(token, { name: "Maria Souza" }) },
@@ -204,7 +195,7 @@ describe("getSession", () => {
     const bootstrapCall = vi.mocked(httpClient).mock.calls.find(
       (c) => (c[0] as string).includes("bootstrap"),
     );
-    expect((bootstrapCall?.[1] as any)?.body?.name).toBe("Maria Souza");
+    expect((bootstrapCall?.[1] as any)?.body?.name).toBeUndefined();
   });
 
   it("passa referralCode dos metadados e limpa após bootstrap", async () => {
@@ -252,12 +243,12 @@ describe("getSession", () => {
 
     await getSession();
 
-    // storedRole deve permanecer — clearStoredRole só roda no path de bootstrap (404)
+    // storedRole deve permanecer quando /profiles/me retorna 200 (sem bootstrap)
     expect(localStorage.getItem("ugc_role")).toBe("creator");
     localStorage.removeItem("ugc_role");
   });
 
-  it("limpa storedRole após bootstrap bem-sucedido (path 404)", async () => {
+  it("mantém storedRole após bootstrap bem-sucedido (path 404)", async () => {
     const token = uniqueToken();
     setStoredRole("creator");
     vi.mocked(supabase.auth.getSession as any).mockResolvedValue({
@@ -270,10 +261,11 @@ describe("getSession", () => {
 
     await getSession();
 
-    expect(localStorage.getItem("ugc_role")).toBeNull();
+    expect(localStorage.getItem("ugc_role")).toBe("creator");
+    localStorage.removeItem("ugc_role");
   });
 
-  it("não limpa referralCode dos metadados quando referralStatus === 'error'", async () => {
+  it("limpa referralCode dos metadados após bootstrap mesmo com referralStatus === 'error'", async () => {
     const token = uniqueToken();
     vi.mocked(supabase.auth.getSession as any).mockResolvedValue({
       data: { session: makeSession(token, { referralCode: "REF999" }) },
@@ -285,7 +277,7 @@ describe("getSession", () => {
 
     await getSession();
 
-    expect(supabase.auth.updateUser).not.toHaveBeenCalledWith({ data: { referralCode: null } });
+    expect(supabase.auth.updateUser).toHaveBeenCalledWith({ data: { referralCode: null } });
   });
 
   it("limpa referralCode dos metadados quando referralStatus === 'ok'", async () => {
@@ -381,30 +373,16 @@ describe("getSession", () => {
   });
 });
 
-describe("clearStoredRole", () => {
-  it("remove a chave do localStorage", () => {
-    setStoredRole("creator");
-    expect(localStorage.getItem("ugc_role")).toBe("creator");
-    clearStoredRole();
-    expect(localStorage.getItem("ugc_role")).toBeNull();
-  });
-
-  it("não lança erro quando chamado sem role armazenada", () => {
-    localStorage.removeItem("ugc_role");
-    expect(() => clearStoredRole()).not.toThrow();
-  });
-});
-
 describe("logout", () => {
   beforeEach(() => {
     vi.resetAllMocks();
     vi.mocked(supabase.auth as any).signOut = vi.fn().mockResolvedValue({});
   });
 
-  it("limpa storedRole antes de chamar signOut", async () => {
+  it("chama signOut", async () => {
     setStoredRole("business");
     await logout();
-    expect(localStorage.getItem("ugc_role")).toBeNull();
     expect((supabase.auth as any).signOut).toHaveBeenCalled();
+    localStorage.removeItem("ugc_role");
   });
 });

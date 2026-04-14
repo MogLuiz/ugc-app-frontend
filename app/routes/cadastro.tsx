@@ -127,7 +127,10 @@ export default function AuthRegisterRoute() {
 
       if (signUpData.session) {
         setStoredRole(role);
-        await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
+        await bootstrapMutation.mutateAsync({
+          role,
+          referralCode: referralCodeFromUrl,
+        });
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
