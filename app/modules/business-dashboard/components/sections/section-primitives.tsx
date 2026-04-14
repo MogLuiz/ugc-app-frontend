@@ -18,7 +18,7 @@ export function SectionHeader({
   addon?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="flex items-start justify-between gap-4">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-lg font-black tracking-[-0.3px] text-[#2c2f30] lg:text-xl">{title}</h2>

@@ -14,6 +14,9 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/.well-known/appspecific/com.chrome.devtools.json": {
+    params: {};
+  };
   "/login": {
     params: {};
   };
@@ -57,6 +60,9 @@ type Pages = {
   "/ofertas": {
     params: {};
   };
+  "/ofertas/criar": {
+    params: {};
+  };
   "/ofertas/:id": {
     params: {
       "id": string;
@@ -82,22 +88,28 @@ type Pages = {
   "/configuracoes": {
     params: {};
   };
-  "/termos": {
+  "/oportunidades": {
     params: {};
   };
-  "/politica": {
-    params: {};
+  "/oportunidades/:id": {
+    params: {
+      "id": string;
+    };
   };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/termos" | "/politica";
+    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id";
+  };
+  "routes/well-known.chrome-devtools.tsx": {
+    id: "routes/well-known.chrome-devtools";
+    page: "/.well-known/appspecific/com.chrome.devtools.json";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/termos" | "/politica";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -155,6 +167,10 @@ type RouteFiles = {
     id: "routes/ofertas";
     page: "/ofertas";
   };
+  "routes/ofertas.criar.tsx": {
+    id: "routes/ofertas.criar";
+    page: "/ofertas/criar";
+  };
   "routes/ofertas.$id.tsx": {
     id: "routes/ofertas.$id";
     page: "/ofertas/:id";
@@ -183,18 +199,19 @@ type RouteFiles = {
     id: "routes/configuracoes";
     page: "/configuracoes";
   };
-  "routes/termos.tsx": {
-    id: "routes/termos";
-    page: "/termos";
+  "routes/oportunidades.tsx": {
+    id: "routes/oportunidades";
+    page: "/oportunidades";
   };
-  "routes/politica.tsx": {
-    id: "routes/politica";
-    page: "/politica";
+  "routes/oportunidades.$id.tsx": {
+    id: "routes/oportunidades.$id";
+    page: "/oportunidades/:id";
   };
 };
 
 type RouteModules = {
   "root": typeof import("./app/root.tsx");
+  "routes/well-known.chrome-devtools": typeof import("./app/routes/well-known.chrome-devtools.tsx");
   "routes/_app-layout": typeof import("./app/routes/_app-layout.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/login": typeof import("./app/routes/login.tsx");
@@ -210,6 +227,7 @@ type RouteModules = {
   "routes/campanhas": typeof import("./app/routes/campanhas.tsx");
   "routes/criar": typeof import("./app/routes/criar.tsx");
   "routes/ofertas": typeof import("./app/routes/ofertas.tsx");
+  "routes/ofertas.criar": typeof import("./app/routes/ofertas.criar.tsx");
   "routes/ofertas.$id": typeof import("./app/routes/ofertas.$id.tsx");
   "routes/chat": typeof import("./app/routes/chat.tsx");
   "routes/perfil": typeof import("./app/routes/perfil.tsx");
@@ -217,6 +235,6 @@ type RouteModules = {
   "routes/indicacoes.todas": typeof import("./app/routes/indicacoes.todas.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
   "routes/configuracoes": typeof import("./app/routes/configuracoes.tsx");
-  "routes/termos": typeof import("./app/routes/termos.tsx");
-  "routes/politica": typeof import("./app/routes/politica.tsx");
+  "routes/oportunidades": typeof import("./app/routes/oportunidades.tsx");
+  "routes/oportunidades.$id": typeof import("./app/routes/oportunidades.$id.tsx");
 };

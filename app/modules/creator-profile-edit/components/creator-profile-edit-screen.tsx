@@ -3,7 +3,7 @@ import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/hooks/use-auth";
 import { useCreatorProfileEditController } from "../hooks/use-creator-profile-edit-controller";
-import type { ProfileProgress } from "../hooks/use-creator-profile-edit-controller";
+import type { ProfileProgress } from "~/components/ui/profile-progress-block";
 import {
   ProfileProgressBlock,
   CreatorProfileInfoSection,

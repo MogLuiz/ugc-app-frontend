@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import {
   Building2,
   CheckCircle2,
@@ -15,10 +15,9 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
-import { AppLoadingSplash } from "~/components/ui/app-loading-splash";
 import { toast } from "~/components/ui/toast";
 import { signUp, setStoredRole } from "~/modules/auth/service";
-import { useAuth } from "~/hooks/use-auth";
+import { useBootstrapMutation } from "~/modules/auth/mutations";
 import {
   registerSchema,
   type RegisterForm,
@@ -75,10 +74,10 @@ const roleCardFocus =
   "focus-visible:ring-2 focus-visible:ring-[#895af6] focus-visible:ring-offset-2";
 
 export default function AuthRegisterRoute() {
-  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const referralCodeFromUrl = searchParams.get("ref")?.trim() || undefined;
+  const bootstrapMutation = useBootstrapMutation();
 
   const [role, setRole] = useState<UserRole | null>(() =>
     parseRoleFromSearch(searchParams.get("role")),
@@ -90,7 +89,8 @@ export default function AuthRegisterRoute() {
   }, [searchParams]);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isSubmitting = bootstrapMutation.isPending;
 
   const {
     register,
@@ -109,7 +109,6 @@ export default function AuthRegisterRoute() {
 
   async function onSubmit(data: RegisterForm) {
     if (!role) return;
-    setIsSubmitting(true);
     try {
       const { data: signUpData, error } = await signUp(
         data.email,
@@ -126,12 +125,9 @@ export default function AuthRegisterRoute() {
         return;
       }
 
-      // Bootstrap é responsabilidade exclusiva de getSession() (owner único).
-      // name, role e referralCode já foram salvos nos metadados do Supabase via signUp().
-      // O AuthProvider detecta SIGNED_IN → invalida session query → getSession() →
-      // /profiles/me → 404 → bootstrap com os dados dos metadados.
-      setStoredRole(role);
       if (signUpData.session) {
+        setStoredRole(role);
+        await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
@@ -146,8 +142,6 @@ export default function AuthRegisterRoute() {
           ? getFriendlyRegisterError(err.message)
           : "Erro ao criar conta. Tente novamente.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
@@ -156,9 +150,6 @@ export default function AuthRegisterRoute() {
   const inputOk =
     "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
   const inputErr = "border-red-400 focus:border-red-400";
-
-  if (loading) return <AppLoadingSplash />;
-  if (user) return <Navigate to="/dashboard" replace />;
 
   const ctaDisabled = isSubmitting || !role;
 
@@ -418,23 +409,19 @@ export default function AuthRegisterRoute() {
                   />
                   <span className="min-w-0 flex-1 text-xs leading-snug text-slate-600">
                     Eu aceito os{" "}
-                    <Link
-                      to="/termos"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="py-0.5 font-semibold text-[#895af6] hover:underline"
+                    <button
+                      type="button"
+                      className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
                     >
                       Termos e Condições
-                    </Link>{" "}
+                    </button>{" "}
                     e a{" "}
-                    <Link
-                      to="/politica"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="py-0.5 font-semibold text-[#895af6] hover:underline"
+                    <button
+                      type="button"
+                      className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
                     >
                       Política de Privacidade
-                    </Link>
+                    </button>
                     <span className="text-slate-500"> do UGC Local.</span>
                   </span>
                 </label>

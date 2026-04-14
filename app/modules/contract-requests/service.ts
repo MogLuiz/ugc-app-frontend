@@ -58,7 +58,7 @@ export async function getMyCreatorPendingContractRequests(
 }
 
 export async function getMyCreatorContractRequests(
-  status: "ACCEPTED" | "COMPLETED",
+  status: "ACCEPTED" | "COMPLETED" | "REJECTED" | "CANCELLED",
   token?: string
 ): Promise<ContractRequestItem[]> {
   const accessToken = await getAccessToken(token);

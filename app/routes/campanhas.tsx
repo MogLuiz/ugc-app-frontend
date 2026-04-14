@@ -1,10 +1,10 @@
 import { AuthGuard } from "~/components/auth-guard";
-import { CompanyContractRequestsScreen } from "~/modules/contract-requests/components/company-contract-requests-screen";
+import { Navigate } from "react-router";
 
 export default function CampaignsRoute() {
   return (
     <AuthGuard allowedRoles={["business"]}>
-      <CompanyContractRequestsScreen />
+      <Navigate to="/ofertas" replace />
     </AuthGuard>
   );
 }

@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { ChevronRight } from "lucide-react";
 import type { CompanyDashboardActivityItem } from "../../types";
 import { DashboardCard, SectionMessage, SectionSkeleton } from "./section-primitives";
 
@@ -34,12 +35,13 @@ export function BusinessDashboardRecentActivity({
         ) : null}
 
         {!isLoading && !errorMessage && items.length > 0 ? (
+          <>
           <ul className="relative space-y-0 pl-2">
             <div
               className="absolute bottom-2 left-[11px] top-2 w-px bg-[rgba(106,54,213,0.2)]"
               aria-hidden
             />
-            {items.map((item) => (
+            {items.slice(0, 4).map((item) => (
               <li key={item.id} className="flex gap-3">
                 {item.href ? (
                   <Link
@@ -74,6 +76,18 @@ export function BusinessDashboardRecentActivity({
               </li>
             ))}
           </ul>
+          {items.length > 4 ? (
+            <div className="mt-4 flex justify-center">
+              <Link
+                to="/ofertas"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-[#6a36d5] hover:underline"
+              >
+                Ver atividade completa
+                <ChevronRight className="size-3.5" aria-hidden />
+              </Link>
+            </div>
+          ) : null}
+          </>
         ) : null}
       </div>
     </DashboardCard>

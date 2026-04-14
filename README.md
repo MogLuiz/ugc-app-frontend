@@ -56,6 +56,20 @@ Definir no Vercel ou em `.env` local (prefixo `VITE_`):
 | `VITE_SUPABASE_ANON_KEY` | Chave anon (cliente) |
 | `VITE_GOOGLE_MAPS_API_KEY` | Mapas (opcional) |
 | `VITE_SENTRY_DSN` | Sentry browser (opcional) |
+| `VITE_SENTRY_ENABLED` | `false` desliga o SDK mesmo com DSN |
+| `VITE_SENTRY_ENVIRONMENT` | Nome lógico do ambiente no Sentry (ex.: `staging`) |
+| `VITE_SENTRY_RELEASE` | Release (ex.: SHA do git); alinha com sourcemaps no build |
+
+**Upload de sourcemaps (só no ambiente de build — Vercel / CI, nunca `VITE_`):** `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`. O Vite injeta `VITE_VERCEL_GIT_COMMIT_SHA` a partir de `VERCEL_GIT_COMMIT_SHA` para alinhar release quando `VITE_SENTRY_RELEASE` não está definido.
+
+### Sentry — validação rápida
+
+1. Defina `VITE_SENTRY_DSN` no `.env` local e confirme `VITE_SENTRY_ENABLED` diferente de `false`.
+2. Rode `pnpm dev`; numa rota qualquer, dispare um erro **dentro da app** (ex.: botão que executa `throw new Error("Sentry test")` ou `import * as Sentry from "@sentry/react"; Sentry.captureException(new Error("test"))` no console **não** conta — use código na UI).
+3. No Sentry: confira **Issue**, **Replay** (amostragem em erro é 100%) e, em **Performance**, transações após navegar entre rotas.
+4. Para sourcemaps: build com `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT` e `VITE_SENTRY_RELEASE` (ou só `VERCEL_GIT_COMMIT_SHA` na Vercel); confira stack legível no evento de produção.
+
+**Tracing de navegação:** o app usa React Router 7 em **framework mode** (`app/routes.ts` + `ssr: false`), sem `createBrowserRouter` no código da app. A instrumentação usa `reactRouterV7BrowserTracingIntegration` de `@sentry/react`. Se as transações de navegação não aparecerem como esperado, o próximo passo objetivo é expor `entry.client` com `npx react-router reveal` e avaliar `@sentry/react-router` + `reactRouterTracingIntegration()` conforme a documentação oficial do Sentry para framework mode.
 
 ## Deploy (Vercel)
 

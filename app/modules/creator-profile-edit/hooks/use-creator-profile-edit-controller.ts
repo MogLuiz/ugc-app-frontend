@@ -29,12 +29,11 @@ type CreatorProfileExt = {
   cpf?: string;
 };
 
-export type ProfileProgressItem = { label: string; done: boolean };
-export type ProfileProgress = {
-  percent: number;
-  completedCount: number;
-  items: ProfileProgressItem[];
-};
+import type {
+  ProfileProgress,
+  ProfileProgressItem,
+} from "~/components/ui/profile-progress-block";
+export type { ProfileProgress, ProfileProgressItem };
 
 function getInitialState(user: AuthUser) {
   const creatorProfile = user.creatorProfile as CreatorProfileExt | undefined;
@@ -127,7 +126,7 @@ export function useCreatorProfileEditController(user: AuthUser) {
   }, [user]);
 
   const displayNameFromUser = user.profile?.name ?? user.name ?? "";
-  const username = user.name ?? user.email?.split("@")[0] ?? "usuario";
+  const username = user.name ?? "usuario";
   const location =
     user.profile?.addressCity && user.profile?.addressState
       ? `${user.profile.addressCity}, ${user.profile.addressState}`

@@ -58,6 +58,19 @@ export const contractRequestKeys = {
     [...contractRequestKeys.all, "creator", status] as const,
 };
 
+export const openOfferKeys = {
+  all: ["open-offers"] as const,
+  companyList: (params?: { page?: number; limit?: number; status?: string }) =>
+    [
+      ...openOfferKeys.all,
+      "company",
+      params?.page ?? 1,
+      params?.limit ?? 20,
+      params?.status ?? "all",
+    ] as const,
+  companyDetail: (id: string) => [...openOfferKeys.all, "company", id] as const,
+};
+
 export const creatorDashboardKeys = {
   all: ["creator-dashboard"] as const,
   summary: () => [...creatorDashboardKeys.all, "summary"] as const,
@@ -72,6 +85,13 @@ export const chatKeys = {
     [...chatKeys.all, "conversations", contractRequestId ?? "all"] as const,
   messages: (conversationId?: string) =>
     [...chatKeys.all, "messages", conversationId ?? "none"] as const,
+};
+
+export const opportunityKeys = {
+  all: ["opportunities"] as const,
+  list: (params?: { page?: number; limit?: number }) =>
+    [...opportunityKeys.all, "list", params?.page ?? 1, params?.limit ?? 50] as const,
+  detail: (id: string) => [...opportunityKeys.all, "detail", id] as const,
 };
 
 export const referralsKeys = {

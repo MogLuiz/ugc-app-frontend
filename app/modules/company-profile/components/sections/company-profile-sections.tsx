@@ -1,167 +1,132 @@
-import { useRef } from "react";
-import type { FormEventHandler, ReactElement, ReactNode } from "react";
-import { cloneElement } from "react";
-import type { FieldErrors, UseFormRegister } from "react-hook-form";
-import type { LucideIcon } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import type { UseFormRegister, UseFormSetValue, UseFormGetValues, FieldErrors } from "react-hook-form";
 import {
-  Briefcase,
-  Building2,
   Camera,
-  FileText,
+  CheckCircle2,
+  Loader2,
   MapPin,
-  Pencil,
-  Phone,
   User,
+  XCircle,
 } from "lucide-react";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import type { AuthUser } from "~/modules/auth/types";
 import type { CompanyProfileForm } from "../../schemas/company-profile";
-import { CompanyPortfolioSection } from "./company-portfolio-section";
+import {
+  lookupCep,
+  formatCep,
+} from "~/modules/creator-profile-edit/lib/cep-lookup";
 
-type Density = "compact" | "comfortable";
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared card style
+// ─────────────────────────────────────────────────────────────────────────────
 
-type CompanyProfileSectionProps = {
-  density?: Density;
-  displayName: string;
-  initials: string;
-  portfolioMedia: NonNullable<AuthUser["portfolio"]>["media"] | [];
-  profile: AuthUser["profile"];
-  user: AuthUser;
-};
+const CARD = "flex flex-col gap-6 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]";
 
-type CompanyProfileFormSectionProps = CompanyProfileSectionProps & {
-  errors: FieldErrors<CompanyProfileForm>;
-  isRemovingPortfolio: boolean;
-  isSaving: boolean;
-  isUploadingAvatar: boolean;
-  isUploadingPortfolio: boolean;
-  onAvatarChange: (file: File) => Promise<void>;
-  onCancel: () => void;
-  onPortfolioRemove: (mediaId: string) => Promise<void>;
-  onPortfolioUpload: (file: File) => Promise<void>;
-  onSubmit: FormEventHandler<HTMLFormElement>;
-  register: UseFormRegister<CompanyProfileForm>;
-};
+// ─────────────────────────────────────────────────────────────────────────────
+// Internal helpers
+// ─────────────────────────────────────────────────────────────────────────────
 
-type ViewItem = {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  fullWidth?: boolean;
-};
-
-function getCompanyItems(user: AuthUser): ViewItem[] {
-  const company = user.companyProfile;
-
-  return [
-    {
-      icon: Building2,
-      label: "Empresa",
-      value: company?.companyName || "—",
-    },
-    {
-      icon: Briefcase,
-      label: "Cargo",
-      value: company?.jobTitle || "—",
-    },
-    {
-      icon: FileText,
-      label: "Nicho",
-      value: company?.businessNiche || "—",
-      fullWidth: !user.phone,
-    },
-    ...(user.phone
-      ? [
-          {
-            icon: Phone,
-            label: "Telefone",
-            value: user.phone,
-            fullWidth: true,
-          },
-        ]
-      : []),
-    ...(company?.documentType || company?.documentNumber
-      ? [
-          {
-            icon: User,
-            label: "Documento",
-            value: `${company?.documentType ? `${company.documentType}: ` : ""}${company?.documentNumber || "—"}`,
-            fullWidth: true,
-          },
-        ]
-      : []),
-  ];
-}
-
-function getAddress(profile: AuthUser["profile"]) {
+function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    [
-      [profile?.addressStreet, profile?.addressNumber]
-        .filter(Boolean)
-        .join(", "),
-      profile?.addressCity
-        ? profile?.addressState
-          ? `${profile.addressCity}/${profile.addressState}`
-          : profile.addressCity
-        : null,
-      profile?.addressZipCode ? `CEP ${profile.addressZipCode}` : null,
-    ]
-      .filter(Boolean)
-      .join(" — ") || "—"
+    <label className="text-xs font-bold uppercase tracking-wide text-[#94a3b8]">
+      {children}
+    </label>
   );
 }
 
-export function CompanyProfileFormSection({
-  density = "comfortable",
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <p className="mt-1 text-xs text-red-500">{message}</p>;
+}
+
+function CardSectionHeader({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description?: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[rgba(137,90,246,0.1)]">
+        <Icon className="size-5 text-[#895af6]" />
+      </div>
+      <div>
+        <h3 className="text-base font-bold text-[#0f172a]">{title}</h3>
+        {description && (
+          <p className="text-xs text-[#64748b]">{description}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CompanyIdentityCard — brand identity (logo, company name, bio, niche)
+// ─────────────────────────────────────────────────────────────────────────────
+
+type CompanyIdentityCardProps = {
+  displayName: string;
+  initials: string;
+  photoUrl?: string | null;
+  isUploadingAvatar: boolean;
+  onAvatarChange: (file: File) => void;
+  register: UseFormRegister<CompanyProfileForm>;
+  errors: FieldErrors<CompanyProfileForm>;
+};
+
+export function CompanyIdentityCard({
   displayName,
-  errors,
   initials,
-  isRemovingPortfolio,
-  isSaving,
+  photoUrl,
   isUploadingAvatar,
-  isUploadingPortfolio,
   onAvatarChange,
-  onCancel,
-  onPortfolioRemove,
-  onPortfolioUpload,
-  onSubmit,
-  portfolioMedia,
-  profile,
   register,
-}: CompanyProfileFormSectionProps) {
+  errors,
+}: CompanyIdentityCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const compact = density === "compact";
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    void onAvatarChange(file);
-    event.target.value = "";
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) onAvatarChange(file);
+    e.target.value = "";
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className={cn("flex flex-col", compact ? "gap-4" : "gap-6")}
-    >
-      <div className={cn("flex", compact ? "gap-4" : "gap-6")}>
-        <div
-          className={cn(
-            "flex shrink-0 flex-col items-center",
-            compact ? "gap-1.5" : "gap-2",
-          )}
-        >
-          <ProfileAvatar
-            density={density}
-            displayName={displayName}
-            initials={initials}
-            photoUrl={profile?.photoUrl}
-          />
-
+    <section className={CARD}>
+      {/* Avatar */}
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative">
+          <div className="size-24 overflow-hidden rounded-full border-4 border-[rgba(137,90,246,0.2)]">
+            {photoUrl ? (
+              <img
+                src={photoUrl}
+                alt={displayName}
+                className="size-full object-cover"
+              />
+            ) : (
+              <div className="flex size-full items-center justify-center bg-[rgba(137,90,246,0.08)]">
+                <span className="text-2xl font-bold text-[#895af6]">
+                  {initials}
+                </span>
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploadingAvatar}
+            className="absolute bottom-0 right-0 flex size-9 items-center justify-center rounded-full bg-[#895af6] shadow-[0px_4px_10px_rgba(137,90,246,0.4)] transition hover:bg-[#7c4aeb] disabled:opacity-60"
+          >
+            {isUploadingAvatar ? (
+              <Loader2 className="size-4 animate-spin text-white" />
+            ) : (
+              <Camera className="size-4 text-white" />
+            )}
+          </button>
           <input
             ref={fileInputRef}
             type="file"
@@ -169,546 +134,327 @@ export function CompanyProfileFormSection({
             className="hidden"
             onChange={handleFileChange}
           />
+        </div>
+        <p className="text-xs text-[#94a3b8]">Logo da empresa</p>
+      </div>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className={cn(compact ? "gap-1 text-[10px]" : "gap-1.5 text-xs")}
-            disabled={isUploadingAvatar}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Camera className={compact ? "size-3" : "size-3.5"} />
-            {isUploadingAvatar
-              ? compact
-                ? "…"
-                : "Enviando…"
-              : compact
-                ? "Alterar"
-                : "Alterar foto"}
-          </Button>
+      {/* Fields */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Nome da empresa</FieldLabel>
+          <Input
+            {...register("companyName")}
+            placeholder="Razão social ou nome fantasia"
+            className={cn(
+              "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+              errors.companyName && "ring-1 ring-red-400",
+            )}
+          />
+          <FieldError message={errors.companyName?.message} />
         </div>
 
-        <div
-          className={cn("flex flex-1 flex-col", compact ? "gap-3" : "gap-4")}
-        >
-          <FormField
-            error={errors.name?.message}
-            errorClassName={
-              compact
-                ? "mt-0.5 text-xs text-red-500"
-                : "mt-1 text-xs text-red-500"
-            }
-            inputClassName={errors.name ? "border-red-500" : undefined}
-            label="Nome"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input {...register("name")} placeholder="Seu nome" />
-          </FormField>
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Sobre a empresa</FieldLabel>
+          <textarea
+            {...register("bio")}
+            placeholder="Descreva sua empresa, o que faz, para quem"
+            rows={3}
+            maxLength={500}
+            className="w-full resize-y overflow-y-auto rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 text-base text-[#0f172a] outline-none ring-0 placeholder:text-[#94a3b8]"
+          />
+          <FieldError message={errors.bio?.message} />
+        </div>
 
-          <div>
-            <label
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Nicho de atuação</FieldLabel>
+          <Input
+            {...register("businessNiche")}
+            placeholder="Ex: Moda, Tecnologia, Gastronomia"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CompanyResponsibleCard — responsible person + document validation
+// ─────────────────────────────────────────────────────────────────────────────
+
+type CompanyResponsibleCardProps = {
+  register: UseFormRegister<CompanyProfileForm>;
+  errors: FieldErrors<CompanyProfileForm>;
+};
+
+export function CompanyResponsibleCard({
+  register,
+  errors,
+}: CompanyResponsibleCardProps) {
+  return (
+    <section className={CARD}>
+      <CardSectionHeader
+        icon={User}
+        title="Responsável"
+        description="Dados de quem gerencia esta conta."
+      />
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Nome do responsável</FieldLabel>
+          <Input
+            {...register("name")}
+            placeholder="Nome completo do responsável"
+            className={cn(
+              "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+              errors.name && "ring-1 ring-red-400",
+            )}
+          />
+          <FieldError message={errors.name?.message} />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Cargo</FieldLabel>
+          <Input
+            {...register("jobTitle")}
+            placeholder="Ex: CEO, Gerente de Marketing"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Telefone</FieldLabel>
+          <Input
+            {...register("phone")}
+            placeholder="(00) 00000-0000"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+      </div>
+
+      {/* Document validation section */}
+      <div className="flex flex-col gap-4 border-t border-[#f1f5f9] pt-2">
+        <div>
+          <p className="text-sm font-bold text-[#0f172a]">Validação</p>
+          <p className="text-xs text-[#64748b]">
+            Usado para validação e segurança da plataforma.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Tipo de documento</FieldLabel>
+          <Select
+            {...register("documentType")}
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          >
+            <option value="">Selecione</option>
+            <option value="CNPJ">CNPJ</option>
+            <option value="CPF">CPF</option>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Número do documento</FieldLabel>
+          <Input
+            {...register("documentNumber")}
+            placeholder="Somente números"
+            className={cn(
+              "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+              errors.documentNumber && "ring-1 ring-red-400",
+            )}
+          />
+          <FieldError message={errors.documentNumber?.message} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CompanyAddressCard — operational address with CEP auto-fill
+// Always fully expanded (not collapsible) — critical for distance calculations
+// ─────────────────────────────────────────────────────────────────────────────
+
+type CepStatus = "idle" | "loading" | "found" | "not_found" | "error";
+
+type CompanyAddressCardProps = {
+  register: UseFormRegister<CompanyProfileForm>;
+  setValue: UseFormSetValue<CompanyProfileForm>;
+  getValues: UseFormGetValues<CompanyProfileForm>;
+  errors: FieldErrors<CompanyProfileForm>;
+};
+
+export function CompanyAddressCard({
+  register,
+  setValue,
+  getValues,
+  errors,
+}: CompanyAddressCardProps) {
+  const [cepStatus, setCepStatus] = useState<CepStatus>("idle");
+  const [lockedByZip, setLockedByZip] = useState(() => {
+    const city = getValues("addressCity");
+    const state = getValues("addressState");
+    const zip = getValues("addressZipCode");
+    return !!(city && state && zip);
+  });
+  const abortRef = useRef<AbortController | null>(null);
+
+  const handleCepChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const formatted = formatCep(e.target.value);
+      setValue("addressZipCode", formatted, { shouldDirty: true });
+
+      const digits = formatted.replace(/\D/g, "");
+      if (digits.length < 8) {
+        setCepStatus("idle");
+        return;
+      }
+
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setCepStatus("loading");
+
+      try {
+        const result = await lookupCep(formatted, controller.signal);
+        if (result.found) {
+          setValue("addressStreet", result.street, { shouldDirty: true });
+          setValue("addressCity", result.city, { shouldDirty: true });
+          setValue("addressState", result.state, { shouldDirty: true });
+          setLockedByZip(true);
+          setCepStatus("found");
+        } else {
+          setLockedByZip(false);
+          setCepStatus("not_found");
+        }
+      } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setLockedByZip(false);
+        setCepStatus("error");
+      }
+    },
+    [setValue],
+  );
+
+  const cepIcon =
+    cepStatus === "loading" ? (
+      <Loader2 className="size-4 animate-spin text-[#895af6]" />
+    ) : cepStatus === "found" ? (
+      <CheckCircle2 className="size-4 text-emerald-500" />
+    ) : cepStatus === "not_found" || cepStatus === "error" ? (
+      <XCircle className="size-4 text-red-400" />
+    ) : null;
+
+  const cepHint =
+    cepStatus === "not_found"
+      ? "CEP não encontrado. Preencha os campos manualmente."
+      : cepStatus === "error"
+        ? "Erro ao buscar CEP. Preencha manualmente."
+        : cepStatus === "idle"
+          ? "Preencha o CEP para auto-completar os campos abaixo."
+          : null;
+
+  const { onChange: _cepOnChange, ...cepRegisterRest } =
+    register("addressZipCode");
+
+  return (
+    <section className={CARD}>
+      <CardSectionHeader
+        icon={MapPin}
+        title="Endereço"
+        description="Usamos esse endereço para calcular distância em trabalhos presenciais."
+      />
+
+      <div className="flex flex-col gap-4">
+        {/* CEP */}
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>CEP</FieldLabel>
+          <div className="relative">
+            <Input
+              {...cepRegisterRest}
+              onChange={handleCepChange}
+              placeholder="00000-000"
+              maxLength={9}
               className={cn(
-                compact
-                  ? "mb-0.5 block text-xs font-medium text-slate-600"
-                  : "mb-1 block text-sm font-medium text-slate-600",
+                "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+                cepIcon && "pr-10",
               )}
-            >
-              Sobre a empresa
-            </label>
-            <textarea
-              {...register("bio")}
-              placeholder={
-                compact ? "Breve descrição" : "Breve descrição da sua empresa"
-              }
-              rows={compact ? 2 : 3}
-              className="h-auto w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-slate-500"
+            />
+            {cepIcon && (
+              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+                {cepIcon}
+              </span>
+            )}
+          </div>
+          {cepHint && (
+            <p className="text-[11px] text-[#94a3b8]">{cepHint}</p>
+          )}
+        </div>
+
+        {/* Street */}
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel>Rua</FieldLabel>
+          <Input
+            {...register("addressStreet")}
+            placeholder="Logradouro"
+            className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+          />
+        </div>
+
+        {/* Number */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>Número</FieldLabel>
+            <Input
+              {...register("addressNumber")}
+              placeholder="Nº"
+              className="rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3"
+            />
+          </div>
+          <div />
+        </div>
+
+        {/* City + State */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>Cidade</FieldLabel>
+            <Input
+              {...register("addressCity")}
+              placeholder="Cidade"
+              disabled={lockedByZip}
+              title={lockedByZip ? "Definida pelo CEP" : undefined}
+              className={cn(
+                "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+                lockedByZip &&
+                  "cursor-not-allowed bg-[#f1f5f9] text-[#94a3b8]",
+              )}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>Estado</FieldLabel>
+            <Input
+              {...register("addressState")}
+              placeholder="UF"
+              maxLength={2}
+              disabled={lockedByZip}
+              title={lockedByZip ? "Definido pelo CEP" : undefined}
+              className={cn(
+                "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3 uppercase",
+                lockedByZip &&
+                  "cursor-not-allowed bg-[#f1f5f9] text-[#94a3b8]",
+              )}
             />
           </div>
         </div>
-      </div>
 
-      <CompanyProfileSection
-        density={density}
-        icon={Building2}
-        title="Dados da Empresa"
-      >
-        <div
-          className={cn(
-            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2",
-          )}
-        >
-          <FormField
-            error={errors.companyName?.message}
-            errorClassName={
-              compact
-                ? "mt-0.5 text-xs text-red-500"
-                : "mt-1 text-xs text-red-500"
-            }
-            inputClassName={errors.companyName ? "border-red-500" : undefined}
-            label="Nome da empresa"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-            wrapperClassName={compact ? undefined : "sm:col-span-2"}
-          >
-            <Input
-              {...register("companyName")}
-              placeholder="Razão social ou nome fantasia"
-            />
-          </FormField>
-
-          <FormField
-            label="Cargo"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input
-              {...register("jobTitle")}
-              placeholder={
-                compact ? "Ex: CEO" : "Ex: CEO, Gerente de Marketing"
-              }
-            />
-          </FormField>
-
-          <FormField
-            label={compact ? "Nicho" : "Nicho de atuação"}
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input
-              {...register("businessNiche")}
-              placeholder="Ex: Moda, Tecnologia"
-            />
-          </FormField>
-
-          <FormField
-            label="Telefone"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input {...register("phone")} placeholder="(00) 00000-0000" />
-          </FormField>
-
-          <FormField
-            label="Tipo de documento"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Select {...register("documentType")}>
-              <option value="">Selecione</option>
-              <option value="CPF">CPF</option>
-              <option value="CNPJ">CNPJ</option>
-            </Select>
-          </FormField>
-
-          <FormField
-            error={errors.documentNumber?.message}
-            errorClassName={
-              compact
-                ? "mt-0.5 text-xs text-red-500"
-                : "mt-1 text-xs text-red-500"
-            }
-            inputClassName={
-              errors.documentNumber ? "border-red-500" : undefined
-            }
-            label="Número do documento"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input
-              {...register("documentNumber")}
-              placeholder="Somente números"
-            />
-          </FormField>
-        </div>
-      </CompanyProfileSection>
-
-      <CompanyProfileSection density={density} icon={MapPin} title="Endereço">
-        <div
-          className={cn(
-            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2",
-          )}
-        >
-          <FormField
-            label="Rua"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-            wrapperClassName={compact ? undefined : "sm:col-span-2"}
-          >
-            <Input {...register("addressStreet")} placeholder="Nome da rua" />
-          </FormField>
-
-          <FormField
-            label="Número"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input {...register("addressNumber")} placeholder="Número" />
-          </FormField>
-
-          <FormField
-            label="CEP"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input {...register("addressZipCode")} placeholder="00000-000" />
-          </FormField>
-
-          <FormField
-            label="Cidade"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input {...register("addressCity")} placeholder="Cidade" />
-          </FormField>
-
-          <FormField
-            label="Estado"
-            labelClassName={
-              compact
-                ? "mb-0.5 block text-xs font-medium text-slate-600"
-                : "mb-1 block text-sm font-medium text-slate-600"
-            }
-          >
-            <Input {...register("addressState")} placeholder="UF" />
-          </FormField>
-        </div>
-      </CompanyProfileSection>
-
-      <CompanyPortfolioSection
-        density={density}
-        media={portfolioMedia}
-        onUpload={onPortfolioUpload}
-        onRemove={onPortfolioRemove}
-        isUploading={isUploadingPortfolio}
-        isRemoving={isRemovingPortfolio}
-      />
-
-      <div className={cn("flex", compact ? "gap-2 pt-2" : "justify-end gap-2")}>
-        <Button
-          type="button"
-          variant="outline"
-          className={compact ? "flex-1" : undefined}
-          onClick={onCancel}
-        >
-          Cancelar
-        </Button>
-        <Button
-          type="submit"
-          variant="purple"
-          className={compact ? "flex-1" : undefined}
-          disabled={isSaving}
-        >
-          {compact ? "Salvar" : "Salvar alterações"}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
-export function CompanyProfileSummarySection({
-  density = "comfortable",
-  displayName,
-  initials,
-  portfolioMedia,
-  profile,
-  user,
-}: CompanyProfileSectionProps) {
-  const compact = density === "compact";
-  const companyItems = getCompanyItems(user);
-  const showAddress =
-    profile?.addressStreet || profile?.addressCity || profile?.addressZipCode;
-
-  return (
-    <div className={cn("flex flex-col", compact ? "gap-4" : "gap-6")}>
-      <div className={cn("flex", compact ? "gap-4" : "gap-6")}>
-        <ProfileAvatar
-          density={density}
-          displayName={displayName}
-          initials={initials}
-          photoUrl={profile?.photoUrl}
-        />
-
-        <div
-          className={cn("flex flex-1 flex-col", compact ? "gap-0.5" : "gap-1")}
-        >
-          <h2
-            className={cn(
-              "font-bold text-[#0f172a]",
-              compact ? "text-lg" : "text-xl",
-            )}
-          >
-            {displayName}
-          </h2>
-          {profile?.bio ? (
-            <p className="text-sm text-slate-600">{profile.bio}</p>
-          ) : null}
-        </div>
-      </div>
-
-      <CompanyProfileSection
-        density={density}
-        icon={Building2}
-        title="Dados da Empresa"
-      >
-        <div
-          className={cn(
-            compact ? "flex flex-col gap-3" : "grid gap-4 sm:grid-cols-2",
-          )}
-        >
-          {companyItems.map((item) => (
-            <InfoItem
-              key={item.label}
-              density={density}
-              icon={item.icon}
-              label={item.label}
-              value={item.value}
-              fullWidth={item.fullWidth}
-            />
-          ))}
-        </div>
-      </CompanyProfileSection>
-
-      {showAddress ? (
-        <CompanyProfileSection density={density} icon={MapPin} title="Endereço">
-          <InfoItem
-            density={density}
-            icon={MapPin}
-            label="Endereço"
-            value={getAddress(profile)}
-          />
-        </CompanyProfileSection>
-      ) : null}
-
-      <CompanyPortfolioSection
-        density={density}
-        media={portfolioMedia}
-        readOnly
-      />
-    </div>
-  );
-}
-
-export function CompanyProfileCardHeader({
-  isEditing,
-  onCancel,
-  onEdit,
-}: {
-  isEditing: boolean;
-  onCancel: () => void;
-  onEdit: () => void;
-}) {
-  return (
-    <div className="mb-4 flex items-center justify-between sm:mb-6">
-      <h1 className="text-lg font-bold text-[#0f172a] sm:text-2xl">
-        Perfil da Empresa
-      </h1>
-      {!isEditing ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="gap-1 rounded-full sm:gap-2"
-          onClick={onEdit}
-        >
-          <Pencil className="size-3.5 sm:size-4" />
-          Editar
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="rounded-full"
-          onClick={onCancel}
-        >
-          Cancelar
-        </Button>
-      )}
-    </div>
-  );
-}
-
-function CompanyProfileSection({
-  children,
-  density,
-  icon: Icon,
-  title,
-}: {
-  children: ReactNode;
-  density: Density;
-  icon: LucideIcon;
-  title: string;
-}) {
-  const compact = density === "compact";
-
-  return (
-    <div className={cn("border-t border-slate-100", compact ? "pt-4" : "pt-6")}>
-      <h3
-        className={cn(
-          "flex items-center gap-2 font-bold text-[#0f172a]",
-          compact ? "mb-3 text-sm" : "mb-4 text-lg",
+        {lockedByZip && (
+          <p className="text-[11px] text-[#94a3b8]">
+            Cidade e estado são definidos pelo CEP. Para alterá-los, mude o
+            CEP.
+          </p>
         )}
-      >
-        <Icon
-          className={
-            compact ? "size-4 text-[#895af6]" : "size-5 text-[#895af6]"
-          }
-        />
-        {title}
-      </h3>
-      {children}
-    </div>
-  );
-}
-
-function ProfileAvatar({
-  density,
-  displayName,
-  initials,
-  photoUrl,
-}: {
-  density: Density;
-  displayName: string;
-  initials: string;
-  photoUrl?: string | null;
-}) {
-  const compact = density === "compact";
-
-  return (
-    <div
-      className={cn(
-        "flex shrink-0 items-center justify-center overflow-hidden rounded-full border-[rgba(137,90,246,0.1)] bg-[rgba(137,90,246,0.1)]",
-        compact ? "size-16 border-2" : "size-24 border-4",
-      )}
-    >
-      {photoUrl ? (
-        <img
-          src={photoUrl}
-          alt={displayName}
-          className="size-full object-cover"
-        />
-      ) : (
-        <span
-          className={cn(
-            "font-bold text-[#895af6]",
-            compact ? "text-xl" : "text-2xl",
-          )}
-        >
-          {initials}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function FormField({
-  children,
-  error,
-  errorClassName,
-  inputClassName,
-  label,
-  labelClassName,
-  wrapperClassName,
-}: {
-  children: ReactElement<{ className?: string }>;
-  error?: string;
-  errorClassName?: string;
-  inputClassName?: string;
-  label: string;
-  labelClassName: string;
-  wrapperClassName?: string;
-}) {
-  return (
-    <div className={wrapperClassName}>
-      <label className={labelClassName}>{label}</label>
-      {inputClassName
-        ? cloneElement(children, { className: inputClassName })
-        : children}
-      {error ? <p className={errorClassName}>{error}</p> : null}
-    </div>
-  );
-}
-
-function InfoItem({
-  density,
-  icon: Icon,
-  label,
-  value,
-  fullWidth = false,
-}: {
-  density: Density;
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  fullWidth?: boolean;
-}) {
-  const compact = density === "compact";
-
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-3",
-        !compact && fullWidth && "sm:col-span-2",
-      )}
-    >
-      <div
-        className={cn(
-          "flex items-center justify-center bg-[rgba(137,90,246,0.1)]",
-          compact ? "size-9 rounded-lg" : "size-10 rounded-xl",
-        )}
-      >
-        <Icon className={cn("text-[#895af6]", compact ? "size-4" : "size-5")} />
       </div>
-      <div>
-        <p
-          className={cn("text-slate-500", compact ? "text-[10px]" : "text-xs")}
-        >
-          {label}
-        </p>
-        <p
-          className={cn(
-            "font-medium text-slate-900",
-            compact ? "text-sm" : undefined,
-          )}
-        >
-          {value}
-        </p>
-      </div>
-    </div>
+    </section>
   );
 }
+

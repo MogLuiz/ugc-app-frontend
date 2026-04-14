@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { useAuth } from "~/hooks/use-auth";
 import { useConversationsQuery } from "~/modules/chat/queries";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
+import { isOpenOfferExpired } from "~/modules/open-offers/helpers";
+import { useMyCompanyOpenOffersQuery } from "~/modules/open-offers/queries";
 import { getInitials } from "~/modules/contract-requests/utils";
 import type { CompanyCampaignStatus, ContractRequestItem } from "~/modules/contract-requests/types";
 import { useMarketplaceCreatorsQuery } from "~/modules/marketplace/queries";
@@ -127,6 +129,7 @@ function mapCampaignItem(item: ContractRequestItem): CompanyDashboardCampaignIte
     timeLine,
     durationLine,
     dayUrgency: getDayUrgencyBanner(recordingInstant),
+    progressSummary: null,
     source: item,
   };
 }
@@ -163,6 +166,7 @@ export function useBusinessDashboardController() {
   const { user } = useAuth();
 
   const campaignsQuery = useMyCompanyContractRequestsQuery();
+  const openOffersQuery = useMyCompanyOpenOffersQuery();
   const creatorsQuery = useMarketplaceCreatorsQuery({
     page: 1,
     limit: RECOMMENDED_CREATORS_LIMIT,
@@ -170,16 +174,43 @@ export function useBusinessDashboardController() {
   const conversationsQuery = useConversationsQuery();
 
   const campaigns = campaignsQuery.data ?? [];
+  const openOffers = openOffersQuery.data?.items ?? [];
   const creators = creatorsQuery.data?.items ?? [];
   const conversations = conversationsQuery.data ?? [];
 
   const viewModel = useMemo<CompanyDashboardViewModel>(() => {
+    // Compute per-job progress summary (confirmed vs pending count)
+    const jobProgressMap = new Map<string, { confirmed: number; pending: number }>();
+    for (const item of campaigns) {
+      const jobId = item.job?.title ?? "unknown";
+      const status = getCompanyStatus(item);
+      if (!jobProgressMap.has(jobId)) jobProgressMap.set(jobId, { confirmed: 0, pending: 0 });
+      const entry = jobProgressMap.get(jobId)!;
+      if (status === "ACCEPTED" || status === "IN_PROGRESS") entry.confirmed += 1;
+      else if (status === "PENDING") entry.pending += 1;
+    }
+
+    function buildProgressSummary(item: ReturnType<typeof mapCampaignItem>): string | null {
+      const jobId = item.source.job?.title ?? "unknown";
+      const entry = jobProgressMap.get(jobId);
+      if (!entry) return null;
+      const { confirmed, pending } = entry;
+      if (confirmed === 0 && pending === 0) return null;
+      const parts: string[] = [];
+      if (confirmed > 0) parts.push(`${confirmed} ${confirmed === 1 ? "confirmado" : "confirmados"}`);
+      if (pending > 0) parts.push(`${pending} aguardando resposta`);
+      return parts.join(" · ");
+    }
+
     const activeCampaignsRaw = campaigns
       .filter((item) => {
         const status = getCompanyStatus(item);
         return status === "ACCEPTED" || status === "IN_PROGRESS";
       })
-      .map(mapCampaignItem)
+      .map((item) => {
+        const mapped = mapCampaignItem(item);
+        return { ...mapped, progressSummary: buildProgressSummary(mapped) };
+      })
       .sort(compareActiveCampaigns);
 
     const pendingRequestsRaw = campaigns
@@ -201,11 +232,16 @@ export function useBusinessDashboardController() {
     }));
 
     const activeCampaignCount = activeCampaignsRaw.length;
-    const activeCreatorCount = new Set(activeCampaignsRaw.map((item) => item.source.creatorId)).size;
-    const completedCampaignCount = campaigns.filter(
-      (item) => getCompanyStatus(item) === "COMPLETED"
+    const pendingApplicationCount = openOffers
+      .filter((o) => o.status === "OPEN" && !isOpenOfferExpired(o.expiresAt))
+      .reduce((sum, o) => sum + (o.applicationsToReviewCount ?? 0), 0);
+    const upcomingRecordingCount = activeCampaignsRaw.filter(
+      (item) => item.recordingInstant !== null && item.recordingInstant.getTime() > Date.now()
     ).length;
-    const pendingRequestCount = pendingRequestsRaw.length;
+    const unreadMessageCount = conversations.reduce(
+      (sum, conv) => sum + (conv.unreadCount ?? 0),
+      0
+    );
 
     const companyName = user?.companyProfile?.companyName ?? user?.profile?.name ?? user?.name;
 
@@ -221,35 +257,39 @@ export function useBusinessDashboardController() {
     return {
       greetingName: getGreetingName(companyName),
       subtitle:
-        "Acompanhe campanhas, creators e oportunidades próximas. Sua curadoria editorial começa aqui.",
+        "Acompanhe campanhas, creators e oportunidades próximas.",
       metrics: [
+        {
+          id: "pending-applications",
+          label: "Candidaturas pendentes",
+          value: pendingApplicationCount,
+          subtitle: pendingApplicationCount > 0 ? "Creators esperando sua decisão" : "Nenhuma pendência",
+          tone: pendingApplicationCount > 0 ? "highlight" : "default",
+          href: "/ofertas",
+        },
+        {
+          id: "unread-messages",
+          label: "Mensagens não lidas",
+          value: unreadMessageCount,
+          subtitle: unreadMessageCount > 0 ? "Nova atividade" : "Tudo em dia",
+          tone: unreadMessageCount > 0 ? "highlight" : "default",
+          href: "/chat",
+        },
         {
           id: "active-campaigns",
           label: "Campanhas ativas",
           value: activeCampaignCount,
           subtitle: "Aceitas ou em andamento",
           tone: "default",
+          href: "/ofertas",
         },
         {
-          id: "active-creators",
-          label: "Criadores ativos",
-          value: activeCreatorCount,
-          subtitle: "Nas campanhas atuais",
+          id: "upcoming-recordings",
+          label: "Próximas gravações",
+          value: upcomingRecordingCount,
+          subtitle: "Agendadas nos próximos dias",
           tone: "default",
-        },
-        {
-          id: "completed-campaigns",
-          label: "Campanhas concluídas",
-          value: completedCampaignCount,
-          subtitle: "Histórico finalizado",
-          tone: "default",
-        },
-        {
-          id: "pending-requests",
-          label: "Solicitações pendentes",
-          value: pendingRequestCount,
-          subtitle: pendingRequestCount > 0 ? "Ação requerida" : "Nenhuma pendência",
-          tone: pendingRequestCount > 0 ? "highlight" : "default",
+          href: "/agenda",
         },
       ],
       activeCampaigns: activeCampaignsRaw,
@@ -284,6 +324,7 @@ export function useBusinessDashboardController() {
     campaignsQuery.error,
     campaignsQuery.isFetching,
     campaignsQuery.isLoading,
+    openOffers,
     conversations,
     conversationsQuery.data,
     conversationsQuery.error,

@@ -110,7 +110,7 @@ export function buildActivityFeed(
         contractRequestId: item.id,
         title: "Nova solicitação",
         description: `${creator} — ${title}`,
-        href: `/campanhas`,
+        href: `/ofertas`,
       });
     }
 
@@ -123,7 +123,7 @@ export function buildActivityFeed(
         contractRequestId: item.id,
         title: "Creator aceitou campanha",
         description: `${creator} aceitou o convite para “${truncate(title, 48)}”.`,
-        href: `/campanhas`,
+        href: `/ofertas`,
       });
     }
 
@@ -135,7 +135,7 @@ export function buildActivityFeed(
         contractRequestId: item.id,
         title: "Campanha finalizada",
         description: `“${truncate(title, 48)}” foi concluída.`,
-        href: `/campanhas`,
+        href: `/ofertas`,
       });
     }
   }

@@ -1,73 +1,86 @@
-import { BriefcaseBusiness, CheckCircle2, Clock3, Users } from "lucide-react";
+import { BriefcaseBusiness, CalendarDays, Clock3, MessageCircle } from "lucide-react";
+import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import type { CompanyDashboardMetric } from "../../types";
-import { DashboardCard } from "./section-primitives";
 
-function MetricIcon({ metricId }: { metricId: CompanyDashboardMetric["id"] }) {
-  if (metricId === "active-campaigns") {
-    return <BriefcaseBusiness className="size-5 text-[#6a36d5]" />;
+function MetricIcon({ metric }: { metric: CompanyDashboardMetric }) {
+  if (metric.id === "active-campaigns") {
+    return <BriefcaseBusiness className="size-5 text-[#895af6] sm:text-[#6a36d5]" />;
   }
-  if (metricId === "active-creators") {
-    return <Users className="size-5 text-sky-600" />;
+  if (metric.id === "pending-applications") {
+    return <Clock3 className="size-5 text-amber-500" />;
   }
-  if (metricId === "completed-campaigns") {
-    return <CheckCircle2 className="size-5 text-emerald-600" />;
+  if (metric.id === "upcoming-recordings") {
+    return <CalendarDays className="size-5 text-sky-600" />;
   }
-  return <Clock3 className="size-5 text-[#6a36d5]" />;
+  return (
+    <MessageCircle
+      className={cn(
+        "size-5",
+        metric.tone === "highlight" ? "text-[#895af6] sm:text-[#6a36d5]" : "text-slate-500"
+      )}
+    />
+  );
 }
 
 export function BusinessDashboardStats({ stats }: { stats: CompanyDashboardMetric[] }) {
   return (
-    <section className="flex gap-4 overflow-x-auto pb-1 lg:grid lg:max-w-none lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+    <section className="grid w-full grid-cols-2 gap-4 sm:[grid-template-columns:repeat(auto-fit,minmax(min(100%,14rem),1fr))] sm:gap-3.5 lg:gap-4">
       {stats.map((stat) => (
-        <DashboardCard
-          key={stat.id}
-          className={cn(
-            "min-w-[240px] shrink-0 lg:min-w-0",
-            stat.tone === "highlight" &&
-              "border-2 border-[rgba(106,54,213,0.2)] bg-[rgba(106,54,213,0.05)] p-[26px] lg:pt-6"
-          )}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
+        <Link key={stat.id} to={stat.href} className="block h-full">
+          <div
+            className={cn(
+              "flex h-full flex-col gap-[8.5px] cursor-pointer transition-opacity hover:opacity-80",
+              // mobile: flat card (same as creator)
+              "rounded-3xl border border-[#f8fafc] bg-white p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]",
+              // desktop: elevated card
+              "sm:rounded-[28px] sm:border sm:border-[rgba(106,54,213,0.08)] sm:p-5 sm:shadow-[0px_4px_6px_-1px_rgba(106,54,213,0.04),0px_20px_40px_-1px_rgba(44,47,48,0.08)] lg:rounded-[32px] lg:p-6",
+              // highlight only from sm (same as creator "confirmed" card)
+              stat.tone === "highlight" &&
+                "sm:border-2 sm:border-[rgba(106,54,213,0.2)] sm:bg-[rgba(106,54,213,0.04)]"
+            )}
+          >
+            {/* Label — min-h reserves 2-line height so value stays aligned across all cards */}
+            <p
+              className={cn(
+                "line-clamp-2 min-h-[30px] text-[10px] font-bold uppercase leading-[15px] tracking-[1px] text-[#64748b]",
+                "sm:line-clamp-none sm:leading-snug sm:tracking-[0.07em]",
+                stat.tone === "highlight" && "sm:text-[#6a36d5]"
+              )}
+            >
+              {stat.label}
+            </p>
+
+            {/* Value + icon */}
+            <div className="flex items-end justify-between gap-1 sm:items-center sm:gap-2 lg:gap-3">
               <p
                 className={cn(
-                  "text-[10px] font-bold uppercase leading-[15px] tracking-[0.1em]",
-                  stat.tone === "highlight" ? "text-[#6a36d5]" : "text-[#595c5d]"
-                )}
-              >
-                {stat.label}
-              </p>
-              <p
-                className={cn(
-                  "mt-3 text-4xl font-extrabold leading-10 tracking-[-0.8px]",
+                  "min-w-0 truncate font-black tabular-nums text-2xl leading-8",
+                  "sm:text-xl sm:font-extrabold sm:leading-none sm:tracking-[-0.35px] lg:text-3xl lg:tracking-[-0.5px]",
                   stat.id === "active-campaigns" || stat.tone === "highlight"
-                    ? "text-[#6a36d5]"
-                    : "text-[#2c2f30]"
+                    ? "text-[#895af6] sm:text-[#6a36d5]"
+                    : "text-[#0f172a] sm:text-[#2c2f30]"
                 )}
               >
                 {stat.value}
               </p>
-              <p className="mt-2 text-sm text-[#595c5d]">{stat.subtitle}</p>
+              <div
+                className={cn(
+                  "flex shrink-0 items-center justify-center",
+                  "sm:size-9 sm:rounded-2xl lg:size-11",
+                  stat.tone === "highlight" ? "sm:bg-[#6a36d5]/10" : "sm:bg-slate-100"
+                )}
+              >
+                <MetricIcon metric={stat} />
+              </div>
             </div>
-            <div
-              className={cn(
-                "flex size-11 shrink-0 items-center justify-center rounded-2xl",
-                stat.tone === "highlight" ? "bg-[#6a36d5]/10" : "bg-slate-100"
-              )}
-            >
-              <MetricIcon metricId={stat.id} />
-            </div>
+
+            {/* Subtitle */}
+            <p className="text-xs text-[#64748b] sm:text-sm sm:text-[#595c5d]">
+              {stat.subtitle}
+            </p>
           </div>
-          {stat.tone === "highlight" && stat.value > 0 ? (
-            <div className="mt-3 flex items-center gap-2">
-              <span className="relative flex size-3 items-center justify-center">
-                <span className="absolute size-3 rounded-full bg-[#6a36d5] opacity-75" />
-                <span className="size-3 rounded-full bg-[#6a36d5]" />
-              </span>
-            </div>
-          ) : null}
-        </DashboardCard>
+        </Link>
       ))}
     </section>
   );

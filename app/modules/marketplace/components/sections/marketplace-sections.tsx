@@ -1,5 +1,14 @@
-import { Cake, ChevronDown, MapPin, Search, Star, X } from "lucide-react";
-import type { ComponentProps } from "react";
+import {
+  ChevronDown,
+  MapPin,
+  Search,
+  SlidersHorizontal,
+  Star,
+  UserCircle,
+  Video,
+  X,
+} from "lucide-react";
+import { useState, type ComponentProps } from "react";
 import { Link } from "react-router";
 import type {
   MarketplaceCreator,
@@ -11,6 +20,18 @@ import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 
 const FIELD_SHADOW = "shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]";
+
+const SERVICE_LABEL_MAP: Record<string, string> = {
+  "Gravação Presencial 2 Horas": "Presencial 2h",
+  "Gravação Presencial 4 Horas": "Presencial 4h",
+  "Gravação Presencial 2 horas": "Presencial 2h",
+  "Gravação Presencial 4 horas": "Presencial 4h",
+  "Unboxing": "Unboxing",
+};
+
+function shortenServiceLabel(label: string): string {
+  return SERVICE_LABEL_MAP[label] ?? label;
+}
 
 function FilterRemovableTag({
   label,
@@ -61,80 +82,223 @@ function SelectPill({
   );
 }
 
-function getCreatorInitials(name: string) {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-function CreatorImageFallback({
-  name,
-  className,
-}: {
-  name: string;
-  className: string;
-}) {
+function CreatorImageFallback({ className }: { className: string }) {
   return (
     <div
       className={cn(
-        "flex items-center justify-center bg-[rgba(137,90,246,0.12)] font-bold text-[#895af6]",
+        "flex flex-col items-center justify-center gap-1 bg-slate-100",
         className,
       )}
     >
-      {getCreatorInitials(name)}
+      <UserCircle className="size-12 text-slate-300" aria-hidden />
+      <span className="text-xs text-slate-400">Foto não enviada</span>
     </div>
   );
 }
 
-
-function MarketplaceCreatorMetadataRow({
-  location,
-  ageYears,
+function MarketplaceCreatorMetricsRow({
+  creator,
   compact,
 }: {
-  location: string;
-  ageYears: number | null;
+  creator: MarketplaceCreator;
   compact?: boolean;
 }) {
-  const ageOk = ageYears != null && Number.isFinite(ageYears);
-  const ageText = ageOk ? `${ageYears} anos` : "Idade não informada";
+  const hasReviews =
+    creator.totalReviews != null && creator.totalReviews > 0;
+  const hasVideoCount =
+    creator.videoCount != null && creator.videoCount > 0;
+  const hasDistance =
+    creator.distanceKm != null && Number.isFinite(creator.distanceKm);
+
+  const iconSize = compact ? "size-3" : "size-3.5";
+  const rowClass = compact
+    ? "text-[10px] font-medium text-slate-500"
+    : "text-xs text-slate-500";
 
   return (
-    <div
-      className={cn(
-        "flex flex-wrap items-center gap-x-1.5 gap-y-0.5",
-        compact ? "mt-1" : "pt-1",
-        compact
-          ? "text-[11px] font-medium text-slate-400"
-          : "text-xs text-slate-500",
-      )}
-    >
-      <span className="inline-flex min-w-0 max-w-full items-center gap-1.5">
+    <div className={cn("flex flex-col gap-0.5", compact ? "mt-1" : "mt-1.5")}>
+      {/* Line 1: Rating */}
+      <div className={cn("flex items-center gap-1", rowClass)}>
+        <Star
+          className={cn(iconSize, "shrink-0 fill-amber-400 text-amber-400")}
+          aria-hidden
+        />
+        <span className="font-semibold text-slate-700">{creator.rating}</span>
+        {hasReviews ? (
+          <span className="text-slate-400">({creator.totalReviews})</span>
+        ) : null}
+      </div>
+
+      {/* Line 2: Video count */}
+      {hasVideoCount ? (
+        <div className={cn("flex items-center gap-1", rowClass)}>
+          <Video
+            className={cn(iconSize, "shrink-0 text-slate-400")}
+            aria-hidden
+          />
+          <span>{creator.videoCount} vídeos criados</span>
+        </div>
+      ) : null}
+
+      {/* Line 3: Location (with optional distance) */}
+      <div className={cn("flex min-w-0 items-center gap-1", rowClass)}>
         <MapPin
-          className={cn(
-            "shrink-0 text-slate-400",
-            compact ? "size-2" : "size-3.5",
-          )}
+          className={cn(iconSize, "shrink-0 text-slate-400")}
           aria-hidden
         />
-        <span className="min-w-0 break-words">{location}</span>
-      </span>
-      <span className="shrink-0 text-slate-300" aria-hidden>
-        •
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <Cake
-          className={cn(
-            "shrink-0 text-slate-400",
-            compact ? "size-2.5" : "size-3.5",
-          )}
-          aria-hidden
-        />
-        <span>{ageText}</span>
-      </span>
+        <span className="min-w-0 break-words">
+          {hasDistance
+            ? `${Math.round(creator.distanceKm!)} km de você • ${creator.location}`
+            : creator.location}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function MarketplaceFiltersSheet({
+  open,
+  onClose,
+  serviceTypes,
+  serviceTypeId,
+  onServiceTypeChange,
+  minAge,
+  maxAge,
+  onMinAgeChange,
+  onMaxAgeChange,
+}: {
+  open: boolean;
+  onClose: () => void;
+  serviceTypes: MarketplaceServiceTypeOption[];
+  serviceTypeId: string;
+  onServiceTypeChange: (v: string) => void;
+  minAge: number | undefined;
+  maxAge: number | undefined;
+  onMinAgeChange: (v: number | undefined) => void;
+  onMaxAgeChange: (v: number | undefined) => void;
+}) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-slate-900/40" onClick={onClose}>
+      <aside
+        className="absolute right-0 top-0 flex h-full w-80 max-w-[85vw] flex-col bg-white shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+          <h3 className="text-base font-semibold text-slate-900">Filtros</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-8 items-center justify-center rounded-full text-slate-500 transition-colors hover:bg-slate-100"
+            aria-label="Fechar filtros"
+          >
+            <X className="size-4" />
+          </button>
+        </header>
+
+        <div className="flex flex-1 flex-col gap-6 overflow-y-auto px-5 py-5">
+          {/* Tipo de serviço */}
+          <section>
+            <h4 className="mb-3 text-sm font-semibold text-slate-700">
+              Tipo de serviço
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => onServiceTypeChange("")}
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                  !serviceTypeId
+                    ? "border-[#895af6] bg-[#895af6] text-white"
+                    : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                )}
+              >
+                Todos
+              </button>
+              {serviceTypes.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => onServiceTypeChange(s.id)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                    serviceTypeId === s.id
+                      ? "border-[#895af6] bg-[#895af6] text-white"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
+                  )}
+                >
+                  {shortenServiceLabel(s.label)}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Idade */}
+          <section>
+            <h4 className="mb-3 text-sm font-semibold text-slate-700">
+              Idade
+            </h4>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-1 flex-col gap-1">
+                <label className="text-xs text-slate-500">Mínima</label>
+                <Input
+                  type="number"
+                  min={18}
+                  max={80}
+                  placeholder="18"
+                  value={minAge ?? ""}
+                  onChange={(e) =>
+                    onMinAgeChange(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
+                  }
+                  className="h-10 rounded-xl border-slate-200 text-sm"
+                />
+              </div>
+              <span className="mt-5 text-slate-400">–</span>
+              <div className="flex flex-1 flex-col gap-1">
+                <label className="text-xs text-slate-500">Máxima</label>
+                <Input
+                  type="number"
+                  min={18}
+                  max={80}
+                  placeholder="80"
+                  value={maxAge ?? ""}
+                  onChange={(e) =>
+                    onMaxAgeChange(
+                      e.target.value ? Number(e.target.value) : undefined,
+                    )
+                  }
+                  className="h-10 rounded-xl border-slate-200 text-sm"
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer className="flex gap-3 border-t border-slate-100 px-5 py-4">
+          <Button
+            variant="secondary"
+            className="flex-1 rounded-full"
+            onClick={() => {
+              onServiceTypeChange("");
+              onMinAgeChange(undefined);
+              onMaxAgeChange(undefined);
+              onClose();
+            }}
+          >
+            Limpar
+          </Button>
+          <Button
+            variant="purple"
+            className="flex-1 rounded-full"
+            onClick={onClose}
+          >
+            Aplicar
+          </Button>
+        </footer>
+      </aside>
     </div>
   );
 }
@@ -160,6 +324,12 @@ export function MarketplaceSearchAndFilters({
   onServiceTypeChange,
   serviceTypes,
   isServiceTypesLoading = false,
+  sortBy,
+  onSortChange,
+  minAge,
+  maxAge,
+  onMinAgeChange,
+  onMaxAgeChange,
 }: {
   search: string;
   onSearchChange: (value: string) => void;
@@ -167,115 +337,192 @@ export function MarketplaceSearchAndFilters({
   onServiceTypeChange: (value: string) => void;
   serviceTypes: MarketplaceServiceTypeOption[];
   isServiceTypesLoading?: boolean;
+  sortBy: string;
+  onSortChange: (value: "relevancia" | "preco" | "avaliacao") => void;
+  minAge: number | undefined;
+  maxAge: number | undefined;
+  onMinAgeChange: (v: number | undefined) => void;
+  onMaxAgeChange: (v: number | undefined) => void;
 }) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
   const searchTrimmed = search.trim();
   const selectedServiceLabel = serviceTypes.find(
     (s) => s.id === serviceTypeId,
   )?.label;
 
+  const activeFilterCount = [
+    Boolean(serviceTypeId),
+    minAge != null,
+    maxAge != null,
+  ].filter(Boolean).length;
+
   const showSearchTag = searchTrimmed.length > 0;
   const showServiceTag = Boolean(serviceTypeId && selectedServiceLabel);
-  const showActiveTags = showSearchTag || showServiceTag;
+  const showAgeTag = minAge != null || maxAge != null;
+  const showActiveTags = showSearchTag || showServiceTag || showAgeTag;
+
+  const ageTagLabel =
+    minAge != null && maxAge != null
+      ? `Idade: ${minAge}–${maxAge} anos`
+      : minAge != null
+        ? `Idade: a partir de ${minAge} anos`
+        : `Idade: até ${maxAge} anos`;
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Desktop: fundo da página (#f6f5f8); campos brancos com sombra (Figma Search and Filter) */}
-      <div className="hidden w-full flex-col gap-3 lg:flex xl:flex-row xl:items-center xl:gap-3">
-        <div className="relative min-h-12 w-full max-w-xl shrink-0">
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
-          <Input
-            type="search"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar por nome, nicho ou palavra-chave..."
-            className={cn(
-              "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
-              FIELD_SHADOW,
-            )}
-          />
-        </div>
-        <div className="flex w-full min-w-0 xl:w-auto xl:shrink-0">
+    <>
+      <div className="flex flex-col gap-4">
+        {/* Desktop */}
+        <div className="hidden w-full items-center gap-3 lg:flex">
+          <div className="relative min-h-12 w-full max-w-xl shrink-0">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
+            <Input
+              type="search"
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Buscar por nome, nicho ou palavra-chave..."
+              className={cn(
+                "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
+                FIELD_SHADOW,
+              )}
+            />
+          </div>
           <SelectPill
-            value={serviceTypeId}
-            onChange={(e) => onServiceTypeChange(e.target.value)}
-            aria-label="Tipo de serviço"
-            className="w-full xl:w-52"
+            value={sortBy}
+            onChange={(e) =>
+              onSortChange(
+                e.target.value as "relevancia" | "preco" | "avaliacao",
+              )
+            }
+            aria-label="Ordenar por"
+            className="w-44 shrink-0"
           >
-            <option value="">
-              {isServiceTypesLoading
-                ? "Carregando servicos..."
-                : "Todos os servicos"}
-            </option>
-            {serviceTypes.map((serviceType) => (
-              <option key={serviceType.id} value={serviceType.id}>
-                {serviceType.label}
-              </option>
-            ))}
+            <option value="relevancia">Mais relevantes</option>
+            <option value="avaliacao">Melhor avaliados</option>
           </SelectPill>
-        </div>
-      </div>
-
-      {/* Mobile: busca branca + sombra */}
-      <div className="flex flex-col gap-3 lg:hidden">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
-          <Input
-            type="search"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar por nome, nicho ou palavra-chave..."
+          <button
+            type="button"
+            onClick={() => setFiltersOpen(true)}
             className={cn(
-              "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
+              "relative flex h-12 shrink-0 items-center gap-2 rounded-full border bg-white px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50",
               FIELD_SHADOW,
+              activeFilterCount > 0
+                ? "border-[#895af6] text-[#895af6]"
+                : "border-0",
             )}
-          />
+          >
+            <SlidersHorizontal className="size-4" />
+            Filtros
+            {activeFilterCount > 0 ? (
+              <span className="flex size-5 items-center justify-center rounded-full bg-[#895af6] text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            ) : null}
+          </button>
         </div>
-        <SelectPill
-          value={serviceTypeId}
-          onChange={(e) => onServiceTypeChange(e.target.value)}
-          aria-label="Tipo de serviço"
-          className="w-full"
-        >
-          <option value="">
-            {isServiceTypesLoading
-              ? "Carregando servicos..."
-              : "Todos os servicos"}
-          </option>
-          {serviceTypes.map((serviceType) => (
-            <option key={serviceType.id} value={serviceType.id}>
-              {serviceType.label}
-            </option>
-          ))}
-        </SelectPill>
+
+        {/* Mobile */}
+        <div className="flex flex-col gap-3 lg:hidden">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 size-[18px] -translate-y-1/2 text-slate-400" />
+            <Input
+              type="search"
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Buscar por nome, nicho ou palavra-chave..."
+              className={cn(
+                "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
+                FIELD_SHADOW,
+              )}
+            />
+          </div>
+          <div className="flex gap-3">
+            <SelectPill
+              value={sortBy}
+              onChange={(e) =>
+                onSortChange(
+                  e.target.value as "relevancia" | "preco" | "avaliacao",
+                )
+              }
+              aria-label="Ordenar por"
+              className="flex-1"
+            >
+              <option value="relevancia">Mais relevantes</option>
+              <option value="avaliacao">Melhor avaliados</option>
+            </SelectPill>
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              className={cn(
+                "relative flex h-12 shrink-0 items-center gap-2 rounded-full border bg-white px-4 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50",
+                FIELD_SHADOW,
+                activeFilterCount > 0
+                  ? "border-[#895af6] text-[#895af6]"
+                  : "border-0",
+              )}
+            >
+              <SlidersHorizontal className="size-4" />
+              {activeFilterCount > 0 ? (
+                <span className="flex size-5 items-center justify-center rounded-full bg-[#895af6] text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </button>
+          </div>
+        </div>
+
+        {showActiveTags ? (
+          <div
+            className="flex flex-wrap gap-2"
+            role="list"
+            aria-label="Filtros ativos"
+          >
+            {showSearchTag ? (
+              <span key="search" role="listitem">
+                <FilterRemovableTag
+                  label={`Busca: "${searchTrimmed}"`}
+                  onRemove={() => onSearchChange("")}
+                  removeAriaLabel="Remover busca"
+                />
+              </span>
+            ) : null}
+            {showServiceTag && selectedServiceLabel ? (
+              <span key="service" role="listitem">
+                <FilterRemovableTag
+                  label={shortenServiceLabel(selectedServiceLabel)}
+                  onRemove={() => onServiceTypeChange("")}
+                  removeAriaLabel="Remover filtro de serviço"
+                />
+              </span>
+            ) : null}
+            {showAgeTag ? (
+              <span key="age" role="listitem">
+                <FilterRemovableTag
+                  label={ageTagLabel}
+                  onRemove={() => {
+                    onMinAgeChange(undefined);
+                    onMaxAgeChange(undefined);
+                  }}
+                  removeAriaLabel="Remover filtro de idade"
+                />
+              </span>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
-      {showActiveTags ? (
-        <div
-          className="flex flex-wrap gap-2"
-          role="list"
-          aria-label="Filtros ativos"
-        >
-          {showSearchTag ? (
-            <span key="search" role="listitem">
-              <FilterRemovableTag
-                label={`Busca: "${searchTrimmed}"`}
-                onRemove={() => onSearchChange("")}
-                removeAriaLabel="Remover busca"
-              />
-            </span>
-          ) : null}
-          {showServiceTag && selectedServiceLabel ? (
-            <span key="service" role="listitem">
-              <FilterRemovableTag
-                label={`Serviço: ${selectedServiceLabel}`}
-                onRemove={() => onServiceTypeChange("")}
-                removeAriaLabel="Remover filtro de serviço"
-              />
-            </span>
-          ) : null}
-        </div>
-      ) : null}
-    </div>
+      <MarketplaceFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        serviceTypes={serviceTypes}
+        serviceTypeId={serviceTypeId}
+        onServiceTypeChange={onServiceTypeChange}
+        minAge={minAge}
+        maxAge={maxAge}
+        onMinAgeChange={onMinAgeChange}
+        onMaxAgeChange={onMaxAgeChange}
+      />
+    </>
   );
 }
 
@@ -290,7 +537,7 @@ export function MarketplaceCreatorCardDesktop({
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-shadow hover:shadow-lg">
-      <div className="relative h-64 shrink-0 w-full overflow-hidden">
+      <div className="relative h-52 w-full shrink-0 overflow-hidden">
         {img ? (
           <img
             src={img}
@@ -298,37 +545,25 @@ export function MarketplaceCreatorCardDesktop({
             className="h-full w-full object-cover"
           />
         ) : (
-          <CreatorImageFallback
-            name={creator.name}
-            className="h-full w-full text-4xl"
-          />
+          <CreatorImageFallback className="h-full w-full" />
         )}
-        <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 shadow-sm backdrop-blur-sm">
-          <Star className="size-4 fill-amber-400 text-amber-400" />
-          <span className="text-sm font-bold text-slate-900">
-            {creator.rating}
-          </span>
-        </div>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-1 px-6 pb-8 pt-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-1 px-6 pb-6 pt-5">
         <h3 className="text-xl font-bold leading-7 text-slate-900">
           {creator.name}
         </h3>
-        <MarketplaceCreatorMetadataRow
-          location={creator.location}
-          ageYears={creator.ageYears}
-        />
-        <div className="mt-4 flex flex-1 flex-wrap content-start gap-2">
+        <MarketplaceCreatorMetricsRow creator={creator} />
+        <div className="mt-4 flex flex-1 flex-wrap content-start gap-1.5">
           {creator.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="inline-flex shrink-0 items-center rounded-full bg-[#f6f5f8] px-3 py-1 text-xs font-medium text-slate-600"
+              className="inline-flex shrink-0 items-center rounded-full bg-[#f6f5f8] px-2 py-0.5 text-[11px] font-medium text-slate-600"
             >
-              {tag}
+              {shortenServiceLabel(tag)}
             </span>
           ))}
           {creator.tags.length > 3 && (
-            <span className="inline-flex shrink-0 items-center rounded-full bg-[#f6f5f8] px-3 py-1 text-xs font-medium text-slate-600">
+            <span className="inline-flex shrink-0 items-center rounded-full bg-[#f6f5f8] px-2 py-0.5 text-[11px] font-medium text-slate-600">
               +{creator.tags.length - 3}
             </span>
           )}
@@ -379,38 +614,21 @@ export function MarketplaceCreatorCardMobile({
               <div className="absolute inset-0 rounded-2xl shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]" />
             </>
           ) : (
-            <CreatorImageFallback
-              name={creator.name}
-              className="size-full rounded-2xl text-xl"
-            />
+            <CreatorImageFallback className="size-full rounded-2xl" />
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <h3 className="text-lg font-bold leading-[18px] text-slate-900">
-                {creator.name}
-              </h3>
-              <MarketplaceCreatorMetadataRow
-                location={creator.location}
-                ageYears={creator.ageYears}
-                compact
-              />
-            </div>
-            <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1">
-              <Star className="size-3 fill-amber-400 text-amber-400" />
-              <span className="text-xs font-bold text-amber-700">
-                {creator.rating}
-              </span>
-            </div>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <h3 className="text-lg font-bold leading-[18px] text-slate-900">
+            {creator.name}
+          </h3>
+          <MarketplaceCreatorMetricsRow creator={creator} compact />
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {creator.tags.map((tag) => (
               <span
                 key={tag}
                 className="rounded-md bg-slate-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-slate-600"
               >
-                {tag}
+                {shortenServiceLabel(tag)}
               </span>
             ))}
           </div>

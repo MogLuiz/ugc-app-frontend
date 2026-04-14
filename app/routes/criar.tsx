@@ -1,10 +1,10 @@
 import { AuthGuard } from "~/components/auth-guard";
-import { CreateCampaignScreen } from "~/modules/create-campaign/components/create-campaign-screen";
+import { Navigate } from "react-router";
 
 export default function CriarRoute() {
   return (
     <AuthGuard allowedRoles={["business"]}>
-      <CreateCampaignScreen />
+      <Navigate to="/ofertas/criar" replace />
     </AuthGuard>
   );
 }

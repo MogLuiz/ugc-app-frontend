@@ -62,18 +62,18 @@ export function UpcomingCampaignsSection({
             illustration={<UpcomingEmptyIllustration />}
             title="Nenhuma gravação agendada"
             description="Campanhas aceitas e confirmadas aparecerão aqui."
-            // actions={
-            //   <div className="flex justify-center">
-            //     <Button
-            //       asChild
-            //       variant="outline"
-            //       size="sm"
-            //       className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
-            //     >
-            //       <Link to="/marketplace">Explorar campanhas</Link>
-            //     </Button>
-            //   </div>
-            // }
+            actions={
+              <div className="flex justify-center">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
+                >
+                  <Link to="/dashboard">Explorar campanhas</Link>
+                </Button>
+              </div>
+            }
           />
         </DashboardCard>
       ) : null}

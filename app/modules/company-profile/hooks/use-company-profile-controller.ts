@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   useDeletePortfolioMediaMutation,
   useUpdateCompanyProfileMutation,
@@ -10,6 +10,10 @@ import {
 } from "~/modules/auth/mutations";
 import type { AuthUser } from "~/modules/auth/types";
 import { toast } from "~/components/ui/toast";
+import type {
+  ProfileProgress,
+  ProfileProgressItem,
+} from "~/components/ui/profile-progress-block";
 import {
   getCompanyProfileErrorMessage,
   getCompanyProfileSuccessMessage,
@@ -19,6 +23,8 @@ import {
   companyProfileSchema,
   type CompanyProfileForm,
 } from "../schemas/company-profile";
+
+export type { ProfileProgress, ProfileProgressItem };
 
 function getDefaultValues(user: AuthUser): CompanyProfileForm {
   const profile = user.profile;
@@ -42,7 +48,6 @@ function getDefaultValues(user: AuthUser): CompanyProfileForm {
 }
 
 export function useCompanyProfileController(user: AuthUser) {
-  const [isEditing, setIsEditing] = useState(false);
   const updateProfileMutation = useUpdateProfileMutation();
   const updateCompanyProfileMutation = useUpdateCompanyProfileMutation();
   const uploadAvatarMutation = useUploadAvatarMutation();
@@ -54,14 +59,65 @@ export function useCompanyProfileController(user: AuthUser) {
     defaultValues: getDefaultValues(user),
   });
 
-  function handleEdit() {
-    form.reset(getDefaultValues(user));
-    setIsEditing(true);
-  }
+  // Subscribe to all fields needed for progress calculation
+  const watchedFields = useWatch({
+    control: form.control,
+    name: [
+      "companyName",
+      "bio",
+      "businessNiche",
+      "name",
+      "phone",
+      "documentNumber",
+      "addressCity",
+      "addressState",
+      "addressZipCode",
+      "addressStreet",
+    ],
+  });
 
-  function handleCancelEdit() {
-    setIsEditing(false);
-  }
+  const portfolioMedia = user.portfolio?.media ?? [];
+
+  const profileProgress = useMemo((): ProfileProgress => {
+    const [
+      companyName,
+      bio,
+      businessNiche,
+      name,
+      phone,
+      documentNumber,
+      addressCity,
+      addressState,
+      addressZipCode,
+      addressStreet,
+    ] = watchedFields;
+
+    // Address is complete only when all 4 key fields are present (sufficient for geocoding)
+    const addressComplete =
+      !!addressCity?.trim() &&
+      !!addressState?.trim() &&
+      !!addressZipCode?.trim() &&
+      !!addressStreet?.trim();
+
+    const items: ProfileProgressItem[] = [
+      { label: "Logo da empresa", done: !!user.profile?.photoUrl },
+      { label: "Nome da empresa", done: !!companyName?.trim() },
+      { label: "Bio / sobre a empresa", done: !!bio?.trim() },
+      { label: "Nicho preenchido", done: !!businessNiche?.trim() },
+      { label: "Nome do responsável", done: !!name?.trim() },
+      { label: "Telefone", done: !!phone?.trim() },
+      { label: "Documento preenchido", done: !!documentNumber?.trim() },
+      { label: "Endereço cadastrado", done: addressComplete },
+      { label: "Portfólio adicionado", done: portfolioMedia.length > 0 },
+    ];
+
+    const completedCount = items.filter((i) => i.done).length;
+    return {
+      percent: Math.round((completedCount / items.length) * 100),
+      completedCount,
+      items,
+    };
+  }, [watchedFields, user, portfolioMedia]);
 
   async function handleAvatarChange(file: File) {
     try {
@@ -72,7 +128,7 @@ export function useCompanyProfileController(user: AuthUser) {
     }
   }
 
-  async function handleSubmit(data: CompanyProfileForm) {
+  async function internalHandleSubmit(data: CompanyProfileForm) {
     try {
       const [profileResult] = await Promise.all([
         updateProfileMutation.mutateAsync({
@@ -102,7 +158,6 @@ export function useCompanyProfileController(user: AuthUser) {
         }),
       ]);
 
-      setIsEditing(false);
       toast.success(getCompanyProfileSuccessMessage("profile_update"));
       if (profileResult.warnings?.length) {
         toast.warning(profileResult.warnings[0]);
@@ -136,6 +191,10 @@ export function useCompanyProfileController(user: AuthUser) {
     }
   }
 
+  function resetToUser() {
+    form.reset(getDefaultValues(user));
+  }
+
   const profile = user.profile;
   const displayName = profile?.name ?? user.name ?? "Empresa";
   const initials = displayName
@@ -145,26 +204,24 @@ export function useCompanyProfileController(user: AuthUser) {
     .join("");
 
   return {
-    company: user.companyProfile,
     displayName,
     form,
     handleAvatarChange,
-    handleCancelEdit,
-    handleEdit,
     handlePortfolioRemove,
     handlePortfolioUpload,
+    handleSubmit: form.handleSubmit(internalHandleSubmit),
     initials,
-    isEditing,
-    portfolioMedia: user.portfolio?.media ?? [],
+    isDirty: form.formState.isDirty,
+    isSaving:
+      updateProfileMutation.isPending ||
+      updateCompanyProfileMutation.isPending,
+    isUploadingAvatar: uploadAvatarMutation.isPending,
+    isUploadingPortfolio: uploadPortfolioMediaMutation.isPending,
+    isRemovingPortfolio: deletePortfolioMediaMutation.isPending,
+    portfolioMedia,
     profile,
-    submit: form.handleSubmit(handleSubmit),
+    profileProgress,
+    resetToUser,
     user,
-    mutations: {
-      deletePortfolioMedia: deletePortfolioMediaMutation,
-      updateCompanyProfile: updateCompanyProfileMutation,
-      updateProfile: updateProfileMutation,
-      uploadAvatar: uploadAvatarMutation,
-      uploadPortfolioMedia: uploadPortfolioMediaMutation,
-    },
   };
 }

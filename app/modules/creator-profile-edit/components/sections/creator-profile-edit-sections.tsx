@@ -5,7 +5,6 @@ import {
   Camera,
   CheckCircle2,
   ChevronDown,
-  Circle,
   Image,
   Loader2,
   MapPin,
@@ -22,8 +21,12 @@ import {
 } from "~/modules/creator-calendar/components/sections/creator-calendar-controls";
 import type { AvailabilityDay } from "~/modules/creator-calendar/types";
 import type { PortfolioMediaPayload } from "~/modules/auth/types";
-import type { ProfileProgress } from "../../hooks/use-creator-profile-edit-controller";
 import { lookupCep, formatCep, formatCpf } from "../../lib/cep-lookup";
+export {
+  ProfileProgressBlock,
+  type ProfileProgress,
+  type ProfileProgressItem,
+} from "~/components/ui/profile-progress-block";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Internal helper
@@ -37,61 +40,6 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ProfileProgressBlock
-// ─────────────────────────────────────────────────────────────────────────────
-
-export function ProfileProgressBlock({ percent, completedCount, items }: ProfileProgress) {
-  const allDone = completedCount === items.length;
-
-  return (
-    <section className="flex flex-col gap-4 rounded-[48px] border border-[#e2e8f0] bg-white p-6 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-base font-bold text-[#0f172a]">Conclusão do Perfil</h3>
-        <span className="rounded-full bg-[rgba(137,90,246,0.1)] px-2.5 py-0.5 text-xs font-bold text-[#895af6]">
-          {completedCount}/{items.length} itens
-        </span>
-      </div>
-
-      {/* Progress bar */}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-[#f1f5f9]">
-        <div
-          className="h-full rounded-full bg-[#895af6] transition-all duration-500"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
-
-      {/* Subtitle */}
-      <p className="text-xs text-[#64748b]">
-        {allDone
-          ? "Perfil completo! Você está pronto para receber e aplicar para ofertas."
-          : "Complete seu perfil para aparecer para empresas e liberar candidaturas."}
-      </p>
-
-      {/* Checklist 2-col */}
-      <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-        {items.map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5">
-            {item.done ? (
-              <CheckCircle2 className="size-4 shrink-0 text-[#895af6]" />
-            ) : (
-              <Circle className="size-4 shrink-0 text-slate-300" />
-            )}
-            <span
-              className={cn(
-                "text-xs leading-tight",
-                item.done ? "font-medium text-[#0f172a]" : "text-slate-400",
-              )}
-            >
-              {item.label}
-            </span>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CreatorProfileInfoSection (desktop only — full form)
