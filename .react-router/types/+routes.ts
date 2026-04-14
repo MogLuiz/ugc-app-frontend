@@ -82,16 +82,22 @@ type Pages = {
   "/configuracoes": {
     params: {};
   };
+  "/termos": {
+    params: {};
+  };
+  "/politica": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/termos" | "/politica";
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/termos" | "/politica";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -177,6 +183,14 @@ type RouteFiles = {
     id: "routes/configuracoes";
     page: "/configuracoes";
   };
+  "routes/termos.tsx": {
+    id: "routes/termos";
+    page: "/termos";
+  };
+  "routes/politica.tsx": {
+    id: "routes/politica";
+    page: "/politica";
+  };
 };
 
 type RouteModules = {
@@ -203,4 +217,6 @@ type RouteModules = {
   "routes/indicacoes.todas": typeof import("./app/routes/indicacoes.todas.tsx");
   "routes/criador.$creatorId": typeof import("./app/routes/criador.$creatorId.tsx");
   "routes/configuracoes": typeof import("./app/routes/configuracoes.tsx");
+  "routes/termos": typeof import("./app/routes/termos.tsx");
+  "routes/politica": typeof import("./app/routes/politica.tsx");
 };
