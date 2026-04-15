@@ -103,3 +103,9 @@ export const referralsKeys = {
   commissions: (page: number, limit: number) =>
     [...referralsKeys.all, "commissions", page, limit] as const,
 };
+
+export const paymentKeys = {
+  all: ["payments"] as const,
+  detail: (paymentId: string) => [...paymentKeys.all, "detail", paymentId] as const,
+  myPayouts: () => [...paymentKeys.all, "my-payouts"] as const,
+};

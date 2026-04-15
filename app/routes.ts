@@ -29,6 +29,10 @@ export default [
     route("criador/:creatorId", "routes/criador.$creatorId.tsx"),
     route("configuracoes", "routes/configuracoes.tsx"),
     route("oportunidades", "routes/oportunidades.tsx"),
-    route("oportunidades/:id", "routes/oportunidades.$id.tsx")
+    route("oportunidades/:id", "routes/oportunidades.$id.tsx"),
+    route("pagamento/sucesso", "routes/pagamento.sucesso.tsx"),
+    route("pagamento/falhou", "routes/pagamento.falhou.tsx"),
+    route("pagamento/aguardando", "routes/pagamento.aguardando.tsx"),
+    route("pagamento/:contractRequestId", "routes/pagamento.$contractRequestId.tsx"),
   ])
 ] satisfies RouteConfig;
