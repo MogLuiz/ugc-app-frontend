@@ -26,6 +26,30 @@ export type InitiatePaymentResponse = {
   transportFeeCents: number;
   creatorNetAmountCents: number;
   currency: string;
+  /** Crédito de saldo aplicado (em centavos). */
+  creditAppliedCents: number;
+  /** Valor efetivamente cobrado no gateway (gross - credit). */
+  remainderCents: number;
+  /** true quando 100% coberto por crédito — não exibir Brick. */
+  alreadyPaid: boolean;
+};
+
+export type CompanyBalance = {
+  availableCents: number;
+  maxCreditCents: number;
+  currency: string;
+  transactions: BalanceTransaction[];
+};
+
+export type BalanceTransaction = {
+  id: string;
+  companyUserId: string;
+  amountCents: number;
+  type: 'CREDIT_FROM_REJECTION' | 'CREDIT_FROM_EXPIRATION' | 'CREDIT_USED' | 'REFUND_PROCESSED';
+  referenceType: string;
+  referenceId: string;
+  note: string | null;
+  createdAt: string;
 };
 
 export type Payment = {

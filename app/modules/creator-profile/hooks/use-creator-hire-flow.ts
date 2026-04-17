@@ -301,9 +301,8 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     }
 
     try {
-      await createMutation.mutateAsync(payload);
-      toast.success("Solicitação enviada com sucesso.");
-      void navigate("/ofertas");
+      const contractRequest = await createMutation.mutateAsync(payload);
+      void navigate(`/pagamento/${contractRequest.id}`);
     } catch (error) {
       const message =
         error instanceof Error

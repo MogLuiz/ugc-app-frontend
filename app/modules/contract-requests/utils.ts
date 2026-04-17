@@ -60,6 +60,11 @@ export function getContractRequestStatusMeta(
   status: ContractRequestStatus | CompanyCampaignStatus | OfferDisplayStatus
 ) {
   switch (status) {
+    case "PENDING_PAYMENT":
+      return {
+        label: "Aguardando pagamento",
+        className: "bg-orange-100 text-orange-700",
+      };
     case "PENDING_ACCEPTANCE":
     case "PENDING":
       return {

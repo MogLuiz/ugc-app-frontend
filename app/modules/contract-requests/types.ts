@@ -1,9 +1,11 @@
 export type ContractRequestStatus =
+  | "PENDING_PAYMENT"
   | "PENDING_ACCEPTANCE"
   | "ACCEPTED"
   | "REJECTED"
   | "CANCELLED"
-  | "COMPLETED";
+  | "COMPLETED"
+  | "EXPIRED";
 
 export type CompanyCampaignStatus =
   | "PENDING"

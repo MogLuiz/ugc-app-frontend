@@ -355,7 +355,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
           onClick={flow.submit}
           disabled={!flow.canSubmit || flow.isSubmitting || !flow.hasServices}
         >
-          {flow.isSubmitting ? "Enviando..." : "Agendar Gravação"}
+          {flow.isSubmitting ? "Processando..." : "Ir para pagamento"}
         </Button>
       </div>
     </div>

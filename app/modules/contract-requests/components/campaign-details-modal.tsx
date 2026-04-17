@@ -1,7 +1,7 @@
 import { CalendarDays, MapPin, MessageCircle, Star, X } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
-import type { CompanyCampaignStatus, ContractRequestItem } from "../types";
+import type { CompanyCampaignStatus, ContractRequestItem, ContractRequestStatus } from "../types";
 import {
   formatCurrency,
   formatDateShort,
@@ -15,11 +15,15 @@ type CampaignDetailsModalProps = {
   onChatClick?: (item: ContractRequestItem) => void;
 };
 
-function resolveStatus(status: ContractRequestItem["status"]): CompanyCampaignStatus {
+function resolveStatus(
+  status: ContractRequestItem["status"]
+): CompanyCampaignStatus | ContractRequestStatus {
+  if (status === "PENDING_PAYMENT") return "PENDING_PAYMENT";
   if (status === "PENDING" || status === "PENDING_ACCEPTANCE") return "PENDING";
   if (status === "ACCEPTED") return "ACCEPTED";
   if (status === "IN_PROGRESS") return "IN_PROGRESS";
   if (status === "COMPLETED") return "COMPLETED";
+  if (status === "EXPIRED") return "EXPIRED";
   if (status === "REJECTED") return "CANCELLED";
   return "CANCELLED";
 }
@@ -160,6 +164,14 @@ export function CampaignDetailsModal({ item, onClose, onChatClick }: CampaignDet
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
+          {status === "PENDING_PAYMENT" && (
+            <Link
+              to={`/pagamento/${item.id}`}
+              className="rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
+            >
+              Pagar agora
+            </Link>
+          )}
           {(status === "ACCEPTED" || status === "IN_PROGRESS") && actions.canChat ? (
             <button
               type="button"

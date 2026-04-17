@@ -109,3 +109,8 @@ export const paymentKeys = {
   detail: (paymentId: string) => [...paymentKeys.all, "detail", paymentId] as const,
   myPayouts: () => [...paymentKeys.all, "my-payouts"] as const,
 };
+
+export const billingKeys = {
+  all: ["billing"] as const,
+  balance: () => [...billingKeys.all, "balance"] as const,
+};

@@ -6,6 +6,10 @@ type PaymentSummaryProps = {
   /** creatorBaseAmountCents + transportFeeCents */
   creatorNetAmountCents: number;
   currency?: string;
+  /** Crédito de saldo aplicado (em centavos). */
+  creditAppliedCents?: number;
+  /** Valor efetivamente cobrado no gateway. 0 quando 100% coberto por crédito. */
+  remainderCents?: number;
 };
 
 function formatCents(cents: number, currency = "BRL"): string {
@@ -28,8 +32,12 @@ export function PaymentSummary({
   creatorBaseAmountCents,
   transportFeeCents,
   currency = "BRL",
+  creditAppliedCents = 0,
+  remainderCents,
 }: PaymentSummaryProps) {
   const showTransport = transportFeeCents > 0;
+  const hasCredit = creditAppliedCents > 0;
+  const effectiveRemainder = remainderCents ?? grossAmountCents;
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 space-y-3">
@@ -65,6 +73,22 @@ export function PaymentSummary({
             {formatCents(grossAmountCents, currency)}
           </span>
         </div>
+
+        {hasCredit && (
+          <>
+            <div className="flex justify-between text-green-700">
+              <span>Crédito aplicado</span>
+              <span>− {formatCents(creditAppliedCents, currency)}</span>
+            </div>
+
+            <div className="flex justify-between font-semibold">
+              <span className="text-neutral-800">A cobrar agora</span>
+              <span className={effectiveRemainder === 0 ? "text-green-700" : "text-neutral-900"}>
+                {effectiveRemainder === 0 ? "Grátis" : formatCents(effectiveRemainder, currency)}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
       <p className="text-xs text-neutral-400">

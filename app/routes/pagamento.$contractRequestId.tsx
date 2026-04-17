@@ -15,7 +15,14 @@ function CheckoutScreen() {
   useEffect(() => {
     if (!contractRequestId) return;
     initiateMutation.mutate(contractRequestId, {
-      onSuccess: (data) => setPaymentData(data),
+      onSuccess: (data) => {
+        if (data.alreadyPaid) {
+          // 100% coberto por crédito — pular Brick e ir direto para sucesso
+          void navigate(`/pagamento/sucesso?paymentId=${data.paymentId}`);
+          return;
+        }
+        setPaymentData(data);
+      },
       onError: () => {
         void navigate("/dashboard");
       },
@@ -51,13 +58,15 @@ function CheckoutScreen() {
         transportFeeCents={paymentData.transportFeeCents}
         creatorNetAmountCents={paymentData.creatorNetAmountCents}
         currency={paymentData.currency}
+        creditAppliedCents={paymentData.creditAppliedCents}
+        remainderCents={paymentData.remainderCents}
       />
 
       <PaymentBrick
         publicKey={paymentData.publicKey}
         preferenceId={paymentData.preferenceId}
         paymentId={paymentData.paymentId}
-        grossAmountCents={paymentData.grossAmountCents}
+        grossAmountCents={paymentData.remainderCents ?? paymentData.grossAmountCents}
         onPaymentSubmitted={() => {
           void navigate(`/pagamento/aguardando?paymentId=${paymentData.paymentId}`);
         }}
