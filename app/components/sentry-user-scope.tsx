@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { useEffect } from "react";
-import { useAuthContext } from "~/modules/auth/context";
 import { isSentryEnabled } from "~/lib/sentry";
+import { useAuthContext } from "~/modules/auth/context";
 
 export function SentryUserScope() {
   const { user } = useAuthContext();
