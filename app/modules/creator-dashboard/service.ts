@@ -16,6 +16,7 @@ export type CreatorInviteApi = {
   payment: number;
   status: "PENDING";
   distanceKm?: number | null;
+  expiresAt?: string | null;
 };
 
 export type CreatorUpcomingApi = {
