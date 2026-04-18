@@ -13,17 +13,17 @@ function requireEnv(
   return value;
 }
 
-export const env = {
-  VITE_API_BASE_URL: requireEnv(
-    "VITE_API_BASE_URL",
-    import.meta.env.VITE_API_BASE_URL
-  ),
-  VITE_SUPABASE_URL: requireEnv(
-    "VITE_SUPABASE_URL",
-    import.meta.env.VITE_SUPABASE_URL
-  ),
-  VITE_SUPABASE_ANON_KEY: requireEnv(
+export function getApiBaseUrlEnv(): string {
+  return requireEnv("VITE_API_BASE_URL", import.meta.env.VITE_API_BASE_URL);
+}
+
+export function getSupabaseUrlEnv(): string {
+  return requireEnv("VITE_SUPABASE_URL", import.meta.env.VITE_SUPABASE_URL);
+}
+
+export function getSupabaseAnonKeyEnv(): string {
+  return requireEnv(
     "VITE_SUPABASE_ANON_KEY",
     import.meta.env.VITE_SUPABASE_ANON_KEY
-  ),
-} as const;
+  );
+}

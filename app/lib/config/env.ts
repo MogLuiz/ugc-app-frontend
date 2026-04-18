@@ -1,4 +1,4 @@
-import { env } from "~/lib/env";
+import { getApiBaseUrlEnv } from "~/lib/env";
 
 type Environment = "dev" | "test" | "prod";
 
@@ -14,5 +14,5 @@ export function getEnvironment(): Environment {
 }
 
 export function getApiBaseUrl() {
-  return env.VITE_API_BASE_URL;
+  return getApiBaseUrlEnv();
 }

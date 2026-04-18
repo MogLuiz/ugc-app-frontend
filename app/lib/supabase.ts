@@ -1,7 +1,25 @@
-import { createClient } from "@supabase/supabase-js";
-import { env } from "~/lib/env";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseAnonKeyEnv, getSupabaseUrlEnv } from "~/lib/env";
 
-export const supabase = createClient(
-  env.VITE_SUPABASE_URL,
-  env.VITE_SUPABASE_ANON_KEY
-);
+let browserSupabaseClient: SupabaseClient | null = null;
+
+function getSupabaseClient(): SupabaseClient {
+  if (typeof window === "undefined") {
+    throw new Error("Supabase client is only available in the browser");
+  }
+
+  if (!browserSupabaseClient) {
+    browserSupabaseClient = createClient(
+      getSupabaseUrlEnv(),
+      getSupabaseAnonKeyEnv()
+    );
+  }
+
+  return browserSupabaseClient;
+}
+
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getSupabaseClient(), prop, receiver);
+  },
+});
