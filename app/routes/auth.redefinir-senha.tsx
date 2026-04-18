@@ -6,7 +6,7 @@ import { Eye, EyeOff, Lock } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { z } from "zod/v3";
 import { toast } from "~/components/ui/toast";
-import { supabase } from "~/lib/supabase";
+import { getSupabaseClient } from "~/lib/supabase";
 import { AuthVisualPanel } from "~/modules/auth/components/auth-visual-panel";
 import { useResetPasswordMutation } from "~/modules/auth/mutations";
 
@@ -25,6 +25,7 @@ const resetPasswordSchema = z
 type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export default function AuthRedefinirSenhaRoute() {
+  const supabase = getSupabaseClient();
   const navigate = useNavigate();
   const mutation = useResetPasswordMutation();
   const [linkState, setLinkState] = useState<LinkState>("checking");

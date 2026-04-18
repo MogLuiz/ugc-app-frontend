@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { supabase } from "~/lib/supabase";
+import { getSupabaseClient } from "~/lib/supabase";
 import { authKeys } from "~/lib/query/query-keys";
 import { logout } from "~/modules/auth/service";
 import { useSessionQuery } from "~/modules/auth/queries";
@@ -25,6 +25,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const supabase = getSupabaseClient();
   const queryClient = useQueryClient();
   const [supabaseSession, setSupabaseSession] = useState<
     Session | null | undefined

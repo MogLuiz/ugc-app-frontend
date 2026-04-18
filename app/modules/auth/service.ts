@@ -1,4 +1,4 @@
-import { supabase } from "~/lib/supabase";
+import { getSupabaseClient } from "~/lib/supabase";
 import { httpClient } from "~/lib/http/client";
 import { getApiBaseUrl } from "~/lib/config/env";
 import type {
@@ -38,6 +38,7 @@ export async function updateProfile(
   data: UpdateProfileData,
   token?: string
 ): Promise<BootstrapPayload> {
+  const supabase = getSupabaseClient();
   const session = token
     ? { access_token: token }
     : (await supabase.auth.getSession()).data.session;
@@ -59,6 +60,7 @@ export type UpdateCompanyProfileData = {
 };
 
 export async function getAccessToken(token?: string): Promise<string> {
+  const supabase = getSupabaseClient();
   const session = token
     ? { access_token: token }
     : (await supabase.auth.getSession()).data.session;
@@ -175,6 +177,7 @@ export function setStoredRole(role: UserRole): void {
 }
 
 export async function getSession(signal?: AbortSignal): Promise<SessionResponse> {
+  const supabase = getSupabaseClient();
   const {
     data: { session },
     error: sessionError,
@@ -224,6 +227,7 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
 }
 
 export async function logout(): Promise<void> {
+  const supabase = getSupabaseClient();
   await supabase.auth.signOut();
 }
 
@@ -232,6 +236,7 @@ export async function bootstrapUser(
   token?: string,
   referralCode?: string
 ): Promise<BootstrapPayload> {
+  const supabase = getSupabaseClient();
   const session = token
     ? { access_token: token }
     : (await supabase.auth.getSession()).data.session;
@@ -257,6 +262,7 @@ export async function bootstrapUser(
 }
 
 export async function forgotPassword(email: string): Promise<void> {
+  const supabase = getSupabaseClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: 'https://app.ugclocal.com.br/auth/redefinir-senha',
   });
@@ -264,6 +270,7 @@ export async function forgotPassword(email: string): Promise<void> {
 }
 
 export async function resetPassword(newPassword: string): Promise<void> {
+  const supabase = getSupabaseClient();
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) throw new Error(error.message);
   // Encerra a sessão de recovery para evitar estado residual no AuthProvider
@@ -274,6 +281,7 @@ export async function changePassword(
   currentPassword: string,
   newPassword: string
 ): Promise<void> {
+  const supabase = getSupabaseClient();
   const session = (await supabase.auth.getSession()).data.session;
   if (!session?.user?.email) throw new Error("Usuário não autenticado");
 
@@ -293,6 +301,7 @@ export async function changePassword(
 }
 
 export async function signIn(email: string, password: string) {
+  const supabase = getSupabaseClient();
   return supabase.auth.signInWithPassword({ email, password });
 }
 
@@ -301,6 +310,7 @@ export async function signUp(
   password: string,
   options?: { name?: string; role?: UserRole; referralCode?: string }
 ) {
+  const supabase = getSupabaseClient();
   const data: Record<string, string> = {};
   if (options?.name) data.name = options.name;
   if (options?.role) data.role = toBackendRole(options.role);
