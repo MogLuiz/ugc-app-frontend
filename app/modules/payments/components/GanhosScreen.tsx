@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { AppHeader } from "~/components/layout/app-header";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
@@ -13,62 +12,25 @@ import { PayoutListItem } from "./PayoutListItem";
 import { PayoutDetailSheet } from "./PayoutDetailSheet";
 import { PixDataBlock } from "./PixDataBlock";
 
-type PendingFilter = "all" | "scheduled" | "waiting";
-
-function matchesPendingFilter(p: CreatorPayout, filter: PendingFilter): boolean {
-  if (filter === "all") return p.status === "not_due" || p.status === "pending" || p.status === "scheduled";
-  if (filter === "scheduled") return p.status === "scheduled";
-  if (filter === "waiting") return p.status === "not_due" || p.status === "pending";
-  return false;
+function formatCents(cents: number, currency = "BRL"): string {
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(cents / 100);
 }
 
 export function GanhosScreen() {
   const { data: payouts, isLoading } = useMyPayoutsQuery();
-
   const [selectedPayout, setSelectedPayout] = useState<CreatorPayout | null>(null);
-  const [pendingFilter, setPendingFilter] = useState<PendingFilter>("all");
 
-  const pendingPayouts = (payouts ?? []).filter((p) =>
-    matchesPendingFilter(p, pendingFilter)
-  );
-
-  const allPending = (payouts ?? []).filter(
-    (p) => p.status === "not_due" || p.status === "pending" || p.status === "scheduled"
-  );
-
-  const paidPayouts = (payouts ?? []).filter((p) => p.status === "paid");
-
-  const paidTotal = paidPayouts.reduce((sum, p) => sum + p.amountCents, 0);
+  const aReceber = (payouts ?? []).filter((p) => p.status === "pending" || p.status === "scheduled");
+  const recebidos = (payouts ?? []).filter((p) => p.status === "paid");
   const currency = payouts?.[0]?.currency ?? "BRL";
-
-  function formatCents(cents: number) {
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(cents / 100);
-  }
+  const recebidoTotal = recebidos.reduce((sum, p) => sum + p.amountCents, 0);
 
   const tabItems = [
     {
-      id: "pendentes",
-      label: allPending.length > 0 ? `Pendentes (${allPending.length})` : "Pendentes",
+      id: "a-receber",
+      label: "A receber",
       content: (
         <div className="space-y-3">
-          {/* Filter chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {(["all", "scheduled", "waiting"] as PendingFilter[]).map((f) => (
-              <button
-                key={f}
-                type="button"
-                onClick={() => setPendingFilter(f)}
-                className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                  pendingFilter === f
-                    ? "bg-[#895af6] text-white"
-                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                {f === "all" ? "Todos" : f === "scheduled" ? "Agendados" : "Aguardando"}
-              </button>
-            ))}
-          </div>
-
           {isLoading ? (
             <DashboardCard shadowTone="neutral" className="space-y-3 animate-pulse">
               {[1, 2, 3].map((i) => (
@@ -81,23 +43,15 @@ export function GanhosScreen() {
                 </div>
               ))}
             </DashboardCard>
-          ) : pendingPayouts.length === 0 ? (
+          ) : aReceber.length === 0 ? (
             <MobileEmptyState
-              title="Nada pendente no momento"
-              description="Quando uma empresa confirmar seu serviço, o repasse aparecerá aqui."
+              title="Você ainda não tem valores a receber"
+              description="Finalize um serviço para liberar o pagamento."
               density="compact"
-              actions={
-                <Link
-                  to="/ofertas"
-                  className="inline-flex items-center rounded-full bg-[#895af6] px-4 py-2 text-sm font-medium text-white"
-                >
-                  Ver campanhas
-                </Link>
-              }
             />
           ) : (
             <DashboardCard shadowTone="neutral" className="px-2">
-              {pendingPayouts.map((p) => (
+              {aReceber.map((p) => (
                 <PayoutListItem key={p.id} payout={p} onTap={setSelectedPayout} />
               ))}
             </DashboardCard>
@@ -106,8 +60,8 @@ export function GanhosScreen() {
       ),
     },
     {
-      id: "recebidos",
-      label: "Recebidos",
+      id: "recebido",
+      label: "Recebido",
       content: (
         <div className="space-y-3">
           {isLoading ? (
@@ -119,7 +73,7 @@ export function GanhosScreen() {
                 </div>
               ))}
             </DashboardCard>
-          ) : paidPayouts.length === 0 ? (
+          ) : recebidos.length === 0 ? (
             <MobileEmptyState
               title="Nenhum repasse recebido ainda"
               description="Aqui aparecerão todos os repasses que já foram pagos para você."
@@ -127,12 +81,12 @@ export function GanhosScreen() {
             />
           ) : (
             <DashboardCard shadowTone="neutral" className="px-2">
-              {paidPayouts.map((p) => (
+              {recebidos.map((p) => (
                 <PayoutListItem key={p.id} payout={p} onTap={setSelectedPayout} />
               ))}
               <div className="border-t border-slate-100 pt-3 flex justify-between items-center px-1">
                 <span className="text-xs text-slate-500">Total recebido</span>
-                <span className="text-sm font-bold text-green-600">{formatCents(paidTotal)}</span>
+                <span className="text-sm font-bold text-green-600">{formatCents(recebidoTotal, currency)}</span>
               </div>
             </DashboardCard>
           )}
@@ -147,7 +101,7 @@ export function GanhosScreen() {
           <PixDataBlock
             settings={null}
             onEdit={() => {
-              // EditPixSheet — Fase 2 (depende de endpoint PUT /creators/me/payout-settings)
+              // Fase 2 — depende de endpoint PUT /creators/me/payout-settings
             }}
           />
           <p className="text-xs text-slate-400 text-center px-4">
@@ -168,14 +122,14 @@ export function GanhosScreen() {
         <AppHeader title="Ganhos" mobileBehavior="inline" />
 
         <main className="flex-1 pb-24 lg:pb-10 lg:px-8 lg:py-6">
-          <div className="max-w-2xl mx-auto px-4 py-6 lg:px-0 lg:py-0 space-y-6">
-            <h1 className="hidden lg:block text-2xl font-black text-slate-900 mb-6">Ganhos</h1>
+          <div className="max-w-2xl mx-auto px-4 py-6 lg:px-0 lg:py-0 space-y-4">
+            <h1 className="hidden lg:block text-2xl font-black text-slate-900">Ganhos</h1>
 
             {/* KPI cards */}
             {isLoading ? (
-              <div className="flex gap-3 overflow-x-auto pb-1">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="shrink-0 w-[72vw] max-w-[280px] rounded-[28px] border border-slate-100 bg-white p-5 h-28 animate-pulse" />
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="rounded-[28px] border border-slate-100 bg-white p-4 h-24 animate-pulse" />
                 ))}
               </div>
             ) : (
@@ -183,14 +137,13 @@ export function GanhosScreen() {
             )}
 
             {/* Tabs */}
-            <Tabs items={tabItems} scrollable />
+            <Tabs items={tabItems} />
           </div>
         </main>
 
         <CreatorBottomNav />
       </div>
 
-      {/* Sheet */}
       <PayoutDetailSheet
         payout={selectedPayout}
         open={!!selectedPayout}

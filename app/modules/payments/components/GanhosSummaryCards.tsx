@@ -13,49 +13,39 @@ export function GanhosSummaryCards({ payouts }: Props) {
   const all = payouts ?? [];
   const currency = all[0]?.currency ?? "BRL";
 
-  const pendingPayouts = all.filter(
-    (p) => p.status === "not_due" || p.status === "pending" || p.status === "scheduled"
-  );
-  const toReceiveTotal = pendingPayouts.reduce((sum, p) => sum + p.amountCents, 0);
+  const aReceber = all.filter((p) => p.status === "pending" || p.status === "scheduled");
+  const aReceberTotal = aReceber.reduce((sum, p) => sum + p.amountCents, 0);
 
-  const paidPayouts = all.filter((p) => p.status === "paid");
-  const receivedTotal = paidPayouts.reduce((sum, p) => sum + p.amountCents, 0);
+  const recebidos = all.filter((p) => p.status === "paid");
+  const recebidoTotal = recebidos.reduce((sum, p) => sum + p.amountCents, 0);
 
   return (
-    <div className="flex gap-3 overflow-x-auto snap-x pb-1 -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-3 lg:overflow-visible">
-      {/* A Receber */}
+    <div className="grid grid-cols-2 gap-3">
+      {/* A receber */}
       <DashboardCard
-        shadowTone={toReceiveTotal > 0 ? "brand" : "neutral"}
-        className={`snap-start shrink-0 w-[72vw] max-w-[280px] lg:w-auto lg:max-w-none flex flex-col gap-1 ${toReceiveTotal > 0 ? "border-l-4 border-l-amber-400" : ""}`}
+        shadowTone={aReceberTotal > 0 ? "brand" : "neutral"}
+        className={`flex flex-col gap-1 p-4 lg:p-5 ${aReceberTotal > 0 ? "border-l-4 border-l-[#895af6]" : ""}`}
       >
-        <p className="text-xs text-slate-500">A receber</p>
-        <p className="text-2xl font-black text-slate-900">{formatCents(toReceiveTotal, currency)}</p>
-        <p className="text-xs text-slate-400">
-          {pendingPayouts.length} repasse{pendingPayouts.length !== 1 ? "s" : ""} aguardando
+        <p className="text-xs text-slate-500 leading-tight">A receber</p>
+        <p className="text-xl font-black text-slate-900 leading-tight">{formatCents(aReceberTotal, currency)}</p>
+        <p className="text-xs text-slate-400 leading-tight">
+          {aReceber.length > 0
+            ? `${aReceber.length} repasse${aReceber.length !== 1 ? "s" : ""} liberado${aReceber.length !== 1 ? "s" : ""}`
+            : "Aguardando pagamento"}
         </p>
       </DashboardCard>
 
-      {/* Já recebido */}
+      {/* Recebido */}
       <DashboardCard
-        shadowTone={receivedTotal > 0 ? "brand" : "neutral"}
-        className={`snap-start shrink-0 w-[72vw] max-w-[280px] lg:w-auto lg:max-w-none flex flex-col gap-1 ${receivedTotal > 0 ? "border-l-4 border-l-green-400" : ""}`}
+        shadowTone={recebidoTotal > 0 ? "brand" : "neutral"}
+        className={`flex flex-col gap-1 p-4 lg:p-5 ${recebidoTotal > 0 ? "border-l-4 border-l-green-400" : ""}`}
       >
-        <p className="text-xs text-slate-500">Já recebido</p>
-        <p className="text-2xl font-black text-slate-900">{formatCents(receivedTotal, currency)}</p>
-        <p className="text-xs text-slate-400">
-          {paidPayouts.length} repasse{paidPayouts.length !== 1 ? "s" : ""} pago{paidPayouts.length !== 1 ? "s" : ""}
-        </p>
-      </DashboardCard>
-
-      {/* Repasses pendentes */}
-      <DashboardCard
-        shadowTone={pendingPayouts.length > 0 ? "brand" : "neutral"}
-        className={`snap-start shrink-0 w-[72vw] max-w-[280px] lg:w-auto lg:max-w-none flex flex-col gap-1 ${pendingPayouts.length > 0 ? "border-l-4 border-l-amber-400" : ""}`}
-      >
-        <p className="text-xs text-slate-500">Repasses pendentes</p>
-        <p className="text-2xl font-black text-slate-900">{pendingPayouts.length}</p>
-        <p className="text-xs text-slate-400">
-          {pendingPayouts.length > 0 ? "Aguardando processamento" : "Sem pendências"}
+        <p className="text-xs text-slate-500 leading-tight">Recebido</p>
+        <p className="text-xl font-black text-slate-900 leading-tight">{formatCents(recebidoTotal, currency)}</p>
+        <p className="text-xs text-slate-400 leading-tight">
+          {recebidos.length > 0
+            ? `${recebidos.length} repasse${recebidos.length !== 1 ? "s" : ""} pago${recebidos.length !== 1 ? "s" : ""}`
+            : "Nenhum ainda"}
         </p>
       </DashboardCard>
     </div>

@@ -48,18 +48,15 @@ export function adaptCreatorKpis(api: CreatorDashboardApi): CreatorKpiCardVm[] {
   return [
     {
       id: "confirmed",
-      label: "confirmadas",
+      label: "Contratos ativos",
       valueDisplay: String(api.confirmedCampaigns),
+      subtitle: "Aguardando finalização",
+      href: "/ofertas",
     },
     {
       id: "invites",
       label: "pendentes",
       valueDisplay: String(api.pendingInvites),
-    },
-    {
-      id: "earnings",
-      label: "Ganhos do Mês",
-      valueDisplay: formatBrlFull(api.monthlyEarnings),
     },
     {
       id: "rating",

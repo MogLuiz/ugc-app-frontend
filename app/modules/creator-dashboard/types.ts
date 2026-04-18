@@ -4,6 +4,10 @@ export type CreatorKpiCardVm = {
   id: string;
   label: string;
   valueDisplay: string;
+  /** Texto secundário abaixo do valor principal. */
+  subtitle?: string;
+  /** Se fornecido, o card inteiro vira um link para essa rota. */
+  href?: string;
 };
 
 export type CreatorInviteVm = {
