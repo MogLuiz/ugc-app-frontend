@@ -3,7 +3,7 @@ import { MarketplaceScreen } from "~/modules/marketplace/components/marketplace-
 
 export default function MarketplaceRoute() {
   return (
-    <AuthGuard>
+    <AuthGuard allowedRoles={["business"]}>
       <MarketplaceScreen />
     </AuthGuard>
   );
