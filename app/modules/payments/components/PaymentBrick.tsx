@@ -48,12 +48,19 @@ export function PaymentBrick({
           paymentMethods: {
             creditCard: "all",
             debitCard: "all",
-            ticket: "all",
             bankTransfer: "all",
           },
           visual: {
             style: {
               theme: "default",
+              customVariables: {
+                baseColor: "#895af6",
+                baseColorFirstVariant: "#7c3aed",
+                baseColorSecondVariant: "#6d28d9",
+                buttonTextColor: "#ffffff",
+                outlinePrimaryColor: "#895af6",
+                outlineSecondaryColor: "#d8c7ff",
+              },
             },
           },
         }}
