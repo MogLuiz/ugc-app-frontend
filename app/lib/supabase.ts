@@ -1,12 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
+import { env } from "~/lib/env";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY são obrigatórios. Configure no .env"
-  );
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(
+  env.VITE_SUPABASE_URL,
+  env.VITE_SUPABASE_ANON_KEY
+);

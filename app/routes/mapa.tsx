@@ -3,7 +3,7 @@ import { CreatorsMapScreen } from "~/modules/creators-map/components/creators-ma
 
 export default function MapaRoute() {
   return (
-    <AuthGuard>
+    <AuthGuard allowedRoles={["business"]}>
       <CreatorsMapScreen />
     </AuthGuard>
   );

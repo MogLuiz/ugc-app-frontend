@@ -1,4 +1,5 @@
 /** Sentry: init antes do restante do módulo — ver `~/lib/sentry-init`. */
+import "~/lib/env";
 import "~/lib/sentry-init";
 
 import type { ReactNode } from "react";
