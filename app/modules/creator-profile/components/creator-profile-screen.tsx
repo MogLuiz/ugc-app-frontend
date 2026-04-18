@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useLocation, useParams } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import {
   CreatorPortfolioSection,
   CreatorHirePanel,
@@ -17,16 +17,36 @@ import type { MarketplaceCreator } from "~/modules/marketplace/types";
 export function CreatorProfileScreen() {
   const { creatorId } = useParams<{ creatorId: string }>();
   const location = useLocation();
+  const navigate = useNavigate();
   const creatorProfileQuery = useCreatorProfileQuery(creatorId);
-  const marketplaceCreator = (
-    location.state as { marketplaceCreator?: MarketplaceCreator } | null
-  )?.marketplaceCreator;
+  const locationState = location.state as
+    | {
+        marketplaceCreator?: MarketplaceCreator;
+        openHirePanel?: boolean;
+      }
+    | null;
+  const marketplaceCreator = locationState?.marketplaceCreator;
+  const hasConsumedOpenHirePanel = useRef(false);
 
   const profile = creatorProfileQuery.data ?? null;
   const backHref = marketplaceCreator ? "/marketplace" : "/mapa";
   const backLabel = marketplaceCreator
     ? "Voltar para marketplace"
     : "Voltar para busca";
+  const shouldAutoOpenHirePanel =
+    Boolean(locationState?.openHirePanel) && profile?.services.length;
+
+  useEffect(() => {
+    if (!shouldAutoOpenHirePanel || hasConsumedOpenHirePanel.current) {
+      return;
+    }
+
+    hasConsumedOpenHirePanel.current = true;
+    void navigate(location.pathname, {
+      replace: true,
+      state: marketplaceCreator ? { marketplaceCreator } : null,
+    });
+  }, [location.pathname, marketplaceCreator, navigate, shouldAutoOpenHirePanel]);
 
   if (creatorProfileQuery.isLoading && creatorId != null && !profile) {
     return (
@@ -88,6 +108,7 @@ export function CreatorProfileScreen() {
       profile={profile}
       backHref={backHref}
       backLabel={backLabel}
+      initialHirePanelOpen={Boolean(shouldAutoOpenHirePanel)}
     />
   );
 }
@@ -96,12 +117,14 @@ function CreatorProfileContent({
   profile,
   backHref,
   backLabel,
+  initialHirePanelOpen,
 }: {
   profile: CreatorProfile;
   backHref: string;
   backLabel: string;
+  initialHirePanelOpen: boolean;
 }) {
-  const [hirePanelOpen, setHirePanelOpen] = useState(false);
+  const [hirePanelOpen, setHirePanelOpen] = useState(initialHirePanelOpen);
   const hasServices = profile.services.length > 0;
 
   return (

@@ -104,8 +104,11 @@ export function useMarketplaceController() {
       setMaxAge: handleMaxAgeChange,
       setCurrentPage,
       onHire: (creator: MarketplaceCreator) => {
-        void navigate(`/criador/${creator.id}/contratar`, {
-          state: { marketplaceCreator: creator },
+        void navigate(`/criador/${creator.id}`, {
+          state: {
+            marketplaceCreator: creator,
+            openHirePanel: true,
+          },
         });
       },
     },
