@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Bell, LogOut, Settings, User } from "lucide-react";
+import { Banknote, Bell, LogOut, Settings, User, Wallet } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
 import { useAuth } from "~/hooks/use-auth";
@@ -146,6 +146,31 @@ export function AppHeader({
                   Meu perfil
                 </Link>
               </Dialog.Close>
+
+              {user?.role === "business" && (
+                <Dialog.Close asChild>
+                  <Link
+                    to="/financeiro"
+                    className="flex items-center gap-3 border-b border-slate-100 px-5 py-3.5 text-sm font-medium text-slate-800 hover:bg-slate-50 active:bg-slate-100"
+                  >
+                    <Wallet className="size-5 shrink-0 text-slate-500" />
+                    Financeiro
+                  </Link>
+                </Dialog.Close>
+              )}
+
+              {user?.role === "creator" && (
+                <Dialog.Close asChild>
+                  <Link
+                    to="/ganhos"
+                    className="flex items-center gap-3 border-b border-slate-100 px-5 py-3.5 text-sm font-medium text-slate-800 hover:bg-slate-50 active:bg-slate-100"
+                  >
+                    <Banknote className="size-5 shrink-0 text-slate-500" />
+                    Ganhos
+                  </Link>
+                </Dialog.Close>
+              )}
+
               <Dialog.Close asChild>
                 <Link
                   to="/configuracoes"
