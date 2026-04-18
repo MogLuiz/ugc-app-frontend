@@ -41,12 +41,14 @@ export function PaymentSummary({
 
   return (
     <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 space-y-3">
-      <p className="text-sm font-semibold text-neutral-700">Resumo do pagamento</p>
+      <p className="text-sm font-semibold text-neutral-700">
+        Resumo do pagamento
+      </p>
 
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-neutral-500">Serviço do creator</span>
-          <span className="text-neutral-900">
+          <span className=" text-neutral-900">
             {formatCents(creatorBaseAmountCents, currency)}
           </span>
         </div>
@@ -83,8 +85,16 @@ export function PaymentSummary({
 
             <div className="flex justify-between font-semibold">
               <span className="text-neutral-800">A cobrar agora</span>
-              <span className={effectiveRemainder === 0 ? "text-green-700" : "text-neutral-900"}>
-                {effectiveRemainder === 0 ? "Grátis" : formatCents(effectiveRemainder, currency)}
+              <span
+                className={
+                  effectiveRemainder === 0
+                    ? "text-green-700"
+                    : "text-neutral-900"
+                }
+              >
+                {effectiveRemainder === 0
+                  ? "Grátis"
+                  : formatCents(effectiveRemainder, currency)}
               </span>
             </div>
           </>

@@ -110,12 +110,21 @@ type Pages = {
       "contractRequestId": string;
     };
   };
+  "/financeiro": {
+    params: {};
+  };
+  "/ganhos": {
+    params: {};
+  };
+  "/carteira": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/:contractRequestId";
+    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/:contractRequestId" | "/financeiro" | "/ganhos" | "/carteira";
   };
   "routes/well-known.chrome-devtools.tsx": {
     id: "routes/well-known.chrome-devtools";
@@ -123,7 +132,7 @@ type RouteFiles = {
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/:contractRequestId";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/:contractRequestId" | "/financeiro" | "/ganhos" | "/carteira";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -237,6 +246,18 @@ type RouteFiles = {
     id: "routes/pagamento.$contractRequestId";
     page: "/pagamento/:contractRequestId";
   };
+  "routes/financeiro.tsx": {
+    id: "routes/financeiro";
+    page: "/financeiro";
+  };
+  "routes/ganhos.tsx": {
+    id: "routes/ganhos";
+    page: "/ganhos";
+  };
+  "routes/carteira.tsx": {
+    id: "routes/carteira";
+    page: "/carteira";
+  };
 };
 
 type RouteModules = {
@@ -271,4 +292,7 @@ type RouteModules = {
   "routes/pagamento.falhou": typeof import("./app/routes/pagamento.falhou.tsx");
   "routes/pagamento.aguardando": typeof import("./app/routes/pagamento.aguardando.tsx");
   "routes/pagamento.$contractRequestId": typeof import("./app/routes/pagamento.$contractRequestId.tsx");
+  "routes/financeiro": typeof import("./app/routes/financeiro.tsx");
+  "routes/ganhos": typeof import("./app/routes/ganhos.tsx");
+  "routes/carteira": typeof import("./app/routes/carteira.tsx");
 };

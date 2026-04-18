@@ -34,5 +34,8 @@ export default [
     route("pagamento/falhou", "routes/pagamento.falhou.tsx"),
     route("pagamento/aguardando", "routes/pagamento.aguardando.tsx"),
     route("pagamento/:contractRequestId", "routes/pagamento.$contractRequestId.tsx"),
+    route("financeiro", "routes/financeiro.tsx"),
+    route("ganhos", "routes/ganhos.tsx"),
+    route("carteira", "routes/carteira.tsx"),
   ])
 ] satisfies RouteConfig;

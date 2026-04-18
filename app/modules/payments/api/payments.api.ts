@@ -57,3 +57,10 @@ export async function getMyPayouts(token?: string): Promise<CreatorPayout[]> {
     token: accessToken,
   });
 }
+
+export async function getCompanyPayments(token?: string): Promise<Payment[]> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<Payment[]>("/payments", {
+    token: accessToken,
+  });
+}

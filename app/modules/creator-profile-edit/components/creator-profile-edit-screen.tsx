@@ -1,7 +1,10 @@
+import { Link } from "react-router";
+import { Banknote } from "lucide-react";
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/hooks/use-auth";
+import { useMyPayoutsQuery } from "~/modules/payments/api/payments.queries";
 import { useCreatorProfileEditController } from "../hooks/use-creator-profile-edit-controller";
 import type { ProfileProgress } from "~/components/ui/profile-progress-block";
 import {
@@ -61,6 +64,35 @@ function MobileStickyFooter({
         </Button>
       </div>
     </div>
+  );
+}
+
+function GanhosAccessCard() {
+  const { data: payouts } = useMyPayoutsQuery();
+  const pendingCount = (payouts ?? []).filter(
+    (p) => p.status === "not_due" || p.status === "pending" || p.status === "scheduled"
+  ).length;
+
+  return (
+    <Link
+      to="/ganhos"
+      className="flex items-center justify-between rounded-2xl border border-[rgba(106,54,213,0.08)] bg-white p-4 shadow-sm hover:bg-slate-50 transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-[#f3eeff]">
+          <Banknote className="size-5 text-[#895af6]" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Ganhos</p>
+          <p className="text-xs text-slate-400">
+            {pendingCount > 0
+              ? `${pendingCount} repasse${pendingCount !== 1 ? "s" : ""} aguardando`
+              : "Seus repasses e dados de pagamento"}
+          </p>
+        </div>
+      </div>
+      <span className="text-slate-300 text-lg">›</span>
+    </Link>
   );
 }
 
@@ -163,6 +195,8 @@ export function CreatorProfileEditScreen() {
               birthDate={controller.birthDate}
               onBirthDateChange={controller.setBirthDate}
             />
+
+            <GanhosAccessCard />
 
           </div>
 

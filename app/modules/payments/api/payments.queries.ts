@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentKeys } from "~/lib/query/query-keys";
 import {
+  getCompanyPayments,
   getMyPayouts,
   getPayment,
   initiatePayment,
@@ -40,6 +41,14 @@ export function useMyPayoutsQuery(enabled = true) {
   return useQuery({
     queryKey: paymentKeys.myPayouts(),
     queryFn: () => getMyPayouts(),
+    enabled,
+  });
+}
+
+export function useCompanyPaymentsQuery(enabled = true) {
+  return useQuery({
+    queryKey: paymentKeys.companyList(),
+    queryFn: () => getCompanyPayments(),
     enabled,
   });
 }

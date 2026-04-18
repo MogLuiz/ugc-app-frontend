@@ -16,6 +16,8 @@ export type PayoutStatus =
   | 'failed'
   | 'canceled';
 
+export type SettlementStatus = 'HELD' | 'APPLIED' | 'CONVERTED_TO_CREDIT';
+
 export type InitiatePaymentResponse = {
   paymentId: string;
   preferenceId: string;
@@ -60,9 +62,12 @@ export type Payment = {
   creatorBaseAmountCents: number;
   transportFeeCents: number;
   creatorNetAmountCents: number;
+  creditAppliedCents: number;
   currency: string;
   status: PaymentStatus;
   payoutStatus: PayoutStatus;
+  /** null em pagamentos antigos sem settlement ainda registrado. */
+  settlementStatus: SettlementStatus | null;
   gatewayName: string;
   paymentMethod: string | null;
   installments: number | null;

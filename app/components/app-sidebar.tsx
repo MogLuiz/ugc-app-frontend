@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import {
+  Banknote,
   BarChart3,
   Briefcase,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  CreditCard,
   Home,
   LogOut,
   MapPin,
@@ -14,6 +14,7 @@ import {
   User,
   UserPlus,
   Users,
+  Wallet,
 } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import {
@@ -77,6 +78,7 @@ const SIDEBAR_CONFIG: Record<
         icon: Users,
         to: "/marketplace",
       },
+      { id: "financeiro", label: "Financeiro", icon: Wallet, to: "/financeiro" },
       { id: "mapa", label: "Mapa de Criadores", icon: MapPin, to: "/mapa" },
       { id: "chat", label: "Chat", icon: MessageCircle, to: "/chat" },
       { id: "perfil", label: "Perfil da Empresa", icon: Users, to: "/perfil" },
@@ -108,7 +110,7 @@ const SIDEBAR_CONFIG: Record<
         to: "/agenda",
       },
       { id: "perfil", label: "Meu Perfil", icon: User, to: "/perfil" },
-      { id: "pagamentos", label: "Pagamentos", icon: CreditCard, to: "#" },
+      { id: "ganhos", label: "Ganhos", icon: Banknote, to: "/ganhos" },
       { id: "mensagens", label: "Mensagens", icon: MessageCircle, to: "/chat" },
       {
         id: "configuracoes",
@@ -212,7 +214,11 @@ export function AppSidebar({ variant }: AppSidebarProps) {
               item.to !== "#" &&
               (item.to === "/ofertas"
                 ? pathname === "/ofertas" || pathname.startsWith("/ofertas/")
-                : pathname === item.to);
+                : item.to === "/financeiro"
+                  ? pathname === "/financeiro" || pathname.startsWith("/financeiro/")
+                  : item.to === "/ganhos"
+                    ? pathname === "/ganhos" || pathname.startsWith("/ganhos/")
+                    : pathname === item.to);
 
             const itemClass = cn(
               "flex items-center transition-colors",

@@ -1,7 +1,10 @@
+import { Link } from "react-router";
+import { Wallet } from "lucide-react";
 import { useAuth } from "~/hooks/use-auth";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { Button } from "~/components/ui/button";
+import { useCompanyBalanceQuery } from "~/modules/billing/api/billing.queries";
 import {
   ProfileProgressBlock,
   type ProfileProgress,
@@ -66,6 +69,33 @@ function MobileStickyFooter({
 // CompanyProfileScreen
 // ─────────────────────────────────────────────────────────────────────────────
 
+function FinanceiroAccessCard() {
+  const { data: balance } = useCompanyBalanceQuery();
+  const hasCredit = balance && balance.availableCents > 0;
+
+  return (
+    <Link
+      to="/financeiro"
+      className="flex items-center justify-between rounded-2xl border border-[rgba(106,54,213,0.08)] bg-white p-4 shadow-sm hover:bg-slate-50 transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-[#f3eeff]">
+          <Wallet className="size-5 text-[#895af6]" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-900">Financeiro</p>
+          <p className="text-xs text-slate-400">
+            {hasCredit
+              ? `${new Intl.NumberFormat("pt-BR", { style: "currency", currency: balance.currency }).format(balance.availableCents / 100)} em créditos`
+              : "Pagamentos, créditos e reembolsos"}
+          </p>
+        </div>
+      </div>
+      <span className="text-slate-300 text-lg">›</span>
+    </Link>
+  );
+}
+
 export function CompanyProfileScreen() {
   const { user } = useAuth();
 
@@ -82,7 +112,6 @@ export function CompanyProfileScreen() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <main className="flex-1 pb-40 lg:overflow-auto lg:px-10 lg:py-10 lg:pb-10">
-
           {/* ── MOBILE LAYOUT ── */}
           <div className="flex flex-col gap-5 px-4 pt-4 lg:hidden">
             {controller.profileProgress.percent < 100 && (
@@ -118,6 +147,8 @@ export function CompanyProfileScreen() {
               isUploading={controller.isUploadingPortfolio}
               isRemoving={controller.isRemovingPortfolio}
             />
+
+            <FinanceiroAccessCard />
           </div>
 
           {/* ── DESKTOP LAYOUT ── */}
