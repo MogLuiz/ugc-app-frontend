@@ -33,6 +33,7 @@ export default [
     route("pagamento/sucesso", "routes/pagamento.sucesso.tsx"),
     route("pagamento/falhou", "routes/pagamento.falhou.tsx"),
     route("pagamento/aguardando", "routes/pagamento.aguardando.tsx"),
+    route("pagamento/pendente", "routes/pagamento.pendente.tsx"),
     route("pagamento/:contractRequestId", "routes/pagamento.$contractRequestId.tsx"),
     route("financeiro", "routes/financeiro.tsx"),
     route("ganhos", "routes/ganhos.tsx"),
