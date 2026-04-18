@@ -13,12 +13,18 @@ function formatDateShort(iso: string): string {
   }).format(new Date(iso));
 }
 
+const CARD_BRANDS = new Set([
+  "master", "visa", "amex", "elo", "hipercard", "hiper",
+  "diners", "discover", "aura", "jcb", "cabal",
+]);
+
 function paymentMethodLabel(method: string | null): string {
   if (!method) return "Método não informado";
   const m = method.toLowerCase();
   if (m.includes("pix")) return "PIX";
-  if (m.includes("credit") || m.includes("debit")) return "Cartão";
   if (m.includes("boleto")) return "Boleto";
+  if (m.includes("credit") || m.includes("debit")) return "Cartão";
+  if (CARD_BRANDS.has(m)) return "Cartão";
   return "Método não informado";
 }
 

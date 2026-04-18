@@ -14,11 +14,19 @@ function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
+const CARD_BRANDS = new Set([
+  "master", "visa", "amex", "elo", "hipercard", "hiper",
+  "diners", "discover", "aura", "jcb", "cabal",
+]);
+
 function paymentMethodLabel(method: string | null): string {
   if (!method) return "—";
-  if (method.toLowerCase().includes("pix")) return "PIX";
-  if (method.toLowerCase().includes("credit")) return "Cartão de crédito";
-  if (method.toLowerCase().includes("debit")) return "Cartão de débito";
+  const m = method.toLowerCase();
+  if (m.includes("pix")) return "PIX";
+  if (m.includes("boleto")) return "Boleto";
+  if (m.includes("credit")) return "Cartão de crédito";
+  if (m.includes("debit")) return "Cartão de débito";
+  if (CARD_BRANDS.has(m)) return "Cartão de crédito";
   return method;
 }
 
