@@ -39,7 +39,11 @@ export function formatBrlFull(value: number): string {
   }).format(value);
 }
 
-export function adaptCreatorKpis(api: CreatorDashboardApi): CreatorKpiCardVm[] {
+export function adaptCreatorKpis(
+  api: CreatorDashboardApi,
+  /** Ganhos do mês atual: soma de payouts paid com paidAt no mês corrente (centavos). */
+  ganhosDoMesCents: number | null = null,
+): CreatorKpiCardVm[] {
   const ratingDisplay =
     api.averageRating != null && api.averageRating > 0
       ? `${api.averageRating.toFixed(1)}/5`
@@ -57,6 +61,13 @@ export function adaptCreatorKpis(api: CreatorDashboardApi): CreatorKpiCardVm[] {
       id: "invites",
       label: "pendentes",
       valueDisplay: String(api.pendingInvites),
+    },
+    {
+      id: "earnings",
+      label: "Ganhos do mês",
+      valueDisplay: ganhosDoMesCents === null ? "—" : formatBrlFull(ganhosDoMesCents / 100),
+      subtitle: "Serviços concluídos",
+      href: "/ganhos",
     },
     {
       id: "rating",
