@@ -1,9 +1,15 @@
 import { Link, useSearchParams } from "react-router";
 import { AuthGuard } from "~/components/auth-guard";
+import { usePaymentQuery } from "~/modules/payments/api/payments.queries";
 
 function PaymentFailedScreen() {
   const [searchParams] = useSearchParams();
-  const contractRequestId = searchParams.get("contractRequestId");
+  const paymentId = searchParams.get("paymentId") ?? "";
+  const legacyContractRequestId = searchParams.get("contractRequestId");
+  const paymentQuery = usePaymentQuery(paymentId, !!paymentId);
+
+  const effectiveContractRequestId =
+    paymentQuery.data?.contractRequestId ?? legacyContractRequestId ?? null;
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 space-y-6">
@@ -21,9 +27,9 @@ function PaymentFailedScreen() {
       </div>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
-        {contractRequestId && (
+        {effectiveContractRequestId && (
           <Link
-            to={`/pagamento/${contractRequestId}`}
+            to={`/pagamento/${effectiveContractRequestId}`}
             className="px-6 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium text-center hover:bg-neutral-800 transition-colors"
           >
             Tentar novamente
