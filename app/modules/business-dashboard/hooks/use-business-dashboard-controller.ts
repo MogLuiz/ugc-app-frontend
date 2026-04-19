@@ -90,7 +90,7 @@ function getOperationalDisplay(
     return { label: "Em andamento", variant: "in_progress" };
   }
   if (status === "ACCEPTED") {
-    if (recording) return { label: "Confirmada", variant: "confirmed" };
+    if (recording) return { label: "Aceita", variant: "confirmed" };
     return { label: "Pendente", variant: "pending_schedule" };
   }
   if (status === "COMPLETED") {
@@ -197,7 +197,7 @@ export function useBusinessDashboardController() {
       const { confirmed, pending } = entry;
       if (confirmed === 0 && pending === 0) return null;
       const parts: string[] = [];
-      if (confirmed > 0) parts.push(`${confirmed} ${confirmed === 1 ? "confirmado" : "confirmados"}`);
+      if (confirmed > 0) parts.push(`${confirmed} ${confirmed === 1 ? "aceito" : "aceitos"}`);
       if (pending > 0) parts.push(`${pending} aguardando resposta`);
       return parts.join(" · ");
     }

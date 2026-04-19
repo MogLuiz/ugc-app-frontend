@@ -2,7 +2,7 @@ import type { OpenOfferListItemViewModel } from "~/modules/open-offers/types";
 import type { ContractRequestItem } from "./types";
 
 const STATUS_SUBTITLE: Partial<Record<string, string>> = {
-  ACCEPTED: "Trabalho confirmado",
+  ACCEPTED: "Trabalho aceito",
   COMPLETED: "Trabalho concluído",
   REJECTED: "Proposta recusada",
   CANCELLED: "Trabalho cancelado",
@@ -10,7 +10,7 @@ const STATUS_SUBTITLE: Partial<Record<string, string>> = {
 
 const STATUS_LABEL: Partial<Record<string, string>> = {
   PENDING_ACCEPTANCE: "Pendente",
-  ACCEPTED: "Confirmada",
+  ACCEPTED: "Aceita",
   COMPLETED: "Concluída",
   REJECTED: "Recusada",
   CANCELLED: "Cancelada",

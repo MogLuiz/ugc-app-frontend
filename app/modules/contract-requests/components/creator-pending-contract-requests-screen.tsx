@@ -16,7 +16,7 @@ type Tab = "PENDING" | "ACCEPTED" | "FINALIZED";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "PENDING", label: "Pendentes" },
-  { id: "ACCEPTED", label: "Confirmadas" },
+  { id: "ACCEPTED", label: "Aceitas" },
   { id: "FINALIZED", label: "Finalizadas" },
 ];
 
@@ -179,8 +179,8 @@ export function CreatorPendingContractRequestsScreen() {
         if (activeTab === "ACCEPTED") {
           return (
             <OffersEmptyState
-              title="Nenhum trabalho confirmado"
-              description="Quando você aceitar uma proposta, ela aparecerá aqui."
+              title="Nenhum trabalho aceito"
+              description="Quando uma proposta for aceita, ela aparecerá aqui."
             />
           );
         }

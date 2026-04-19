@@ -24,7 +24,7 @@ export type CompanyDashboardCampaignItem = {
   creatorAvatarUrl: string | null;
   locationText: string;
   status: CompanyCampaignStatus;
-  /** Rótulo exibido no badge (Confirmada, Pendente, Em andamento, Concluída). */
+  /** Rótulo exibido no badge (Aceita, Pendente, Em andamento, Concluída). */
   operationalStatusLabel: string;
   operationalStatusVariant: OperationalStatusVariant;
   durationMinutes: number;
