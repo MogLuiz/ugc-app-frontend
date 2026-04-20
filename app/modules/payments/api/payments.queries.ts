@@ -3,8 +3,10 @@ import { paymentKeys } from "~/lib/query/query-keys";
 import {
   getCompanyPayments,
   getMyPayouts,
+  getMyPayoutSettings,
   getPayment,
   initiatePayment,
+  updateMyPayoutSettings,
 } from "./payments.api";
 
 export function useInitiatePaymentMutation() {
@@ -42,6 +44,27 @@ export function useMyPayoutsQuery(enabled = true) {
     queryKey: paymentKeys.myPayouts(),
     queryFn: () => getMyPayouts(),
     enabled,
+  });
+}
+
+export function useMyPayoutSettingsQuery(enabled = true) {
+  return useQuery({
+    queryKey: paymentKeys.payoutSettings(),
+    queryFn: () => getMyPayoutSettings(),
+    enabled,
+  });
+}
+
+export function useUpdateMyPayoutSettingsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateMyPayoutSettings,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: paymentKeys.payoutSettings(),
+      });
+    },
   });
 }
 

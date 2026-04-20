@@ -2,8 +2,10 @@ import { httpClient } from "~/lib/http/client";
 import { getAccessToken } from "~/modules/auth/service";
 import type {
   CreatorPayout,
+  CreatorPayoutSettings,
   InitiatePaymentResponse,
   Payment,
+  UpdateCreatorPayoutSettingsInput,
 } from "../types/payment.types";
 
 export async function initiatePayment(
@@ -54,6 +56,27 @@ export async function processPayment(
 export async function getMyPayouts(token?: string): Promise<CreatorPayout[]> {
   const accessToken = await getAccessToken(token);
   return httpClient<CreatorPayout[]>("/payouts/my", {
+    token: accessToken,
+  });
+}
+
+export async function getMyPayoutSettings(
+  token?: string
+): Promise<CreatorPayoutSettings> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<CreatorPayoutSettings>("/profiles/me/payout-settings", {
+    token: accessToken,
+  });
+}
+
+export async function updateMyPayoutSettings(
+  data: UpdateCreatorPayoutSettingsInput,
+  token?: string
+): Promise<CreatorPayoutSettings> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<CreatorPayoutSettings>("/profiles/me/payout-settings", {
+    method: "PUT",
+    body: data,
     token: accessToken,
   });
 }

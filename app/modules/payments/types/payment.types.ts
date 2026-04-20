@@ -16,6 +16,8 @@ export type PayoutStatus =
   | 'failed'
   | 'canceled';
 
+export type PixKeyType = 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
+
 export type SettlementStatus = 'HELD' | 'APPLIED' | 'CONVERTED_TO_CREDIT';
 
 export type InitiatePaymentResponse = {
@@ -93,4 +95,20 @@ export type CreatorPayout = {
     contractRequestId: string;
     gatewayName: string;
   };
+};
+
+export type CreatorPayoutSettings = {
+  isConfigured: boolean;
+  pixKeyType: PixKeyType | null;
+  pixKey: string | null;
+  pixKeyMasked: string | null;
+  holderName: string | null;
+  holderDocument: string | null;
+};
+
+export type UpdateCreatorPayoutSettingsInput = {
+  pixKeyType: PixKeyType;
+  pixKey: string;
+  holderName?: string | null;
+  holderDocument?: string | null;
 };

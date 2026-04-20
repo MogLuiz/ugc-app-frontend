@@ -60,11 +60,39 @@ export type UpdateCompanyProfileData = {
 };
 
 export async function getAccessToken(token?: string): Promise<string> {
+  if (token && typeof token === 'string') return token;
+
   const supabase = getSupabaseClient();
-  const session = token
-    ? { access_token: token }
-    : (await supabase.auth.getSession()).data.session;
-  const accessToken = session?.access_token;
+  let session = (await supabase.auth.getSession()).data.session;
+  let accessToken = session?.access_token;
+
+  const ensureFreshSession = async () => {
+    if (!session?.refresh_token) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: session!.refresh_token,
+    });
+
+    if (error || !data.session?.access_token) {
+      throw new Error("Usuário não autenticado");
+    }
+
+    session = data.session;
+    accessToken = data.session.access_token;
+  };
+
+  const expiresAtMs = session?.expires_at ? session.expires_at * 1000 : null;
+  const shouldRefreshForExpiry =
+    !!session?.refresh_token &&
+    !!expiresAtMs &&
+    expiresAtMs <= Date.now() + 60_000;
+
+  if (shouldRefreshForExpiry) {
+    await ensureFreshSession();
+  }
+
   if (!accessToken) throw new Error("Usuário não autenticado");
   return accessToken;
 }
