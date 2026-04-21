@@ -19,6 +19,18 @@ const TABS: Array<{ id: OffersTabId; label: string }> = [
   { id: "FINALIZED", label: "Finalizadas" },
 ];
 
+function parseOffersTab(value: string | null): OffersTabId {
+  if (value === "IN_PROGRESS" || value === "ACCEPTED" || value === "confirmed") {
+    return "IN_PROGRESS";
+  }
+
+  if (value === "FINALIZED" || value === "finalized") {
+    return "FINALIZED";
+  }
+
+  return "OPEN";
+}
+
 function CompanyOffersStatusFilter({
   resolvedTab,
   onTabChange,
@@ -123,11 +135,11 @@ export function CompanyOpenOffersScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState<OffersTabId>("OPEN");
   const [page, setPage] = useState(1);
   const openOffersQuery = useMyCompanyOpenOffersQuery({ page, limit: 20 });
   const pendingContractsQuery = useMyCompanyContractRequestsQuery("PENDING");
   const contractsQuery = useMyCompanyContractRequestsQuery();
+  const activeTab = parseOffersTab(searchParams.get("tab"));
 
   const openOffers = openOffersQuery.data?.items ?? [];
   const pendingContracts = pendingContractsQuery.data ?? [];
@@ -190,10 +202,28 @@ export function CompanyOpenOffersScreen() {
         : "OPEN"
     : activeTab;
 
+  function handleTabChange(tab: OffersTabId) {
+    const next = new URLSearchParams(searchParams);
+
+    if (tab === "OPEN") {
+      next.delete("tab");
+    } else {
+      next.set("tab", tab);
+    }
+
+    setSearchParams(next, { replace: true });
+  }
+
   useEffect(() => {
     if (!openContractRequestId) return;
     if (openContractRequestIdFromState) {
-      navigate(location.pathname, { replace: true, state: {} satisfies CompanyCampaignsLocationState });
+      navigate(
+        {
+          pathname: location.pathname,
+          search: location.search,
+        },
+        { replace: true, state: {} satisfies CompanyCampaignsLocationState }
+      );
       return;
     }
 
@@ -202,6 +232,7 @@ export function CompanyOpenOffersScreen() {
     setSearchParams(next, { replace: true });
   }, [
     location.pathname,
+    location.search,
     navigate,
     openContractRequestId,
     openContractRequestIdFromState,
@@ -377,7 +408,7 @@ export function CompanyOpenOffersScreen() {
           <div className="mt-3 min-w-0">
             <CompanyOffersStatusFilter
               resolvedTab={resolvedTab}
-              onTabChange={setActiveTab}
+              onTabChange={handleTabChange}
               counts={tabCounts}
             />
           </div>

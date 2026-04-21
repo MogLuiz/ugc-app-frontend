@@ -81,7 +81,7 @@ export function BusinessDashboardCampaignsInProgress({
         title="Campanhas em andamento"
         description="Próximas gravações e logística."
         ctaLabel="Ver todas"
-        ctaTo="/ofertas"
+        ctaTo="/ofertas?tab=IN_PROGRESS"
       />
 
       {isLoading ? <SectionSkeleton rows={3} /> : null}
@@ -107,7 +107,7 @@ export function BusinessDashboardCampaignsInProgress({
                     size="sm"
                     className="h-8 rounded-full border-[#6a36d5]/35 px-3.5 text-xs font-semibold text-[#6a36d5] hover:bg-[#6a36d5]/5"
                   >
-                    <Link to="/ofertas">Ver ofertas</Link>
+                    <Link to="/ofertas?tab=IN_PROGRESS">Ver ofertas</Link>
                   </Button>
                 </div>
               }
@@ -211,7 +211,7 @@ export function BusinessDashboardCampaignsInProgress({
                     <button
                       type="button"
                       onClick={() =>
-                        navigate("/ofertas", {
+                        navigate("/ofertas?tab=IN_PROGRESS", {
                           state: { openContractRequestId: item.id } satisfies CompanyCampaignsLocationState,
                         })
                       }

@@ -81,7 +81,7 @@ export function OfferDetailScreen({ item }: OfferDetailScreenProps) {
     try {
       await cancelMutation.mutateAsync(id);
       toast.success("Trabalho desmarcado.");
-      void navigate("/ofertas?tab=ACCEPTED");
+      void navigate("/ofertas?tab=IN_PROGRESS");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Não foi possível desmarcar o trabalho."
