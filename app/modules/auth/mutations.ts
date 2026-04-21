@@ -14,6 +14,7 @@ import {
 } from "~/modules/auth/service";
 import type {
   UpdateProfileData,
+  UpdateCompanyProfileData,
   UpdateCreatorProfileData,
 } from "~/modules/auth/service";
 import type { UserRole } from "~/modules/auth/types";
@@ -62,13 +63,7 @@ export function useUpdateCompanyProfileMutation() {
       data,
       token,
     }: {
-      data: {
-        documentType?: "CPF" | "CNPJ";
-        documentNumber?: string;
-        companyName?: string;
-        jobTitle?: string;
-        businessNiche?: string;
-      };
+      data: UpdateCompanyProfileData;
       token?: string;
     }) => updateCompanyProfile(data, token),
     onSuccess: () => {
