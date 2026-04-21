@@ -32,11 +32,6 @@ type Pages = {
   "/agenda": {
     params: {};
   };
-  "/empresa/:companyUserId": {
-    params: {
-      "companyUserId": string;
-    };
-  };
   "/campanha/:contractRequestId": {
     params: {
       "contractRequestId": string;
@@ -127,7 +122,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/pendente" | "/pagamento/:contractRequestId" | "/financeiro" | "/ganhos" | "/carteira";
+    page: "/" | "/.well-known/appspecific/com.chrome.devtools.json" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/pendente" | "/pagamento/:contractRequestId" | "/financeiro" | "/ganhos" | "/carteira";
   };
   "routes/well-known.chrome-devtools.tsx": {
     id: "routes/well-known.chrome-devtools";
@@ -135,7 +130,7 @@ type RouteFiles = {
   };
   "routes/_app-layout.tsx": {
     id: "routes/_app-layout";
-    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/empresa/:companyUserId" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/pendente" | "/pagamento/:contractRequestId" | "/financeiro" | "/ganhos" | "/carteira";
+    page: "/" | "/login" | "/cadastro" | "/auth/esqueci-senha" | "/auth/redefinir-senha" | "/agenda" | "/campanha/:contractRequestId" | "/mapa" | "/marketplace" | "/dashboard" | "/campanhas" | "/criar" | "/ofertas" | "/ofertas/criar" | "/ofertas/:id" | "/chat" | "/perfil" | "/indicacoes" | "/indicacoes/todas" | "/criador/:creatorId" | "/configuracoes" | "/oportunidades" | "/oportunidades/:id" | "/pagamento/sucesso" | "/pagamento/falhou" | "/pagamento/aguardando" | "/pagamento/pendente" | "/pagamento/:contractRequestId" | "/financeiro" | "/ganhos" | "/carteira";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -160,10 +155,6 @@ type RouteFiles = {
   "routes/agenda.tsx": {
     id: "routes/agenda";
     page: "/agenda";
-  };
-  "routes/empresa.$companyUserId.tsx": {
-    id: "routes/empresa.$companyUserId";
-    page: "/empresa/:companyUserId";
   };
   "routes/campanha.$contractRequestId.tsx": {
     id: "routes/campanha.$contractRequestId";
@@ -277,7 +268,6 @@ type RouteModules = {
   "routes/auth.esqueci-senha": typeof import("./app/routes/auth.esqueci-senha.tsx");
   "routes/auth.redefinir-senha": typeof import("./app/routes/auth.redefinir-senha.tsx");
   "routes/agenda": typeof import("./app/routes/agenda.tsx");
-  "routes/empresa.$companyUserId": typeof import("./app/routes/empresa.$companyUserId.tsx");
   "routes/campanha.$contractRequestId": typeof import("./app/routes/campanha.$contractRequestId.tsx");
   "routes/mapa": typeof import("./app/routes/mapa.tsx");
   "routes/marketplace": typeof import("./app/routes/marketplace.tsx");

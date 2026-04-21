@@ -12,7 +12,6 @@ export default [
     route("auth/esqueci-senha", "routes/auth.esqueci-senha.tsx"),
     route("auth/redefinir-senha", "routes/auth.redefinir-senha.tsx"),
     route("agenda", "routes/agenda.tsx"),
-    route("empresa/:companyUserId", "routes/empresa.$companyUserId.tsx"),
     route("campanha/:contractRequestId", "routes/campanha.$contractRequestId.tsx"),
     route("mapa", "routes/mapa.tsx"),
     route("marketplace", "routes/marketplace.tsx"),

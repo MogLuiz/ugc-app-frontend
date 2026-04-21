@@ -187,20 +187,6 @@ export function CalendarJobDetailsBody({
           name={event.company}
           photoUrl={event.companyPhotoUrl}
           rating={event.companyRating}
-          profileHref={`/empresa/${event.companyUserId}`}
-          profileButtonLabel={
-            isSheet ? "Ver empresa →" : "Ver perfil da empresa"
-          }
-          profileLinkClassName={
-            isSheet
-              ? "mt-2 inline-flex w-full items-center justify-end text-sm font-semibold text-violet-600 transition hover:text-violet-800"
-              : undefined
-          }
-          profileLinkState={{
-            companyName: event.company,
-            companyPhotoUrl: event.companyPhotoUrl,
-            companyRating: event.companyRating,
-          }}
         />
       </section>
 
