@@ -4,6 +4,56 @@ function stripDocument(value: string): string {
   return value.replace(/\D/g, "");
 }
 
+const SOCIAL_HANDLE_REGEX = /^[A-Za-z0-9._-]{1,100}$/;
+
+function isValidHttpsUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isValidSocialValue(value: string, platform: "instagram" | "tiktok"): boolean {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+
+  if (trimmed.startsWith("@")) {
+    return SOCIAL_HANDLE_REGEX.test(trimmed.slice(1));
+  }
+
+  if (!trimmed.includes("://")) {
+    return SOCIAL_HANDLE_REGEX.test(trimmed);
+  }
+
+  try {
+    const url = new URL(trimmed);
+    const hostname = url.hostname.replace(/^www\./, "").toLowerCase();
+    const allowedHosts =
+      platform === "instagram"
+        ? new Set(["instagram.com"])
+        : new Set(["tiktok.com", "vm.tiktok.com", "m.tiktok.com"]);
+
+    if (!allowedHosts.has(hostname)) {
+      return false;
+    }
+
+    const [firstSegment] = url.pathname.split("/").filter(Boolean);
+    if (!firstSegment) {
+      return false;
+    }
+
+    const normalizedSegment =
+      platform === "tiktok" && firstSegment.toLowerCase() === "@" ? ""
+        : firstSegment.replace(/^@/, "");
+
+    return SOCIAL_HANDLE_REGEX.test(normalizedSegment);
+  } catch {
+    return false;
+  }
+}
+
 export const companyProfileSchema = z
   .object({
     name: z.string().min(1, "Nome é obrigatório").max(255),
@@ -19,6 +69,9 @@ export const companyProfileSchema = z
     addressCity: z.string().max(100),
     addressState: z.string().max(50),
     addressZipCode: z.string().max(20),
+    websiteUrl: z.string().max(500),
+    instagramUsername: z.string().max(100),
+    tiktokUsername: z.string().max(100),
   })
   .refine(
     (data) => {
@@ -31,6 +84,30 @@ export const companyProfileSchema = z
     {
       message: "Documento inválido para o tipo selecionado",
       path: ["documentNumber"],
+    }
+  )
+  .refine(
+    (data) => {
+      const websiteUrl = data.websiteUrl.trim();
+      return !websiteUrl || isValidHttpsUrl(websiteUrl);
+    },
+    {
+      message: "Informe uma URL válida começando com https://",
+      path: ["websiteUrl"],
+    }
+  )
+  .refine(
+    (data) => isValidSocialValue(data.instagramUsername, "instagram"),
+    {
+      message: "Informe um @handle ou URL válida do Instagram",
+      path: ["instagramUsername"],
+    }
+  )
+  .refine(
+    (data) => isValidSocialValue(data.tiktokUsername, "tiktok"),
+    {
+      message: "Informe um @handle ou URL válida do TikTok",
+      path: ["tiktokUsername"],
     }
   );
 

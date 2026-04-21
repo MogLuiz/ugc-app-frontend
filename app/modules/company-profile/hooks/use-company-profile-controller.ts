@@ -44,7 +44,28 @@ function getDefaultValues(user: AuthUser): CompanyProfileForm {
     addressCity: profile?.addressCity ?? "",
     addressState: profile?.addressState ?? "",
     addressZipCode: profile?.addressZipCode ?? "",
+    websiteUrl: company?.websiteUrl ?? "",
+    instagramUsername: company?.instagramUsername ?? "",
+    tiktokUsername: company?.tiktokUsername ?? "",
   };
+}
+
+function normalizeWebsiteUrl(value: string): string | null {
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
+}
+
+function normalizeSocialHandle(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  if (!trimmed.includes("://")) {
+    return trimmed.replace(/^@/, "");
+  }
+
+  const url = new URL(trimmed);
+  const [firstSegment] = url.pathname.split("/").filter(Boolean);
+  return firstSegment ? firstSegment.replace(/^@/, "") : null;
 }
 
 export function useCompanyProfileController(user: AuthUser) {
@@ -148,6 +169,9 @@ export function useCompanyProfileController(user: AuthUser) {
             companyName: data.companyName,
             ...(data.jobTitle && { jobTitle: data.jobTitle }),
             ...(data.businessNiche && { businessNiche: data.businessNiche }),
+            websiteUrl: normalizeWebsiteUrl(data.websiteUrl),
+            instagramUsername: normalizeSocialHandle(data.instagramUsername),
+            tiktokUsername: normalizeSocialHandle(data.tiktokUsername),
             ...(data.documentType && {
               documentType: data.documentType as "CPF" | "CNPJ",
             }),

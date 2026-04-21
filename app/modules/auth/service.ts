@@ -53,10 +53,13 @@ export async function updateProfile(
 
 export type UpdateCompanyProfileData = {
   documentType?: "CPF" | "CNPJ";
-  documentNumber?: string;
-  companyName?: string;
-  jobTitle?: string;
-  businessNiche?: string;
+  documentNumber?: string | null;
+  companyName?: string | null;
+  jobTitle?: string | null;
+  businessNiche?: string | null;
+  websiteUrl?: string | null;
+  instagramUsername?: string | null;
+  tiktokUsername?: string | null;
 };
 
 export async function getAccessToken(token?: string): Promise<string> {

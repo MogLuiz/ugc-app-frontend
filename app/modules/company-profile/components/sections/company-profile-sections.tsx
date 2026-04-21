@@ -222,6 +222,47 @@ export function CompanyResponsibleCard({
           />
         </div>
 
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>Site</FieldLabel>
+            <Input
+              {...register("websiteUrl")}
+              placeholder="https://suaempresa.com.br"
+              className={cn(
+                "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+                errors.websiteUrl && "ring-1 ring-red-400",
+              )}
+            />
+            <FieldError message={errors.websiteUrl?.message} />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>Instagram</FieldLabel>
+            <Input
+              {...register("instagramUsername")}
+              placeholder="@suaempresa ou URL"
+              className={cn(
+                "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+                errors.instagramUsername && "ring-1 ring-red-400",
+              )}
+            />
+            <FieldError message={errors.instagramUsername?.message} />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel>TikTok</FieldLabel>
+            <Input
+              {...register("tiktokUsername")}
+              placeholder="@suaempresa ou URL"
+              className={cn(
+                "rounded-[32px] border-0 bg-[#f8fafc] px-4 py-3",
+                errors.tiktokUsername && "ring-1 ring-red-400",
+              )}
+            />
+            <FieldError message={errors.tiktokUsername?.message} />
+          </div>
+        </div>
+
         <div className="flex flex-col gap-1.5">
           <FieldLabel>Telefone</FieldLabel>
           <Input
@@ -457,4 +498,3 @@ export function CompanyAddressCard({
     </section>
   );
 }
-

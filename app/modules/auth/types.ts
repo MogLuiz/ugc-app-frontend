@@ -85,6 +85,9 @@ export type CompanyProfilePayload = {
   companyName?: string | null;
   jobTitle?: string | null;
   businessNiche?: string | null;
+  websiteUrl?: string | null;
+  instagramUsername?: string | null;
+  tiktokUsername?: string | null;
   createdAt: string;
   updatedAt: string;
 };
