@@ -12,6 +12,14 @@ type PaymentBrickProps = {
   onError?: (error: unknown) => void;
 };
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  return "Unknown error";
+}
+
 /**
  * Wrapper do Mercado Pago Payment Brick.
  *
@@ -97,12 +105,18 @@ export function PaymentBrick({
 
             onPaymentSubmitted?.();
           } catch (err) {
-            console.error("PaymentBrick submit error:", err);
+            console.error("PaymentBrick submit failed", {
+              paymentId,
+              message: getErrorMessage(err),
+            });
             onError?.(err);
           }
         }}
         onError={(error) => {
-          console.error("PaymentBrick error:", error);
+          console.error("PaymentBrick render error", {
+            paymentId,
+            message: getErrorMessage(error),
+          });
           onError?.(error);
         }}
       />
