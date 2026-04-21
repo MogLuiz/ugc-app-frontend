@@ -1,21 +1,17 @@
 import { Star, Users2 } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
 
-// ── Login panel avatars (Figma, valid 7 days) ──────────────────────────────
-const loginUser1 =
-  "https://www.figma.com/api/mcp/asset/885aeade-d43c-447f-90b4-fad51d864bdf";
-const loginUser2 =
-  "https://www.figma.com/api/mcp/asset/3a5aea73-812f-47e5-8cf0-77c9d5537937";
-const loginUser3 =
-  "https://www.figma.com/api/mcp/asset/d6bfc2ba-1633-4b0b-91cf-3a04d7368c35";
+const LOGIN_AVATARS = [
+  "/avatar-1.webp",
+  "/avatar-2.webp",
+  "/avatar-3.webp",
+] as const;
 
-// ── Register panel avatars (Figma 262:1780, valid 7 days) ─────────────────
-const regUser1 =
-  "https://www.figma.com/api/mcp/asset/d6aa3d73-629b-4af4-b659-e0a2ba4b253b";
-const regUser2 =
-  "https://www.figma.com/api/mcp/asset/b67352b5-f80e-496b-acf3-6f17534faa70";
-const regUser3 =
-  "https://www.figma.com/api/mcp/asset/4297e90f-5f50-4a21-9478-7e219ff76b14";
+const REGISTER_AVATARS = [
+  "/avatar-1.webp",
+  "/avatar-2.webp",
+  "/avatar-3.webp",
+] as const;
 
 type AuthVisualPanelProps = {
   variant: "login" | "register";
@@ -24,6 +20,27 @@ type AuthVisualPanelProps = {
 export function AuthVisualPanel({ variant }: AuthVisualPanelProps) {
   if (variant === "login") return <LoginPanel />;
   return <RegisterPanel />;
+}
+
+type AvatarChipProps = {
+  src: string;
+  sizeClassName: string;
+};
+
+function AvatarChip({ src, sizeClassName }: AvatarChipProps) {
+  return (
+    <div
+      className={`relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white/20 bg-white/10 ${sizeClassName}`}
+      aria-hidden
+    >
+      <img
+        alt=""
+        className="h-full w-full object-cover"
+        draggable={false}
+        src={src}
+      />
+    </div>
+  );
 }
 
 // ─── Login Panel — Figma 259:1053 ─────────────────────────────────────────────
@@ -113,17 +130,9 @@ function LoginPanel() {
       {/* Social proof */}
       <div className="relative flex items-center gap-5 rounded-[32px] border border-white/5 bg-black/10 p-[21px] backdrop-blur-[12px]">
         <div className="flex items-start">
-          {[loginUser1, loginUser2, loginUser3].map((src, i) => (
-            <div
-              key={src}
-              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/20"
-              style={{ marginRight: i < 2 ? "-12px" : 0, zIndex: 3 - i }}
-            >
-              <img
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover"
-                src={src}
-              />
+          {LOGIN_AVATARS.map((src, i) => (
+            <div key={src} style={{ marginRight: i < 2 ? "-12px" : 0, zIndex: 3 - i }}>
+              <AvatarChip src={src} sizeClassName="h-10 w-10" />
             </div>
           ))}
         </div>
@@ -188,17 +197,9 @@ function RegisterPanel() {
       <div className="absolute bottom-16 left-16 flex items-center gap-6 rounded-[24px] border border-white/15 bg-white/8 p-[25px] shadow-[0px_8px_32px_0px_rgba(0,0,0,0.1)] backdrop-blur-[6px]">
         {/* Avatar stack */}
         <div className="flex items-start">
-          {[regUser1, regUser2, regUser3].map((src, i) => (
-            <div
-              key={src}
-              className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-white/20"
-              style={{ marginRight: i < 2 ? "-16px" : 0, zIndex: 3 - i }}
-            >
-              <img
-                alt=""
-                className="absolute inset-0 h-full w-full object-cover"
-                src={src}
-              />
+          {REGISTER_AVATARS.map((src, i) => (
+            <div key={src} style={{ marginRight: i < 2 ? "-16px" : 0, zIndex: 3 - i }}>
+              <AvatarChip src={src} sizeClassName="h-12 w-12" />
             </div>
           ))}
           {/* +2k badge */}
