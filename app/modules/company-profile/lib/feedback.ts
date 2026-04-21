@@ -2,7 +2,7 @@ function normalizeMessage(message?: string | null): string {
   return message?.trim() ?? "";
 }
 
-export const MAX_PORTFOLIO_VIDEO_SIZE_MB = 50;
+export const MAX_PORTFOLIO_VIDEO_SIZE_MB = 200;
 
 export function getCompanyProfileErrorMessage(
   error: unknown,
