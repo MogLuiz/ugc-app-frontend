@@ -1,12 +1,13 @@
 import { AuthGuard } from "~/components/auth-guard";
 import { Navigate, useParams } from "react-router";
 import { useAuth } from "~/hooks/use-auth";
-import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/company-campaigns-location-state";
 
 /**
  * Rota canónica `/campanha/:contractRequestId` — redireciona conforme o papel:
- * - empresa: abre a campanha em `/ofertas` (estado consumido por CompanyOpenOffersScreen)
+ * - empresa: abre o detalhe em `/ofertas/:id`
  * - criador: detalhe da oferta em `/ofertas/:id`
+ *
+ * Compat layer de go-live: mantém links antigos/handoffs sem reativar `campaigns`.
  */
 function CampanhaRedirect() {
   const { contractRequestId } = useParams<{ contractRequestId: string }>();
@@ -17,15 +18,7 @@ function CampanhaRedirect() {
   }
 
   if (user?.role === "business") {
-    return (
-      <Navigate
-        to="/ofertas"
-        replace
-        state={
-          { openContractRequestId: contractRequestId } satisfies CompanyCampaignsLocationState
-        }
-      />
-    );
+    return <Navigate to={`/ofertas/${contractRequestId}`} replace />;
   }
 
   return <Navigate to={`/ofertas/${contractRequestId}`} replace />;

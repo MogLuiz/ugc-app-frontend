@@ -1,28 +1,63 @@
-import { useLocation, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { AuthGuard } from "~/components/auth-guard";
 import { useAuth } from "~/hooks/use-auth";
+import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
 import { OfferDetailScreen } from "~/modules/contract-requests/components/offer-detail-screen";
 import {
   useMyCreatorContractRequestsQuery,
   useMyCreatorPendingContractRequestsQuery,
 } from "~/modules/contract-requests/queries";
 import type { ContractRequestItem } from "~/modules/contract-requests/types";
+import { HttpError } from "~/lib/http/errors";
 import { CompanyOpenOfferDetailScreen } from "~/modules/open-offers/components/company-open-offer-detail-screen";
+import { CompanyContractRequestDetailScreen } from "~/modules/open-offers/components/company-contract-request-detail-screen";
 import { useMyCompanyOpenOfferDetailQuery } from "~/modules/open-offers/queries";
+
+function BusinessDetailState({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <AuthGuard allowedRoles={["business"]}>
+      <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8] px-4">
+        <div className="w-full max-w-lg rounded-[32px] bg-white p-8 text-center shadow-sm">
+          <h1 className="text-2xl font-black tracking-[-0.03em] text-slate-900">{title}</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-500">{description}</p>
+          <Link
+            to="/ofertas"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-[#895af6] px-5 py-3 text-sm font-semibold text-white hover:bg-[#7c4fe6]"
+          >
+            Voltar para ofertas
+          </Link>
+        </div>
+      </div>
+    </AuthGuard>
+  );
+}
 
 export default function OfferDetailRoute() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const { user } = useAuth();
+  const isBusiness = user?.role === "business";
+  const isCreator = user?.role === "creator";
 
-  const companyOfferQuery = useMyCompanyOpenOfferDetailQuery(user?.role === "business" ? id : undefined);
+  const companyOfferQuery = useMyCompanyOpenOfferDetailQuery(isBusiness ? id : undefined);
+  const companyOpenOfferNotFound =
+    companyOfferQuery.error instanceof HttpError && companyOfferQuery.error.status === 404;
+  const companyContractsQuery = useMyCompanyContractRequestsQuery(
+    undefined,
+    isBusiness && Boolean(id) && companyOpenOfferNotFound
+  );
 
   // Item passed via navigation state (from list click) — fast path
   const stateItem = (location.state as { item?: ContractRequestItem } | null)?.item;
   const itemFromState = stateItem?.id === id ? stateItem : null;
 
   // Fallback: busca em todas as queries do creator quando não há state
-  const isCreator = user?.role === "creator";
   const { data: pendingItems, isLoading: isPendingLoading } =
     useMyCreatorPendingContractRequestsQuery(isCreator);
   const { data: acceptedItems, isLoading: isAcceptedLoading } =
@@ -42,9 +77,18 @@ export default function OfferDetailRoute() {
     cancelledItems?.find((i) => i.id === id) ??
     null;
 
+  const companyContractItem = isBusiness
+    ? companyContractsQuery.data?.find((item) => item.id === id) ?? null
+    : null;
+  const companyOpenOfferError =
+    companyOfferQuery.isError && !companyOpenOfferNotFound ? companyOfferQuery.error : null;
+  const companyContractsError =
+    companyContractsQuery.isError ? companyContractsQuery.error : null;
+
   const isLoading =
-    user?.role === "business"
-      ? companyOfferQuery.isLoading
+    isBusiness
+      ? companyOfferQuery.isLoading ||
+        (companyOpenOfferNotFound && companyContractsQuery.isLoading)
       : isPendingLoading ||
         isAcceptedLoading ||
         isCompletedLoading ||
@@ -62,20 +106,55 @@ export default function OfferDetailRoute() {
     );
   }
 
-  if (user?.role === "business") {
-    if (!companyOfferQuery.data) {
+  if (isBusiness) {
+    // Ambiguidade intencional de go-live: tentamos primeiro `open-offer` e,
+    // quando não existe, caímos para `contractRequest` via listagem da empresa.
+    if (companyOpenOfferError) {
+      const message =
+        companyOpenOfferError instanceof Error
+          ? companyOpenOfferError.message
+          : "Não foi possível carregar este detalhe.";
+      return (
+        <BusinessDetailState
+          title="Erro ao carregar oferta"
+          description={message}
+        />
+      );
+    }
+
+    if (companyOfferQuery.data) {
       return (
         <AuthGuard allowedRoles={["business"]}>
-          <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8]">
-            <p className="text-sm text-slate-500">Oferta não encontrada.</p>
-          </div>
+          <CompanyOpenOfferDetailScreen item={companyOfferQuery.data} />
         </AuthGuard>
+      );
+    }
+
+    if (companyContractsError) {
+      const message =
+        companyContractsError instanceof Error
+          ? companyContractsError.message
+          : "Não foi possível carregar este detalhe.";
+      return (
+        <BusinessDetailState
+          title="Erro ao carregar contrato"
+          description={message}
+        />
+      );
+    }
+
+    if (!companyContractItem) {
+      return (
+        <BusinessDetailState
+          title="Item não encontrado"
+          description="A oferta ou contrato solicitado não está disponível para esta empresa."
+        />
       );
     }
 
     return (
       <AuthGuard allowedRoles={["business"]}>
-        <CompanyOpenOfferDetailScreen item={companyOfferQuery.data} />
+        <CompanyContractRequestDetailScreen item={companyContractItem} />
       </AuthGuard>
     );
   }

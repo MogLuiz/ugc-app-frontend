@@ -127,7 +127,7 @@ export function mapPendingDirectInviteToListItem(
     expiresAt,
     expiresInMs: getRemainingMs(expiresAt, now),
     statusLabel: "Pendente",
-    href: `/campanha/${item.id}`,
+    href: `/ofertas/${item.id}`,
     contractRequestId: item.id,
   };
 }
@@ -149,7 +149,7 @@ export function mapActiveContractToListItem(item: ContractRequestItem): OpenOffe
     expiresAt: null,
     expiresInMs: null,
     statusLabel: item.status,
-    href: `/campanha/${item.id}`,
+    href: `/ofertas/${item.id}`,
     contractRequestId: item.id,
     offerId: item.openOfferId ?? undefined,
   };

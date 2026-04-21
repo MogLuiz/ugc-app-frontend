@@ -1,3 +1,5 @@
+// Fluxo oficial da empresa evolui em `open-offers`.
+// Este módulo permanece ativo porque ainda sustenta creator e handoffs compatíveis.
 import { httpClient } from "~/lib/http/client";
 import { getAccessToken } from "~/modules/auth/service";
 import type {

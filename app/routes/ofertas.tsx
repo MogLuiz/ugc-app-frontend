@@ -1,3 +1,5 @@
+// A empresa evolui em `open-offers`; o creator ainda depende parcialmente de
+// `contract-requests`, então esta rota continua suportando ambos por persona.
 import { AuthGuard } from "~/components/auth-guard";
 import { useAuth } from "~/hooks/use-auth";
 import { CreatorPendingContractRequestsScreen } from "~/modules/contract-requests/components/creator-pending-contract-requests-screen";

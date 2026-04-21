@@ -1,3 +1,5 @@
+// Fluxo oficial da empresa evolui em `open-offers`.
+// Este módulo permanece ativo porque ainda sustenta creator e handoffs compatíveis.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { contractRequestKeys, creatorDashboardKeys } from "~/lib/query/query-keys";
 import {
@@ -17,11 +19,13 @@ import type {
 } from "./types";
 
 export function useMyCompanyContractRequestsQuery(
-  status?: CompanyCampaignStatus | ContractRequestStatus
+  status?: CompanyCampaignStatus | ContractRequestStatus,
+  enabled = true
 ) {
   return useQuery({
     queryKey: contractRequestKeys.companyList(status),
     queryFn: () => getMyCompanyContractRequests(status),
+    enabled,
   });
 }
 
