@@ -1,7 +1,12 @@
 import { Link } from "react-router";
 import { EmptyState } from "~/components/ui/empty-state";
 import type { CompanyDashboardRecommendedCreator } from "../../types";
-import { DashboardCard, SectionHeader, SectionMessage, SectionSkeleton } from "./section-primitives";
+import {
+  DashboardCard,
+  SectionHeader,
+  SectionMessage,
+  SectionSkeleton,
+} from "./section-primitives";
 
 export function BusinessDashboardRecommendedCreators({
   items,
@@ -70,12 +75,18 @@ export function BusinessDashboardRecommendedCreators({
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold text-[#2c2f30]">{creator.name}</p>
+                    <p className="truncate font-bold text-[#2c2f30]">
+                      {creator.name}
+                    </p>
                     <p className="mt-0.5 text-sm text-[#595c5d]">
                       {creator.niche}
-                      {creator.rating != null ? ` · ${creator.rating.toFixed(1)} ★` : ""}
+                      {creator.rating != null
+                        ? ` · ${creator.rating.toFixed(1)} ★`
+                        : ""}
                     </p>
-                    <p className="mt-1 text-xs text-[#595c5d]/80">{creator.location}</p>
+                    <p className="mt-1 text-xs text-[#595c5d]/80">
+                      {creator.location}
+                    </p>
                   </div>
                 </div>
                 <Link
@@ -83,7 +94,7 @@ export function BusinessDashboardRecommendedCreators({
                   state={{ marketplaceCreator: creator }}
                   className="mt-4 flex w-full items-center justify-center rounded-full border-2 border-[#6a36d5] py-2.5 text-sm font-bold text-[#6a36d5] transition hover:bg-[#6a36d5]/5"
                 >
-                  Convidar
+                  Ver perfil
                 </Link>
               </div>
             ))}

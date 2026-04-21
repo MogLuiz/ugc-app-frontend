@@ -33,6 +33,7 @@ export function BusinessDashboardPendingRequests({
   getCreatorFallbackInitials: (name: string) => string;
 }) {
   const navigate = useNavigate();
+  const visibleItems = items.slice(0, 2);
 
   return (
     <section className="flex flex-col gap-4">
@@ -104,7 +105,7 @@ export function BusinessDashboardPendingRequests({
 
       {!isLoading && !errorMessage && items.length > 0 ? (
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {items.map((item) => (
+          {visibleItems.map((item) => (
             <DashboardCard key={item.id} shadowTone="neutral" className="p-4">
               <div className="flex gap-3">
                 {item.creatorAvatarUrl ? (
