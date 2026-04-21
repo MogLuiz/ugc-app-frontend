@@ -17,7 +17,7 @@ import type {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
-import { cn, getFirstName } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 
 const FIELD_SHADOW = "shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]";
 
@@ -425,7 +425,7 @@ export function MarketplaceSearchAndFilters({
               type="search"
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
-              placeholder="Buscar por nome"
+              placeholder="Buscar por nome, nicho ou palavra-chave..."
               className={cn(
                 "h-12 rounded-full border-0 bg-white pl-12 pr-4 text-slate-900 placeholder:text-slate-500",
                 FIELD_SHADOW,
@@ -530,7 +530,6 @@ export function MarketplaceCreatorCardDesktop({
   onHire: (c: MarketplaceCreator) => void;
 }) {
   const img = creator.coverImageUrl ?? creator.avatarUrl;
-  const creatorFirstName = getFirstName(creator.name);
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[rgba(137,90,246,0.05)] bg-white shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] transition-shadow hover:shadow-lg">
@@ -547,7 +546,7 @@ export function MarketplaceCreatorCardDesktop({
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-1 px-6 pb-6 pt-5">
         <h3 className="text-xl font-bold leading-7 text-slate-900">
-          {creatorFirstName}
+          {creator.name}
         </h3>
         <MarketplaceCreatorMetricsRow creator={creator} />
         <div className="mt-4 flex flex-1 flex-wrap content-start gap-1.5">
@@ -597,8 +596,6 @@ export function MarketplaceCreatorCardMobile({
   creator: MarketplaceCreator;
   onHire: (c: MarketplaceCreator) => void;
 }) {
-  const creatorFirstName = getFirstName(creator.name);
-
   return (
     <article className="flex flex-col gap-5 rounded-2xl border border-slate-100 bg-white p-5 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
       <div className="flex gap-4">
@@ -618,7 +615,7 @@ export function MarketplaceCreatorCardMobile({
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-bold leading-[18px] text-slate-900">
-            {creatorFirstName}
+            {creator.name}
           </h3>
           <MarketplaceCreatorMetricsRow creator={creator} compact />
           <div className="mt-2 flex flex-wrap gap-1.5">
