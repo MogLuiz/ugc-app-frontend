@@ -5,6 +5,7 @@ interface ImportMetaEnv {
   readonly VITE_GOOGLE_MAPS_API_KEY?: string;
   readonly VITE_SUPABASE_URL?: string;
   readonly VITE_SUPABASE_ANON_KEY?: string;
+  readonly VITE_SUPPORT_WHATSAPP_NUMBER?: string;
   /** DSN público do projeto Sentry (browser). */
   readonly VITE_SENTRY_DSN?: string;
   /** `false` desliga o SDK mesmo com DSN configurado. */

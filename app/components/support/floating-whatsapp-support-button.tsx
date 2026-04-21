@@ -31,6 +31,9 @@ export function FloatingWhatsAppSupportButton({
   context: SupportWhatsAppContext;
 }) {
   const href = getSupportWhatsAppUrl(context);
+  if (!href) {
+    return null;
+  }
 
   return (
     <a
