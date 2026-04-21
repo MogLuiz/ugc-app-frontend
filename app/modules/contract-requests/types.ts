@@ -5,7 +5,9 @@ export type ContractRequestStatus =
   | "REJECTED"
   | "CANCELLED"
   | "COMPLETED"
-  | "EXPIRED";
+  | "EXPIRED"
+  | "AWAITING_COMPLETION_CONFIRMATION"
+  | "COMPLETION_DISPUTE";
 
 export type CompanyCampaignStatus =
   | "PENDING"
@@ -59,6 +61,14 @@ export type ContractRequestItem = {
   creatorAvatarUrlSnapshot: string | null;
   rejectionReason: string | null;
   openOfferId?: string | null;
+  completedAt?: string | null;
+  creatorConfirmedCompletedAt?: string | null;
+  companyConfirmedCompletedAt?: string | null;
+  contestDeadlineAt?: string | null;
+  completionDisputeReason?: string | null;
+  completionDisputedAt?: string | null;
+  completionDisputedByUserId?: string | null;
+  completionPhaseEnteredAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
   /** Payload enriquecido (my-creator/pending) */
@@ -111,4 +121,24 @@ export type ContractRequestPayload = {
   durationMinutes: number;
   jobAddress: string;
   termsAccepted: boolean;
+};
+
+export type ReviewerRole = "COMPANY" | "CREATOR";
+
+export type ReviewItem = {
+  id: string;
+  reviewerRole: ReviewerRole;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+};
+
+export type ContractReviewsResponse = {
+  contractRequestId: string;
+  reviews: ReviewItem[];
+};
+
+export type CreateReviewPayload = {
+  rating: number;
+  comment?: string;
 };

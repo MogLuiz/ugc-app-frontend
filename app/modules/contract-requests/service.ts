@@ -7,6 +7,8 @@ import type {
   ContractRequestItem,
   ContractRequestPayload,
   ContractRequestStatus,
+  ContractReviewsResponse,
+  CreateReviewPayload,
 } from "./types";
 
 export async function createContractRequest(
@@ -103,4 +105,50 @@ export async function cancelContractRequest(
     method: "PATCH",
     token: accessToken,
   });
+}
+
+export async function confirmCompletion(
+  contractRequestId: string,
+  token?: string
+): Promise<ContractRequestItem> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractRequestItem>(
+    `/contract-requests/${contractRequestId}/confirm-completion`,
+    { method: "PATCH", token: accessToken }
+  );
+}
+
+export async function disputeCompletion(
+  contractRequestId: string,
+  reason: string,
+  token?: string
+): Promise<ContractRequestItem> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractRequestItem>(
+    `/contract-requests/${contractRequestId}/dispute-completion`,
+    { method: "PATCH", body: { reason }, token: accessToken }
+  );
+}
+
+export async function submitReview(
+  contractRequestId: string,
+  payload: CreateReviewPayload,
+  token?: string
+): Promise<import("./types").ReviewItem> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<import("./types").ReviewItem>(
+    `/contract-requests/${contractRequestId}/reviews`,
+    { method: "POST", body: payload, token: accessToken }
+  );
+}
+
+export async function getContractReviews(
+  contractRequestId: string,
+  token?: string
+): Promise<ContractReviewsResponse> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractReviewsResponse>(
+    `/contract-requests/${contractRequestId}/reviews`,
+    { token: accessToken }
+  );
 }
