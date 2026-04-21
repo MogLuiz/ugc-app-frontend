@@ -24,7 +24,8 @@ const DISTANCE_FILTERS: Array<{ id: DistanceFilter; label: string }> = [
 export function CreatorsMapScreen() {
   const controller = useCreatorsMapController();
   const { viewModel, actions } = controller;
-  const [mobileSheetState, setMobileSheetState] = useState<SheetState>("collapsed");
+  const [mobileSheetState, setMobileSheetState] =
+    useState<SheetState>("collapsed");
   const [mobileTopInset, setMobileTopInset] = useState(118);
   const [bottomNavHeight, setBottomNavHeight] = useState(88);
   const mobileTopRef = useRef<HTMLDivElement>(null);
@@ -52,7 +53,9 @@ export function CreatorsMapScreen() {
 
   useEffect(() => {
     const measureBottomNav = () => {
-      const navEl = document.querySelector<HTMLElement>("[data-business-bottom-nav]");
+      const navEl = document.querySelector<HTMLElement>(
+        "[data-business-bottom-nav]",
+      );
       if (!navEl) return;
       setBottomNavHeight(Math.ceil(navEl.getBoundingClientRect().height));
     };
@@ -60,7 +63,9 @@ export function CreatorsMapScreen() {
     measureBottomNav();
     window.addEventListener("resize", measureBottomNav);
 
-    const navEl = document.querySelector<HTMLElement>("[data-business-bottom-nav]");
+    const navEl = document.querySelector<HTMLElement>(
+      "[data-business-bottom-nav]",
+    );
     if (typeof ResizeObserver === "undefined" || !navEl) {
       return () => window.removeEventListener("resize", measureBottomNav);
     }
@@ -108,7 +113,7 @@ export function CreatorsMapScreen() {
               <input
                 value={viewModel.search}
                 onChange={(e) => actions.setSearch(e.target.value)}
-                placeholder="Buscar por nome, nicho ou região..."
+                placeholder="Buscar por nome"
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-purple-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20"
               />
             </div>
@@ -247,7 +252,8 @@ export function CreatorsMapScreen() {
             selectedCreatorId={viewModel.selectedCreatorId}
             onSelectCreator={(id) => {
               actions.setSelectedCreatorId(id);
-              if (mobileSheetState === "collapsed") setMobileSheetState("medium");
+              if (mobileSheetState === "collapsed")
+                setMobileSheetState("medium");
             }}
             distanceFilter={viewModel.distanceFilter}
             companyLatLng={viewModel.companyLatLng}

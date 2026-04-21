@@ -6,6 +6,7 @@ import {
 } from "@googlemaps/markerclusterer";
 import { Building2, Locate, MapPin, Minus, Plus } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getFirstName } from "~/lib/utils";
 import { loadGoogleMapsApi } from "~/modules/creators-map/lib/google-maps";
 import type { CreatorMapModel } from "~/modules/creators-map/types";
 import type {
@@ -89,6 +90,7 @@ function buildPreviewCardEl(
   options?: { compact?: boolean },
 ): HTMLDivElement {
   const compact = options?.compact ?? false;
+  const creatorFirstName = getFirstName(creator.name);
   const el = document.createElement("div");
   el.style.cssText = `background:rgba(255,255,255,0.98);border-radius:${compact ? 18 : 14}px;padding:${compact ? 12 : 14}px;border:1px solid rgba(137,90,246,0.18);box-shadow:0 12px 36px rgba(15,23,42,0.16);opacity:0;transition:opacity 150ms ease-out;width:${compact ? 220 : 272}px;backdrop-filter:blur(10px);`;
 
@@ -128,7 +130,7 @@ function buildPreviewCardEl(
     <div style="display:flex;gap:10px;margin-bottom:10px;">
       ${avatarHtml}
       <div style="min-width:0;flex:1;">
-        <div style="font-size:${compact ? 12 : 13}px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${creator.name}</div>
+        <div style="font-size:${compact ? 12 : 13}px;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${creatorFirstName}</div>
         ${regionHtml}
         ${distanceHtml}
       </div>

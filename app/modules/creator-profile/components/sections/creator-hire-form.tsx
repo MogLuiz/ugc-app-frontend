@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { cn } from "~/lib/utils";
+import { cn, getFirstName } from "~/lib/utils";
 import { formatCurrency } from "~/modules/contract-requests/utils";
 import type { CreatorHireFlowController } from "../../hooks/use-creator-hire-flow";
 import type { CreatorProfile } from "../../types";
@@ -19,12 +19,14 @@ type CreatorHireFormProps = {
 };
 
 export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
+  const creatorFirstName = getFirstName(profile.name);
+
   return (
     <div className="flex h-full min-w-0 flex-col overflow-x-hidden">
       <div className="flex-1 space-y-5 overflow-x-hidden overflow-y-auto px-4 pb-5 pt-5 sm:px-5 lg:px-5">
         <section className="pr-12">
           <h2 className="text-[20px] font-bold tracking-tight text-[#0f172a]">
-            Agendar com {profile.name}
+            Agendar com {creatorFirstName}
           </h2>
         </section>
 

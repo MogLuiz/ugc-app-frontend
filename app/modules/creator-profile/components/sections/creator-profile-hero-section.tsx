@@ -1,5 +1,6 @@
 import { Cake, Check, Clock, MapPin, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import { getFirstName } from "~/lib/utils";
 import type { CreatorProfile } from "../../types";
 
 type CreatorProfileHeaderSectionProps = {
@@ -27,6 +28,8 @@ export function CreatorProfileHeroSection({
   onHire,
   canHire = true,
 }: CreatorProfileHeaderSectionProps) {
+  const creatorFirstName = getFirstName(profile.name);
+
   return (
     <section className="rounded-[32px] border border-[#f1f5f9] bg-white p-5 shadow-sm lg:rounded-[48px] lg:p-6 lg:shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]">
       <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left lg:gap-6">
@@ -54,7 +57,7 @@ export function CreatorProfileHeroSection({
             <div className="flex min-w-0 flex-col gap-2">
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-3">
                 <h2 className="text-2xl font-bold text-[#0f172a] lg:text-[30px] lg:leading-9">
-                  {profile.name}
+                  {creatorFirstName}
                 </h2>
                 {profile.isVerified ? (
                   <Check

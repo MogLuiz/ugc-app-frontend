@@ -1,7 +1,7 @@
 import { MapPin, Star } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
-import { cn } from "~/lib/utils";
+import { cn, getFirstName } from "~/lib/utils";
 import type { CreatorMapModel } from "../types";
 
 type CreatorMapCardProps = {
@@ -64,6 +64,7 @@ export function CreatorMapCard({
   onSelect,
   variant = "desktop",
 }: CreatorMapCardProps) {
+  const creatorFirstName = getFirstName(creator.name);
   const availability = creator.availability ? AVAILABILITY_CONFIG[creator.availability] : null;
   const hasRating = creator.rating > 0;
   const hasRegion = Boolean(creator.region);
@@ -110,7 +111,7 @@ export function CreatorMapCard({
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-slate-900">
-                    {creator.name}
+                    {creatorFirstName}
                   </p>
 
                   {(hasDistance || hasRegion) && (
@@ -221,7 +222,7 @@ export function CreatorMapCard({
 
         {/* Main info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-900">{creator.name}</p>
+          <p className="truncate text-sm font-semibold text-slate-900">{creatorFirstName}</p>
           {(creator.distanceKm != null || hasRegion) && (
             <div className="mt-0.5 flex items-center gap-1.5">
               {creator.distanceKm != null && (
