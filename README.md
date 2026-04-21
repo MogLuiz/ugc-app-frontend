@@ -52,6 +52,7 @@ Definir no Vercel ou em `.env` local (prefixo `VITE_`):
 | Variável | Uso |
 |----------|-----|
 | `VITE_API_BASE_URL` | URL base da API NestJS |
+| `VITE_PUBLIC_APP_URL` | URL pública do frontend usada em links absolutos, incluindo reset de senha |
 | `VITE_SUPABASE_URL` | Projeto Supabase |
 | `VITE_SUPABASE_ANON_KEY` | Chave anon (cliente) |
 | `VITE_GOOGLE_MAPS_API_KEY` | Mapas (opcional) |
@@ -61,6 +62,25 @@ Definir no Vercel ou em `.env` local (prefixo `VITE_`):
 | `VITE_SENTRY_RELEASE` | Release (ex.: SHA do git); alinha com sourcemaps no build |
 
 **Upload de sourcemaps (só no ambiente de build — Vercel / CI, nunca `VITE_`):** `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`. O Vite injeta `VITE_VERCEL_GIT_COMMIT_SHA` a partir de `VERCEL_GIT_COMMIT_SHA` para alinhar release quando `VITE_SENTRY_RELEASE` não está definido.
+
+### URL pública do app
+
+O fluxo de esqueci minha senha usa `VITE_PUBLIC_APP_URL` para compor o redirect absoluto de redefinição:
+
+- rota usada: `/auth/redefinir-senha`
+- composição final: `${VITE_PUBLIC_APP_URL}/auth/redefinir-senha`
+- a URL é normalizada internamente para evitar `//` duplicado
+
+Exemplos por ambiente:
+
+- desenvolvimento: `VITE_PUBLIC_APP_URL=http://127.0.0.1:5173`
+- staging: `VITE_PUBLIC_APP_URL=https://staging.app.ugclocal.com.br`
+- produção: `VITE_PUBLIC_APP_URL=https://app.ugclocal.com.br`
+
+Política de fallback:
+
+- em `development`, se a variável não estiver definida, o app usa `http://127.0.0.1:5173`
+- em `staging` e `production`, a variável é obrigatória; o app falha explicitamente para evitar envio de link inválido por e-mail
 
 ### Sentry — validação rápida
 

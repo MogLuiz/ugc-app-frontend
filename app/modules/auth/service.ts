@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "~/lib/supabase";
 import { httpClient } from "~/lib/http/client";
 import { getApiBaseUrl } from "~/lib/config/env";
+import { getResetPasswordRedirectUrl } from "~/lib/env";
 import type {
   BackendRole,
   BootstrapPayload,
@@ -295,7 +296,7 @@ export async function bootstrapUser(
 export async function forgotPassword(email: string): Promise<void> {
   const supabase = getSupabaseClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://app.ugclocal.com.br/auth/redefinir-senha',
+    redirectTo: getResetPasswordRedirectUrl(),
   });
   if (error) throw new Error(error.message);
 }

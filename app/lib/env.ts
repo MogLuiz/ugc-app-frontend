@@ -1,5 +1,9 @@
 function requireEnv(
-  name: 'VITE_API_BASE_URL' | 'VITE_SUPABASE_URL' | 'VITE_SUPABASE_ANON_KEY',
+  name:
+    | 'VITE_API_BASE_URL'
+    | 'VITE_PUBLIC_APP_URL'
+    | 'VITE_SUPABASE_URL'
+    | 'VITE_SUPABASE_ANON_KEY',
   viteValue: string | undefined,
 ): string {
   const value = readEnv(name, viteValue);
@@ -19,6 +23,28 @@ function readEnv(name: string, viteValue: string | undefined): string | undefine
 
 export function getApiBaseUrlEnv(): string {
   return requireEnv("VITE_API_BASE_URL", import.meta.env.VITE_API_BASE_URL);
+}
+
+export function getPublicAppUrlEnv(): string {
+  const configuredValue = readEnv(
+    "VITE_PUBLIC_APP_URL",
+    import.meta.env.VITE_PUBLIC_APP_URL
+  );
+
+  if (configuredValue?.trim()) {
+    return configuredValue.trim();
+  }
+
+  if (import.meta.env.MODE === "development") {
+    return "http://127.0.0.1:5173";
+  }
+
+  throw new Error("Missing VITE_PUBLIC_APP_URL");
+}
+
+export function getResetPasswordRedirectUrl(): string {
+  const baseUrl = getPublicAppUrlEnv().replace(/\/+$/, "");
+  return `${baseUrl}/auth/redefinir-senha`;
 }
 
 export function getSupabaseUrlEnv(): string {
