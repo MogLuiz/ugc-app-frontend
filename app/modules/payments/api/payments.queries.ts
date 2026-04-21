@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { paymentKeys } from "~/lib/query/query-keys";
+import type { UpdateCreatorPayoutSettingsInput } from "../types/payment.types";
 import {
   getCompanyPayments,
   getMyPayouts,
@@ -59,7 +60,8 @@ export function useUpdateMyPayoutSettingsMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateMyPayoutSettings,
+    mutationFn: (data: UpdateCreatorPayoutSettingsInput) =>
+      updateMyPayoutSettings(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: paymentKeys.payoutSettings(),
