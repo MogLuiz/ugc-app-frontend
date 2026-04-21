@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, Filter, Sparkles, X } from "lucide-react";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -17,7 +17,11 @@ import {
   filterOpportunities,
   sortOpportunities,
 } from "../helpers";
-import type { OpportunityFilters, SortOption } from "../types";
+import type {
+  OpportunityFilters,
+  OpportunityListItem,
+  SortOption,
+} from "../types";
 import { OpportunitiesAddressPendingCard } from "./opportunities-address-pending-card";
 import { OpportunityCard } from "./opportunity-card";
 
@@ -50,13 +54,46 @@ const DEFAULT_FILTERS: OpportunityFilters = {
 };
 
 export function CreatorOpportunitiesScreen() {
+  const [page, setPage] = useState(1);
+  const [loadedPages, setLoadedPages] = useState<
+    Record<number, OpportunityListItem[]>
+  >({});
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [filters, setFilters] = useState<OpportunityFilters>(DEFAULT_FILTERS);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [tempFilters, setTempFilters] =
     useState<OpportunityFilters>(DEFAULT_FILTERS);
 
-  const { data, isLoading, isError, error, refetch } = useOpportunitiesQuery();
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useOpportunitiesQuery({ page, limit: 24 });
+
+  useEffect(() => {
+    if (!data) return;
+
+    setLoadedPages((current) => {
+      const nextItems = data.items;
+      const currentItems = current[data.pagination.page];
+
+      if (
+        currentItems &&
+        currentItems.length === nextItems.length &&
+        currentItems.every((item, index) => item.id === nextItems[index]?.id)
+      ) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [data.pagination.page]: nextItems,
+      };
+    });
+  }, [data]);
 
   const hasActiveFilters =
     filters.workType !== "all" || filters.distance !== "all";
@@ -66,10 +103,17 @@ export function CreatorOpportunitiesScreen() {
     filters.distance !== "all",
   ].filter(Boolean).length;
 
-  const allItems = data?.items ?? [];
+  const allItems = useMemo(() => {
+    return Object.keys(loadedPages)
+      .map((key) => Number(key))
+      .sort((a, b) => a - b)
+      .flatMap((loadedPage) => loadedPages[loadedPage] ?? []);
+  }, [loadedPages]);
   const workTypeOptions = extractWorkTypeNames(allItems);
   const filtered = filterOpportunities(allItems, filters);
   const sorted = sortOpportunities(filtered, sortBy);
+  const totalPages = data?.pagination.totalPages ?? 1;
+  const hasNextPage = page < totalPages;
 
   const openFiltersSheet = () => {
     setTempFilters(filters);
@@ -283,10 +327,15 @@ export function CreatorOpportunitiesScreen() {
                 ))}
               </div>
 
-              {data && data.pagination.totalPages > 1 ? (
+              {totalPages > 1 && hasNextPage ? (
                 <div className="mt-8 flex justify-center">
-                  <Button variant="outline" size="lg">
-                    Carregar mais oportunidades
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => setPage((current) => current + 1)}
+                    disabled={isFetching || !hasNextPage}
+                  >
+                    {isFetching ? "Carregando..." : "Carregar mais oportunidades"}
                   </Button>
                 </div>
               ) : null}

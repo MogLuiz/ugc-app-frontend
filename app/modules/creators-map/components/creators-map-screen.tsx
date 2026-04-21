@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Search, SlidersHorizontal } from "lucide-react";
+import { MapPin, Search } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -129,13 +129,6 @@ export function CreatorsMapScreen() {
                   {f.label}
                 </button>
               ))}
-              <button
-                type="button"
-                className="ml-auto rounded-lg border border-slate-200 p-1.5 hover:bg-slate-50"
-                aria-label="Mais filtros"
-              >
-                <SlidersHorizontal size={15} className="text-slate-500" />
-              </button>
             </div>
 
             {/* Results count */}
@@ -213,13 +206,6 @@ export function CreatorsMapScreen() {
                   Mapa de Criadores
                 </p>
               </div>
-              <button
-                type="button"
-                className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200/80 bg-slate-50 text-slate-600 shadow-sm"
-                aria-label="Filtros"
-              >
-                <SlidersHorizontal size={16} />
-              </button>
             </div>
 
             <div className="pointer-events-auto mt-3">
