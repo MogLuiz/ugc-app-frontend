@@ -62,7 +62,7 @@ export async function getMyCreatorPendingContractRequests(
 }
 
 export async function getMyCreatorContractRequests(
-  status: "ACCEPTED" | "COMPLETED" | "REJECTED" | "CANCELLED",
+  status: "ACCEPTED" | "COMPLETED" | "REJECTED" | "CANCELLED" | "EXPIRED",
   token?: string
 ): Promise<ContractRequestItem[]> {
   const accessToken = await getAccessToken(token);
@@ -70,6 +70,17 @@ export async function getMyCreatorContractRequests(
     `/contract-requests/my-creator?status=${status}`,
     { token: accessToken }
   );
+}
+
+/** Detalhe do contrato para creator ou empresa (participante). */
+export async function getContractRequestById(
+  contractRequestId: string,
+  token?: string
+): Promise<ContractRequestItem> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<ContractRequestItem>(`/contract-requests/${contractRequestId}`, {
+    token: accessToken,
+  });
 }
 
 export async function acceptContractRequest(

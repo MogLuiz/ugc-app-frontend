@@ -14,7 +14,7 @@ import { OpenOfferHubCard } from "./open-offer-hub-card";
 type OffersTabId = "OPEN" | "IN_PROGRESS" | "FINALIZED";
 
 const TABS: Array<{ id: OffersTabId; label: string }> = [
-  { id: "OPEN", label: "Abertas" },
+  { id: "OPEN", label: "Pendentes" },
   { id: "IN_PROGRESS", label: "Em andamento" },
   { id: "FINALIZED", label: "Finalizadas" },
 ];
@@ -158,17 +158,19 @@ export function CompanyOpenOffersScreen() {
   );
 
   const tabCounts = useMemo(() => {
-    const pendingDirectInvites = pendingContracts.filter((c) => c.openOfferId == null).length;
     return {
-      OPEN: openItems.length + pendingDirectInvites,
+      OPEN: openItems.length,
       IN_PROGRESS: inProgressItems.length,
-      FINALIZED: finalizedSections.contracts.length + finalizedSections.offersWithoutHire.length,
+      FINALIZED:
+        finalizedSections.completed.length +
+        finalizedSections.cancelled.length +
+        finalizedSections.offersWithoutHire.length,
     } satisfies Record<OffersTabId, number>;
   }, [
-    pendingContracts,
     openItems.length,
     inProgressItems.length,
-    finalizedSections.contracts.length,
+    finalizedSections.completed.length,
+    finalizedSections.cancelled.length,
     finalizedSections.offersWithoutHire.length,
   ]);
 
@@ -188,14 +190,19 @@ export function CompanyOpenOffersScreen() {
   )?.openContractRequestId;
   const openContractRequestId = openContractRequestIdFromState ?? searchParams.get("contractRequestId") ?? undefined;
 
+  const finalizedContracts = useMemo(
+    () => [...finalizedSections.completed, ...finalizedSections.cancelled],
+    [finalizedSections.completed, finalizedSections.cancelled]
+  );
+
   const openedContractInActive = openContractRequestId
-    ? [...openItems, ...inProgressItems, ...finalizedSections.contracts].find(
+    ? [...openItems, ...inProgressItems, ...finalizedContracts].find(
         (item) => item.contractRequestId === openContractRequestId
       )
     : null;
 
   const resolvedTab = openedContractInActive
-    ? finalizedSections.contracts.some((item) => item.contractRequestId === openContractRequestId)
+    ? finalizedContracts.some((item) => item.contractRequestId === openContractRequestId)
       ? "FINALIZED"
       : inProgressItems.some((item) => item.contractRequestId === openContractRequestId)
         ? "IN_PROGRESS"
@@ -263,7 +270,7 @@ export function CompanyOpenOffersScreen() {
       if (openItems.length === 0) {
         return (
           <CompanyOffersEmptySection
-            title="Nenhuma oferta aberta no momento"
+            title="Nenhuma oferta pendente no momento"
             description="Publique uma oferta aberta para receber candidaturas ou acompanhe convites diretos aguardando resposta."
             footer={
               <Link
@@ -278,27 +285,62 @@ export function CompanyOpenOffersScreen() {
         );
       }
 
+      const openOfferItems = openItems.filter((item) => item.kind === "open_offer");
+      const directInviteItems = openItems.filter((item) => item.kind === "direct_invite");
+
       return (
-        <div className="min-w-0 space-y-4">
-          <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-            {openItems.map((item) => (
-              <OpenOfferHubCard
-                key={`${item.kind}:${item.id}`}
-                item={item}
-                onClick={
-                  item.href
-                    ? () =>
-                        navigate(item.href!, item.contractRequestId ? undefined : { state: { fromHub: true } })
-                    : undefined
-                }
+        <div className="min-w-0 space-y-6">
+          {openOfferItems.length > 0 && (
+            <section className="min-w-0 space-y-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900">Ofertas abertas</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Aguardando candidaturas de creators.
+                </p>
+              </div>
+              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+                {openOfferItems.map((item) => (
+                  <OpenOfferHubCard
+                    key={`${item.kind}:${item.id}`}
+                    item={item}
+                    onClick={
+                      item.href
+                        ? () => navigate(item.href!, { state: { fromHub: true } })
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+              <PaginationBar
+                page={openOffersQuery.data?.pagination.page ?? page}
+                totalPages={openOffersQuery.data?.pagination.totalPages ?? 1}
+                onPageChange={setPage}
               />
-            ))}
-          </div>
-          <PaginationBar
-            page={openOffersQuery.data?.pagination.page ?? page}
-            totalPages={openOffersQuery.data?.pagination.totalPages ?? 1}
-            onPageChange={setPage}
-          />
+            </section>
+          )}
+          {directInviteItems.length > 0 && (
+            <section className="min-w-0 space-y-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900">Convites aguardando resposta</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Convites diretos enviados que ainda não foram respondidos.
+                </p>
+              </div>
+              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+                {directInviteItems.map((item) => (
+                  <OpenOfferHubCard
+                    key={`${item.kind}:${item.id}`}
+                    item={item}
+                    onClick={
+                      item.href
+                        ? () => navigate(item.href!)
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       );
     }
@@ -326,19 +368,19 @@ export function CompanyOpenOffersScreen() {
       <div className="min-w-0 space-y-6">
         <section className="min-w-0 space-y-4">
           <div>
-            <h2 className="text-lg font-black text-slate-900">Contratos encerrados</h2>
+            <h2 className="text-lg font-black text-slate-900">Concluídas</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Contratos concluídos ou cancelados após a fase de seleção.
+              Contratos finalizados com sucesso.
             </p>
           </div>
-          {finalizedSections.contracts.length === 0 ? (
+          {finalizedSections.completed.length === 0 ? (
             <CompanyOffersEmptySection
-              title="Nenhum contrato encerrado"
-              description="Contratos concluídos ou cancelados após a seleção aparecerão nesta seção."
+              title="Nenhum contrato concluído"
+              description="Contratos finalizados com sucesso aparecerão aqui."
             />
           ) : (
             <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-              {finalizedSections.contracts.map((item) => (
+              {finalizedSections.completed.map((item) => (
                 <OpenOfferHubCard key={item.id} item={item} />
               ))}
             </div>
@@ -347,15 +389,36 @@ export function CompanyOpenOffersScreen() {
 
         <section className="min-w-0 space-y-4">
           <div>
-            <h2 className="text-lg font-black text-slate-900">Ofertas encerradas sem contratação</h2>
+            <h2 className="text-lg font-black text-slate-900">Canceladas</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Ofertas que expiraram ou foram canceladas antes de gerar contrato.
+              Contratos cancelados e ofertas encerradas pela empresa.
+            </p>
+          </div>
+          {finalizedSections.cancelled.length === 0 ? (
+            <CompanyOffersEmptySection
+              title="Nenhum item cancelado"
+              description="Contratos e ofertas cancelados aparecerão aqui."
+            />
+          ) : (
+            <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+              {finalizedSections.cancelled.map((item) => (
+                <OpenOfferHubCard key={item.id} item={item} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="min-w-0 space-y-4">
+          <div>
+            <h2 className="text-lg font-black text-slate-900">Expiradas / sem contratação</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Ofertas que expiraram antes de gerar um contrato.
             </p>
           </div>
           {finalizedSections.offersWithoutHire.length === 0 ? (
             <CompanyOffersEmptySection
-              title="Nenhuma oferta encerrada sem contratação"
-              description="Ofertas que expiraram ou foram canceladas antes de gerar contrato aparecerão aqui."
+              title="Nenhuma oferta expirada"
+              description="Ofertas que expiraram sem contratação aparecerão aqui."
             />
           ) : (
             <div className="min-w-0 space-y-4">

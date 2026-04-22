@@ -1,10 +1,9 @@
-import { MapPin, Star, Clock, Calendar, Layers, Timer, ExternalLink, AlertCircle } from "lucide-react";
+import { MapPin, Star, AlertCircle, ExternalLink } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 import type { ContractRequestItem } from "../types";
 import {
   formatCurrency,
-  formatDateShort,
   formatDuration,
   formatTimeRange,
   getInitials,
@@ -49,6 +48,109 @@ function InfoCell({
   );
 }
 
+/** Card de pagamento — reutilizável na sidebar desktop. */
+export function OfferPaymentCard({ item }: { item: ContractRequestItem }) {
+  const amount = item.totalAmount ?? item.totalPrice;
+  const hasTransport = (item.transportFee ?? 0) > 0;
+
+  return (
+    <div className="overflow-hidden rounded-2xl bg-slate-900 p-6 shadow-[0px_20px_25px_-5px_rgba(15,23,42,0.1)]">
+      <div className="mb-4 flex items-end justify-between">
+        <div>
+          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.8px] text-slate-400">
+            Pagamento Total
+          </p>
+          <p className="text-3xl font-black tracking-tight text-white">
+            {formatCurrency(amount, item.currency)}
+          </p>
+        </div>
+        <span className="rounded-full bg-[rgba(137,90,246,0.2)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.8px] text-[#d0bcff]">
+          Garantido
+        </span>
+      </div>
+
+      <div className="space-y-2 border-t border-white/10 pt-4">
+        <div className="flex justify-between text-xs">
+          <span className="text-slate-400">Serviço</span>
+          <span className="font-medium text-slate-200">
+            {formatCurrency(item.creatorBasePrice, item.currency)}
+          </span>
+        </div>
+        {hasTransport && (
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-400">Transporte</span>
+            <span className="font-medium text-slate-200">
+              {item.transport?.formatted ??
+                formatCurrency(item.transportFee, item.currency)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <p className="mt-4 text-[10px] text-slate-500">
+        Pagamento garantido pela plataforma após a conclusão do serviço.
+      </p>
+    </div>
+  );
+}
+
+/** Card de endereço / mapa — reutilizável na sidebar desktop. */
+export function OfferAddressCard({ item }: { item: ContractRequestItem }) {
+  const address = item.jobFormattedAddress ?? item.jobAddress;
+
+  const mapsUrl = item.jobLatitude && item.jobLongitude
+    ? `https://maps.google.com/?q=${item.jobLatitude},${item.jobLongitude}`
+    : address
+    ? `https://maps.google.com/?q=${encodeURIComponent(address)}`
+    : null;
+
+  if (!address) return null;
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+      <div className="relative h-36 bg-slate-100">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage:
+              "linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-full bg-[rgba(137,90,246,0.15)]" />
+            <div className="relative flex size-8 items-center justify-center rounded-full border-4 border-white bg-[#895af6] shadow-md">
+              <MapPin className="size-3.5 text-white" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between p-4">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.8px] text-slate-400">
+            Endereço
+          </p>
+          <p className="mt-0.5 text-sm font-semibold text-slate-800">{address}</p>
+        </div>
+        {mapsUrl && (
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[rgba(137,90,246,0.1)] transition-colors hover:bg-[rgba(137,90,246,0.2)]"
+            aria-label="Abrir no mapa"
+          >
+            <ExternalLink className="size-4 text-[#895af6]" />
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function OfferDetailPanel({
   item,
   isMutating,
@@ -58,30 +160,38 @@ export function OfferDetailPanel({
 }: OfferDetailPanelProps) {
   const companyName = item.companyName ?? "Empresa";
   const jobTypeName = item.jobTypeName ?? "Serviço";
-  const amount = item.totalAmount ?? item.totalPrice;
-  const distance = item.creatorDistance?.formatted;
-  const isExpired = item.status === "EXPIRED";
-  const isAccepted = item.status === "ACCEPTED";
-  const expiryLabel = getExpiryLabel(item.expiresAt);
   const durationLabel = formatDuration(item.durationMinutes, false);
-  const address = item.jobFormattedAddress ?? item.jobAddress;
-  const hasTransport = (item.transportFee ?? 0) > 0;
+  const expiryLabel = getExpiryLabel(item.expiresAt);
+
+  // Accept/Reject somente em PENDING_ACCEPTANCE não expirado
+  const isPendingAcceptance =
+    item.status === "PENDING_ACCEPTANCE" || item.status === "PENDING";
+  const isExpired =
+    item.status === "EXPIRED" ||
+    (isPendingAcceptance &&
+      !!item.expiresAt &&
+      new Date(item.expiresAt).getTime() <= Date.now());
+  const canAcceptReject = isPendingAcceptance && !isExpired;
+  const isAccepted = item.status === "ACCEPTED";
 
   const initials = getInitials(companyName);
 
-  const mapsUrl = item.jobLatitude && item.jobLongitude
-    ? `https://maps.google.com/?q=${item.jobLatitude},${item.jobLongitude}`
-    : address
-    ? `https://maps.google.com/?q=${encodeURIComponent(address)}`
-    : null;
+  // Rating line: "★ 4.8 · 12 avaliações" | "★ 4.8" | "12 avaliações" | null
+  const ratingLine = (() => {
+    const hasRating = item.companyRating != null && item.companyRating > 0;
+    const hasCount = item.companyReviewCount != null && item.companyReviewCount > 0;
+    if (hasRating && hasCount) {
+      return `${item.companyRating!.toFixed(1)} · ${item.companyReviewCount} avaliações`;
+    }
+    if (hasRating) return item.companyRating!.toFixed(1);
+    if (hasCount) return `${item.companyReviewCount} avaliações`;
+    return null;
+  })();
 
-  // Parse description for bullet points (lines starting with "•", "-", "*")
   const descriptionLines = (item.description ?? "").split("\n").filter(Boolean);
-  const bulletLines = descriptionLines.filter((l) =>
-    /^[\•\-\*]/.test(l.trim())
-  );
+  const bulletLines = descriptionLines.filter((l) => /^[•\-*]/.test(l.trim()));
   const mainDescription = descriptionLines
-    .filter((l) => !/^[\•\-\*]/.test(l.trim()))
+    .filter((l) => !/^[•\-*]/.test(l.trim()))
     .join(" ")
     .trim();
 
@@ -105,33 +215,18 @@ export function OfferDetailPanel({
             <h2 className="text-xl font-black tracking-tight text-slate-900 lg:text-2xl">
               {companyName}
             </h2>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-slate-500">
-              {item.companyRating != null && item.companyRating > 0 && (
-                <span className="flex items-center gap-1">
-                  <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                  <span className="font-bold text-slate-700">
-                    {item.companyRating.toFixed(1)}
-                  </span>
-                </span>
-              )}
-              <span className="font-medium">124 jobs concluídos</span>
-            </div>
+            {ratingLine && (
+              <div className="mt-1 flex items-center gap-1.5 text-sm text-slate-500">
+                <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                <span className="font-medium">{ratingLine}</span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Action buttons (desktop top-right) */}
+        {/* Botões desktop — somente para ofertas pendentes ou aceitas */}
         <div className="hidden flex-col items-end gap-2 lg:flex">
-          {isAccepted ? (
-            <Button
-              variant="outline"
-              size="lg"
-              className="rounded-full border-red-200 bg-red-50 px-8 text-red-500 hover:bg-red-100"
-              onClick={() => onCancel && void onCancel(item.id)}
-              disabled={isMutating}
-            >
-              {isMutating ? "Aguarde..." : "Desmarcar trabalho"}
-            </Button>
-          ) : (
+          {canAcceptReject ? (
             <>
               <div className="flex gap-2">
                 <Button
@@ -139,7 +234,7 @@ export function OfferDetailPanel({
                   size="lg"
                   className="rounded-full px-8 shadow-[0px_10px_15px_-3px_rgba(137,90,246,0.2)]"
                   onClick={() => void onAccept(item.id)}
-                  disabled={isMutating || isExpired}
+                  disabled={isMutating}
                 >
                   {isMutating ? "Aguarde..." : "Aceitar oferta"}
                 </Button>
@@ -148,7 +243,7 @@ export function OfferDetailPanel({
                   size="lg"
                   className="rounded-full px-8"
                   onClick={() => void onReject(item.id)}
-                  disabled={isMutating || isExpired}
+                  disabled={isMutating}
                 >
                   Recusar
                 </Button>
@@ -160,7 +255,17 @@ export function OfferDetailPanel({
                 </span>
               )}
             </>
-          )}
+          ) : isAccepted && onCancel ? (
+            <Button
+              variant="outline"
+              size="lg"
+              className="rounded-full border-red-200 bg-red-50 px-8 text-red-500 hover:bg-red-100"
+              onClick={() => void onCancel(item.id)}
+              disabled={isMutating}
+            >
+              {isMutating ? "Aguarde..." : "Desmarcar trabalho"}
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -206,7 +311,13 @@ export function OfferDetailPanel({
             />
           </div>
           <div className="p-4">
-            <InfoCell label="Distância" value={distance ?? (item.mode === "REMOTE" ? "Remoto" : "—")} />
+            <InfoCell
+              label="Distância"
+              value={
+                item.creatorDistance?.formatted ??
+                (item.mode === "REMOTE" ? "Remoto" : "—")
+              }
+            />
           </div>
         </div>
       </div>
@@ -228,7 +339,7 @@ export function OfferDetailPanel({
               {bulletLines.map((line, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
                   <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[#895af6]" />
-                  <span>{line.replace(/^[\•\-\*]\s*/, "")}</span>
+                  <span>{line.replace(/^[•\-*]\s*/, "")}</span>
                 </li>
               ))}
             </ul>
@@ -238,96 +349,6 @@ export function OfferDetailPanel({
           )}
         </div>
       )}
-
-      {/* ── Payment ── */}
-      <div className="overflow-hidden rounded-2xl bg-slate-900 p-6 shadow-[0px_20px_25px_-5px_rgba(15,23,42,0.1)]">
-        <div className="mb-4 flex items-end justify-between">
-          <div>
-            <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.8px] text-slate-400">
-              Pagamento Total
-            </p>
-            <p className="text-3xl font-black tracking-tight text-white">
-              {formatCurrency(amount, item.currency)}
-            </p>
-          </div>
-          <span className="rounded-full bg-[rgba(137,90,246,0.2)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.8px] text-[#d0bcff]">
-            Garantido
-          </span>
-        </div>
-
-        {/* Breakdown */}
-        <div className="space-y-2 border-t border-white/10 pt-4">
-          <div className="flex justify-between text-xs">
-            <span className="text-slate-400">Serviço</span>
-            <span className="font-medium text-slate-200">
-              {formatCurrency(item.creatorBasePrice, item.currency)}
-            </span>
-          </div>
-          {hasTransport && (
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-400">Transporte</span>
-              <span className="font-medium text-slate-200">
-                {item.transport?.formatted ??
-                  formatCurrency(item.transportFee, item.currency)}
-              </span>
-            </div>
-          )}
-        </div>
-
-        <p className="mt-4 text-[10px] text-slate-500">
-          Pagamento garantido pela plataforma após a conclusão do serviço.
-        </p>
-      </div>
-
-      {/* ── Map ── */}
-      {address && (
-        <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-          {/* Map placeholder */}
-          <div className="relative h-36 bg-slate-100">
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200" />
-            {/* Grid lines decoration */}
-            <div
-              className="absolute inset-0 opacity-20"
-              style={{
-                backgroundImage:
-                  "linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px)",
-                backgroundSize: "24px 24px",
-              }}
-            />
-            {/* Pin */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative">
-                <div className="absolute -inset-4 rounded-full bg-[rgba(137,90,246,0.15)]" />
-                <div className="relative flex size-8 items-center justify-center rounded-full border-4 border-white bg-[#895af6] shadow-md">
-                  <MapPin className="size-3.5 text-white" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Address + open maps */}
-          <div className="flex items-center justify-between p-4">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.8px] text-slate-400">
-                Endereço
-              </p>
-              <p className="mt-0.5 text-sm font-semibold text-slate-800">{address}</p>
-            </div>
-            {mapsUrl && (
-              <a
-                href={mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[rgba(137,90,246,0.1)] transition-colors hover:bg-[rgba(137,90,246,0.2)]"
-                aria-label="Abrir no mapa"
-              >
-                <ExternalLink className="size-4 text-[#895af6]" />
-              </a>
-            )}
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

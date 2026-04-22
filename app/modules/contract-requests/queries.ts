@@ -8,6 +8,7 @@ import {
   confirmCompletion,
   createContractRequest,
   disputeCompletion,
+  getContractRequestById,
   getContractReviews,
   getMyCompanyContractRequests,
   getMyCreatorContractRequests,
@@ -34,6 +35,14 @@ export function useMyCompanyContractRequestsQuery(
   });
 }
 
+export function useContractRequestDetailQuery(contractRequestId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: contractRequestKeys.detail(contractRequestId ?? ""),
+    queryFn: () => getContractRequestById(contractRequestId!),
+    enabled: enabled && Boolean(contractRequestId),
+  });
+}
+
 export function useMyCreatorPendingContractRequestsQuery(enabled = true) {
   return useQuery({
     queryKey: contractRequestKeys.creatorPending(),
@@ -43,7 +52,7 @@ export function useMyCreatorPendingContractRequestsQuery(enabled = true) {
 }
 
 export function useMyCreatorContractRequestsQuery(
-  status: "ACCEPTED" | "COMPLETED" | "REJECTED" | "CANCELLED",
+  status: "ACCEPTED" | "COMPLETED" | "REJECTED" | "CANCELLED" | "EXPIRED",
   enabled = true
 ) {
   return useQuery({
@@ -112,8 +121,9 @@ export function useConfirmCompletionMutation() {
 
   return useMutation({
     mutationFn: (contractRequestId: string) => confirmCompletion(contractRequestId),
-    onSuccess: () => {
+    onSuccess: (_data, contractRequestId) => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
+      void queryClient.invalidateQueries({ queryKey: contractRequestKeys.detail(contractRequestId) });
     },
   });
 }
@@ -124,8 +134,9 @@ export function useDisputeCompletionMutation() {
   return useMutation({
     mutationFn: (params: { contractRequestId: string; reason: string }) =>
       disputeCompletion(params.contractRequestId, params.reason),
-    onSuccess: () => {
+    onSuccess: (_data, { contractRequestId }) => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
+      void queryClient.invalidateQueries({ queryKey: contractRequestKeys.detail(contractRequestId) });
     },
   });
 }

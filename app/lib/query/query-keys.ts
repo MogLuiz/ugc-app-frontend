@@ -56,6 +56,8 @@ export const contractRequestKeys = {
   creatorPending: () => [...contractRequestKeys.all, "creator", "pending"] as const,
   creatorList: (status: string) =>
     [...contractRequestKeys.all, "creator", status] as const,
+  detail: (contractRequestId: string) =>
+    [...contractRequestKeys.all, "detail", contractRequestId] as const,
   reviews: (contractRequestId: string) =>
     [...contractRequestKeys.all, "reviews", contractRequestId] as const,
 };

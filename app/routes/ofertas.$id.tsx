@@ -3,10 +3,7 @@ import { AuthGuard } from "~/components/auth-guard";
 import { useAuth } from "~/hooks/use-auth";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
 import { OfferDetailScreen } from "~/modules/contract-requests/components/offer-detail-screen";
-import {
-  useMyCreatorContractRequestsQuery,
-  useMyCreatorPendingContractRequestsQuery,
-} from "~/modules/contract-requests/queries";
+import { useContractRequestDetailQuery } from "~/modules/contract-requests/queries";
 import type { ContractRequestItem } from "~/modules/contract-requests/types";
 import { HttpError } from "~/lib/http/errors";
 import { CompanyOpenOfferDetailScreen } from "~/modules/open-offers/components/company-open-offer-detail-screen";
@@ -53,29 +50,16 @@ export default function OfferDetailRoute() {
     isBusiness && Boolean(id) && companyOpenOfferNotFound
   );
 
-  // Item passed via navigation state (from list click) — fast path
+  // Item passado pelo state da navegação — usado como fallback inicial enquanto a query carrega.
+  // A query fica SEMPRE ativa para que mutações (confirmação, disputa, avaliação) acionem
+  // um re-fetch e a tela reflita o novo status sem precisar recarregar.
   const stateItem = (location.state as { item?: ContractRequestItem } | null)?.item;
   const itemFromState = stateItem?.id === id ? stateItem : null;
 
-  // Fallback: busca em todas as queries do creator quando não há state
-  const { data: pendingItems, isLoading: isPendingLoading } =
-    useMyCreatorPendingContractRequestsQuery(isCreator);
-  const { data: acceptedItems, isLoading: isAcceptedLoading } =
-    useMyCreatorContractRequestsQuery("ACCEPTED", isCreator);
-  const { data: completedItems, isLoading: isCompletedLoading } =
-    useMyCreatorContractRequestsQuery("COMPLETED", isCreator);
-  const { data: rejectedItems, isLoading: isRejectedLoading } =
-    useMyCreatorContractRequestsQuery("REJECTED", isCreator);
-  const { data: cancelledItems, isLoading: isCancelledLoading } =
-    useMyCreatorContractRequestsQuery("CANCELLED", isCreator);
-
-  const itemFromQuery =
-    pendingItems?.find((i) => i.id === id) ??
-    acceptedItems?.find((i) => i.id === id) ??
-    completedItems?.find((i) => i.id === id) ??
-    rejectedItems?.find((i) => i.id === id) ??
-    cancelledItems?.find((i) => i.id === id) ??
-    null;
+  const creatorDetailQuery = useContractRequestDetailQuery(
+    id,
+    isCreator && Boolean(id)
+  );
 
   const companyContractItem = isBusiness
     ? companyContractsQuery.data?.find((item) => item.id === id) ?? null
@@ -84,17 +68,18 @@ export default function OfferDetailRoute() {
     companyOfferQuery.isError && !companyOpenOfferNotFound ? companyOfferQuery.error : null;
   const companyContractsError =
     companyContractsQuery.isError ? companyContractsQuery.error : null;
+  const creatorDetailError = !isBusiness && isCreator && creatorDetailQuery.isError
+    ? creatorDetailQuery.error
+    : null;
 
   const isLoading =
     isBusiness
       ? companyOfferQuery.isLoading ||
         (companyOpenOfferNotFound && companyContractsQuery.isLoading)
-      : isPendingLoading ||
-        isAcceptedLoading ||
-        isCompletedLoading ||
-        isRejectedLoading ||
-        isCancelledLoading;
-  const item = itemFromState ?? itemFromQuery;
+      // Para creator: só mostra spinner se não há nenhum dado (nem state nem cache)
+      : isCreator && !itemFromState && !creatorDetailQuery.data && creatorDetailQuery.isLoading;
+  // Dado fresco da API tem prioridade; itemFromState é fallback enquanto a query ainda não resolveu
+  const item = creatorDetailQuery.data ?? itemFromState;
 
   if (isLoading && !item) {
     return (
@@ -155,6 +140,49 @@ export default function OfferDetailRoute() {
     return (
       <AuthGuard allowedRoles={["business"]}>
         <CompanyContractRequestDetailScreen item={companyContractItem} />
+      </AuthGuard>
+    );
+  }
+
+  if (creatorDetailError) {
+    const message =
+      creatorDetailError instanceof Error
+        ? creatorDetailError.message
+        : "Não foi possível carregar este detalhe.";
+    return (
+      <AuthGuard allowedRoles={["creator"]}>
+        <div className="flex min-h-screen items-center justify-center bg-[#f6f5f8] px-4">
+          <div className="w-full max-w-lg rounded-[32px] bg-white p-8 text-center shadow-sm">
+            <h1 className="text-2xl font-black tracking-[-0.03em] text-slate-900">
+              Erro ao carregar oferta
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-slate-500">{message}</p>
+            <p className="mt-2 text-xs leading-5 text-slate-400">
+              403: o contrato no banco precisa ser do mesmo <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">users.id</code> resolvido pelo seu token (Supabase <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">sub</code> →
+              <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">auth_user_id</code>).
+              Rode a seed com <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">DEMO_CREATOR_AUTH_USER_ID</code> (UUID
+              do Auth) ou e-mail alinhado ao <code className="rounded bg-slate-100 px-1 py-0.5 text-slate-700">users.email</code>.
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-400">
+              Na listagem, a aba padrão &quot;Pendentes&quot; fica vazia com a demo; use &quot;Aceitas&quot; ou
+              &quot;Finalizadas&quot;.
+            </p>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+              <Link
+                to="/ofertas?tab=ACCEPTED"
+                className="inline-flex items-center justify-center rounded-full bg-[#895af6] px-5 py-3 text-sm font-semibold text-white hover:bg-[#7c4fe6]"
+              >
+                Abrir aba Aceitas
+              </Link>
+              <Link
+                to="/ofertas?tab=FINALIZED"
+                className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              >
+                Abrir Finalizadas
+              </Link>
+            </div>
+          </div>
+        </div>
       </AuthGuard>
     );
   }

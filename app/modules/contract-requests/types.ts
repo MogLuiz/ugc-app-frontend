@@ -75,6 +75,7 @@ export type ContractRequestItem = {
   companyName?: string;
   companyLogoUrl?: string | null;
   companyRating?: number | null;
+  companyReviewCount?: number | null;
   jobTypeName?: string | null;
   expiresSoon?: boolean;
   expiresAt?: string;

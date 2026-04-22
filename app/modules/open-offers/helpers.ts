@@ -172,7 +172,11 @@ export function buildOpenTabItems(
     .map((item) => mapOpenOfferToListItem(item, now));
 
   const inviteItems = pendingContracts
-    .filter((item) => item.openOfferId == null)
+    .filter((item) => {
+      if (item.openOfferId != null) return false;
+      const expiresAt = getDirectInviteExpiresAt(item);
+      return !isOpenOfferExpired(expiresAt, now);
+    })
     .map((item) => mapPendingDirectInviteToListItem(item, now));
 
   return [...offerItems, ...inviteItems].sort(sortMixedOpenItems);
@@ -197,31 +201,46 @@ export function buildFinalizedSections(
   openOffers: OpenOfferItem[],
   now = Date.now()
 ): OpenOfferFinalizedSectionViewModel {
-  const finalizedContracts = contracts
-    .filter((item) => item.status === "COMPLETED" || item.status === "CANCELLED")
-    .map(mapFinalizedContractToListItem)
-    .sort((left, right) => new Date(right.updatedAt ?? 0).getTime() - new Date(left.updatedAt ?? 0).getTime());
+  function byUpdatedAtDesc(left: OpenOfferListItemViewModel, right: OpenOfferListItemViewModel) {
+    const l = new Date(left.updatedAt ?? left.createdAt ?? 0).getTime();
+    const r = new Date(right.updatedAt ?? right.createdAt ?? 0).getTime();
+    return r - l;
+  }
 
-  const finalizedOffers = openOffers
+  const completedContracts = contracts
+    .filter((item) => item.status === "COMPLETED")
+    .map(mapFinalizedContractToListItem)
+    .sort(byUpdatedAtDesc);
+
+  const cancelledContracts = contracts
+    .filter((item) => item.status === "CANCELLED")
+    .map(mapFinalizedContractToListItem);
+
+  const cancelledOffers = openOffers
+    .filter((item) => item.status === "CANCELLED")
+    .map((item) => ({
+      ...mapOpenOfferToListItem(item, now),
+      subtitle: "Oferta cancelada",
+    }));
+
+  const allCancelled = [...cancelledContracts, ...cancelledOffers].sort(byUpdatedAtDesc);
+
+  const expiredOffers = openOffers
     .filter(
       (item) =>
-        item.status === "CANCELLED" ||
         item.status === "EXPIRED" ||
         (item.status === "OPEN" && isOpenOfferExpired(item.expiresAt, now))
     )
     .map((item) => ({
       ...mapOpenOfferToListItem(item, now),
-      subtitle: item.status === "CANCELLED" ? "Oferta cancelada" : "Oferta encerrada sem contratação",
+      subtitle: "Oferta encerrada sem contratação",
     }))
-    .sort((left, right) => {
-      const leftUpdated = new Date(left.updatedAt ?? left.createdAt ?? 0).getTime();
-      const rightUpdated = new Date(right.updatedAt ?? right.createdAt ?? 0).getTime();
-      return rightUpdated - leftUpdated;
-    });
+    .sort(byUpdatedAtDesc);
 
   return {
-    contracts: finalizedContracts,
-    offersWithoutHire: finalizedOffers,
+    completed: completedContracts,
+    cancelled: allCancelled,
+    offersWithoutHire: expiredOffers,
   };
 }
 

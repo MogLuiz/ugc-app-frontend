@@ -2,7 +2,6 @@ import type { OpenOfferListItemViewModel } from "~/modules/open-offers/types";
 import type { ContractRequestItem } from "./types";
 
 const STATUS_SUBTITLE: Partial<Record<string, string>> = {
-  ACCEPTED: "Trabalho aceito",
   COMPLETED: "Trabalho concluído",
   REJECTED: "Proposta recusada",
   CANCELLED: "Trabalho cancelado",
@@ -32,19 +31,36 @@ export function mapCreatorContractToListItem(
   now = Date.now()
 ): OpenOfferListItemViewModel {
   const isPending = item.status === "PENDING_ACCEPTANCE";
-  const isExpired =
+  const isExpiredStatus = item.status === "EXPIRED";
+  const isExpiredPending =
     isPending && !!item.expiresAt && new Date(item.expiresAt).getTime() <= now;
+  const hasStarted =
+    item.status === "ACCEPTED" &&
+    !!item.startsAt &&
+    new Date(item.schedule?.startTime ?? item.startsAt).getTime() <= now;
+
+  const expiredLabel = item.openOfferId ? "Oferta expirada" : "Convite expirado";
 
   let subtitle: string;
   if (isPending) {
-    subtitle = isExpired
+    subtitle = isExpiredPending
       ? "Expirada"
       : item.expiresAt
         ? formatCreatorExpiry(item.expiresAt, now)
         : "Aguardando resposta";
+  } else if (isExpiredStatus) {
+    subtitle = expiredLabel;
+  } else if (item.status === "ACCEPTED") {
+    subtitle = hasStarted ? "Trabalho em andamento" : "Trabalho aceito";
   } else {
     subtitle = STATUS_SUBTITLE[item.status as string] ?? item.status;
   }
+
+  const statusLabel = isExpiredStatus
+    ? expiredLabel
+    : isExpiredPending
+      ? "Expirada"
+      : STATUS_LABEL[item.status as string] ?? item.status;
 
   return {
     id: item.id,
@@ -61,9 +77,7 @@ export function mapCreatorContractToListItem(
     durationMinutes: item.job?.durationMinutes ?? item.durationMinutes,
     expiresAt: item.expiresAt ?? null,
     expiresInMs: item.expiresAt ? new Date(item.expiresAt).getTime() - now : null,
-    statusLabel: isExpired
-      ? "Expirada"
-      : (STATUS_LABEL[item.status as string] ?? item.status),
+    statusLabel,
     href: undefined,
     contractRequestId: item.id,
   };

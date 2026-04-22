@@ -16,7 +16,7 @@ type Tab = "PENDING" | "ACCEPTED" | "FINALIZED";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "PENDING", label: "Pendentes" },
-  { id: "ACCEPTED", label: "Aceitas" },
+  { id: "ACCEPTED", label: "Em andamento" },
   { id: "FINALIZED", label: "Finalizadas" },
 ];
 
@@ -88,6 +88,7 @@ export function CreatorPendingContractRequestsScreen() {
   const completedQuery = useMyCreatorContractRequestsQuery("COMPLETED");
   const rejectedQuery = useMyCreatorContractRequestsQuery("REJECTED");
   const cancelledQuery = useMyCreatorContractRequestsQuery("CANCELLED");
+  const expiredQuery = useMyCreatorContractRequestsQuery("EXPIRED");
 
   function setActiveTab(tab: Tab) {
     setSearchParams(tab === "PENDING" ? {} : { tab }, { replace: true });
@@ -115,9 +116,12 @@ export function CreatorPendingContractRequestsScreen() {
     const cancelled = (cancelledQuery.data ?? []).map((item) =>
       mapCreatorContractToListItem(item, now)
     );
-    return [...completed, ...rejected, ...cancelled].sort(sortByStartsAtDesc);
+    const expired = (expiredQuery.data ?? []).map((item) =>
+      mapCreatorContractToListItem(item, now)
+    );
+    return [...completed, ...rejected, ...cancelled, ...expired].sort(sortByStartsAtDesc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [completedQuery.data, rejectedQuery.data, cancelledQuery.data]);
+  }, [completedQuery.data, rejectedQuery.data, cancelledQuery.data, expiredQuery.data]);
 
   const tabCounts: Record<Tab, number | null> = {
     PENDING: pendingQuery.data?.length ?? null,
@@ -125,7 +129,8 @@ export function CreatorPendingContractRequestsScreen() {
     FINALIZED:
       completedQuery.data != null ||
       rejectedQuery.data != null ||
-      cancelledQuery.data != null
+      cancelledQuery.data != null ||
+      expiredQuery.data != null
         ? finalizedItems.length
         : null,
   };
@@ -133,7 +138,7 @@ export function CreatorPendingContractRequestsScreen() {
   const isLoading = (() => {
     if (activeTab === "PENDING") return pendingQuery.isLoading;
     if (activeTab === "ACCEPTED") return acceptedQuery.isLoading;
-    return completedQuery.isLoading || rejectedQuery.isLoading || cancelledQuery.isLoading;
+    return completedQuery.isLoading || rejectedQuery.isLoading || cancelledQuery.isLoading || expiredQuery.isLoading;
   })();
 
   const activeItems = (() => {
@@ -149,6 +154,7 @@ export function CreatorPendingContractRequestsScreen() {
       ...(completedQuery.data ?? []),
       ...(rejectedQuery.data ?? []),
       ...(cancelledQuery.data ?? []),
+      ...(expiredQuery.data ?? []),
     ];
   })();
 
@@ -179,8 +185,8 @@ export function CreatorPendingContractRequestsScreen() {
         if (activeTab === "ACCEPTED") {
           return (
             <OffersEmptyState
-              title="Nenhum trabalho aceito"
-              description="Quando uma proposta for aceita, ela aparecerá aqui."
+              title="Nenhum trabalho em andamento"
+              description="Quando você aceitar uma proposta, ela aparecerá aqui."
             />
           );
         }

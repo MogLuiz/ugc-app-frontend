@@ -111,7 +111,8 @@ export type OpenOfferListItemViewModel = {
 };
 
 export type OpenOfferFinalizedSectionViewModel = {
-  contracts: OpenOfferListItemViewModel[];
+  completed: OpenOfferListItemViewModel[];
+  cancelled: OpenOfferListItemViewModel[];
   offersWithoutHire: OpenOfferListItemViewModel[];
 };
 
