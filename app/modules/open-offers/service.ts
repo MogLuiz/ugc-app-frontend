@@ -1,6 +1,7 @@
 import { httpClient } from "~/lib/http/client";
 import { getAccessToken } from "~/modules/auth/service";
 import type {
+  CompanyOffersHubResponse,
   CreateOpenOfferPayload,
   OpenOfferDetail,
   OpenOfferItem,
@@ -73,6 +74,13 @@ export async function selectOpenOfferCreator(
       token: accessToken,
     }
   );
+}
+
+export async function getCompanyOffersHub(token?: string): Promise<CompanyOffersHubResponse> {
+  const accessToken = await getAccessToken(token);
+  return httpClient<CompanyOffersHubResponse>("/company/offers/hub", {
+    token: accessToken,
+  });
 }
 
 export async function getJobTypesForOpenOffers(token?: string): Promise<OpenOfferJobTypeOption[]> {

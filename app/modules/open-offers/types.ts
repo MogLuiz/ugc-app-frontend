@@ -110,10 +110,57 @@ export type OpenOfferListItemViewModel = {
   applicationsToReviewCount?: number;
 };
 
-export type OpenOfferFinalizedSectionViewModel = {
-  completed: OpenOfferListItemViewModel[];
-  cancelled: OpenOfferListItemViewModel[];
-  offersWithoutHire: OpenOfferListItemViewModel[];
+// ─── Company Hub view model ───────────────────────────────────────────────────
+
+export type HubDisplayStatus =
+  | "OPEN"
+  | "PENDING"
+  | "ACCEPTED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "EXPIRED";
+
+export type HubItemKind = "open_offer" | "direct_invite" | "contract";
+
+export type HubPrimaryAction = "review_applications" | "view_details";
+
+/**
+ * View model do hub da empresa — não é DTO de domínio genérico.
+ * Campos como title/address já chegam com fallbacks de UI aplicados pelo backend.
+ */
+export type CompanyHubItem = {
+  id: string;
+  kind: HubItemKind;
+  title: string;
+  description: string | null;
+  address: string;
+  amount: number | null;
+  startsAt: string | null;
+  durationMinutes: number | null;
+  legacyStatus: string;
+  displayStatus: HubDisplayStatus;
+  expiresAt: string | null;
+  effectiveExpiresAt: string | null;
+  primaryAction: HubPrimaryAction;
+  applicationsToReviewCount: number;
+  offerId: string | null;
+  contractRequestId: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+};
+
+export type CompanyOffersHubResponse = {
+  pending: {
+    openOffers: CompanyHubItem[];
+    directInvites: CompanyHubItem[];
+  };
+  inProgress: CompanyHubItem[];
+  finalized: {
+    completed: CompanyHubItem[];
+    cancelled: CompanyHubItem[];
+    expiredWithoutHire: CompanyHubItem[];
+  };
 };
 
 export type OpenOfferJobTypeOption = {

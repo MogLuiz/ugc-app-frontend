@@ -73,6 +73,7 @@ export const openOfferKeys = {
       params?.status ?? "all",
     ] as const,
   companyDetail: (id: string) => [...openOfferKeys.all, "company", id] as const,
+  companyHub: () => [...openOfferKeys.all, "company", "hub"] as const,
 };
 
 export const creatorDashboardKeys = {

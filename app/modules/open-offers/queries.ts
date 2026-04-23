@@ -1,6 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { openOfferKeys } from "~/lib/query/query-keys";
-import { getJobTypesForOpenOffers, getMyCompanyOpenOfferDetail, getMyCompanyOpenOffers } from "./service";
+import {
+  getCompanyOffersHub,
+  getJobTypesForOpenOffers,
+  getMyCompanyOpenOfferDetail,
+  getMyCompanyOpenOffers,
+} from "./service";
 
 export function useMyCompanyOpenOffersQuery(params?: {
   page?: number;
@@ -19,6 +24,13 @@ export function useMyCompanyOpenOfferDetailQuery(offerId?: string) {
     queryKey: openOfferKeys.companyDetail(offerId ?? "none"),
     queryFn: () => getMyCompanyOpenOfferDetail(offerId!),
     enabled: Boolean(offerId),
+  });
+}
+
+export function useCompanyOffersHubQuery() {
+  return useQuery({
+    queryKey: openOfferKeys.companyHub(),
+    queryFn: () => getCompanyOffersHub(),
   });
 }
 

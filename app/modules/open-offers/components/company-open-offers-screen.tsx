@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { OffersEmptyState } from "~/modules/contract-requests/components/offers-empty-state";
 import { cn } from "~/lib/utils";
-import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
 import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/company-campaigns-location-state";
-import { useMyCompanyOpenOffersQuery } from "../queries";
-import { buildFinalizedSections, buildInProgressItems, buildOpenTabItems } from "../helpers";
-import { OpenOfferHubCard } from "./open-offer-hub-card";
+import { useCompanyOffersHubQuery } from "../queries";
+import { formatOfferExpiry, getRemainingMs } from "../helpers";
+import type { CompanyHubItem } from "../types";
+import { CompanyHubCard } from "./company-hub-card";
 
 type OffersTabId = "OPEN" | "IN_PROGRESS" | "FINALIZED";
 
@@ -23,11 +23,9 @@ function parseOffersTab(value: string | null): OffersTabId {
   if (value === "IN_PROGRESS" || value === "ACCEPTED" || value === "confirmed") {
     return "IN_PROGRESS";
   }
-
   if (value === "FINALIZED" || value === "finalized") {
     return "FINALIZED";
   }
-
   return "OPEN";
 }
 
@@ -95,39 +93,37 @@ function CompanyOffersEmptySection({
   );
 }
 
-function PaginationBar({
-  page,
-  totalPages,
-  onPageChange,
+function HubSection({
+  title,
+  description,
+  items,
+  getSubtitle,
+  emptyTitle,
+  emptyDescription,
 }: {
-  page: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  title: string;
+  description: string;
+  items: CompanyHubItem[];
+  getSubtitle: (item: CompanyHubItem) => string;
+  emptyTitle: string;
+  emptyDescription: string;
 }) {
-  if (totalPages <= 1) return null;
-
   return (
-    <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-      <button
-        type="button"
-        onClick={() => onPageChange(page - 1)}
-        disabled={page <= 1}
-        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50"
-      >
-        Anterior
-      </button>
-      <span className="text-sm font-medium text-slate-500">
-        Página {page} de {totalPages}
-      </span>
-      <button
-        type="button"
-        onClick={() => onPageChange(page + 1)}
-        disabled={page >= totalPages}
-        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-50"
-      >
-        Próxima
-      </button>
-    </div>
+    <section className="min-w-0 space-y-4">
+      <div>
+        <h2 className="text-lg font-black text-slate-900">{title}</h2>
+        <p className="mt-1 text-sm text-slate-500">{description}</p>
+      </div>
+      {items.length === 0 ? (
+        <CompanyOffersEmptySection title={emptyTitle} description={emptyDescription} />
+      ) : (
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+          {items.map((item) => (
+            <CompanyHubCard key={`${item.kind}:${item.id}`} item={item} subtitle={getSubtitle(item)} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -135,89 +131,53 @@ export function CompanyOpenOffersScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [page, setPage] = useState(1);
-  const openOffersQuery = useMyCompanyOpenOffersQuery({ page, limit: 20 });
-  const pendingContractsQuery = useMyCompanyContractRequestsQuery("PENDING");
-  const contractsQuery = useMyCompanyContractRequestsQuery();
   const activeTab = parseOffersTab(searchParams.get("tab"));
 
-  const openOffers = openOffersQuery.data?.items ?? [];
-  const pendingContracts = pendingContractsQuery.data ?? [];
-  const contracts = contractsQuery.data ?? [];
+  const hubQuery = useCompanyOffersHubQuery();
+  const hub = hubQuery.data;
 
   const now = Date.now();
-
-  const openItems = useMemo(
-    () => buildOpenTabItems(openOffers, pendingContracts, now),
-    [now, openOffers, pendingContracts]
-  );
-  const inProgressItems = useMemo(() => buildInProgressItems(contracts), [contracts]);
-  const finalizedSections = useMemo(
-    () => buildFinalizedSections(contracts, openOffers, now),
-    [contracts, now, openOffers]
-  );
-
-  const tabCounts = useMemo(() => {
-    return {
-      OPEN: openItems.length,
-      IN_PROGRESS: inProgressItems.length,
-      FINALIZED:
-        finalizedSections.completed.length +
-        finalizedSections.cancelled.length +
-        finalizedSections.offersWithoutHire.length,
-    } satisfies Record<OffersTabId, number>;
-  }, [
-    openItems.length,
-    inProgressItems.length,
-    finalizedSections.completed.length,
-    finalizedSections.cancelled.length,
-    finalizedSections.offersWithoutHire.length,
-  ]);
-
-  const isLoading =
-    openOffersQuery.isLoading ||
-    pendingContractsQuery.isLoading ||
-    contractsQuery.isLoading;
-
-  const errorMessage =
-    (openOffersQuery.error instanceof Error && openOffersQuery.error.message) ||
-    (pendingContractsQuery.error instanceof Error && pendingContractsQuery.error.message) ||
-    (contractsQuery.error instanceof Error && contractsQuery.error.message) ||
-    null;
 
   const openContractRequestIdFromState = (
     location.state as CompanyCampaignsLocationState | null
   )?.openContractRequestId;
-  const openContractRequestId = openContractRequestIdFromState ?? searchParams.get("contractRequestId") ?? undefined;
+  const openContractRequestId =
+    openContractRequestIdFromState ?? searchParams.get("contractRequestId") ?? undefined;
 
-  const finalizedContracts = useMemo(
-    () => [...finalizedSections.completed, ...finalizedSections.cancelled],
-    [finalizedSections.completed, finalizedSections.cancelled]
-  );
+  const allItems = hub
+    ? [
+        ...hub.pending.openOffers,
+        ...hub.pending.directInvites,
+        ...hub.inProgress,
+        ...hub.finalized.completed,
+        ...hub.finalized.cancelled,
+        ...hub.finalized.expiredWithoutHire,
+      ]
+    : [];
+
+  const finalizedItems = hub
+    ? [...hub.finalized.completed, ...hub.finalized.cancelled]
+    : [];
 
   const openedContractInActive = openContractRequestId
-    ? [...openItems, ...inProgressItems, ...finalizedContracts].find(
-        (item) => item.contractRequestId === openContractRequestId
-      )
+    ? allItems.find((item) => item.contractRequestId === openContractRequestId)
     : null;
 
   const resolvedTab = openedContractInActive
-    ? finalizedContracts.some((item) => item.contractRequestId === openContractRequestId)
+    ? finalizedItems.some((item) => item.contractRequestId === openContractRequestId)
       ? "FINALIZED"
-      : inProgressItems.some((item) => item.contractRequestId === openContractRequestId)
+      : hub?.inProgress.some((item) => item.contractRequestId === openContractRequestId)
         ? "IN_PROGRESS"
         : "OPEN"
     : activeTab;
 
   function handleTabChange(tab: OffersTabId) {
     const next = new URLSearchParams(searchParams);
-
     if (tab === "OPEN") {
       next.delete("tab");
     } else {
       next.set("tab", tab);
     }
-
     setSearchParams(next, { replace: true });
   }
 
@@ -225,15 +185,11 @@ export function CompanyOpenOffersScreen() {
     if (!openContractRequestId) return;
     if (openContractRequestIdFromState) {
       navigate(
-        {
-          pathname: location.pathname,
-          search: location.search,
-        },
+        { pathname: location.pathname, search: location.search },
         { replace: true, state: {} satisfies CompanyCampaignsLocationState }
       );
       return;
     }
-
     const next = new URLSearchParams(searchParams);
     next.delete("contractRequestId");
     setSearchParams(next, { replace: true });
@@ -247,27 +203,68 @@ export function CompanyOpenOffersScreen() {
     setSearchParams,
   ]);
 
+  const tabCounts: Record<OffersTabId, number> = {
+    OPEN: (hub?.pending.openOffers.length ?? 0) + (hub?.pending.directInvites.length ?? 0),
+    IN_PROGRESS: hub?.inProgress.length ?? 0,
+    FINALIZED:
+      (hub?.finalized.completed.length ?? 0) +
+      (hub?.finalized.cancelled.length ?? 0) +
+      (hub?.finalized.expiredWithoutHire.length ?? 0),
+  };
+
+  // ─── Subtitle derivers (presentation — copy belongs in frontend) ──────────
+
+  function pendingOfferSubtitle(item: CompanyHubItem): string {
+    return formatOfferExpiry(getRemainingMs(item.expiresAt, now));
+  }
+
+  function pendingInviteSubtitle(item: CompanyHubItem): string {
+    return formatOfferExpiry(getRemainingMs(item.effectiveExpiresAt, now));
+  }
+
+  function inProgressSubtitle(item: CompanyHubItem): string {
+    return item.displayStatus === "IN_PROGRESS" ? "Operação em andamento" : "Contrato ativo";
+  }
+
+  function cancelledSubtitle(item: CompanyHubItem): string {
+    return item.kind === "open_offer" ? "Oferta cancelada" : "Contrato cancelado";
+  }
+
+  function expiredSubtitle(item: CompanyHubItem): string {
+    return item.kind === "open_offer"
+      ? "Oferta encerrada sem contratação"
+      : "Convite expirado sem aceite";
+  }
+
+  // ─── Content ──────────────────────────────────────────────────────────────
+
   const content = (() => {
-    if (isLoading) {
+    if (hubQuery.isLoading) {
       return (
         <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-[260px] animate-pulse rounded-[28px] bg-white shadow-sm" />
+            <div
+              key={index}
+              className="h-[260px] animate-pulse rounded-[28px] bg-white shadow-sm"
+            />
           ))}
         </div>
       );
     }
 
-    if (errorMessage) {
+    if (hubQuery.error instanceof Error) {
       return (
         <section className="rounded-[28px] bg-white p-6 text-sm text-rose-600 shadow-sm">
-          {errorMessage}
+          {hubQuery.error.message}
         </section>
       );
     }
 
     if (resolvedTab === "OPEN") {
-      if (openItems.length === 0) {
+      const openOfferItems = hub?.pending.openOffers ?? [];
+      const directInviteItems = hub?.pending.directInvites ?? [];
+
+      if (openOfferItems.length === 0 && directInviteItems.length === 0) {
         return (
           <CompanyOffersEmptySection
             title="Nenhuma oferta pendente no momento"
@@ -285,156 +282,81 @@ export function CompanyOpenOffersScreen() {
         );
       }
 
-      const openOfferItems = openItems.filter((item) => item.kind === "open_offer");
-      const directInviteItems = openItems.filter((item) => item.kind === "direct_invite");
-
       return (
         <div className="min-w-0 space-y-6">
           {openOfferItems.length > 0 && (
-            <section className="min-w-0 space-y-4">
-              <div>
-                <h2 className="text-lg font-black text-slate-900">Ofertas abertas</h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Aguardando candidaturas de creators.
-                </p>
-              </div>
-              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-                {openOfferItems.map((item) => (
-                  <OpenOfferHubCard
-                    key={`${item.kind}:${item.id}`}
-                    item={item}
-                    onClick={
-                      item.href
-                        ? () => navigate(item.href!, { state: { fromHub: true } })
-                        : undefined
-                    }
-                  />
-                ))}
-              </div>
-              <PaginationBar
-                page={openOffersQuery.data?.pagination.page ?? page}
-                totalPages={openOffersQuery.data?.pagination.totalPages ?? 1}
-                onPageChange={setPage}
-              />
-            </section>
+            <HubSection
+              title="Ofertas abertas"
+              description="Aguardando candidaturas de creators."
+              items={openOfferItems}
+              getSubtitle={pendingOfferSubtitle}
+              emptyTitle=""
+              emptyDescription=""
+            />
           )}
           {directInviteItems.length > 0 && (
-            <section className="min-w-0 space-y-4">
-              <div>
-                <h2 className="text-lg font-black text-slate-900">Convites aguardando resposta</h2>
-                <p className="mt-1 text-sm text-slate-500">
-                  Convites diretos enviados que ainda não foram respondidos.
-                </p>
-              </div>
-              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-                {directInviteItems.map((item) => (
-                  <OpenOfferHubCard
-                    key={`${item.kind}:${item.id}`}
-                    item={item}
-                    onClick={
-                      item.href
-                        ? () => navigate(item.href!)
-                        : undefined
-                    }
-                  />
-                ))}
-              </div>
-            </section>
+            <HubSection
+              title="Convites aguardando resposta"
+              description="Convites diretos enviados que ainda não foram respondidos."
+              items={directInviteItems}
+              getSubtitle={pendingInviteSubtitle}
+              emptyTitle=""
+              emptyDescription=""
+            />
           )}
         </div>
       );
     }
 
     if (resolvedTab === "IN_PROGRESS") {
-      if (inProgressItems.length === 0) {
-        return (
-          <CompanyOffersEmptySection
-            title="Nenhum contrato em andamento"
-            description="Quando você selecionar um creator e o contrato avançar, ele aparecerá nesta aba."
-          />
-        );
-      }
-
       return (
         <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-          {inProgressItems.map((item) => (
-            <OpenOfferHubCard key={item.id} item={item} />
-          ))}
+          {(hub?.inProgress ?? []).length === 0 ? (
+            <CompanyOffersEmptySection
+              title="Nenhum contrato em andamento"
+              description="Quando você selecionar um creator e o contrato avançar, ele aparecerá nesta aba."
+            />
+          ) : (
+            (hub?.inProgress ?? []).map((item) => (
+              <CompanyHubCard
+                key={item.id}
+                item={item}
+                subtitle={inProgressSubtitle(item)}
+              />
+            ))
+          )}
         </div>
       );
     }
 
     return (
       <div className="min-w-0 space-y-6">
-        <section className="min-w-0 space-y-4">
-          <div>
-            <h2 className="text-lg font-black text-slate-900">Concluídas</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Contratos finalizados com sucesso.
-            </p>
-          </div>
-          {finalizedSections.completed.length === 0 ? (
-            <CompanyOffersEmptySection
-              title="Nenhum contrato concluído"
-              description="Contratos finalizados com sucesso aparecerão aqui."
-            />
-          ) : (
-            <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-              {finalizedSections.completed.map((item) => (
-                <OpenOfferHubCard key={item.id} item={item} />
-              ))}
-            </div>
-          )}
-        </section>
+        <HubSection
+          title="Concluídas"
+          description="Contratos finalizados com sucesso."
+          items={hub?.finalized.completed ?? []}
+          getSubtitle={() => "Contrato finalizado"}
+          emptyTitle="Nenhum contrato concluído"
+          emptyDescription="Contratos finalizados com sucesso aparecerão aqui."
+        />
 
-        <section className="min-w-0 space-y-4">
-          <div>
-            <h2 className="text-lg font-black text-slate-900">Canceladas</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Contratos cancelados e ofertas encerradas pela empresa.
-            </p>
-          </div>
-          {finalizedSections.cancelled.length === 0 ? (
-            <CompanyOffersEmptySection
-              title="Nenhum item cancelado"
-              description="Contratos e ofertas cancelados aparecerão aqui."
-            />
-          ) : (
-            <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-              {finalizedSections.cancelled.map((item) => (
-                <OpenOfferHubCard key={item.id} item={item} />
-              ))}
-            </div>
-          )}
-        </section>
+        <HubSection
+          title="Canceladas"
+          description="Contratos cancelados e ofertas encerradas pela empresa."
+          items={hub?.finalized.cancelled ?? []}
+          getSubtitle={cancelledSubtitle}
+          emptyTitle="Nenhum item cancelado"
+          emptyDescription="Contratos e ofertas cancelados aparecerão aqui."
+        />
 
-        <section className="min-w-0 space-y-4">
-          <div>
-            <h2 className="text-lg font-black text-slate-900">Expiradas / sem contratação</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Ofertas que expiraram antes de gerar um contrato.
-            </p>
-          </div>
-          {finalizedSections.offersWithoutHire.length === 0 ? (
-            <CompanyOffersEmptySection
-              title="Nenhuma oferta expirada"
-              description="Ofertas que expiraram sem contratação aparecerão aqui."
-            />
-          ) : (
-            <div className="min-w-0 space-y-4">
-              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-                {finalizedSections.offersWithoutHire.map((item) => (
-                  <OpenOfferHubCard key={item.id} item={item} />
-                ))}
-              </div>
-              <PaginationBar
-                page={openOffersQuery.data?.pagination.page ?? page}
-                totalPages={openOffersQuery.data?.pagination.totalPages ?? 1}
-                onPageChange={setPage}
-              />
-            </div>
-          )}
-        </section>
+        <HubSection
+          title="Expiradas"
+          description="Ofertas e convites que expiraram antes de gerar um contrato."
+          items={hub?.finalized.expiredWithoutHire ?? []}
+          getSubtitle={expiredSubtitle}
+          emptyTitle="Nenhum item expirado"
+          emptyDescription="Ofertas e convites expirados aparecerão aqui."
+        />
       </div>
     );
   })();
@@ -456,7 +378,8 @@ export function CompanyOpenOffersScreen() {
                 Central de oportunidades da sua empresa
               </h1>
               <p className="mt-3 text-sm leading-6 text-white/75 lg:text-base">
-                Publique ofertas abertas, acompanhe convites diretos e faça o handoff para o contrato quando selecionar o creator ideal.
+                Publique ofertas abertas, acompanhe convites diretos e faça o handoff para o
+                contrato quando selecionar o creator ideal.
               </p>
             </div>
 
