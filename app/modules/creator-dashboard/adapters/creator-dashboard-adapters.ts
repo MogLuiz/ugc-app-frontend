@@ -117,7 +117,10 @@ export function adaptHubUpcoming(
         dayBanner: getDayUrgencyBanner(safe),
         dateBadge: formatRecordingMonthDayUpper(safe),
         timeDisplay: formatRecordingTimeLabel(safe),
-        locationDisplay: item.locationDisplay,
+        locationDisplay:
+          item.displayStatus === "AWAITING_CONFIRMATION"
+            ? null
+            : (item.address ?? item.locationDisplay),
         durationDisplay: "",
         statusBadge,
         primaryAction,

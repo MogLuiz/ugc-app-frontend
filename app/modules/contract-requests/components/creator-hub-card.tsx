@@ -1,4 +1,4 @@
-import { AlertCircle, CalendarDays, ChevronRight, Clock, Star } from "lucide-react";
+import { AlertCircle, CalendarDays, ChevronRight, Clock, MapPin, Star } from "lucide-react";
 import { useNavigate } from "react-router";
 import { cn } from "~/lib/utils";
 import { formatDateShort } from "../utils";
@@ -128,6 +128,12 @@ export function CreatorHubCard({
   const subtitle = resolveSubtitle(item);
   const isAwaiting = item.displayStatus === "AWAITING_CONFIRMATION";
   const isDispute = item.displayStatus === "IN_DISPUTE";
+  const showAddress =
+    (item.displayStatus === "PENDING_INVITE" ||
+      item.displayStatus === "APPLICATION_PENDING" ||
+      item.displayStatus === "ACCEPTED") &&
+    item.address &&
+    item.address !== "Local a combinar";
 
   function handleCardClick() {
     if (href) navigate(href, { state: { fromHub: true } });
@@ -189,6 +195,14 @@ export function CreatorHubCard({
               minute: "2-digit",
             })}
           </span>
+        </div>
+      )}
+
+      {/* Address */}
+      {showAddress && (
+        <div className="mt-3 flex items-center gap-2 text-sm text-slate-600">
+          <MapPin className="size-4 shrink-0 text-[#895af6]" />
+          <span className="truncate">{item.address}</span>
         </div>
       )}
 

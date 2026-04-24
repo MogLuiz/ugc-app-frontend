@@ -46,6 +46,7 @@ export type CreatorHubItem = {
   effectiveExpiresAt: string | null;
   expiresSoon: boolean;
   openOfferId: string | null;
+  address: string;
   locationDisplay: string | null;
 
   primaryAction: CreatorHubPrimaryAction;
