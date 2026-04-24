@@ -1,5 +1,4 @@
 import {
-  formatDurationLabel,
   formatRecordingDateLabel,
   formatRecordingMonthDayUpper,
   formatRecordingTimeLabel,
@@ -12,12 +11,8 @@ import type {
   CreatorKpiCardVm,
   CreatorUpcomingCampaignVm,
 } from "../types";
-import type {
-  CreatorActivityApi,
-  CreatorDashboardApi,
-  CreatorInviteApi,
-  CreatorUpcomingApi,
-} from "../service";
+import type { CreatorActivityApi } from "../service";
+import type { CreatorHubItem } from "~/modules/contract-requests/creator-hub.types";
 
 const BR = "pt-BR";
 
@@ -40,27 +35,29 @@ export function formatBrlFull(value: number): string {
 }
 
 export function adaptCreatorKpis(
-  api: CreatorDashboardApi,
+  averageRating: number | null,
+  inProgressCount: number,
+  pendingInvitesCount: number,
   /** Ganhos do mês atual: soma de payouts paid com paidAt no mês corrente (centavos). */
   ganhosDoMesCents: number | null = null,
 ): CreatorKpiCardVm[] {
   const ratingDisplay =
-    api.averageRating != null && api.averageRating > 0
-      ? `${api.averageRating.toFixed(1)}/5`
+    averageRating != null && averageRating > 0
+      ? `${averageRating.toFixed(1)}/5`
       : "—";
 
   return [
     {
       id: "confirmed",
       label: "Contratos ativos",
-      valueDisplay: String(api.confirmedCampaigns),
+      valueDisplay: String(inProgressCount),
       subtitle: "Aguardando finalização",
       href: "/ofertas",
     },
     {
       id: "invites",
       label: "pendentes",
-      valueDisplay: String(api.pendingInvites),
+      valueDisplay: String(pendingInvitesCount),
     },
     {
       id: "earnings",
@@ -77,45 +74,54 @@ export function adaptCreatorKpis(
   ];
 }
 
-export function adaptCreatorInvites(rows: CreatorInviteApi[]): CreatorInviteVm[] {
-  return rows.map((row) => {
-    const d = new Date(row.proposedDate);
-    const proposedDateDisplay = Number.isNaN(d.getTime())
-      ? "Data a combinar"
-      : formatRecordingDateLabel(d);
+export function adaptHubInvites(items: CreatorHubItem[]): CreatorInviteVm[] {
+  return items.map((item) => {
+    const d = item.startsAt ? new Date(item.startsAt) : null;
+    const proposedDateDisplay =
+      d && !Number.isNaN(d.getTime()) ? formatRecordingDateLabel(d) : "Data a combinar";
     return {
-      id: row.id,
-      companyName: row.companyName,
-      campaignTitle: row.campaignTitle,
+      id: item.id,
+      companyName: item.company.name,
+      campaignTitle: item.title,
       proposedDateDisplay,
-      paymentDisplay: formatBrlCompact(row.payment),
-      distanceDisplay:
-        row.distanceKm != null
-          ? `${row.distanceKm.toFixed(1).replace(".", ",")} km`
-          : null,
+      paymentDisplay: formatBrlCompact(item.totalAmount ?? 0),
+      distanceDisplay: null,
     };
   });
 }
 
-export function adaptCreatorUpcoming(rows: CreatorUpcomingApi[]): CreatorUpcomingCampaignVm[] {
-  return rows.map((row) => {
-    const recordingAt = new Date(row.date);
-    const safe = Number.isNaN(recordingAt.getTime()) ? new Date() : recordingAt;
-    const dayBanner = getDayUrgencyBanner(safe);
-    return {
-      id: row.id,
-      campaignName: row.campaignName,
-      companyName: row.companyName,
-      recordingAt: safe,
-      dayBanner,
-      dateBadge: formatRecordingMonthDayUpper(safe),
-      timeDisplay: formatRecordingTimeLabel(safe),
-      locationDisplay: row.location,
-      durationDisplay: formatDurationLabel(row.duration),
-      statusBadge: row.status,
-    };
-  });
+export function adaptHubUpcoming(
+  items: CreatorHubItem[],
+  now: Date,
+): CreatorUpcomingCampaignVm[] {
+  return items
+    .filter((item) => item.startsAt != null)
+    .sort((a, b) => new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime())
+    .slice(0, 3)
+    .map((item) => {
+      const recordingAt = new Date(item.startsAt!);
+      const safe = Number.isNaN(recordingAt.getTime()) ? now : recordingAt;
+      const statusBadge =
+        item.displayStatus === "AWAITING_CONFIRMATION"
+          ? "Concluída"
+          : item.displayStatus === "IN_DISPUTE"
+            ? "Pendente"
+            : "Confirmada";
+      return {
+        id: item.id,
+        campaignName: item.title,
+        companyName: item.company.name,
+        recordingAt: safe,
+        dayBanner: getDayUrgencyBanner(safe),
+        dateBadge: formatRecordingMonthDayUpper(safe),
+        timeDisplay: formatRecordingTimeLabel(safe),
+        locationDisplay: "—",
+        durationDisplay: "",
+        statusBadge,
+      };
+    });
 }
+
 
 /**
  * MVP: monta até 5 eventos a partir do dataset simples de contratos (sem agregador pesado no backend).

@@ -2,18 +2,17 @@ import { useMemo } from "react";
 import { useAuth } from "~/hooks/use-auth";
 import {
   adaptCreatorActivity,
-  adaptCreatorInvites,
   adaptCreatorKpis,
-  adaptCreatorUpcoming,
+  adaptHubInvites,
+  adaptHubUpcoming,
 } from "../adapters/creator-dashboard-adapters";
 import {
   useCreatorActivitySourceQuery,
   useCreatorDashboardSummaryQuery,
-  useCreatorInvitesQuery,
-  useCreatorUpcomingCampaignsQuery,
 } from "../queries";
 // TODO: substituir por endpoint agregado GET /payouts/summary?month=X quando disponível.
 import { useMyPayoutsQuery } from "~/modules/payments/api/payments.queries";
+import { useCreatorOffersHubQuery } from "~/modules/contract-requests/queries";
 
 function getQueryErrorMessage(error: unknown, fallback: string) {
   if (!error) return null;
@@ -29,34 +28,41 @@ function getGreetingName(name?: string | null) {
 
 export function useCreatorDashboardController() {
   const { user } = useAuth();
-  const dashboardQuery = useCreatorDashboardSummaryQuery();
-  const invitesQuery = useCreatorInvitesQuery();
-  const upcomingQuery = useCreatorUpcomingCampaignsQuery();
+  const dashboardQuery = useCreatorDashboardSummaryQuery(); // only for averageRating
+  const hubQuery = useCreatorOffersHubQuery();
   const activityQuery = useCreatorActivitySourceQuery();
   const payoutsQuery = useMyPayoutsQuery();
 
+  const hub = hubQuery.data;
+
   // Ganhos do mês: payouts paid com paidAt no mês/ano corrente
-  const now = new Date();
   const ganhosDoMesCents: number | null = payoutsQuery.isLoading
     ? null
-    : (payoutsQuery.data ?? [])
-        .filter((p) => {
-          if (p.status !== "paid" || !p.paidAt) return false;
-          const d = new Date(p.paidAt);
-          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        })
-        .reduce((sum, p) => sum + p.amountCents, 0);
+    : (() => {
+        const now = new Date();
+        return (payoutsQuery.data ?? [])
+          .filter((p) => {
+            if (p.status !== "paid" || !p.paidAt) return false;
+            const d = new Date(p.paidAt);
+            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          })
+          .reduce((sum, p) => sum + p.amountCents, 0);
+      })();
 
   const viewModel = useMemo(() => {
+    const now = new Date();
     const creatorName = getGreetingName(user?.profile?.name ?? user?.name);
 
-    const kpis = dashboardQuery.data
-      ? adaptCreatorKpis(dashboardQuery.data, ganhosDoMesCents)
+    const kpis = hub
+      ? adaptCreatorKpis(
+          dashboardQuery.data?.averageRating ?? null,
+          hub.summary.inProgressCount,
+          hub.summary.pendingInvitesCount,
+          ganhosDoMesCents,
+        )
       : [];
-    const invites = invitesQuery.data ? adaptCreatorInvites(invitesQuery.data) : [];
-    const upcoming = upcomingQuery.data
-      ? adaptCreatorUpcoming(upcomingQuery.data)
-      : [];
+    const invites = hub ? adaptHubInvites(hub.pending.invites) : [];
+    const upcoming = hub ? adaptHubUpcoming(hub.inProgress, now) : [];
     const activityItems = activityQuery.data
       ? adaptCreatorActivity(activityQuery.data)
       : [];
@@ -67,22 +73,22 @@ export function useCreatorDashboardController() {
       invites,
       upcoming,
       activityItems,
-      isKpiLoading: dashboardQuery.isLoading && !dashboardQuery.data,
-      isKpiRefreshing: dashboardQuery.isFetching,
+      isKpiLoading: (hubQuery.isLoading && !hub) || (payoutsQuery.isLoading && !payoutsQuery.data),
+      isKpiRefreshing: hubQuery.isFetching,
       kpiErrorMessage: getQueryErrorMessage(
-        dashboardQuery.error,
+        hubQuery.error,
         "Não foi possível carregar o resumo."
       ),
-      isInvitesLoading: invitesQuery.isLoading && !invitesQuery.data,
-      isInvitesRefreshing: invitesQuery.isFetching,
+      isInvitesLoading: hubQuery.isLoading && !hub,
+      isInvitesRefreshing: hubQuery.isFetching,
       invitesErrorMessage: getQueryErrorMessage(
-        invitesQuery.error,
+        hubQuery.error,
         "Não foi possível carregar os convites."
       ),
-      isUpcomingLoading: upcomingQuery.isLoading && !upcomingQuery.data,
-      isUpcomingRefreshing: upcomingQuery.isFetching,
+      isUpcomingLoading: hubQuery.isLoading && !hub,
+      isUpcomingRefreshing: hubQuery.isFetching,
       upcomingErrorMessage: getQueryErrorMessage(
-        upcomingQuery.error,
+        hubQuery.error,
         "Não foi possível carregar os próximos trabalhos."
       ),
       isActivityLoading: activityQuery.isLoading && !activityQuery.data,
@@ -98,18 +104,13 @@ export function useCreatorDashboardController() {
     activityQuery.isFetching,
     activityQuery.isLoading,
     dashboardQuery.data,
-    dashboardQuery.error,
-    dashboardQuery.isFetching,
-    dashboardQuery.isLoading,
     ganhosDoMesCents,
-    invitesQuery.data,
-    invitesQuery.error,
-    invitesQuery.isFetching,
-    invitesQuery.isLoading,
-    upcomingQuery.data,
-    upcomingQuery.error,
-    upcomingQuery.isFetching,
-    upcomingQuery.isLoading,
+    hub,
+    hubQuery.error,
+    hubQuery.isFetching,
+    hubQuery.isLoading,
+    payoutsQuery.data,
+    payoutsQuery.isLoading,
     user?.name,
     user?.profile?.name,
   ]);

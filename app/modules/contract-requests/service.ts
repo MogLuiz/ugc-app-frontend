@@ -72,6 +72,13 @@ export async function getMyCreatorContractRequests(
   );
 }
 
+export async function getCreatorOffersHub(
+  token?: string
+): Promise<import("./creator-hub.types").CreatorOffersHubResponse> {
+  const accessToken = await getAccessToken(token);
+  return httpClient("/creator/offers/hub", { token: accessToken });
+}
+
 /** Detalhe do contrato para creator ou empresa (participante). */
 export async function getContractRequestById(
   contractRequestId: string,

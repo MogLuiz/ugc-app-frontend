@@ -1,7 +1,7 @@
 // Fluxo oficial da empresa evolui em `open-offers`.
 // Este módulo permanece ativo porque ainda sustenta creator e handoffs compatíveis.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { contractRequestKeys, creatorDashboardKeys } from "~/lib/query/query-keys";
+import { contractRequestKeys, creatorDashboardKeys, creatorHubKeys } from "~/lib/query/query-keys";
 import {
   acceptContractRequest,
   cancelContractRequest,
@@ -10,6 +10,7 @@ import {
   disputeCompletion,
   getContractRequestById,
   getContractReviews,
+  getCreatorOffersHub,
   getMyCompanyContractRequests,
   getMyCreatorContractRequests,
   getMyCreatorPendingContractRequests,
@@ -40,6 +41,14 @@ export function useContractRequestDetailQuery(contractRequestId: string | undefi
     queryKey: contractRequestKeys.detail(contractRequestId ?? ""),
     queryFn: () => getContractRequestById(contractRequestId!),
     enabled: enabled && Boolean(contractRequestId),
+  });
+}
+
+export function useCreatorOffersHubQuery(enabled = true) {
+  return useQuery({
+    queryKey: creatorHubKeys.hub(),
+    queryFn: () => getCreatorOffersHub(),
+    enabled,
   });
 }
 
@@ -87,6 +96,7 @@ export function useAcceptContractRequestMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
       void queryClient.invalidateQueries({ queryKey: creatorDashboardKeys.all });
+      void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
     },
   });
 }
@@ -100,6 +110,7 @@ export function useRejectContractRequestMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
       void queryClient.invalidateQueries({ queryKey: creatorDashboardKeys.all });
+      void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
     },
   });
 }
@@ -112,6 +123,7 @@ export function useCancelContractRequestMutation() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
       void queryClient.invalidateQueries({ queryKey: creatorDashboardKeys.all });
+      void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
     },
   });
 }
@@ -124,6 +136,7 @@ export function useConfirmCompletionMutation() {
     onSuccess: (_data, contractRequestId) => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.detail(contractRequestId) });
+      void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
     },
   });
 }
@@ -137,6 +150,7 @@ export function useDisputeCompletionMutation() {
     onSuccess: (_data, { contractRequestId }) => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.detail(contractRequestId) });
+      void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
     },
   });
 }

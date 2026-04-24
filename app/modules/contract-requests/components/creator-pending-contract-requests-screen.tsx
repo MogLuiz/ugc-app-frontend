@@ -1,15 +1,14 @@
-import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { cn } from "~/lib/utils";
-import { OpenOfferHubCard } from "~/modules/open-offers/components/open-offer-hub-card";
-import { mapCreatorContractToListItem, sortByStartsAtDesc } from "../helpers";
 import {
-  useMyCreatorContractRequestsQuery,
-  useMyCreatorPendingContractRequestsQuery,
+  useAcceptContractRequestMutation,
+  useCreatorOffersHubQuery,
+  useRejectContractRequestMutation,
 } from "../queries";
-import type { ContractRequestItem } from "../types";
+import type { CreatorHubItem } from "../creator-hub.types";
+import { CreatorHubCard } from "./creator-hub-card";
 import { CreatorOffersEmptyState, OffersEmptyState } from "./offers-empty-state";
 
 type Tab = "PENDING" | "ACCEPTED" | "FINALIZED";
@@ -26,7 +25,7 @@ function parseTab(value: string | null): Tab {
   return "PENDING";
 }
 
-function CreatorOffersStatusFilter({
+function StatusFilter({
   activeTab,
   onTabChange,
   counts,
@@ -76,144 +75,184 @@ function CreatorOffersStatusFilter({
   );
 }
 
+function CardSkeleton() {
+  return (
+    <div className="h-[260px] animate-pulse rounded-[28px] bg-white shadow-sm" />
+  );
+}
+
+function SectionHeader({ label, count }: { label: string; count: number }) {
+  return (
+    <div className="flex items-center gap-3">
+      <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">{label}</h2>
+      <span className="text-xs font-semibold text-slate-400">({count})</span>
+    </div>
+  );
+}
+
+function PendingTabContent({
+  invites,
+  applications,
+  onAccept,
+  onReject,
+}: {
+  invites: CreatorHubItem[];
+  applications: CreatorHubItem[];
+  onAccept: (id: string) => void;
+  onReject: (id: string) => void;
+}) {
+  const hasInvites = invites.length > 0;
+  const hasApplications = applications.length > 0;
+
+  if (!hasInvites && !hasApplications) {
+    return (
+      <section className="rounded-[28px] bg-white p-6 shadow-sm">
+        <CreatorOffersEmptyState />
+      </section>
+    );
+  }
+
+  return (
+    <div className="flex min-w-0 flex-col gap-8">
+      {hasInvites && (
+        <section className="flex min-w-0 flex-col gap-3">
+          <SectionHeader label="Convites" count={invites.length} />
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+            {invites.map((item) => (
+              <CreatorHubCard
+                key={item.id}
+                item={item}
+                onAccept={onAccept}
+                onReject={onReject}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {hasApplications && (
+        <section className="flex min-w-0 flex-col gap-3">
+          <SectionHeader label="Candidaturas enviadas" count={applications.length} />
+          <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+            {applications.map((item) => (
+              <CreatorHubCard key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+function FinalizedTabContent({ hub }: { hub: NonNullable<ReturnType<typeof useCreatorOffersHubQuery>["data"]> }) {
+  const all = [
+    ...hub.finalized.completed,
+    ...hub.finalized.rejected,
+    ...hub.finalized.cancelled,
+    ...hub.finalized.expired,
+  ];
+
+  if (all.length === 0) {
+    return (
+      <section className="rounded-[28px] bg-white p-6 shadow-sm">
+        <OffersEmptyState
+          title="Nenhuma oferta finalizada"
+          description="Propostas concluídas, recusadas ou canceladas aparecerão aqui."
+        />
+      </section>
+    );
+  }
+
+  return (
+    <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+      {all.map((item) => (
+        <CreatorHubCard key={item.id} item={item} />
+      ))}
+    </div>
+  );
+}
+
 export function CreatorPendingContractRequestsScreen() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = parseTab(searchParams.get("tab"));
 
-  const now = Date.now();
+  const hubQuery = useCreatorOffersHubQuery();
+  const hub = hubQuery.data;
 
-  const pendingQuery = useMyCreatorPendingContractRequestsQuery();
-  const acceptedQuery = useMyCreatorContractRequestsQuery("ACCEPTED");
-  const completedQuery = useMyCreatorContractRequestsQuery("COMPLETED");
-  const rejectedQuery = useMyCreatorContractRequestsQuery("REJECTED");
-  const cancelledQuery = useMyCreatorContractRequestsQuery("CANCELLED");
-  const expiredQuery = useMyCreatorContractRequestsQuery("EXPIRED");
+  const acceptMutation = useAcceptContractRequestMutation();
+  const rejectMutation = useRejectContractRequestMutation();
 
   function setActiveTab(tab: Tab) {
     setSearchParams(tab === "PENDING" ? {} : { tab }, { replace: true });
   }
 
-  const pendingItems = useMemo(
-    () => (pendingQuery.data ?? []).map((item) => mapCreatorContractToListItem(item, now)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pendingQuery.data]
-  );
+  function handleAccept(contractRequestId: string) {
+    acceptMutation.mutate(contractRequestId);
+  }
 
-  const acceptedItems = useMemo(
-    () => (acceptedQuery.data ?? []).map((item) => mapCreatorContractToListItem(item, now)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [acceptedQuery.data]
-  );
-
-  const finalizedItems = useMemo(() => {
-    const completed = (completedQuery.data ?? []).map((item) =>
-      mapCreatorContractToListItem(item, now)
-    );
-    const rejected = (rejectedQuery.data ?? []).map((item) =>
-      mapCreatorContractToListItem(item, now)
-    );
-    const cancelled = (cancelledQuery.data ?? []).map((item) =>
-      mapCreatorContractToListItem(item, now)
-    );
-    const expired = (expiredQuery.data ?? []).map((item) =>
-      mapCreatorContractToListItem(item, now)
-    );
-    return [...completed, ...rejected, ...cancelled, ...expired].sort(sortByStartsAtDesc);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [completedQuery.data, rejectedQuery.data, cancelledQuery.data, expiredQuery.data]);
+  function handleReject(contractRequestId: string) {
+    void navigate(`/ofertas/${contractRequestId}`, { state: { fromHub: true } });
+  }
 
   const tabCounts: Record<Tab, number | null> = {
-    PENDING: pendingQuery.data?.length ?? null,
-    ACCEPTED: acceptedQuery.data?.length ?? null,
-    FINALIZED:
-      completedQuery.data != null ||
-      rejectedQuery.data != null ||
-      cancelledQuery.data != null ||
-      expiredQuery.data != null
-        ? finalizedItems.length
-        : null,
-  };
-
-  const isLoading = (() => {
-    if (activeTab === "PENDING") return pendingQuery.isLoading;
-    if (activeTab === "ACCEPTED") return acceptedQuery.isLoading;
-    return completedQuery.isLoading || rejectedQuery.isLoading || cancelledQuery.isLoading || expiredQuery.isLoading;
-  })();
-
-  const activeItems = (() => {
-    if (activeTab === "PENDING") return pendingItems;
-    if (activeTab === "ACCEPTED") return acceptedItems;
-    return finalizedItems;
-  })();
-
-  const rawItems: ContractRequestItem[] = (() => {
-    if (activeTab === "PENDING") return pendingQuery.data ?? [];
-    if (activeTab === "ACCEPTED") return acceptedQuery.data ?? [];
-    return [
-      ...(completedQuery.data ?? []),
-      ...(rejectedQuery.data ?? []),
-      ...(cancelledQuery.data ?? []),
-      ...(expiredQuery.data ?? []),
-    ];
-  })();
-
-  const handleCardClick = (id: string) => {
-    const raw = rawItems.find((i) => i.id === id);
-    void navigate(`/ofertas/${id}`, {
-      state: raw ? { item: raw } : undefined,
-    });
+    PENDING: hub
+      ? hub.summary.pendingInvitesCount + hub.summary.pendingApplicationsCount
+      : null,
+    ACCEPTED: hub?.summary.inProgressCount ?? null,
+    FINALIZED: hub
+      ? hub.finalized.completed.length +
+        hub.finalized.rejected.length +
+        hub.finalized.cancelled.length +
+        hub.finalized.expired.length
+      : null,
   };
 
   const content = (() => {
-    if (isLoading) {
+    if (hubQuery.isLoading) {
       return (
         <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-[260px] animate-pulse rounded-[28px] bg-white shadow-sm"
-            />
+            <CardSkeleton key={i} />
           ))}
         </div>
       );
     }
 
-    if (activeItems.length === 0) {
-      const emptyContent = (() => {
-        if (activeTab === "PENDING") return <CreatorOffersEmptyState />;
-        if (activeTab === "ACCEPTED") {
-          return (
+    if (!hub) return null;
+
+    if (activeTab === "PENDING") {
+      return (
+        <PendingTabContent
+          invites={hub.pending.invites}
+          applications={hub.pending.applications}
+          onAccept={handleAccept}
+          onReject={handleReject}
+        />
+      );
+    }
+
+    if (activeTab === "ACCEPTED") {
+      if (hub.inProgress.length === 0) {
+        return (
+          <section className="rounded-[28px] bg-white p-6 shadow-sm">
             <OffersEmptyState
               title="Nenhum trabalho em andamento"
               description="Quando você aceitar uma proposta, ela aparecerá aqui."
             />
-          );
-        }
-        return (
-          <OffersEmptyState
-            title="Nenhuma oferta finalizada"
-            description="Propostas concluídas, recusadas ou canceladas aparecerão aqui."
-          />
+          </section>
         );
-      })();
-
+      }
       return (
-        <section className="rounded-[28px] bg-white p-6 shadow-sm">{emptyContent}</section>
+        <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+          {hub.inProgress.map((item) => (
+            <CreatorHubCard key={item.id} item={item} />
+          ))}
+        </div>
       );
     }
 
-    return (
-      <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
-        {activeItems.map((item) => (
-          <OpenOfferHubCard
-            key={item.id}
-            item={item}
-            onClick={() => handleCardClick(item.id)}
-          />
-        ))}
-      </div>
-    );
+    return <FinalizedTabContent hub={hub} />;
   })();
 
   return (
@@ -237,7 +276,7 @@ export function CreatorPendingContractRequestsScreen() {
           </header>
 
           <div className="mt-3 min-w-0">
-            <CreatorOffersStatusFilter
+            <StatusFilter
               activeTab={activeTab}
               onTabChange={setActiveTab}
               counts={tabCounts}
