@@ -107,6 +107,8 @@ export function adaptHubUpcoming(
           : item.displayStatus === "IN_DISPUTE"
             ? "Pendente"
             : "Confirmada";
+      const primaryAction =
+        item.displayStatus === "AWAITING_CONFIRMATION" ? "CONFIRM_OR_DISPUTE" : "VIEW";
       return {
         id: item.id,
         campaignName: item.title,
@@ -115,9 +117,11 @@ export function adaptHubUpcoming(
         dayBanner: getDayUrgencyBanner(safe),
         dateBadge: formatRecordingMonthDayUpper(safe),
         timeDisplay: formatRecordingTimeLabel(safe),
-        locationDisplay: "—",
+        locationDisplay: item.locationDisplay,
         durationDisplay: "",
         statusBadge,
+        primaryAction,
+        href: `/ofertas/${item.id}`,
       };
     });
 }

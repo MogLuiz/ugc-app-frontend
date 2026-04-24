@@ -27,9 +27,11 @@ export type CreatorUpcomingCampaignVm = {
   dayBanner: "HOJE" | "AMANHÃ" | null;
   dateBadge: string;
   timeDisplay: string;
-  locationDisplay: string;
+  locationDisplay: string | null;
   durationDisplay: string;
   statusBadge: string;
+  primaryAction: "CONFIRM_OR_DISPUTE" | "VIEW";
+  href: string;
 };
 
 export type CreatorActivityItemVm = {
