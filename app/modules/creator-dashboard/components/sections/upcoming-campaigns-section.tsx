@@ -88,7 +88,8 @@ export function UpcomingCampaignsSection({
                   <div className="flex items-stretch gap-0">
                     <div
                       className={cn(
-                        "flex w-[76px] shrink-0 flex-col items-center justify-center rounded-l-[28px] px-2 py-4 text-center lg:w-[84px]",
+                        "flex w-[76px] shrink-0 flex-col items-center justify-center px-2 py-4 text-center lg:w-[84px]",
+                        isConfirmRequired ? "rounded-tl-[28px]" : "rounded-l-[28px]",
                         isConfirmRequired ? "bg-amber-500/10" : "bg-[#6a36d5]/10",
                       )}
                     >
