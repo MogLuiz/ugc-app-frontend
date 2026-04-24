@@ -6,31 +6,9 @@ import type {
   OpenOfferDetail,
   OpenOfferItem,
   OpenOfferJobTypeOption,
-  OpenOfferListResponse,
   SelectOpenOfferCreatorPayload,
   SelectOpenOfferCreatorResult,
 } from "./types";
-
-export async function getMyCompanyOpenOffers(params?: {
-  page?: number;
-  limit?: number;
-  status?: string;
-  token?: string;
-}): Promise<OpenOfferListResponse> {
-  const accessToken = await getAccessToken(params?.token);
-  const searchParams = new URLSearchParams();
-
-  searchParams.set("page", String(params?.page ?? 1));
-  searchParams.set("limit", String(params?.limit ?? 20));
-
-  if (params?.status) {
-    searchParams.set("status", params.status);
-  }
-
-  return httpClient<OpenOfferListResponse>(`/open-offers/my?${searchParams.toString()}`, {
-    token: accessToken,
-  });
-}
 
 export async function getMyCompanyOpenOfferDetail(
   offerId: string,

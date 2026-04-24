@@ -2,10 +2,10 @@ import { useMemo } from "react";
 import { useAuth } from "~/hooks/use-auth";
 import { useConversationsQuery } from "~/modules/chat/queries";
 import { useMyCompanyContractRequestsQuery } from "~/modules/contract-requests/queries";
-import { isOpenOfferExpired } from "~/modules/open-offers/helpers";
-import { useMyCompanyOpenOffersQuery } from "~/modules/open-offers/queries";
+import { useCompanyOffersHubQuery } from "~/modules/open-offers/queries";
 import { getInitials } from "~/modules/contract-requests/utils";
-import type { CompanyCampaignStatus, ContractRequestItem } from "~/modules/contract-requests/types";
+import type { CompanyCampaignStatus } from "~/modules/contract-requests/types";
+import type { CompanyHubItem } from "~/modules/open-offers/types";
 import { useMarketplaceCreatorsQuery } from "~/modules/marketplace/queries";
 import {
   buildActivityFeed,
@@ -14,7 +14,6 @@ import {
   formatRecordingTimeLabel,
   getDayUrgencyBanner,
   getRelativeActivityLabel,
-  resolveRecordingInstant,
 } from "../utils";
 import type {
   CompanyDashboardActivityItem,
@@ -27,14 +26,6 @@ import type {
 
 const RECOMMENDED_CREATORS_LIMIT = 4;
 
-function getCompanyStatus(item: ContractRequestItem): CompanyCampaignStatus {
-  if (item.status === "PENDING" || item.status === "PENDING_ACCEPTANCE") return "PENDING";
-  if (item.status === "ACCEPTED") return "ACCEPTED";
-  if (item.status === "IN_PROGRESS") return "IN_PROGRESS";
-  if (item.status === "COMPLETED") return "COMPLETED";
-  return "CANCELLED";
-}
-
 function getQueryErrorMessage(error: unknown, fallback: string) {
   if (!error) return null;
   if (error instanceof Error && error.message) return error.message;
@@ -45,18 +36,6 @@ function getGreetingName(name?: string | null) {
   if (!name) return "Time";
   const firstName = name.trim().split(/\s+/)[0];
   return firstName || "Time";
-}
-
-function getLocationText(item: ContractRequestItem) {
-  const city = item.location?.city;
-  const state = item.location?.state;
-
-  return (
-    (city && state ? `${city}, ${state}` : city || state) ??
-    item.jobFormattedAddress ??
-    item.jobAddress ??
-    "Local a combinar"
-  );
 }
 
 function getRelativeLabel(value?: string | null) {
@@ -99,50 +78,41 @@ function getOperationalDisplay(
   return { label: "Pendente", variant: "pending_schedule" };
 }
 
-function mapCampaignItem(item: ContractRequestItem): CompanyDashboardCampaignItem {
-  const status = getCompanyStatus(item);
-  const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
-  const recordingInstant = resolveRecordingInstant(item);
-  const durationMinutes = item.job?.durationMinutes ?? item.durationMinutes;
-  const { label: operationalStatusLabel, variant: operationalStatusVariant } = getOperationalDisplay(
-    status,
-    recordingInstant
-  );
-
-  const dateLine = recordingInstant ? formatRecordingDateLabel(recordingInstant) : "Data a combinar";
-  const timeLine = recordingInstant ? formatRecordingTimeLabel(recordingInstant) : "Horário a combinar";
-  const durationLine = formatDurationLabel(durationMinutes);
+function mapCampaignItem(item: CompanyHubItem): CompanyDashboardCampaignItem {
+  const recordingInstant = item.startsAt ? new Date(item.startsAt) : null;
+  const durationMinutes = item.durationMinutes ?? 0;
+  const status = item.displayStatus as CompanyCampaignStatus;
+  const { label: operationalStatusLabel, variant: operationalStatusVariant } =
+    getOperationalDisplay(status, recordingInstant);
 
   return {
     id: item.id,
-    title: item.job?.title ?? item.jobTypeName ?? "Campanha",
-    creatorName,
-    creatorAvatarUrl: item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot ?? null,
-    locationText: getLocationText(item),
+    title: item.title,
+    creatorName: item.creatorName ?? "Creator",
+    creatorAvatarUrl: item.creatorAvatarUrl ?? null,
+    locationText: item.address,
     status,
     operationalStatusLabel,
     operationalStatusVariant,
     durationMinutes,
     recordingInstant,
     recordingSortKey: recordingInstant ? recordingInstant.getTime() : null,
-    dateLine,
-    timeLine,
-    durationLine,
+    dateLine: recordingInstant ? formatRecordingDateLabel(recordingInstant) : "Data a combinar",
+    timeLine: recordingInstant ? formatRecordingTimeLabel(recordingInstant) : "Horário a combinar",
+    durationLine: formatDurationLabel(durationMinutes),
     dayUrgency: getDayUrgencyBanner(recordingInstant),
     progressSummary: null,
     source: item,
   };
 }
 
-function mapPendingItem(item: ContractRequestItem): CompanyDashboardPendingItem {
-  const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
-
+function mapPendingItem(item: CompanyHubItem): CompanyDashboardPendingItem {
   return {
     id: item.id,
-    title: item.job?.title ?? item.jobTypeName ?? "Campanha",
-    creatorName,
-    creatorAvatarUrl: item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot ?? null,
-    waitingLabel: getRelativeLabel(item.metadata?.createdAt ?? item.createdAt),
+    title: item.title,
+    creatorName: item.creatorName ?? "Creator",
+    creatorAvatarUrl: item.creatorAvatarUrl ?? null,
+    waitingLabel: getRelativeLabel(item.createdAt),
     statusLabel: "Aguardando aceite do creator",
     source: item,
   };
@@ -157,42 +127,48 @@ function compareActiveCampaigns(
   }
   if (a.recordingSortKey != null) return -1;
   if (b.recordingSortKey != null) return 1;
-  const ca = new Date(a.source.metadata?.createdAt ?? a.source.createdAt ?? 0).getTime();
-  const cb = new Date(b.source.metadata?.createdAt ?? b.source.createdAt ?? 0).getTime();
+  const ca = new Date(a.source.createdAt ?? 0).getTime();
+  const cb = new Date(b.source.createdAt ?? 0).getTime();
   return cb - ca;
 }
 
 export function useBusinessDashboardController() {
   const { user } = useAuth();
 
+  const hubQuery = useCompanyOffersHubQuery();
   const campaignsQuery = useMyCompanyContractRequestsQuery();
-  const openOffersQuery = useMyCompanyOpenOffersQuery();
   const creatorsQuery = useMarketplaceCreatorsQuery({
     page: 1,
     limit: RECOMMENDED_CREATORS_LIMIT,
   });
   const conversationsQuery = useConversationsQuery();
 
+  const hub = hubQuery.data;
   const campaigns = campaignsQuery.data ?? [];
-  const openOffers = openOffersQuery.data?.items ?? [];
   const creators = creatorsQuery.data?.items ?? [];
   const conversations = conversationsQuery.data ?? [];
 
   const viewModel = useMemo<CompanyDashboardViewModel>(() => {
-    // Compute per-job progress summary (confirmed vs pending count)
+    const allHubContracts = [
+      ...(hub?.pending.directInvites ?? []),
+      ...(hub?.inProgress ?? []),
+    ];
+
+    // Compute per-job progress summary (confirmed vs pending count) from hub data
     const jobProgressMap = new Map<string, { confirmed: number; pending: number }>();
-    for (const item of campaigns) {
-      const jobId = item.job?.title ?? "unknown";
-      const status = getCompanyStatus(item);
-      if (!jobProgressMap.has(jobId)) jobProgressMap.set(jobId, { confirmed: 0, pending: 0 });
-      const entry = jobProgressMap.get(jobId)!;
-      if (status === "ACCEPTED" || status === "IN_PROGRESS") entry.confirmed += 1;
-      else if (status === "PENDING") entry.pending += 1;
+    for (const item of allHubContracts) {
+      const jobKey = item.title;
+      if (!jobProgressMap.has(jobKey)) jobProgressMap.set(jobKey, { confirmed: 0, pending: 0 });
+      const entry = jobProgressMap.get(jobKey)!;
+      if (item.displayStatus === "ACCEPTED" || item.displayStatus === "IN_PROGRESS") {
+        entry.confirmed += 1;
+      } else if (item.displayStatus === "PENDING") {
+        entry.pending += 1;
+      }
     }
 
     function buildProgressSummary(item: ReturnType<typeof mapCampaignItem>): string | null {
-      const jobId = item.source.job?.title ?? "unknown";
-      const entry = jobProgressMap.get(jobId);
+      const entry = jobProgressMap.get(item.source.title);
       if (!entry) return null;
       const { confirmed, pending } = entry;
       if (confirmed === 0 && pending === 0) return null;
@@ -202,23 +178,18 @@ export function useBusinessDashboardController() {
       return parts.join(" · ");
     }
 
-    const activeCampaignsRaw = campaigns
-      .filter((item) => {
-        const status = getCompanyStatus(item);
-        return status === "ACCEPTED" || status === "IN_PROGRESS";
-      })
+    const activeCampaignsRaw = (hub?.inProgress ?? [])
       .map((item) => {
         const mapped = mapCampaignItem(item);
         return { ...mapped, progressSummary: buildProgressSummary(mapped) };
       })
       .sort(compareActiveCampaigns);
 
-    const pendingRequestsRaw = campaigns
-      .filter((item) => getCompanyStatus(item) === "PENDING")
+    const pendingRequestsRaw = (hub?.pending.directInvites ?? [])
+      .slice()
       .sort(
         (left, right) =>
-          new Date(right.metadata?.createdAt ?? right.createdAt ?? 0).getTime() -
-          new Date(left.metadata?.createdAt ?? left.createdAt ?? 0).getTime()
+          new Date(right.createdAt ?? 0).getTime() - new Date(left.createdAt ?? 0).getTime()
       )
       .map(mapPendingItem);
 
@@ -232,9 +203,10 @@ export function useBusinessDashboardController() {
     }));
 
     const activeCampaignCount = activeCampaignsRaw.length;
-    const pendingApplicationCount = openOffers
-      .filter((o) => o.status === "OPEN" && !isOpenOfferExpired(o.expiresAt))
-      .reduce((sum, o) => sum + (o.applicationsToReviewCount ?? 0), 0);
+    const pendingApplicationCount = (hub?.pending.openOffers ?? []).reduce(
+      (sum, o) => sum + o.applicationsToReviewCount,
+      0
+    );
     const upcomingRecordingCount = activeCampaignsRaw.filter(
       (item) => item.recordingInstant !== null && item.recordingInstant.getTime() > Date.now()
     ).length;
@@ -256,8 +228,7 @@ export function useBusinessDashboardController() {
 
     return {
       greetingName: getGreetingName(companyName),
-      subtitle:
-        "Acompanhe campanhas, creators e oportunidades próximas.",
+      subtitle: "Acompanhe campanhas, creators e oportunidades próximas.",
       metrics: [
         {
           id: "pending-applications",
@@ -297,16 +268,16 @@ export function useBusinessDashboardController() {
       recommendedCreators: recommendedCreatorsRaw,
       mapHighlights: creators.slice(0, 2).map((c) => c.location),
       recentActivity,
-      hasCampaignData: campaigns.length > 0,
+      hasCampaignData: campaigns.length > 0 || (hub?.inProgress.length ?? 0) > 0 || (hub?.pending.directInvites.length ?? 0) > 0,
       hasRecommendedCreators: creators.length > 0,
-      isCampaignsLoading: campaignsQuery.isLoading && !campaignsQuery.data,
+      isCampaignsLoading: hubQuery.isLoading && !hubQuery.data,
       isRecommendedLoading: creatorsQuery.isLoading && !creatorsQuery.data,
-      isCampaignsRefreshing: campaignsQuery.isFetching,
+      isCampaignsRefreshing: hubQuery.isFetching,
       isRecommendedRefreshing: creatorsQuery.isFetching,
       isActivityLoading: conversationsQuery.isLoading && !conversationsQuery.data,
       isActivityRefreshing: conversationsQuery.isFetching,
       campaignsErrorMessage: getQueryErrorMessage(
-        campaignsQuery.error,
+        hubQuery.error,
         "Não foi possível carregar as campanhas da empresa."
       ),
       recommendedErrorMessage: getQueryErrorMessage(
@@ -319,12 +290,12 @@ export function useBusinessDashboardController() {
       ),
     };
   }, [
+    hub,
+    hubQuery.data,
+    hubQuery.error,
+    hubQuery.isFetching,
+    hubQuery.isLoading,
     campaigns,
-    campaignsQuery.data,
-    campaignsQuery.error,
-    campaignsQuery.isFetching,
-    campaignsQuery.isLoading,
-    openOffers,
     conversations,
     conversationsQuery.data,
     conversationsQuery.error,

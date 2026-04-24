@@ -223,7 +223,14 @@ export function CompanyOpenOffersScreen() {
   }
 
   function inProgressSubtitle(item: CompanyHubItem): string {
-    return item.displayStatus === "IN_PROGRESS" ? "Operação em andamento" : "Contrato ativo";
+    if (item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION") return "Aguardando sua confirmação";
+    if (item.legacyStatus === "COMPLETION_DISPUTE") return "Conclusão em disputa";
+    if (item.legacyStatus === "ACCEPTED") {
+      const startsAtMs = item.startsAt ? new Date(item.startsAt).getTime() : null;
+      if (startsAtMs !== null && now >= startsAtMs) return "Em execução agora";
+      return "Contrato agendado";
+    }
+    return "Operação em andamento";
   }
 
   function cancelledSubtitle(item: CompanyHubItem): string {

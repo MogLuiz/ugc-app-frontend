@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronRight, Clock3, MapPin } from "lucide-react";
+import { AlertCircle, CalendarDays, ChevronRight, Clock3, MapPin } from "lucide-react";
 import { useNavigate } from "react-router";
 import { cn } from "~/lib/utils";
 import { formatDateShort, formatDuration } from "~/modules/contract-requests/utils";
@@ -33,6 +33,20 @@ function kindLabel(kind: CompanyHubItem["kind"]) {
   return kind === "direct_invite" ? "Convite direto" : "Oferta aberta";
 }
 
+function formatDeadline(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function isDeadlineUrgent(iso: string): boolean {
+  return new Date(iso).getTime() - Date.now() < 6 * 60 * 60 * 1000;
+}
+
 export function CompanyHubCard({
   item,
   subtitle,
@@ -42,6 +56,9 @@ export function CompanyHubCard({
 }) {
   const navigate = useNavigate();
   const href = resolveHref(item);
+
+  const isAwaiting = item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION";
+  const isDispute = item.legacyStatus === "COMPLETION_DISPUTE";
 
   const dateLabel = item.startsAt ? formatDateShort(item.startsAt) : "Data a combinar";
   const timeLabel = item.startsAt
@@ -53,11 +70,24 @@ export function CompanyHubCard({
   const durationLabel = item.durationMinutes ? formatDuration(item.durationMinutes) : null;
 
   const ctaLabel =
-    item.primaryAction === "review_applications" ? "Avaliar candidaturas" : "Ver detalhes";
+    item.primaryAction === "review_applications"
+      ? "Avaliar candidaturas"
+      : isAwaiting
+        ? "Confirmar serviço"
+        : "Ver detalhes";
+
+  const subtitleColorClass = isAwaiting
+    ? "text-amber-600"
+    : isDispute
+      ? "text-rose-600"
+      : "text-slate-400";
 
   return (
     <article
-      className="w-full min-w-0 max-w-full cursor-pointer rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:p-6"
+      className={cn(
+        "w-full min-w-0 max-w-full cursor-pointer rounded-[28px] border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:p-6",
+        isAwaiting ? "border-amber-200" : isDispute ? "border-rose-200" : "border-slate-200",
+      )}
       onClick={() => navigate(href, { state: { fromHub: true } })}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -109,21 +139,61 @@ export function CompanyHubCard({
         </div>
       </div>
 
+      {isAwaiting && item.contestDeadlineAt && (
+        <div className="mt-4 rounded-[16px] bg-amber-50 px-4 py-3 ring-1 ring-inset ring-amber-200">
+          <div className="flex items-start gap-2">
+            <AlertCircle
+              className={cn("mt-0.5 size-4 shrink-0", isDeadlineUrgent(item.contestDeadlineAt) ? "text-rose-500" : "text-amber-500")}
+              aria-hidden
+            />
+            <div className="min-w-0 space-y-0.5">
+              <p className={cn("text-xs font-semibold", isDeadlineUrgent(item.contestDeadlineAt) ? "text-rose-700" : "text-amber-700")}>
+                Prazo: {formatDeadline(item.contestDeadlineAt)}
+              </p>
+              <p className="text-xs text-amber-600">
+                Se não houver contestação até o prazo, o serviço será concluído automaticamente.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mt-5 flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-2 border-t border-slate-100 pt-4">
-        <div className="min-w-0 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+        <div className={cn("min-w-0 text-xs font-semibold uppercase tracking-[0.16em]", subtitleColorClass)}>
           {subtitle}
         </div>
-        <button
-          type="button"
-          className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(href, { state: { fromHub: true } });
-          }}
-        >
-          {ctaLabel}
-          <ChevronRight className="size-4" />
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          {isAwaiting && (
+            <button
+              type="button"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(href, { state: { fromHub: true } });
+              }}
+            >
+              Ver detalhes
+            </button>
+          )}
+          <button
+            type="button"
+            className={cn(
+              "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white",
+              isAwaiting
+                ? "bg-amber-500 hover:bg-amber-600"
+                : isDispute
+                  ? "bg-rose-600 hover:bg-rose-700"
+                  : "bg-slate-900 hover:bg-slate-800",
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(href, { state: { fromHub: true } });
+            }}
+          >
+            {ctaLabel}
+            <ChevronRight className="size-4" />
+          </button>
+        </div>
       </div>
     </article>
   );

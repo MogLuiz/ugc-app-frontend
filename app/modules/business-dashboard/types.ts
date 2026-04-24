@@ -1,4 +1,5 @@
-import type { CompanyCampaignStatus, ContractRequestItem } from "~/modules/contract-requests/types";
+import type { CompanyCampaignStatus } from "~/modules/contract-requests/types";
+import type { CompanyHubItem } from "~/modules/open-offers/types";
 
 export type CompanyDashboardMetricId =
   | "active-campaigns"
@@ -36,7 +37,7 @@ export type CompanyDashboardCampaignItem = {
   durationLine: string;
   dayUrgency: "HOJE" | "AMANHÃ" | null;
   progressSummary: string | null;
-  source: ContractRequestItem;
+  source: CompanyHubItem;
 };
 
 export type CompanyDashboardPendingItem = {
@@ -46,7 +47,7 @@ export type CompanyDashboardPendingItem = {
   creatorAvatarUrl: string | null;
   waitingLabel: string;
   statusLabel: string;
-  source: ContractRequestItem;
+  source: CompanyHubItem;
 };
 
 export type CompanyDashboardRecommendedCreator = {

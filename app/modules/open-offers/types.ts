@@ -57,16 +57,6 @@ export type OpenOfferDetail = OpenOfferItem & {
   applications: OpenOfferDetailApplication[];
 };
 
-export type OpenOfferListResponse = {
-  items: OpenOfferItem[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-};
-
 export type CreateOpenOfferPayload = {
   jobTypeId: string;
   description: string;
@@ -128,6 +118,7 @@ export type HubPrimaryAction = "review_applications" | "view_details";
 /**
  * View model do hub da empresa — não é DTO de domínio genérico.
  * Campos como title/address já chegam com fallbacks de UI aplicados pelo backend.
+ * creatorId/Name/AvatarUrl são null para kind='open_offer' (sem creator único).
  */
 export type CompanyHubItem = {
   id: string;
@@ -142,8 +133,15 @@ export type CompanyHubItem = {
   displayStatus: HubDisplayStatus;
   expiresAt: string | null;
   effectiveExpiresAt: string | null;
+  /** Prazo de 72h para confirmar ou contestar. Presente apenas em AWAITING_COMPLETION_CONFIRMATION. */
+  contestDeadlineAt: string | null;
+  /** True quando a empresa ainda não confirmou e o prazo está ativo. */
+  actionRequiredByCompany: boolean;
   primaryAction: HubPrimaryAction;
   applicationsToReviewCount: number;
+  creatorId: string | null;
+  creatorName: string | null;
+  creatorAvatarUrl: string | null;
   offerId: string | null;
   contractRequestId: string | null;
   createdAt: string;

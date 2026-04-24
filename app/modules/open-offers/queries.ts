@@ -4,20 +4,7 @@ import {
   getCompanyOffersHub,
   getJobTypesForOpenOffers,
   getMyCompanyOpenOfferDetail,
-  getMyCompanyOpenOffers,
 } from "./service";
-
-export function useMyCompanyOpenOffersQuery(params?: {
-  page?: number;
-  limit?: number;
-  status?: string;
-}) {
-  return useQuery({
-    queryKey: openOfferKeys.companyList(params),
-    queryFn: () => getMyCompanyOpenOffers(params),
-    placeholderData: (previousData) => previousData,
-  });
-}
 
 export function useMyCompanyOpenOfferDetailQuery(offerId?: string) {
   return useQuery({
