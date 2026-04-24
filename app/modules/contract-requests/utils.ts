@@ -81,6 +81,16 @@ export function getContractRequestStatusMeta(
         label: "Em produção",
         className: "bg-blue-100 text-blue-700",
       };
+    case "AWAITING_COMPLETION_CONFIRMATION":
+      return {
+        label: "Aguardando confirmação",
+        className: "bg-amber-100 text-amber-800",
+      };
+    case "COMPLETION_DISPUTE":
+      return {
+        label: "Conclusão em disputa",
+        className: "bg-rose-100 text-rose-700",
+      };
     case "REJECTED":
       return {
         label: "Cancelado",

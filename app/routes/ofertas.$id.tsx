@@ -139,7 +139,10 @@ export default function OfferDetailRoute() {
 
     return (
       <AuthGuard allowedRoles={["business"]}>
-        <CompanyContractRequestDetailScreen item={companyContractItem} />
+        <CompanyContractRequestDetailScreen
+          item={companyContractItem}
+          onUpdate={companyContractsQuery.refetch}
+        />
       </AuthGuard>
     );
   }

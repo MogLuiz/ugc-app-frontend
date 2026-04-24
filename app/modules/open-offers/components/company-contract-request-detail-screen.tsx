@@ -10,6 +10,7 @@ import {
   getContractRequestStatusMeta,
   getInitials,
 } from "~/modules/contract-requests/utils";
+import { ConfirmCompletionBanner } from "~/modules/contract-requests/components/ConfirmCompletionBanner";
 
 function resolveLocation(item: ContractRequestItem) {
   const city = item.location?.city;
@@ -26,7 +27,13 @@ function resolveDescription(item: ContractRequestItem) {
   return item.job?.description ?? item.description ?? "Sem briefing informado.";
 }
 
-export function CompanyContractRequestDetailScreen({ item }: { item: ContractRequestItem }) {
+export function CompanyContractRequestDetailScreen({
+  item,
+  onUpdate,
+}: {
+  item: ContractRequestItem;
+  onUpdate?: () => void;
+}) {
   const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
   const creatorAvatarUrl = item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot;
   const creatorRating = item.creator?.rating ?? null;
@@ -103,6 +110,10 @@ export function CompanyContractRequestDetailScreen({ item }: { item: ContractReq
               </div>
             </div>
           </header>
+
+          {item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION" && (
+            <ConfirmCompletionBanner item={item} viewerRole="COMPANY" onUpdate={onUpdate} />
+          )}
 
           <section className="grid gap-6 xl:grid-cols-[1.4fr_minmax(320px,0.9fr)]">
             <div className="rounded-[32px] bg-white p-6 shadow-sm">

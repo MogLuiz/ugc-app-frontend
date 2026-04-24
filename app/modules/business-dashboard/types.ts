@@ -16,7 +16,7 @@ export type CompanyDashboardMetric = {
   href: string;
 };
 
-export type OperationalStatusVariant = "confirmed" | "pending_schedule" | "in_progress" | "completed";
+export type OperationalStatusVariant = "confirmed" | "pending_schedule" | "in_progress" | "completed" | "awaiting_confirmation";
 
 export type CompanyDashboardCampaignItem = {
   id: string;

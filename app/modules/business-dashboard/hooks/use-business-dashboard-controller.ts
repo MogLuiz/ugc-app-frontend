@@ -82,8 +82,19 @@ function mapCampaignItem(item: CompanyHubItem): CompanyDashboardCampaignItem {
   const recordingInstant = item.startsAt ? new Date(item.startsAt) : null;
   const durationMinutes = item.durationMinutes ?? 0;
   const status = item.displayStatus as CompanyCampaignStatus;
-  const { label: operationalStatusLabel, variant: operationalStatusVariant } =
-    getOperationalDisplay(status, recordingInstant);
+  const base = getOperationalDisplay(status, recordingInstant);
+
+  const operationalStatusLabel =
+    item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION"
+      ? "Aguardando confirmação"
+      : item.legacyStatus === "COMPLETION_DISPUTE"
+        ? "Conclusão em disputa"
+        : base.label;
+
+  const operationalStatusVariant: OperationalStatusVariant =
+    item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION"
+      ? "awaiting_confirmation"
+      : base.variant;
 
   return {
     id: item.id,

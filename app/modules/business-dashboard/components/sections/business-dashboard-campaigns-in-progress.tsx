@@ -1,4 +1,4 @@
-import { CalendarDays, Clock3, MapPin, MessageCircle, Timer, Video } from "lucide-react";
+import { AlertCircle, CalendarDays, Clock3, MapPin, MessageCircle, Timer, Video } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { MobileEmptyState } from "~/components/ui/mobile-empty-state";
@@ -35,11 +35,32 @@ function OperationalBadge({
         ? "bg-amber-100 text-amber-900"
         : variant === "in_progress"
           ? "bg-sky-100 text-sky-900"
-          : "bg-slate-100 text-slate-700";
+          : variant === "awaiting_confirmation"
+            ? "bg-amber-100 text-amber-800"
+            : "bg-slate-100 text-slate-700";
 
   return (
     <span className={cn("rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wide", cls)}>
       {label}
+    </span>
+  );
+}
+
+function DeadlineChip({ iso }: { iso: string }) {
+  const isUrgent = new Date(iso).getTime() - Date.now() < 6 * 60 * 60 * 1000;
+  const label = new Date(iso).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return (
+    <span className={cn(
+      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+      isUrgent ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"
+    )}>
+      <AlertCircle className="size-3 shrink-0" aria-hidden />
+      Confirme até {label}
     </span>
   );
 }
@@ -180,53 +201,95 @@ export function BusinessDashboardCampaignsInProgress({
                           label={item.operationalStatusLabel}
                           variant={item.operationalStatusVariant}
                         />
+                        {item.source.actionRequiredByCompany && item.source.contestDeadlineAt ? (
+                          <DeadlineChip iso={item.source.contestDeadlineAt} />
+                        ) : null}
                       </div>
                       <p className="mt-1 text-sm font-medium text-[#6a36d5]">{item.creatorName}</p>
-                      {item.progressSummary ? (
-                        <p className="mt-1 text-xs text-[#595c5d]/80">{item.progressSummary}</p>
-                      ) : null}
 
-                      <ul className="mt-4 grid grid-cols-1 gap-2 text-sm text-[#595c5d] sm:grid-cols-2">
-                        <li className="flex items-center gap-2">
-                          <CalendarDays className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
-                          <span>{item.dateLine}</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Clock3 className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
-                          <span>{item.timeLine}</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <MapPin className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
-                          <span className="truncate">{item.locationText}</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <Timer className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
-                          <span>{item.durationLine}</span>
-                        </li>
-                      </ul>
+                      {item.source.actionRequiredByCompany ? (
+                        // Layout simplificado: card de ação — só data do job
+                        <ul className="mt-3 flex gap-3 text-sm text-[#595c5d]">
+                          <li className="flex items-center gap-2">
+                            <CalendarDays className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
+                            <span>{item.dateLine} · {item.timeLine}</span>
+                          </li>
+                        </ul>
+                      ) : (
+                        // Layout operacional completo
+                        <>
+                          {item.progressSummary ? (
+                            <p className="mt-1 text-xs text-[#595c5d]/80">{item.progressSummary}</p>
+                          ) : null}
+                          <ul className="mt-4 grid grid-cols-1 gap-2 text-sm text-[#595c5d] sm:grid-cols-2">
+                            <li className="flex items-center gap-2">
+                              <CalendarDays className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
+                              <span>{item.dateLine}</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <Clock3 className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
+                              <span>{item.timeLine}</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <MapPin className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
+                              <span className="truncate">{item.locationText}</span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <Timer className="size-4 shrink-0 text-[#6a36d5]" aria-hidden />
+                              <span>{item.durationLine}</span>
+                            </li>
+                          </ul>
+                        </>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center lg:w-fit lg:flex-col lg:items-stretch">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        navigate("/ofertas?tab=IN_PROGRESS", {
-                          state: { openContractRequestId: item.id } satisfies CompanyCampaignsLocationState,
-                        })
-                      }
-                      className="rounded-[32px] border border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-bold text-[#2c2f30] transition hover:bg-slate-100 lg:w-full lg:cursor-pointer"
-                    >
-                      Ver campanha
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/chat?contractRequestId=${item.id}`)}
-                      className="flex items-center justify-center gap-2 rounded-[32px] bg-[#6a36d5] px-5 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#5b2fc4] lg:w-full lg:cursor-pointer"
-                    >
-                      <MessageCircle className="size-4" aria-hidden />
-                      Chat
-                    </button>
+                    {item.source.actionRequiredByCompany ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(`/ofertas/${item.id}`, {
+                              state: { fromHub: true },
+                            })
+                          }
+                          className="rounded-[32px] bg-amber-500 px-5 py-3 text-center text-xs font-bold text-white shadow-sm transition hover:bg-amber-600 lg:w-full lg:cursor-pointer"
+                        >
+                          Confirmar serviço
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/chat?contractRequestId=${item.id}`)}
+                          className="flex items-center justify-center gap-2 rounded-[32px] border border-slate-200 bg-slate-50 px-5 py-3 text-xs font-bold text-[#2c2f30] transition hover:bg-slate-100 lg:w-full lg:cursor-pointer"
+                        >
+                          <MessageCircle className="size-4" aria-hidden />
+                          Chat
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate("/ofertas?tab=IN_PROGRESS", {
+                              state: { openContractRequestId: item.id } satisfies CompanyCampaignsLocationState,
+                            })
+                          }
+                          className="rounded-[32px] border border-slate-200 bg-slate-50 px-5 py-3 text-center text-xs font-bold text-[#2c2f30] transition hover:bg-slate-100 lg:w-full lg:cursor-pointer"
+                        >
+                          Ver campanha
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/chat?contractRequestId=${item.id}`)}
+                          className="flex items-center justify-center gap-2 rounded-[32px] bg-[#6a36d5] px-5 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#5b2fc4] lg:w-full lg:cursor-pointer"
+                        >
+                          <MessageCircle className="size-4" aria-hidden />
+                          Chat
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
             </DashboardCard>
