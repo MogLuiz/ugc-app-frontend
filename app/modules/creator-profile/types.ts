@@ -12,7 +12,7 @@ export type CreatorProfileService = {
 export type CreatorProfileTestimonial = {
   id: string;
   authorName: string;
-  authorRole: string;
+  authorRole: "COMPANY" | "CREATOR";
   authorInitials: string;
   rating: number;
   text: string;
@@ -118,6 +118,7 @@ export type CreatorProfileDetailsResponse = {
     createdAt: string;
     updatedAt: string;
   } | null;
+  testimonials: CreatorProfileTestimonial[];
   availability: {
     timezone: string;
     workingHours: {

@@ -5,6 +5,7 @@ import type {
   CreatorProfile,
   CreatorProfileDetailsResponse,
   CreatorProfilePortfolioItem,
+  CreatorProfileTestimonial,
 } from "./types";
 
 type CreatorProfileMediaItem = NonNullable<
@@ -62,6 +63,14 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     ageYearsRaw != null && Number.isFinite(Number(ageYearsRaw))
       ? Number(ageYearsRaw)
       : null;
+  const testimonials: CreatorProfileTestimonial[] = data.testimonials.map((testimonial) => ({
+    id: testimonial.id,
+    authorName: normalizeAuthorName(testimonial.authorName),
+    authorRole: testimonial.authorRole === "COMPANY" ? "COMPANY" : "CREATOR",
+    authorInitials: normalizeAuthorInitials(testimonial.authorInitials),
+    rating: testimonial.rating,
+    text: testimonial.text,
+  }));
 
   return {
     id: data.id,
@@ -81,7 +90,7 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
     },
     distance: data.distance,
     portfolio,
-    testimonials: [],
+    testimonials,
     services,
     availability: availabilityDays,
     availabilitySlotsByDay,
@@ -92,6 +101,16 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
       slotDurationMinutes: 60,
     },
   };
+}
+
+function normalizeAuthorName(name: string | null | undefined) {
+  const normalized = name?.trim();
+  return normalized?.length ? normalized : "Usuário";
+}
+
+function normalizeAuthorInitials(initials: string | null | undefined) {
+  const normalized = initials?.trim().toUpperCase();
+  return normalized?.length ? normalized : "U";
 }
 
 function mapAvailabilityRules(days: CreatorAvailabilityItem[]) {
