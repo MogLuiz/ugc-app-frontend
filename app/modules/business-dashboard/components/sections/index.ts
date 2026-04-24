@@ -6,3 +6,4 @@ export { BusinessDashboardCampaignsInProgress } from "./business-dashboard-campa
 export { BusinessDashboardRecommendedCreators } from "./business-dashboard-recommended-creators";
 export { BusinessDashboardMapNearby } from "./business-dashboard-map-nearby";
 export { BusinessDashboardRecentActivity } from "./business-dashboard-recent-activity";
+export { BusinessDashboardPendingReviews } from "./business-dashboard-pending-reviews";

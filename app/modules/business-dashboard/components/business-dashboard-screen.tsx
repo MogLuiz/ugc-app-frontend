@@ -8,6 +8,7 @@ import {
   BusinessDashboardHeader,
   BusinessDashboardMapNearby,
   BusinessDashboardPendingRequests,
+  BusinessDashboardPendingReviews,
   BusinessDashboardRecentActivity,
   BusinessDashboardRecommendedCreators,
   BusinessDashboardStats,
@@ -58,6 +59,11 @@ export function BusinessDashboardScreen() {
                 getCreatorFallbackInitials={
                   controller.actions.getCreatorFallbackInitials
                 }
+              />
+
+              <BusinessDashboardPendingReviews
+                items={controller.viewModel.pendingReviews}
+                hasOverflow={controller.viewModel.hasPendingReviewsOverflow}
               />
 
               <BusinessDashboardExploreHero />

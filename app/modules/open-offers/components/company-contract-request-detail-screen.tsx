@@ -1,5 +1,6 @@
-import { CalendarDays, ChevronLeft, MapPin, MessageCircle, Star } from "lucide-react";
+import { CalendarDays, CheckCircle, ChevronLeft, MapPin, MessageCircle, Star } from "lucide-react";
 import { Link } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import type { ContractRequestItem } from "~/modules/contract-requests/types";
@@ -11,6 +12,9 @@ import {
   getInitials,
 } from "~/modules/contract-requests/utils";
 import { ConfirmCompletionBanner } from "~/modules/contract-requests/components/ConfirmCompletionBanner";
+import { ReviewForm } from "~/modules/contract-requests/components/ReviewForm";
+import { useContractReviewsQuery } from "~/modules/contract-requests/queries";
+import { openOfferKeys } from "~/lib/query/query-keys";
 
 function resolveLocation(item: ContractRequestItem) {
   const city = item.location?.city;
@@ -34,6 +38,17 @@ export function CompanyContractRequestDetailScreen({
   item: ContractRequestItem;
   onUpdate?: () => void;
 }) {
+  const queryClient = useQueryClient();
+  const isCompleted = item.status === "COMPLETED" || item.legacyStatus === "COMPLETED";
+
+  const reviewsQuery = useContractReviewsQuery(item.id, isCompleted);
+  const alreadyReviewed =
+    reviewsQuery.data?.reviews.some((r) => r.reviewerRole === "COMPANY") ?? false;
+
+  function handleReviewSuccess() {
+    void queryClient.invalidateQueries({ queryKey: openOfferKeys.companyHub() });
+  }
+
   const creatorName = item.creator?.name ?? item.creatorNameSnapshot ?? "Creator";
   const creatorAvatarUrl = item.creator?.avatarUrl ?? item.creatorAvatarUrlSnapshot;
   const creatorRating = item.creator?.rating ?? null;
@@ -113,6 +128,33 @@ export function CompanyContractRequestDetailScreen({
 
           {item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION" && (
             <ConfirmCompletionBanner item={item} viewerRole="COMPANY" onUpdate={onUpdate} />
+          )}
+
+          {isCompleted && (
+            <section className="rounded-[32px] bg-white p-6 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#895af6]">
+                Avalie o creator
+              </p>
+              {reviewsQuery.isLoading ? (
+                <div className="mt-4 h-20 animate-pulse rounded-2xl bg-slate-100" />
+              ) : alreadyReviewed ? (
+                <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-green-200 bg-green-50 p-4">
+                  <CheckCircle className="size-4 shrink-0 text-green-600" />
+                  <p className="text-sm font-medium text-green-800">
+                    Você já avaliou este creator. Obrigado pelo feedback!
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm text-slate-500">
+                    Compartilhe sua experiência para ajudar outras empresas a encontrar o creator certo.
+                  </p>
+                  <div className="mt-4">
+                    <ReviewForm contractRequestId={item.id} onSuccess={handleReviewSuccess} />
+                  </div>
+                </>
+              )}
+            </section>
           )}
 
           <section className="grid gap-6 xl:grid-cols-[1.4fr_minmax(320px,0.9fr)]">

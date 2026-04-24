@@ -1,4 +1,4 @@
-import { AlertCircle, CalendarDays, ChevronRight, Clock3, MapPin } from "lucide-react";
+import { AlertCircle, CalendarDays, CheckCircle, ChevronRight, Clock3, MapPin, Star } from "lucide-react";
 import { useNavigate } from "react-router";
 import { cn } from "~/lib/utils";
 import { formatDateShort, formatDuration } from "~/modules/contract-requests/utils";
@@ -13,6 +13,24 @@ function ApplicationsToReviewBadge({ count }: { count: number }) {
     <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 ring-1 ring-inset ring-amber-200">
       <span className="size-2 shrink-0 rounded-full bg-amber-500" aria-hidden />
       <span className="text-[12px] font-bold leading-none text-amber-700">{label}</span>
+    </div>
+  );
+}
+
+function ReviewStatusBadge({ pending }: { pending: boolean | null }) {
+  if (pending === null) return null;
+  if (pending) {
+    return (
+      <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 ring-1 ring-inset ring-amber-200">
+        <Star className="size-3.5 fill-amber-500 text-amber-500" aria-hidden />
+        <span className="text-[12px] font-bold leading-none text-amber-700">Avaliar creator</span>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1 ring-1 ring-inset ring-green-200">
+      <CheckCircle className="size-3.5 text-green-600" aria-hidden />
+      <span className="text-[12px] font-bold leading-none text-green-700">Avaliado</span>
     </div>
   );
 }
@@ -104,6 +122,7 @@ export function CompanyHubCard({
             {item.title}
           </h3>
           <ApplicationsToReviewBadge count={item.applicationsToReviewCount} />
+          <ReviewStatusBadge pending={item.myReviewPending} />
         </div>
 
         <div className="shrink-0 text-right">

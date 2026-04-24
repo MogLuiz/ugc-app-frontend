@@ -50,6 +50,16 @@ export type CompanyDashboardPendingItem = {
   source: CompanyHubItem;
 };
 
+export type CompanyDashboardPendingReviewItem = {
+  id: string;
+  contractRequestId: string;
+  title: string;
+  creatorName: string;
+  creatorAvatarUrl: string | null;
+  completedLabel: string;
+  source: CompanyHubItem;
+};
+
 export type CompanyDashboardRecommendedCreator = {
   id: string;
   name: string;
@@ -73,6 +83,8 @@ export type CompanyDashboardViewModel = {
   metrics: CompanyDashboardMetric[];
   activeCampaigns: CompanyDashboardCampaignItem[];
   pendingRequests: CompanyDashboardPendingItem[];
+  pendingReviews: CompanyDashboardPendingReviewItem[];
+  hasPendingReviewsOverflow: boolean;
   recommendedCreators: CompanyDashboardRecommendedCreator[];
   /** Regiões derivadas dos creators do marketplace (ex.: chip Belo Horizonte/MG). */
   mapHighlights: string[];

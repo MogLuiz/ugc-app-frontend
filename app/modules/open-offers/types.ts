@@ -135,10 +135,14 @@ export type CompanyHubItem = {
   effectiveExpiresAt: string | null;
   /** Prazo de 72h para confirmar ou contestar. Presente apenas em AWAITING_COMPLETION_CONFIRMATION. */
   contestDeadlineAt: string | null;
+  /** Data de conclusão (quando o contrato transitou para COMPLETED). Null para não-COMPLETED. */
+  completedAt: string | null;
   /** True quando a empresa ainda não confirmou e o prazo está ativo. */
   actionRequiredByCompany: boolean;
   primaryAction: HubPrimaryAction;
   applicationsToReviewCount: number;
+  /** true = avaliação pendente, false = já avaliada, null = não é COMPLETED */
+  myReviewPending: boolean | null;
   creatorId: string | null;
   creatorName: string | null;
   creatorAvatarUrl: string | null;

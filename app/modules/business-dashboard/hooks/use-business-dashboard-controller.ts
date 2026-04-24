@@ -19,6 +19,7 @@ import type {
   CompanyDashboardActivityItem,
   CompanyDashboardCampaignItem,
   CompanyDashboardPendingItem,
+  CompanyDashboardPendingReviewItem,
   CompanyDashboardRecommendedCreator,
   CompanyDashboardViewModel,
   OperationalStatusVariant,
@@ -117,6 +118,29 @@ function mapCampaignItem(item: CompanyHubItem): CompanyDashboardCampaignItem {
   };
 }
 
+function mapPendingReviewItem(item: CompanyHubItem): CompanyDashboardPendingReviewItem {
+  const contractRequestId = item.contractRequestId ?? item.id;
+  let completedLabel: string;
+  if (item.completedAt) {
+    const d = new Date(item.completedAt);
+    completedLabel = `Concluído em ${d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+  } else if (item.startsAt) {
+    const d = new Date(item.startsAt);
+    completedLabel = `Realizado em ${d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+  } else {
+    completedLabel = "Trabalho concluído";
+  }
+  return {
+    id: contractRequestId,
+    contractRequestId,
+    title: item.title,
+    creatorName: item.creatorName ?? "Creator",
+    creatorAvatarUrl: item.creatorAvatarUrl ?? null,
+    completedLabel,
+    source: item,
+  };
+}
+
 function mapPendingItem(item: CompanyHubItem): CompanyDashboardPendingItem {
   return {
     id: item.id,
@@ -204,6 +228,11 @@ export function useBusinessDashboardController() {
       )
       .map(mapPendingItem);
 
+    const allPendingReviewsHub = (hub?.finalized.completed ?? []).filter(
+      (item) => item.myReviewPending === true,
+    );
+    const pendingReviewsRaw = allPendingReviewsHub.slice(0, 3).map(mapPendingReviewItem);
+
     const recommendedCreatorsRaw: CompanyDashboardRecommendedCreator[] = creators.map((creator) => ({
       id: creator.id,
       name: creator.name,
@@ -276,6 +305,8 @@ export function useBusinessDashboardController() {
       ],
       activeCampaigns: activeCampaignsRaw,
       pendingRequests: pendingRequestsRaw,
+      pendingReviews: pendingReviewsRaw,
+      hasPendingReviewsOverflow: allPendingReviewsHub.length > 3,
       recommendedCreators: recommendedCreatorsRaw,
       mapHighlights: creators.slice(0, 2).map((c) => c.location),
       recentActivity,
