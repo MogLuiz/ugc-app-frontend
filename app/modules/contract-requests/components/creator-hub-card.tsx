@@ -50,17 +50,6 @@ function resolveSubtitle(item: CreatorHubItem): string {
   }
 }
 
-function kindLabel(item: CreatorHubItem): string {
-  if (item.kind === "open_offer_application") return "Candidatura enviada";
-  return "Convite direto";
-}
-
-function kindClass(item: CreatorHubItem): string {
-  return item.kind === "open_offer_application"
-    ? "bg-[#895af6]/10 text-[#6a36d5]"
-    : "bg-amber-100 text-amber-800";
-}
-
 function borderClass(status: CreatorHubDisplayStatus): string {
   if (status === "AWAITING_CONFIRMATION") return "border-amber-200";
   if (status === "IN_DISPUTE") return "border-rose-200";
@@ -148,20 +137,11 @@ export function CreatorHubCard({
       )}
       onClick={handleCardClick}
     >
-      {/* Top row: badge + amount */}
+      {/* Top row: company + amount */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <span
-            className={cn(
-              "inline-flex rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em]",
-              kindClass(item)
-            )}
-          >
-            {kindLabel(item)}
-          </span>
-
           {/* Company name */}
-          <h3 className="mt-3 text-lg font-black tracking-[-0.02em] text-slate-900">
+          <h3 className="text-lg font-black tracking-[-0.02em] text-slate-900">
             {item.company.name}
           </h3>
 

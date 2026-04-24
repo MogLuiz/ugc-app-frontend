@@ -41,16 +41,6 @@ function resolveHref(item: CompanyHubItem): string {
   return `/ofertas/${item.id}`;
 }
 
-function kindLabelClass(kind: CompanyHubItem["kind"]) {
-  return kind === "direct_invite"
-    ? "bg-amber-100 text-amber-800"
-    : "bg-[#895af6]/10 text-[#6a36d5]";
-}
-
-function kindLabel(kind: CompanyHubItem["kind"]) {
-  return kind === "direct_invite" ? "Convite direto" : "Oferta aberta";
-}
-
 function formatDeadline(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleString("pt-BR", {
@@ -110,15 +100,7 @@ export function CompanyHubCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <span
-            className={cn(
-              "inline-flex rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em]",
-              kindLabelClass(item.kind)
-            )}
-          >
-            {kindLabel(item.kind)}
-          </span>
-          <h3 className="mt-3 text-lg font-black tracking-[-0.02em] text-slate-900">
+          <h3 className="text-lg font-black tracking-[-0.02em] text-slate-900">
             {item.title}
           </h3>
           <ApplicationsToReviewBadge count={item.applicationsToReviewCount} />
