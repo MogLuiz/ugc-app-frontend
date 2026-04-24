@@ -4,6 +4,7 @@ import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { useCreatorDashboardController } from "../hooks/use-creator-dashboard-controller";
 import {
   CreatorDashboardHeader,
+  CreatorDashboardPendingReviews,
   CreatorKPICards,
   CreatorTipsCard,
   NearbyCampaignsSection,
@@ -44,6 +45,10 @@ export function CreatorDashboardScreen() {
                 isLoading={viewModel.isInvitesLoading}
                 errorMessage={viewModel.invitesErrorMessage}
                 isRefreshing={viewModel.isInvitesRefreshing}
+              />
+              <CreatorDashboardPendingReviews
+                items={viewModel.pendingReviews}
+                hasOverflow={viewModel.hasPendingReviewsOverflow}
               />
               <UpcomingCampaignsSection
                 items={viewModel.upcoming}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, MoreVertical, AlertCircle, Clock, AlertOctagon, CheckCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { toast } from "~/components/ui/toast";
@@ -13,6 +14,7 @@ import type { ContractRequestItem } from "../types";
 import { OfferDetailPanel, OfferPaymentCard, OfferAddressCard } from "./offer-detail-panel";
 import { ConfirmCompletionBanner } from "./ConfirmCompletionBanner";
 import { ReviewForm } from "./ReviewForm";
+import { creatorHubKeys } from "~/lib/query/query-keys";
 
 type OfferDetailScreenProps = {
   item: ContractRequestItem;
@@ -48,6 +50,7 @@ function getScreenTitle(item: ContractRequestItem): string {
 
 export function OfferDetailScreen({ item, viewerRole = "CREATOR" }: OfferDetailScreenProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const acceptMutation = useAcceptContractRequestMutation();
   const rejectMutation = useRejectContractRequestMutation();
   const cancelMutation = useCancelContractRequestMutation();
@@ -82,6 +85,10 @@ export function OfferDetailScreen({ item, viewerRole = "CREATOR" }: OfferDetailS
 
   const expiryLabel = getExpiryLabel(item.expiresAt);
   const screenTitle = getScreenTitle(item);
+
+  function handleReviewSuccess() {
+    void queryClient.invalidateQueries({ queryKey: creatorHubKeys.hub() });
+  }
 
   const handleAccept = async (id: string) => {
     setIsMutating(true);
@@ -178,7 +185,7 @@ export function OfferDetailScreen({ item, viewerRole = "CREATOR" }: OfferDetailS
               )}
 
               {isCompleted && !alreadyReviewed && (
-                <ReviewForm contractRequestId={item.id} />
+                <ReviewForm contractRequestId={item.id} onSuccess={handleReviewSuccess} />
               )}
 
               {isCompleted && alreadyReviewed && (
