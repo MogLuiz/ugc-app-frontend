@@ -6,5 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getFirstName(name: string) {
-  return name.trim().split(/\s+/)[0] ?? name;
+  const t = name.trim().split(/\s+/)[0] ?? "";
+  if (!t) return name.trim();
+  return t.charAt(0).toLocaleUpperCase("pt-BR") + t.slice(1).toLowerCase();
 }
