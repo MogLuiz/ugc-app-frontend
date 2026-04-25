@@ -66,6 +66,39 @@ function buildStartsAt(isoDate: string, time: string) {
   return date.toISOString();
 }
 
+function normalizeHireFlowError(error: unknown) {
+  const fallback = "Não foi possível continuar com a contratação.";
+
+  if (!(error instanceof Error)) {
+    return fallback;
+  }
+
+  if (
+    error.message.includes("termsAccepted must be a boolean value") ||
+    error.message.includes("termsAccepted should not be empty")
+  ) {
+    return "Os Termos de Contratação precisam ser aceitos para continuar.";
+  }
+
+  if (error.message.includes("accepted must be a boolean value")) {
+    return "É necessário confirmar o aceite do termo para continuar.";
+  }
+
+  return error.message;
+}
+
+function isTermsValidationError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return (
+    error.message.includes("termsAccepted must be a boolean value") ||
+    error.message.includes("termsAccepted should not be empty") ||
+    error.message.includes("accepted must be a boolean value")
+  );
+}
+
 type CreatorHireFormState = {
   selectedServiceId: string;
   selectedAvailableDate: string | null;
@@ -288,10 +321,12 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
         if (previewRequestSeq.current !== currentRequest) {
           return;
         }
-        const message =
-          error instanceof Error ? error.message : "Não foi possível simular os valores.";
         setPreviewResult(null);
-        setPreviewError(message);
+        setPreviewError(
+          isTermsValidationError(error)
+            ? null
+            : normalizeHireFlowError(error)
+        );
       } finally {
         if (previewRequestSeq.current === currentRequest) {
           setIsPreviewLoading(false);
@@ -321,11 +356,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
       const contractRequest = await createMutation.mutateAsync(payload);
       void navigate(`/pagamento/${contractRequest.id}`);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Não foi possível criar a solicitação.";
-      toast.error(message);
+      toast.error(normalizeHireFlowError(error));
     }
   };
 
