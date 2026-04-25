@@ -9,7 +9,7 @@ import {
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { cn, getFirstName } from "~/lib/utils";
-import { formatCurrency } from "~/modules/contract-requests/utils";
+import { formatCurrency, formatDateTime } from "~/modules/contract-requests/utils";
 import type { CreatorHireFlowController } from "../../hooks/use-creator-hire-flow";
 import type { CreatorProfile } from "../../types";
 
@@ -275,18 +275,38 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
           </div>
         </section>
 
-        <label className="flex items-start gap-3 rounded-[24px] bg-white p-3.5 text-[13px] text-[#475569] shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
-          <input
-            type="checkbox"
-            checked={flow.formState.termsAccepted}
-            onChange={(event) => flow.setTermsAccepted(event.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-slate-300"
-          />
-          <span>
-            Li e aceito os termos da contratação. O pagamento só é liberado após
-            a aprovação final do conteúdo.
-          </span>
-        </label>
+        {flow.isHiringTermsAlreadyAccepted ? (
+          <div className="rounded-[24px] border border-emerald-200 bg-emerald-50/80 p-3.5 text-[13px] text-emerald-900 shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
+            <p className="font-semibold">Termos de Contratação já aceitos.</p>
+            {flow.hiringTermsAcceptedAt ? (
+              <p className="mt-1 text-emerald-800/90">
+                Último aceite registrado em {formatDateTime(flow.hiringTermsAcceptedAt)}.
+              </p>
+            ) : null}
+          </div>
+        ) : (
+          <label className="flex items-start gap-3 rounded-[24px] bg-white p-3.5 text-[13px] text-[#475569] shadow-[0px_1px_2px_rgba(15,23,42,0.06)]">
+            <input
+              type="checkbox"
+              checked={flow.formState.termsAccepted}
+              onChange={(event) => flow.setTermsAccepted(event.target.checked)}
+              disabled={flow.isHiringTermsStatusLoading}
+              className="mt-1 h-4 w-4 rounded border-slate-300"
+            />
+            <span>
+              Li e aceito os{" "}
+              <a
+                href={flow.hiringTermsDocumentPath}
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-[#6d28d9] underline decoration-[#c4b5fd] underline-offset-4"
+              >
+                Termos de Contratação da UGC Local
+              </a>
+              . O pagamento só é liberado após a aprovação final do conteúdo.
+            </span>
+          </label>
+        )}
       </div>
 
       <div className="min-w-0 border-t border-[#e2e8f0] bg-white px-4 py-4 sm:px-5 lg:px-5">

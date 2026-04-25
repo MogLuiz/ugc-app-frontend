@@ -4,15 +4,16 @@ import { httpClient } from "~/lib/http/client";
 import { getAccessToken } from "~/modules/auth/service";
 import type {
   CompanyCampaignStatus,
+  CreateContractRequestPayload,
   ContractRequestItem,
-  ContractRequestPayload,
   ContractRequestStatus,
   ContractReviewsResponse,
   CreateReviewPayload,
+  PreviewContractRequestPayload,
 } from "./types";
 
 export async function createContractRequest(
-  data: ContractRequestPayload,
+  data: CreateContractRequestPayload,
   token?: string
 ): Promise<ContractRequestItem> {
   const accessToken = await getAccessToken(token);
@@ -24,7 +25,7 @@ export async function createContractRequest(
 }
 
 export async function previewContractRequest(
-  data: ContractRequestPayload,
+  data: PreviewContractRequestPayload,
   token?: string
 ): Promise<ContractRequestItem> {
   const accessToken = await getAccessToken(token);

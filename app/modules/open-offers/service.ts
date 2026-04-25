@@ -49,6 +49,7 @@ export async function selectOpenOfferCreator(
     `/open-offers/my/${payload.offerId}/select/${payload.applicationId}`,
     {
       method: "POST",
+      body: payload.legalAcceptance ? { legalAcceptance: payload.legalAcceptance } : {},
       token: accessToken,
     }
   );

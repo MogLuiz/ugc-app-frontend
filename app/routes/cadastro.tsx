@@ -16,7 +16,11 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { AppLogoMark } from "~/components/ui/app-logo-mark";
 import { toast } from "~/components/ui/toast";
-import { signUp, setStoredRole } from "~/modules/auth/service";
+import {
+  clearPendingSignupMetadata,
+  signUp,
+  setStoredRole,
+} from "~/modules/auth/service";
 import { useBootstrapMutation } from "~/modules/auth/mutations";
 import {
   registerSchema,
@@ -24,6 +28,8 @@ import {
 } from "~/modules/auth/schemas/register";
 import type { UserRole } from "~/modules/auth/types";
 import { AuthVisualPanel } from "~/modules/auth/components/auth-visual-panel";
+import { getSignupLegalDocument } from "~/modules/legal/legal-routes";
+import type { LegalAcceptancePayload } from "~/modules/legal/legal.types";
 
 function getFriendlyRegisterError(rawMessage?: string | null): string {
   if (!rawMessage?.trim()) return "Erro ao criar conta. Tente novamente.";
@@ -95,6 +101,7 @@ export default function AuthRegisterRoute() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -107,13 +114,28 @@ export default function AuthRegisterRoute() {
     },
   });
 
+  const acceptTerms = watch("acceptTerms");
+  const currentLegalDocument = getSignupLegalDocument(role);
+
   async function onSubmit(data: RegisterForm) {
-    if (!role) return;
+    if (!role || !currentLegalDocument) return;
+
+    const legalAcceptance: LegalAcceptancePayload = {
+      termType: currentLegalDocument.termType,
+      termVersion: currentLegalDocument.version,
+      accepted: true,
+    };
+
     try {
       const { data: signUpData, error } = await signUp(
         data.email,
         data.password,
-        { name: data.name, role, referralCode: referralCodeFromUrl },
+        {
+          name: data.name,
+          role,
+          referralCode: referralCodeFromUrl,
+          legalAcceptance,
+        },
       );
       if (error) {
         toast.error(getFriendlyRegisterError(error.message));
@@ -127,7 +149,12 @@ export default function AuthRegisterRoute() {
 
       if (signUpData.session) {
         setStoredRole(role);
-        await bootstrapMutation.mutateAsync({ role, referralCode: referralCodeFromUrl });
+        await bootstrapMutation.mutateAsync({
+          role,
+          referralCode: referralCodeFromUrl,
+          legalAcceptance,
+        });
+        await clearPendingSignupMetadata();
         toast.success("Cadastro realizado com sucesso");
         navigate("/dashboard");
       } else {
@@ -151,7 +178,7 @@ export default function AuthRegisterRoute() {
     "border-slate-200 hover:border-slate-300 focus:border-[#895af6]";
   const inputErr = "border-red-400 focus:border-red-400";
 
-  const ctaDisabled = isSubmitting || !role;
+  const ctaDisabled = isSubmitting || !role || !acceptTerms;
 
   return (
     <div className="min-h-screen lg:flex lg:h-screen lg:overflow-hidden">
@@ -408,21 +435,22 @@ export default function AuthRegisterRoute() {
                     className="mt-[0.35rem] h-[18px] w-[18px] shrink-0 cursor-pointer rounded border-slate-300 accent-[#895af6]"
                   />
                   <span className="min-w-0 flex-1 text-xs leading-snug text-slate-600">
-                    Eu aceito os{" "}
-                    <button
-                      type="button"
-                      className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
-                    >
-                      Termos e Condições
-                    </button>{" "}
-                    e a{" "}
-                    <button
-                      type="button"
-                      className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
-                    >
-                      Política de Privacidade
-                    </button>
-                    <span className="text-slate-500"> do UGC Local.</span>
+                    {currentLegalDocument ? (
+                      <>
+                        Eu li e aceito os{" "}
+                        <Link
+                          to={currentLegalDocument.path}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="cursor-pointer py-0.5 font-semibold text-[#895af6] hover:underline"
+                        >
+                          {currentLegalDocument.title}
+                        </Link>
+                        <span className="text-slate-500"> do UGC Local.</span>
+                      </>
+                    ) : (
+                      "Selecione um perfil para visualizar e aceitar o termo correspondente."
+                    )}
                   </span>
                 </label>
                 {errors.acceptTerms && (
@@ -445,6 +473,8 @@ export default function AuthRegisterRoute() {
                     </span>
                   ) : !role ? (
                     "Escolha seu perfil para continuar"
+                  ) : !acceptTerms ? (
+                    "Aceite o termo para continuar"
                   ) : role === "business" ? (
                     "Criar conta como Empresa"
                   ) : (

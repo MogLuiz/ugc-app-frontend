@@ -9,6 +9,7 @@ export default [
     index("routes/home.tsx"),
     route("login", "routes/login.tsx"),
     route("cadastro", "routes/cadastro.tsx"),
+    route("termos/:slug", "routes/termos.$slug.tsx"),
     route("auth/esqueci-senha", "routes/auth.esqueci-senha.tsx"),
     route("auth/redefinir-senha", "routes/auth.redefinir-senha.tsx"),
     route("agenda", "routes/agenda.tsx"),

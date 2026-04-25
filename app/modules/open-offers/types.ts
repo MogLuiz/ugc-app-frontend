@@ -70,6 +70,7 @@ export type CreateOpenOfferPayload = {
 export type SelectOpenOfferCreatorPayload = {
   offerId: string;
   applicationId: string;
+  legalAcceptance?: import("~/modules/legal/legal.types").LegalAcceptancePayload;
 };
 
 export type SelectOpenOfferCreatorResult = {

@@ -8,8 +8,12 @@ import {
 } from "~/modules/contract-requests/queries";
 import type {
   ContractRequestItem,
-  ContractRequestPayload,
+  CreateContractRequestPayload,
+  PreviewContractRequestPayload,
 } from "~/modules/contract-requests/types";
+import { LEGAL_TERM_VERSIONS } from "~/modules/legal/legal.constants";
+import { useLegalAcceptanceStatusQuery } from "~/modules/legal/legal.queries";
+import { LEGAL_DOCUMENTS } from "~/modules/legal/legal-documents";
 import type { CreatorProfile } from "../types";
 import {
   addMonths,
@@ -77,6 +81,10 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
   const { user } = useAuthContext();
   const createMutation = useCreateContractRequestMutation();
   const previewMutation = usePreviewContractRequestMutation();
+  const hiringTermsStatusQuery = useLegalAcceptanceStatusQuery(
+    "COMPANY_HIRING",
+    user?.role === "business"
+  );
   const previewRequestSeq = useRef(0);
   const [previewResult, setPreviewResult] = useState<ContractRequestItem | null>(
     null,
@@ -180,13 +188,15 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     }));
   }, [companyAddress, formState.locationAddress]);
 
+  const hasCurrentHiringAcceptance = hiringTermsStatusQuery.data?.accepted === true;
+  const shouldShowHiringTermsCheckbox = !hasCurrentHiringAcceptance;
   const canSubmit =
     Boolean(selectedService) &&
     Boolean(formState.selectedAvailableDate) &&
     Boolean(formState.selectedTimeSlot) &&
     Boolean(formState.locationAddress.trim()) &&
     Boolean(formState.description.trim()) &&
-    formState.termsAccepted;
+    (hasCurrentHiringAcceptance || formState.termsAccepted);
 
   const updateField = <K extends keyof CreatorHireFormState>(
     field: K,
@@ -200,7 +210,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     updateField("isEditingAddress", false);
   };
 
-  const buildPayload = (): ContractRequestPayload | null => {
+  const buildPayload = (): CreateContractRequestPayload | null => {
     if (
       !selectedService ||
       !formState.selectedAvailableDate ||
@@ -209,7 +219,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
       return null;
     }
 
-    return {
+    const payload: CreateContractRequestPayload = {
       creatorId: profile.id,
       jobTypeId: selectedService.jobTypeId,
       description: formState.description.trim(),
@@ -219,11 +229,20 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
       ),
       durationMinutes: selectedService.durationMinutes,
       jobAddress: formState.locationAddress.trim(),
-      termsAccepted: formState.termsAccepted,
     };
+
+    if (!hasCurrentHiringAcceptance) {
+      payload.legalAcceptance = {
+        termType: "COMPANY_HIRING",
+        termVersion: LEGAL_TERM_VERSIONS.COMPANY_HIRING,
+        accepted: true,
+      };
+    }
+
+    return payload;
   };
 
-  const buildPreviewPayload = (): ContractRequestPayload | null => {
+  const buildPreviewPayload = (): PreviewContractRequestPayload | null => {
     if (
       !selectedService ||
       !formState.selectedAvailableDate ||
@@ -243,8 +262,6 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
       ),
       durationMinutes: selectedService.durationMinutes,
       jobAddress: formState.locationAddress.trim(),
-      // Preview é apenas simulação de preço/distância.
-      termsAccepted: true,
     };
   };
 
@@ -327,6 +344,11 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     previewError,
     previewResult,
     selectedService,
+    hiringTermsAcceptedAt: hiringTermsStatusQuery.data?.acceptedAt ?? null,
+    hiringTermsDocumentPath: LEGAL_DOCUMENTS.contratacao.path,
+    isHiringTermsStatusLoading: hiringTermsStatusQuery.isLoading,
+    isHiringTermsAlreadyAccepted: hasCurrentHiringAcceptance,
+    shouldShowHiringTermsCheckbox,
     weekDayLabels,
     goToNextMonth: () => setDisplayedMonth((current) => addMonths(current, 1)),
     goToPreviousMonth: () =>

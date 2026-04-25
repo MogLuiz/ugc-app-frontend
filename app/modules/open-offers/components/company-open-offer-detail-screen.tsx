@@ -6,6 +6,9 @@ import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { EmptyState } from "~/components/ui/empty-state";
 import { HttpError } from "~/lib/http/errors";
 import { formatCurrency, formatDateShort, formatDuration } from "~/modules/contract-requests/utils";
+import { LEGAL_DOCUMENTS } from "~/modules/legal/legal-documents";
+import { LEGAL_TERM_VERSIONS } from "~/modules/legal/legal.constants";
+import { useLegalAcceptanceStatusQuery } from "~/modules/legal/legal.queries";
 import { useCancelOpenOfferMutation, useSelectOpenOfferCreatorMutation } from "../mutations";
 import { isOpenOfferExpired } from "../helpers";
 import { OpenOfferConfirmModal } from "./open-offer-confirm-modal";
@@ -30,6 +33,11 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
   const selectMutation = useSelectOpenOfferCreatorMutation();
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [hiringTermsAccepted, setHiringTermsAccepted] = useState(false);
+  const hiringTermsStatusQuery = useLegalAcceptanceStatusQuery(
+    "COMPANY_HIRING",
+    Boolean(selectedApplicationId)
+  );
 
   const canCancel = item.status === "OPEN" && !isOpenOfferExpired(item.expiresAt);
   const currentStatus = statusMeta(item);
@@ -37,6 +45,12 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
     () => item.applications.find((application) => application.id === selectedApplicationId) ?? null,
     [item.applications, selectedApplicationId]
   );
+  const hasCurrentHiringAcceptance = hiringTermsStatusQuery.data?.accepted === true;
+  const shouldShowHiringTermsCheckbox = Boolean(selectedApplication) && !hasCurrentHiringAcceptance;
+  const canConfirmSelection =
+    Boolean(selectedApplication) &&
+    !hiringTermsStatusQuery.isLoading &&
+    (hasCurrentHiringAcceptance || hiringTermsAccepted);
 
   async function handleCancel() {
     try {
@@ -56,9 +70,17 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
       const result = await selectMutation.mutateAsync({
         offerId: item.id,
         applicationId: selectedApplication.id,
+        legalAcceptance: hasCurrentHiringAcceptance
+          ? undefined
+          : {
+              termType: "COMPANY_HIRING",
+              termVersion: LEGAL_TERM_VERSIONS.COMPANY_HIRING,
+              accepted: true,
+            },
       });
       toast.success("Creator selecionado com sucesso.");
       setSelectedApplicationId(null);
+      setHiringTermsAccepted(false);
       void navigate(`/campanha/${result.contractRequestId}`);
     } catch (error) {
       if (error instanceof HttpError && error.status === 409) {
@@ -67,6 +89,11 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
       }
       toast.error(error instanceof Error ? error.message : "Não foi possível selecionar o creator.");
     }
+  }
+
+  function handleCloseSelectionModal() {
+    setSelectedApplicationId(null);
+    setHiringTermsAccepted(false);
   }
 
   return (
@@ -235,7 +262,10 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                       {application.status === "PENDING" && canCancel ? (
                         <button
                           type="button"
-                          onClick={() => setSelectedApplicationId(application.id)}
+                          onClick={() => {
+                            setSelectedApplicationId(application.id);
+                            setHiringTermsAccepted(false);
+                          }}
                           className="rounded-full bg-[#895af6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7c4fe6]"
                         >
                           Selecionar creator
@@ -271,8 +301,38 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
         }
         confirmLabel="Gerar contrato"
         isSubmitting={selectMutation.isPending}
+        confirmDisabled={!canConfirmSelection}
+        footerContent={
+          shouldShowHiringTermsCheckbox ? (
+            <label className="flex items-start gap-3 rounded-[20px] bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+              <input
+                type="checkbox"
+                checked={hiringTermsAccepted}
+                onChange={(event) => setHiringTermsAccepted(event.target.checked)}
+                disabled={hiringTermsStatusQuery.isLoading}
+                className="mt-1 h-4 w-4 rounded border-slate-300"
+              />
+              <span>
+                Li e aceito os{" "}
+                <a
+                  href={LEGAL_DOCUMENTS.contratacao.path}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-[#6d28d9] underline decoration-[#c4b5fd] underline-offset-4"
+                >
+                  Termos de Contratação da UGC Local
+                </a>
+                .
+              </span>
+            </label>
+          ) : selectedApplication && hasCurrentHiringAcceptance ? (
+            <div className="rounded-[20px] border border-emerald-200 bg-emerald-50/80 p-3 text-sm text-emerald-900">
+              Termos de Contratação já aceitos para a versão atual.
+            </div>
+          ) : null
+        }
         onConfirm={handleSelectCreator}
-        onClose={() => setSelectedApplicationId(null)}
+        onClose={handleCloseSelectionModal}
       />
 
       <BusinessBottomNav />

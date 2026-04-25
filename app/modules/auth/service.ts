@@ -14,6 +14,7 @@ import {
   toFrontendRole,
 } from "~/modules/auth/types";
 import { HttpError } from "~/lib/http/errors";
+import type { LegalAcceptancePayload } from "~/modules/legal/legal.types";
 
 export type UpdateProfileData = {
   name?: string;
@@ -243,11 +244,17 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
       const pendingReferralCode =
         (session.user?.user_metadata?.referralCode as string | undefined)
           ?.trim().toLowerCase() || undefined;
-      const bootstrapPayload = await bootstrapUser(role, token, pendingReferralCode);
-      if (pendingReferralCode) {
-        // Clear from metadata after successful bootstrap to avoid stale state.
-        // Non-critical: if this fails, no double-claim risk since this 404 path won't run again.
-        await supabase.auth.updateUser({ data: { referralCode: null } }).catch(() => { });
+      const pendingLegalAcceptance = readPendingLegalAcceptanceFromMetadata(
+        session.user?.user_metadata?.pendingLegalAcceptance
+      );
+      const bootstrapPayload = await bootstrapUser(
+        role,
+        token,
+        pendingReferralCode,
+        pendingLegalAcceptance
+      );
+      if (pendingReferralCode || pendingLegalAcceptance) {
+        await clearPendingSignupMetadata();
       }
       return {
         authenticated: true,
@@ -266,7 +273,8 @@ export async function logout(): Promise<void> {
 export async function bootstrapUser(
   role: UserRole,
   token?: string,
-  referralCode?: string
+  referralCode?: string,
+  legalAcceptance?: LegalAcceptancePayload
 ): Promise<BootstrapPayload> {
   const supabase = getSupabaseClient();
   const session = token
@@ -278,12 +286,19 @@ export async function bootstrapUser(
     throw new Error("Usuário não autenticado");
   }
 
-  const body: { role: ReturnType<typeof toBackendRole>; referralCode?: string } = {
+  const body: {
+    role: ReturnType<typeof toBackendRole>;
+    referralCode?: string;
+    legalAcceptance?: LegalAcceptancePayload;
+  } = {
     role: toBackendRole(role),
   };
   const trimmed = referralCode?.trim();
   if (trimmed) {
     body.referralCode = trimmed;
+  }
+  if (legalAcceptance) {
+    body.legalAcceptance = legalAcceptance;
   }
 
   return httpClient<BootstrapPayload>("/users/bootstrap", {
@@ -340,14 +355,22 @@ export async function signIn(email: string, password: string) {
 export async function signUp(
   email: string,
   password: string,
-  options?: { name?: string; role?: UserRole; referralCode?: string }
+  options?: {
+    name?: string;
+    role?: UserRole;
+    referralCode?: string;
+    legalAcceptance?: LegalAcceptancePayload;
+  }
 ) {
   const supabase = getSupabaseClient();
-  const data: Record<string, string> = {};
+  const data: Record<string, string | LegalAcceptancePayload> = {};
   if (options?.name) data.name = options.name;
   if (options?.role) data.role = toBackendRole(options.role);
   const sanitizedReferralCode = options?.referralCode?.trim().toLowerCase();
   if (sanitizedReferralCode) data.referralCode = sanitizedReferralCode;
+  if (options?.legalAcceptance) {
+    data.pendingLegalAcceptance = options.legalAcceptance;
+  }
   return supabase.auth.signUp({
     email,
     password,
@@ -355,4 +378,39 @@ export async function signUp(
       data: Object.keys(data).length > 0 ? data : undefined,
     },
   });
+}
+
+export async function clearPendingSignupMetadata(): Promise<void> {
+  const supabase = getSupabaseClient();
+  await supabase.auth
+    .updateUser({
+      data: {
+        referralCode: null,
+        pendingLegalAcceptance: null,
+      },
+    })
+    .catch(() => { });
+}
+
+function readPendingLegalAcceptanceFromMetadata(
+  value: unknown
+): LegalAcceptancePayload | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const candidate = value as Partial<LegalAcceptancePayload>;
+  if (
+    (candidate.termType === "COMPANY_SIGNUP" ||
+      candidate.termType === "CREATOR_SIGNUP" ||
+      candidate.termType === "COMPANY_HIRING") &&
+    typeof candidate.termVersion === "string" &&
+    candidate.accepted === true
+  ) {
+    return {
+      termType: candidate.termType,
+      termVersion: candidate.termVersion,
+      accepted: true,
+    };
+  }
+
+  return undefined;
 }

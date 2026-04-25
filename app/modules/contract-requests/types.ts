@@ -33,6 +33,9 @@ export type ContractRequestItem = {
   paymentStatus: PaymentStatus;
   currency: string;
   termsAcceptedAt: string;
+  hiringTermsVersion?: string | null;
+  hiringTermsAcceptedAt?: string | null;
+  hiringTermsAcceptanceId?: string | null;
   startsAt: string;
   durationMinutes: number;
   jobAddress: string;
@@ -114,14 +117,17 @@ export type ContractRequestItem = {
   };
 };
 
-export type ContractRequestPayload = {
+export type PreviewContractRequestPayload = {
   creatorId: string;
   jobTypeId: string;
   description: string;
   startsAt: string;
   durationMinutes: number;
   jobAddress: string;
-  termsAccepted: boolean;
+};
+
+export type CreateContractRequestPayload = PreviewContractRequestPayload & {
+  legalAcceptance?: import("~/modules/legal/legal.types").LegalAcceptancePayload;
 };
 
 export type ReviewerRole = "COMPANY" | "CREATOR";

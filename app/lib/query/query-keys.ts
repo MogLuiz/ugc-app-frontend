@@ -78,6 +78,12 @@ export const contractRequestKeys = {
     [...contractRequestKeys.all, "reviews", contractRequestId] as const,
 };
 
+export const legalKeys = {
+  all: ["legal"] as const,
+  acceptanceStatus: (termType: string) =>
+    [...legalKeys.all, "acceptance-status", termType] as const,
+};
+
 export const openOfferKeys = {
   all: ["open-offers"] as const,
   companyList: (params?: { page?: number; limit?: number; status?: string }) =>

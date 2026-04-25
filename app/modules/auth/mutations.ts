@@ -18,6 +18,7 @@ import type {
   UpdateCreatorProfileData,
 } from "~/modules/auth/service";
 import type { UserRole } from "~/modules/auth/types";
+import type { LegalAcceptancePayload } from "~/modules/legal/legal.types";
 
 export function useBootstrapMutation() {
   const queryClient = useQueryClient();
@@ -27,11 +28,13 @@ export function useBootstrapMutation() {
       role,
       token,
       referralCode,
+      legalAcceptance,
     }: {
       role: UserRole;
       token?: string;
       referralCode?: string;
-    }) => bootstrapUser(role, token, referralCode),
+      legalAcceptance?: LegalAcceptancePayload;
+    }) => bootstrapUser(role, token, referralCode, legalAcceptance),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: authKeys.session() });
     },

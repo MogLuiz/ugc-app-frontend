@@ -20,9 +20,10 @@ import {
 } from "./service";
 import type {
   CompanyCampaignStatus,
-  ContractRequestPayload,
+  CreateContractRequestPayload,
   ContractRequestStatus,
   CreateReviewPayload,
+  PreviewContractRequestPayload,
 } from "./types";
 
 export function useMyCompanyContractRequestsQuery(
@@ -75,7 +76,7 @@ export function useCreateContractRequestMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ContractRequestPayload) => createContractRequest(payload),
+    mutationFn: (payload: CreateContractRequestPayload) => createContractRequest(payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
     },
@@ -84,7 +85,7 @@ export function useCreateContractRequestMutation() {
 
 export function usePreviewContractRequestMutation() {
   return useMutation({
-    mutationFn: (payload: ContractRequestPayload) => previewContractRequest(payload),
+    mutationFn: (payload: PreviewContractRequestPayload) => previewContractRequest(payload),
   });
 }
 

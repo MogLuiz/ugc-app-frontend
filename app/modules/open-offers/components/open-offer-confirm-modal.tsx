@@ -1,4 +1,5 @@
 import { AlertTriangle, X } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "~/components/ui/button";
 
 type OpenOfferConfirmModalProps = {
@@ -8,6 +9,8 @@ type OpenOfferConfirmModalProps = {
   confirmLabel: string;
   tone?: "danger" | "primary";
   isSubmitting?: boolean;
+  confirmDisabled?: boolean;
+  footerContent?: ReactNode;
   onConfirm: () => void;
   onClose: () => void;
 };
@@ -19,6 +22,8 @@ export function OpenOfferConfirmModal({
   confirmLabel,
   tone = "primary",
   isSubmitting = false,
+  confirmDisabled = false,
+  footerContent,
   onConfirm,
   onClose,
 }: OpenOfferConfirmModalProps) {
@@ -56,6 +61,8 @@ export function OpenOfferConfirmModal({
           </button>
         </div>
 
+        {footerContent ? <div className="mt-5">{footerContent}</div> : null}
+
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
             Voltar
@@ -64,7 +71,7 @@ export function OpenOfferConfirmModal({
             variant={tone === "danger" ? "primary" : "purple"}
             className={tone === "danger" ? "bg-rose-600 hover:bg-rose-700" : undefined}
             onClick={onConfirm}
-            disabled={isSubmitting}
+            disabled={isSubmitting || confirmDisabled}
           >
             {isSubmitting ? "Enviando..." : confirmLabel}
           </Button>
