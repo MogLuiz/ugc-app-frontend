@@ -23,17 +23,16 @@ export function CreatorPortfolioSection({
               key={item.id}
               className="relative h-[300px] min-w-[160px] shrink-0 overflow-hidden rounded-[48px] bg-[#e2e8f0] shadow-[0px_4px_6px_-1px_rgba(0,0,0,0.1)] lg:h-auto lg:min-w-0"
             >
-              <div className="absolute inset-0 hidden lg:block" />
+              <div className="pointer-events-none absolute inset-0 hidden lg:block" />
               <div className="h-full w-full lg:aspect-[3/4]">
                 {isVideo ? (
                   <video
+                    src={item.videoUrl}
                     controls
                     preload="metadata"
                     poster={item.thumbnailUrl ?? item.imageUrl}
                     className="h-full w-full object-cover"
-                  >
-                    <source src={item.videoUrl} type="video/mp4" />
-                  </video>
+                  />
                 ) : (
                   <img
                     src={item.imageUrl}

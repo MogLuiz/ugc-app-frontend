@@ -138,10 +138,30 @@ function mapPortfolio(
           ? ("video" as const)
           : ("image" as const),
         videoUrl: isVideo ? item.url : undefined,
+        videoMimeType: isVideo ? normalizeVideoMimeType(item.mimeType, item.url) : undefined,
         thumbnailUrl: item.thumbnailUrl ?? undefined,
       };
     })
     .filter((item) => (item.mediaType === "video" ? Boolean(item.videoUrl) : Boolean(item.imageUrl)));
+}
+
+function normalizeVideoMimeType(
+  mimeType: string | null | undefined,
+  url: string
+) {
+  if (mimeType?.trim()) {
+    return mimeType;
+  }
+
+  const normalizedUrl = url.toLowerCase();
+  if (normalizedUrl.endsWith(".mov")) {
+    return "video/quicktime";
+  }
+  if (normalizedUrl.endsWith(".webm")) {
+    return "video/webm";
+  }
+
+  return "video/mp4";
 }
 
 function mapAvailability(days: CreatorAvailabilityItem[]) {

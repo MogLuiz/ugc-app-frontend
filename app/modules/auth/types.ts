@@ -63,6 +63,7 @@ export type PortfolioMediaPayload = {
   type: "IMAGE" | "VIDEO";
   url: string;
   thumbnailUrl?: string | null;
+  mimeType?: string | null;
   sortOrder: number;
   status: "PROCESSING" | "READY" | "FAILED";
   createdAt: string;

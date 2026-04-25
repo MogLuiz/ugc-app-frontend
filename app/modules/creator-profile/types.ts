@@ -23,6 +23,7 @@ export type CreatorProfilePortfolioItem = {
   imageUrl: string;
   mediaType?: "image" | "video";
   videoUrl?: string;
+  videoMimeType?: string;
   thumbnailUrl?: string;
   views?: string;
 };
@@ -110,6 +111,7 @@ export type CreatorProfileDetailsResponse = {
       type: "IMAGE" | "VIDEO";
       url: string;
       thumbnailUrl: string | null;
+      mimeType?: string | null;
       sortOrder: number;
       status: "PROCESSING" | "READY" | "FAILED";
       createdAt: string;

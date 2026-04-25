@@ -90,7 +90,7 @@ export function CreatorProfileHeroSection({
             </div>
             <div className="flex items-center gap-1">
               <Clock className="h-3.5 w-3.5" />
-              {profile.jobsCount} jobs realizados
+              {profile.jobsCount} Trabalhos realizados
             </div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <div className="flex min-w-0 items-center gap-1">
@@ -103,7 +103,10 @@ export function CreatorProfileHeroSection({
                 •
               </span>
               <div className="flex items-center gap-1">
-                <Cake className="h-3.5 w-3.5 shrink-0 text-[#64748b]" aria-hidden />
+                <Cake
+                  className="h-3.5 w-3.5 shrink-0 text-[#64748b]"
+                  aria-hidden
+                />
                 <span>{formatAgeLabel(profile.ageYears)}</span>
               </div>
             </div>
