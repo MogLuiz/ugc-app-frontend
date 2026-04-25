@@ -83,9 +83,10 @@ export function MarketplaceScreen() {
               <>
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-slate-500">
-                    {viewModel.totalCreators} creator
-                    {viewModel.totalCreators === 1 ? "" : "es"} encontrado
-                    {viewModel.totalCreators === 1 ? "" : "s"}
+                    {viewModel.totalCreators} criador
+                    {viewModel.totalCreators === 1
+                      ? "encontrado perto de você"
+                      : "es encontrados perto de você"}
                   </p>
                   <Link
                     to="/mapa"

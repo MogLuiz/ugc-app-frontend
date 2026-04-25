@@ -306,8 +306,7 @@ export function MarketplaceHeader() {
         Marketplace de Criadores
       </h1>
       <p className="text-lg text-slate-500">
-        Encontre os melhores criadores de conteúdo UGC para impulsionar sua
-        marca.
+        Encontre os melhores criadores de conteúdo para impulsionar sua marca.
       </p>
     </header>
   );
@@ -319,7 +318,6 @@ export function MarketplaceSearchAndFilters({
   serviceTypeId,
   onServiceTypeChange,
   serviceTypes,
-  isServiceTypesLoading = false,
   sortBy,
   onSortChange,
   minAge,
