@@ -12,9 +12,18 @@ type CreatorMapCardProps = {
 };
 
 const AVAILABILITY_CONFIG = {
-  available: { symbol: "✓", className: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  limited: { symbol: "!", className: "bg-amber-50 text-amber-700 border-amber-200" },
-  busy: { symbol: "×", className: "bg-slate-100 text-slate-500 border-slate-200" },
+  available: {
+    symbol: "✓",
+    className: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  limited: {
+    symbol: "!",
+    className: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  busy: {
+    symbol: "×",
+    className: "bg-slate-100 text-slate-500 border-slate-200",
+  },
 } as const;
 
 function CreatorAvatar({
@@ -27,13 +36,14 @@ function CreatorAvatar({
   className?: string;
 }) {
   const [broken, setBroken] = useState(false);
-  const initial = name
-    .trim()
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "?";
+  const initial =
+    name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
 
   if (!avatarUrl || broken) {
     return (
@@ -43,7 +53,9 @@ function CreatorAvatar({
           className,
         )}
       >
-        <span className="font-bold leading-none text-purple-600">{initial}</span>
+        <span className="font-bold leading-none text-purple-600">
+          {initial}
+        </span>
       </div>
     );
   }
@@ -65,13 +77,13 @@ export function CreatorMapCard({
   variant = "desktop",
 }: CreatorMapCardProps) {
   const creatorFirstName = getFirstName(creator.name);
-  const availability = creator.availability ? AVAILABILITY_CONFIG[creator.availability] : null;
+  const availability = creator.availability
+    ? AVAILABILITY_CONFIG[creator.availability]
+    : null;
   const hasRating = creator.rating > 0;
   const hasRegion = Boolean(creator.region);
-  const hasSpecialty = Boolean(creator.specialty);
   const hasPrice = creator.priceFrom != null;
   const hasDistance = creator.distanceKm != null;
-  const mobileTypeLabel = "UGC";
 
   if (variant === "mobile") {
     return (
@@ -132,7 +144,10 @@ export function CreatorMapCard({
 
                   {hasRating && (
                     <div className="mt-1 flex items-center gap-1">
-                      <Star size={11} className="fill-amber-400 text-amber-400" />
+                      <Star
+                        size={11}
+                        className="fill-amber-400 text-amber-400"
+                      />
                       <span className="text-xs font-semibold text-slate-800">
                         {creator.rating.toFixed(1)}
                       </span>
@@ -152,19 +167,6 @@ export function CreatorMapCard({
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="mt-3 flex gap-2 text-[11px]">
-            {hasSpecialty && (
-              <span className="flex-1 rounded-xl bg-slate-50 px-2.5 py-2 text-slate-700">
-                <span className="text-slate-400">Nicho: </span>
-                <span className="font-medium">{creator.specialty}</span>
-              </span>
-            )}
-            <span className="flex-1 rounded-xl bg-slate-50 px-2.5 py-2 text-slate-700">
-              <span className="text-slate-400">Tipo: </span>
-              <span className="font-medium">{mobileTypeLabel}</span>
-            </span>
           </div>
 
           <div className="mt-3">
@@ -222,7 +224,9 @@ export function CreatorMapCard({
 
         {/* Main info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-slate-900">{creatorFirstName}</p>
+          <p className="truncate text-sm font-semibold text-slate-900">
+            {creatorFirstName}
+          </p>
           {(creator.distanceKm != null || hasRegion) && (
             <div className="mt-0.5 flex items-center gap-1.5">
               {creator.distanceKm != null && (
@@ -232,7 +236,9 @@ export function CreatorMapCard({
                 </span>
               )}
               {hasRegion && (
-                <span className="truncate text-xs text-slate-500">{creator.region}</span>
+                <span className="truncate text-xs text-slate-500">
+                  {creator.region}
+                </span>
               )}
             </div>
           )}
@@ -250,23 +256,11 @@ export function CreatorMapCard({
         {hasPrice && (
           <div className="flex-shrink-0 self-start text-right">
             <p className="text-[10px] text-slate-400">a partir de</p>
-            <p className="text-base font-bold text-slate-900">R$ {creator.priceFrom}</p>
+            <p className="text-base font-bold text-slate-900">
+              R$ {creator.priceFrom}
+            </p>
           </div>
         )}
-      </div>
-
-      {/* Niche + type tags — always rendered for height consistency */}
-      <div className="flex gap-2 px-3.5 pb-3 text-xs">
-        {hasSpecialty && (
-          <span className="flex-1 truncate rounded-lg bg-slate-50 px-2 py-1.5 text-slate-700">
-            <span className="text-slate-400">Nicho: </span>
-            <span className="font-medium">{creator.specialty}</span>
-          </span>
-        )}
-        <span className="flex-1 truncate rounded-lg bg-slate-50 px-2 py-1.5 text-slate-700">
-          <span className="text-slate-400">Tipo: </span>
-          <span className="font-medium">UGC</span>
-        </span>
       </div>
 
       {/* CTA */}

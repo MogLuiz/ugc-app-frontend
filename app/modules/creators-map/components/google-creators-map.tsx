@@ -45,13 +45,14 @@ function buildCreatorMarkerEl(
   const totalH = isSelected ? 66 : 58;
   el.style.cssText = `position:relative;cursor:pointer;width:${size}px;height:${totalH}px;`;
 
-  const initial = creator.name
-    .trim()
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "?";
+  const initial =
+    creator.name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
   const hasAvatar = Boolean(creator.avatarUrl);
   const borderColor = isSelected ? "#895af6" : "#ffffff";
   const outline = isSelected
@@ -68,7 +69,7 @@ function buildCreatorMarkerEl(
       ? `${creator.distanceKm.toFixed(1)}km`
       : creator.rating > 0
         ? `★${creator.rating.toFixed(1)}`
-        : creator.name.split(/\s+/)[0] ?? "";
+        : (creator.name.split(/\s+/)[0] ?? "");
 
   el.innerHTML = `
     <div style="width:${size}px;height:${size}px;border-radius:50%;border:3px solid ${borderColor};${shadow}${outline}overflow:hidden;background:#e9d5ff;display:flex;align-items:center;justify-content:center;">
@@ -94,13 +95,14 @@ function buildPreviewCardEl(
   const el = document.createElement("div");
   el.style.cssText = `background:rgba(255,255,255,0.98);border-radius:${compact ? 18 : 14}px;padding:${compact ? 12 : 14}px;border:1px solid rgba(137,90,246,0.18);box-shadow:0 12px 36px rgba(15,23,42,0.16);opacity:0;transition:opacity 150ms ease-out;width:${compact ? 220 : 272}px;backdrop-filter:blur(10px);`;
 
-  const initial = creator.name
-    .trim()
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "?";
+  const initial =
+    creator.name
+      .trim()
+      .split(/\s+/)
+      .map((w) => w[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase() || "?";
 
   const avatarHtml = creator.avatarUrl
     ? `<img src="${creator.avatarUrl}" alt="" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0;border:2px solid #e9d5ff" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div style="display:none;width:48px;height:48px;border-radius:10px;background:#e9d5ff;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;font-weight:700;color:#7c3aed">${initial}</div>`
@@ -110,21 +112,10 @@ function buildPreviewCardEl(
     ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">${creator.region}</div>`
     : "";
 
-  const distanceHtml = creator.distanceKm != null
-    ? `<div style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;background:#f3f0ff;border-radius:999px;padding:${compact ? "2px 7px" : "1px 5px"};font-size:10px;font-weight:700;color:#895af6;">${creator.distanceKm.toFixed(1)}km de você</div>`
-    : "";
-
-  const nicheHtml = creator.specialty
-    ? `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:6px 9px;font-size:10px;color:#64748b;overflow:hidden;">Nicho: <strong style="color:#0f172a;">${creator.specialty}</strong></div>`
-    : "";
-
-  const priceHtml = creator.priceFrom != null
-    ? `<div style="flex:1;background:#f8fafc;border-radius:12px;padding:6px 9px;font-size:10px;color:#64748b;text-align:right;">A partir de<br/><strong style="font-size:13px;color:#0f172a;">R$ ${creator.priceFrom}</strong></div>`
-    : "";
-
-  const tagsRowHtml = !compact && (nicheHtml || priceHtml)
-    ? `<div style="display:flex;gap:6px;margin-bottom:10px;">${nicheHtml}${priceHtml}</div>`
-    : "";
+  const distanceHtml =
+    creator.distanceKm != null
+      ? `<div style="display:inline-flex;align-items:center;gap:3px;margin-top:3px;background:#f3f0ff;border-radius:999px;padding:${compact ? "2px 7px" : "1px 5px"};font-size:10px;font-weight:700;color:#895af6;">${creator.distanceKm.toFixed(1)}km de você</div>`
+      : "";
 
   el.innerHTML = `
     <div style="display:flex;gap:10px;margin-bottom:10px;">
@@ -135,7 +126,6 @@ function buildPreviewCardEl(
         ${distanceHtml}
       </div>
     </div>
-    ${tagsRowHtml}
     <a href="/criador/${creator.id}" style="display:block;text-align:center;background:#895af6;color:white;border-radius:12px;padding:${compact ? "8px" : "7px"};font-size:12px;font-weight:600;text-decoration:none;">Ver perfil completo</a>
   `;
   return el;
@@ -210,7 +200,8 @@ export function GoogleCreatorsMap({
     (import.meta.env.VITE_GOOGLE_MAPS_MAP_ID as string | undefined) ??
     "DEMO_MAP_ID";
   const isMobileUi = uiVariant === "mobile";
-  const shouldShowMobilePreview = !isMobileUi || mobileSheetState === "collapsed";
+  const shouldShowMobilePreview =
+    !isMobileUi || mobileSheetState === "collapsed";
   const topOffset = isMobileUi ? topInset + 12 : 16;
   const mobileFloatingBottom = bottomInset + 18;
   const showSearchButton = !isMobileUi || mobileSheetState === "collapsed";
@@ -475,7 +466,10 @@ export function GoogleCreatorsMap({
         if (left + cardW + horizontalPadding > mapW) {
           left = point.x - avatarHalfW - SIDE_GAP - cardW;
         }
-        left = Math.max(horizontalPadding, Math.min(left, mapW - cardW - horizontalPadding));
+        left = Math.max(
+          horizontalPadding,
+          Math.min(left, mapW - cardW - horizontalPadding),
+        );
 
         let top = avatarCenterY - cardH / 2;
         top = Math.max(topSafeInset, Math.min(top, usableBottom - cardH));
@@ -584,11 +578,18 @@ export function GoogleCreatorsMap({
       )}
 
       {/* Zoom + geolocation controls — top-right */}
-      <div className="absolute right-4 z-10 flex flex-col gap-2" style={{ top: topOffset }}>
+      <div
+        className="absolute right-4 z-10 flex flex-col gap-2"
+        style={{ top: topOffset }}
+      >
         <button
           type="button"
           onClick={() => updateZoom(1)}
-          className={isMobileUi ? mobileControlButtonClassName : "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"}
+          className={
+            isMobileUi
+              ? mobileControlButtonClassName
+              : "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"
+          }
           aria-label="Aproximar"
         >
           <Plus size={16} />
@@ -596,7 +597,11 @@ export function GoogleCreatorsMap({
         <button
           type="button"
           onClick={() => updateZoom(-1)}
-          className={isMobileUi ? mobileControlButtonClassName : "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"}
+          className={
+            isMobileUi
+              ? mobileControlButtonClassName
+              : "flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200/80 bg-white/95 text-slate-700 shadow-sm backdrop-blur-sm hover:bg-slate-50"
+          }
           aria-label="Afastar"
         >
           <Minus size={16} />
@@ -604,7 +609,11 @@ export function GoogleCreatorsMap({
         <button
           type="button"
           onClick={focusUserLocation}
-          className={isMobileUi ? "flex h-10 w-10 items-center justify-center rounded-2xl bg-[#895af6] text-white shadow-[0_10px_24px_rgba(137,90,246,0.35)] hover:bg-[#7c4ee0]" : "flex h-9 w-9 items-center justify-center rounded-lg bg-[#895af6] text-white shadow-sm hover:bg-[#7c4ee0]"}
+          className={
+            isMobileUi
+              ? "flex h-10 w-10 items-center justify-center rounded-2xl bg-[#895af6] text-white shadow-[0_10px_24px_rgba(137,90,246,0.35)] hover:bg-[#7c4ee0]"
+              : "flex h-9 w-9 items-center justify-center rounded-lg bg-[#895af6] text-white shadow-sm hover:bg-[#7c4ee0]"
+          }
           aria-label="Minha localização"
         >
           <Locate size={15} />
@@ -642,14 +651,14 @@ export function GoogleCreatorsMap({
       {/* "Voltar para empresa" — bottom-right, always visible */}
       {!isMobileUi && (
         <div className="absolute bottom-4 right-4 z-10">
-        <button
-          type="button"
-          onClick={handleReturnToCompany}
-          className="flex items-center gap-2 rounded-xl bg-[#895af6] px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-[#7c4ee0]"
-        >
-          <Building2 size={15} />
-          Voltar para empresa
-        </button>
+          <button
+            type="button"
+            onClick={handleReturnToCompany}
+            className="flex items-center gap-2 rounded-xl bg-[#895af6] px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-[#7c4ee0]"
+          >
+            <Building2 size={15} />
+            Voltar para empresa
+          </button>
         </div>
       )}
     </div>
