@@ -236,38 +236,86 @@ export const LEGAL_DOCUMENTS: Record<LegalDocument["slug"], LegalDocument> = {
     path: "/termos/contratacao",
     content: [
       {
-        heading: "1. Aplicação",
+        heading: "1. Declaração e aceite específico",
         paragraphs: [
-          "Estes Termos de Contratação se aplicam às empresas que utilizam a UGC Local para formalizar a contratação de creators.",
-          "O aceite deste documento complementa os Termos de Uso da conta empresarial e vale para a versão vigente indicada nesta página.",
+          "Ao solicitar um serviço por meio da plataforma UGC LOCAL, a empresa declara, para todos os fins de direito, que leu e compreendeu integralmente as condições do serviço.",
+          "A empresa declara também que forneceu briefing claro, completo, verídico e lícito e que aceita integralmente os valores e condições previamente definidos pela plataforma.",
+          "A solicitação do serviço implica aceite vinculante destas condições.",
         ],
       },
       {
-        heading: "2. Escopo da contratação",
+        heading: "2. Precificação e condições econômicas",
         paragraphs: [
-          "Antes de concluir uma contratação, a empresa deve revisar briefing, endereço, data, duração, valores e demais condições exibidas no fluxo.",
-          "Ao confirmar, a empresa declara que as informações fornecidas são suficientes para a execução do serviço e refletem sua real intenção de contratação.",
+          "A empresa reconhece que os valores dos serviços são previamente definidos pela UGC LOCAL.",
+          "Não há negociação direta de valores com o criador, e a contratação implica aceitação integral do valor apresentado.",
         ],
       },
       {
-        heading: "3. Pagamentos e aprovações",
+        heading: "3. Pagamento e intermediação financeira",
         paragraphs: [
-          "Os pagamentos e liberações financeiras observarão o fluxo operacional definido pela UGC Local para cada tipo de contratação.",
-          "A empresa reconhece que aprovações, contestação de conclusão e demais eventos operacionais podem impactar a liberação final do pagamento.",
+          "A empresa declara ciência de que o pagamento será realizado no ato da contratação, por meio da plataforma.",
+          "Os valores serão processados via sistema de intermediação financeira (split).",
+          "Os valores poderão permanecer retidos até a conclusão do serviço, conforme o fluxo operacional da plataforma.",
+          "A UGC LOCAL atua como facilitadora operacional do fluxo financeiro, não assumindo responsabilidade pela execução do serviço.",
         ],
       },
       {
-        heading: "4. Cancelamentos, conflitos e responsabilidades",
+        heading: "4. Aprovação e liberação de valores",
         paragraphs: [
-          "Situações de cancelamento, indisponibilidade, conflito de agenda ou disputa devem seguir as regras e status previstos pela plataforma.",
-          "A empresa é responsável por agir de boa-fé, fornecer contexto adequado e respeitar os compromissos assumidos ao gerar a contratação.",
+          "A empresa declara que deverá avaliar o serviço após sua entrega.",
+          "A aprovação implicará liberação do pagamento ao criador.",
+          "O pagamento será liberado em até 48 (quarenta e oito) horas após a aprovação.",
+          "Caso a empresa não se manifeste no prazo de até 48 (quarenta e oito) horas após a entrega do conteúdo, o serviço poderá ser considerado automaticamente aprovado, autorizando a liberação do pagamento ao criador.",
         ],
       },
       {
-        heading: "5. Vigência da versão",
+        heading: "5. Relação entre as partes",
         paragraphs: [
-          "A UGC Local pode atualizar estes Termos de Contratação a qualquer momento, mantendo a versão vigente disponível em URL pública.",
-          "Novas contratações podem exigir novo aceite sempre que a versão atual for alterada.",
+          "A empresa reconhece que a contratação ocorre diretamente com o criador.",
+          "A UGC LOCAL não integra a execução do serviço e não é responsável por obrigações decorrentes da prestação do serviço.",
+        ],
+      },
+      {
+        heading: "6. Deslocamento e compensação de transporte",
+        paragraphs: [
+          "Nos casos em que o criador de conteúdo se deslocar até o local indicado pela empresa e, por motivos atribuíveis à empresa, o serviço não puder ser realizado, será devido ao criador o valor correspondente ao transporte previamente definido na plataforma.",
+          "Consideram-se motivos atribuíveis à empresa, dentre outros, indisponibilidade no local, cancelamento no momento da execução, impossibilidade de realização do serviço ou qualquer circunstância que impeça a execução após o comparecimento do criador.",
+          "Tal valor possui natureza de compensação de deslocamento, não caracterizando multa.",
+        ],
+      },
+      {
+        heading: "7. Cancelamento",
+        paragraphs: [
+          "A empresa poderá cancelar o serviço sem penalidade desde que o cancelamento ocorra com antecedência mínima de 48 (quarenta e oito) horas do horário previsto para execução.",
+          "Cancelamentos fora deste prazo poderão ser registrados pela plataforma para fins de controle operacional.",
+          "Em caso de reincidência de cancelamentos, a UGC LOCAL poderá realizar bloqueio temporário da conta, submeter a conta à análise manual e aplicar medidas adicionais conforme avaliação interna.",
+        ],
+      },
+      {
+        heading: "8. Limitação de responsabilidade",
+        paragraphs: [
+          "A UGC LOCAL não se responsabiliza, em nenhuma hipótese, pela qualidade, adequação ou entrega do serviço.",
+          "Também não se responsabiliza pelo cumprimento de prazos, pela adequação do conteúdo às expectativas da empresa, por resultados comerciais, financeiros ou de marketing, nem por danos diretos ou indiretos decorrentes da contratação.",
+        ],
+      },
+      {
+        heading: "9. Mediação e disputas",
+        paragraphs: [
+          "Em caso de divergência entre empresa e criador, a UGC LOCAL poderá, a seu exclusivo critério, analisar as informações disponíveis, mediar a comunicação entre as partes e decidir sobre a liberação ou retenção dos valores.",
+          "Tal atuação não implica assunção de responsabilidade sobre o serviço.",
+        ],
+      },
+      {
+        heading: "10. Uso de conteúdo",
+        paragraphs: [
+          "A empresa é exclusivamente responsável por definir os direitos de uso do conteúdo com o criador e por respeitar direitos autorais, de imagem e propriedade intelectual.",
+          "A UGC LOCAL não participa da negociação de direitos e não se responsabiliza por eventual uso indevido.",
+        ],
+      },
+      {
+        heading: "11. Confirmação",
+        paragraphs: [
+          "Ao prosseguir com a solicitação, a empresa confirma sua concordância integral com os presentes termos, reconhecendo suas responsabilidades e os limites de atuação da plataforma.",
         ],
       },
     ],
