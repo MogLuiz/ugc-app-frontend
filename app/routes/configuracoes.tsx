@@ -2,6 +2,8 @@ import { Link } from "react-router";
 import { ArrowLeft, Settings } from "lucide-react";
 import { AuthGuard } from "~/components/auth-guard";
 import { AppSidebar } from "~/components/app-sidebar";
+import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
+import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { ChangePasswordSection } from "~/modules/auth/components/change-password-section";
 import { useAuth } from "~/hooks/use-auth";
 
@@ -37,7 +39,7 @@ function ConfiguracoesScreen() {
           <div className="w-20" />
         </header>
 
-        <main className="flex-1 px-4 py-6 lg:overflow-auto lg:p-8">
+        <main className="flex-1 px-4 py-6 pb-24 lg:overflow-auto lg:p-8">
           <div className="mx-auto w-full max-w-3xl">
 
             {/* Desktop heading */}
@@ -68,6 +70,8 @@ function ConfiguracoesScreen() {
           </div>
         </main>
       </div>
+
+      {variant === "creator" ? <CreatorBottomNav /> : <BusinessBottomNav />}
     </div>
   );
 }
