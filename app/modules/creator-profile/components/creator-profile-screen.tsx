@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
 import {
   CreatorPortfolioSection,
   CreatorHirePanel,
@@ -29,12 +29,23 @@ export function CreatorProfileScreen() {
   const hasConsumedOpenHirePanel = useRef(false);
 
   const profile = creatorProfileQuery.data ?? null;
-  const backHref = marketplaceCreator ? "/marketplace" : "/mapa";
-  const backLabel = marketplaceCreator
+  const fromMarketplace = Boolean(marketplaceCreator);
+  const backHref = fromMarketplace ? "/marketplace" : "/mapa";
+  const backLabel = fromMarketplace
     ? "Voltar para marketplace"
     : "Voltar para busca";
   const shouldAutoOpenHirePanel =
     Boolean(locationState?.openHirePanel) && profile?.services.length;
+
+  // When came from marketplace, go back in history so ScrollRestoration
+  // preserves the scroll position and the already-loaded pages in cache.
+  const handleBack = () => {
+    if (fromMarketplace) {
+      navigate(-1);
+    } else {
+      void navigate(backHref);
+    }
+  };
 
   useEffect(() => {
     if (!shouldAutoOpenHirePanel || hasConsumedOpenHirePanel.current) {
@@ -92,12 +103,13 @@ export function CreatorProfileScreen() {
               ? creatorProfileQuery.error.message
               : "Criador não encontrado."}
           </p>
-          <Link
-            to={backHref}
+          <button
+            type="button"
+            onClick={handleBack}
             className="mt-4 inline-block text-[#895af6] hover:underline"
           >
             Voltar
-          </Link>
+          </button>
         </div>
       </div>
     );
@@ -106,8 +118,8 @@ export function CreatorProfileScreen() {
   return (
     <CreatorProfileContent
       profile={profile}
-      backHref={backHref}
       backLabel={backLabel}
+      onBack={handleBack}
       initialHirePanelOpen={Boolean(shouldAutoOpenHirePanel)}
     />
   );
@@ -115,13 +127,13 @@ export function CreatorProfileScreen() {
 
 function CreatorProfileContent({
   profile,
-  backHref,
   backLabel,
+  onBack,
   initialHirePanelOpen,
 }: {
   profile: CreatorProfile;
-  backHref: string;
   backLabel: string;
+  onBack: () => void;
   initialHirePanelOpen: boolean;
 }) {
   const [hirePanelOpen, setHirePanelOpen] = useState(initialHirePanelOpen);
@@ -137,13 +149,14 @@ function CreatorProfileContent({
         )}
       >
         <header className="flex items-center gap-4 px-4 py-4 lg:w-full lg:max-w-[1200px] lg:justify-between lg:px-4 lg:py-0">
-          <Link
-            to={backHref}
+          <button
+            type="button"
+            onClick={onBack}
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(137,90,246,0.1)] bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] lg:h-auto lg:w-auto lg:gap-2 lg:rounded-full lg:border-[#e2e8f0] lg:px-5 lg:py-2.5 lg:text-sm lg:font-semibold lg:text-[#0f172a]"
           >
             <ArrowRight className="h-4 w-4 rotate-180 text-[#895af6] lg:h-3.5 lg:w-3.5 lg:text-current" />
             <span className="hidden lg:inline">{backLabel}</span>
-          </Link>
+          </button>
           <h1 className="text-lg font-bold text-[#0f172a] lg:hidden">
             Perfil do Criador
           </h1>

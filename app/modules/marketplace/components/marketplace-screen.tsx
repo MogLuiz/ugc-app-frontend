@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useMarketplaceController } from "../hooks/use-marketplace-controller";
@@ -12,10 +12,14 @@ import {
   MarketplaceSearchAndFilters,
 } from "./sections/marketplace-sections";
 
+const SCROLL_KEY = "mkt_scroll";
+
 export function MarketplaceScreen() {
+  const location = useLocation();
   const controller = useMarketplaceController();
   const { viewModel, actions } = controller;
   const sentinelRef = useRef<HTMLDivElement>(null);
+  const hasRestoredRef = useRef(false);
 
   const showEmptyState =
     !viewModel.isInitialLoading &&
@@ -34,6 +38,33 @@ export function MarketplaceScreen() {
       !viewModel.isFetchingNextPage &&
       !viewModel.isInitialLoading,
   });
+
+  // Save scroll position on every scroll event, keyed by location.key
+  useEffect(() => {
+    const save = () =>
+      sessionStorage.setItem(
+        SCROLL_KEY,
+        JSON.stringify({ key: location.key, y: window.scrollY }),
+      );
+    window.addEventListener("scroll", save, { passive: true });
+    return () => window.removeEventListener("scroll", save);
+  }, [location.key]);
+
+  // Restore scroll once data is ready (handles back navigation from creator profile)
+  useEffect(() => {
+    if (hasRestoredRef.current || viewModel.isInitialLoading) return;
+    try {
+      const raw = sessionStorage.getItem(SCROLL_KEY);
+      if (!raw) return;
+      const { key, y } = JSON.parse(raw) as { key: string; y: number };
+      if (key === location.key && y > 0) {
+        hasRestoredRef.current = true;
+        requestAnimationFrame(() =>
+          window.scrollTo({ top: y, behavior: "instant" }),
+        );
+      }
+    } catch {}
+  }, [viewModel.isInitialLoading, location.key]);
 
   return (
     <div className="min-h-screen bg-[#f6f5f8] lg:flex">

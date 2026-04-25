@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   useMarketplaceCreatorsInfiniteQuery,
@@ -7,6 +7,10 @@ import {
 import type { MarketplaceCreator } from "../types";
 
 const SEARCH_DEBOUNCE_MS = 300;
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+}
 
 export function useMarketplaceController() {
   const navigate = useNavigate();
@@ -19,15 +23,15 @@ export function useMarketplaceController() {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
-      setDebouncedSearch(search.trim());
+      // functional update lets us compare prev vs next without a dep on debouncedSearch
+      setDebouncedSearch((prev) => {
+        const next = search.trim();
+        if (prev !== next) scrollToTop();
+        return next;
+      });
     }, SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timeoutId);
   }, [search]);
-
-  // Scroll to top whenever the active filter set changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [debouncedSearch, serviceTypeId, sortBy, minAge, maxAge]);
 
   const creatorsQuery = useMarketplaceCreatorsInfiniteQuery({
     search: debouncedSearch || undefined,
@@ -59,12 +63,6 @@ export function useMarketplaceController() {
     (creatorsQuery.isLoading && !creatorsQuery.data) ||
     (serviceTypesQuery.isLoading && !serviceTypesQuery.data);
 
-  const hasActiveFilters = Boolean(debouncedSearch || serviceTypeId || minAge || maxAge);
-
-  const fetchNextPage = useCallback(() => {
-    void creatorsQuery.fetchNextPage();
-  }, [creatorsQuery.fetchNextPage]);
-
   return {
     viewModel: {
       search,
@@ -78,16 +76,27 @@ export function useMarketplaceController() {
       isInitialLoading,
       isFetchingNextPage: creatorsQuery.isFetchingNextPage,
       hasNextPage: creatorsQuery.hasNextPage,
-      hasActiveFilters,
       errorMessage,
     },
     actions: {
       setSearch,
-      setServiceTypeId: (value: string) => setServiceTypeId(value),
-      setSortBy: (value: "relevancia" | "preco" | "avaliacao") => setSortBy(value),
-      setMinAge: (value: number | undefined) => setMinAge(value),
-      setMaxAge: (value: number | undefined) => setMaxAge(value),
-      fetchNextPage,
+      setServiceTypeId: (value: string) => {
+        setServiceTypeId(value);
+        scrollToTop();
+      },
+      setSortBy: (value: "relevancia" | "preco" | "avaliacao") => {
+        setSortBy(value);
+        scrollToTop();
+      },
+      setMinAge: (value: number | undefined) => {
+        setMinAge(value);
+        scrollToTop();
+      },
+      setMaxAge: (value: number | undefined) => {
+        setMaxAge(value);
+        scrollToTop();
+      },
+      fetchNextPage: () => void creatorsQuery.fetchNextPage(),
       onHire: (creator: MarketplaceCreator) => {
         void navigate(`/criador/${creator.id}`, {
           state: {
