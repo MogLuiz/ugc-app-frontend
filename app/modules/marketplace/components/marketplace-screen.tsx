@@ -1,23 +1,39 @@
+import { useRef } from "react";
 import { MapPin } from "lucide-react";
 import { Link } from "react-router";
 import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useMarketplaceController } from "../hooks/use-marketplace-controller";
+import { useIntersectionObserver } from "../hooks/use-intersection-observer";
 import {
   MarketplaceCreatorCardDesktop,
   MarketplaceCreatorCardMobile,
   MarketplaceHeader,
-  MarketplacePagination,
   MarketplaceSearchAndFilters,
 } from "./sections/marketplace-sections";
 
 export function MarketplaceScreen() {
   const controller = useMarketplaceController();
   const { viewModel, actions } = controller;
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
   const showEmptyState =
     !viewModel.isInitialLoading &&
     !viewModel.errorMessage &&
     viewModel.creators.length === 0;
+
+  const showEndMessage =
+    !viewModel.isInitialLoading &&
+    !viewModel.isFetchingNextPage &&
+    !viewModel.hasNextPage &&
+    viewModel.creators.length > 0;
+
+  useIntersectionObserver(sentinelRef, actions.fetchNextPage, {
+    enabled:
+      viewModel.hasNextPage &&
+      !viewModel.isFetchingNextPage &&
+      !viewModel.isInitialLoading,
+  });
 
   return (
     <div className="min-h-screen bg-[#f6f5f8] lg:flex">
@@ -56,7 +72,7 @@ export function MarketplaceScreen() {
 
             {viewModel.isInitialLoading ? (
               <div className="animate-pulse grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, i) => (
+                {Array.from({ length: 16 }).map((_, i) => (
                   <div
                     key={i}
                     className="h-[196px] rounded-[28px] border border-slate-100 bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
@@ -71,7 +87,7 @@ export function MarketplaceScreen() {
                   Nenhum creator encontrado
                 </h3>
                 <p className="mt-2 text-sm text-slate-500">
-                  Ajuste a busca ou troque o tipo de servico para ampliar os
+                  Ajuste a busca ou troque o tipo de serviço para ampliar os
                   resultados.
                 </p>
               </section>
@@ -119,11 +135,28 @@ export function MarketplaceScreen() {
               </>
             ) : null}
 
-            <MarketplacePagination
-              currentPage={viewModel.currentPage}
-              totalPages={viewModel.totalPages}
-              onPageChange={actions.setCurrentPage}
-            />
+            {/* Sentinel: fires fetchNextPage 200px before the user reaches this point */}
+            {viewModel.hasNextPage ? (
+              <div ref={sentinelRef} className="h-1" aria-hidden />
+            ) : null}
+
+            {/* Skeleton for next page — appears below existing cards while loading */}
+            {viewModel.isFetchingNextPage ? (
+              <div className="animate-pulse grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-[196px] rounded-[28px] border border-slate-100 bg-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]"
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            {showEndMessage ? (
+              <p className="py-4 text-center text-sm text-slate-400">
+                Você viu todos os creators disponíveis.
+              </p>
+            ) : null}
           </div>
         </div>
       </main>

@@ -536,6 +536,7 @@ export function MarketplaceCreatorCardDesktop({
           <img
             src={img}
             alt={creator.name}
+            loading="lazy"
             className="h-full w-full object-cover"
           />
         ) : (
@@ -603,6 +604,7 @@ export function MarketplaceCreatorCardMobile({
               <img
                 src={creator.avatarUrl}
                 alt={creator.name}
+                loading="lazy"
                 className="size-full object-cover"
               />
               <div className="absolute inset-0 rounded-2xl shadow-[inset_0px_2px_4px_0px_rgba(0,0,0,0.05)]" />

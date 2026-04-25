@@ -35,6 +35,22 @@ export const marketplaceKeys = {
       params.minAge ?? "",
       params.maxAge ?? "",
     ] as const,
+  creatorsInfinite: (filters: {
+    search?: string;
+    serviceTypeId?: string;
+    minAge?: number;
+    maxAge?: number;
+    sortBy?: string;
+  }) =>
+    [
+      ...marketplaceKeys.all,
+      "creators-infinite",
+      filters.search ?? "",
+      filters.serviceTypeId ?? "",
+      filters.minAge ?? "",
+      filters.maxAge ?? "",
+      filters.sortBy ?? "relevancia",
+    ] as const,
   serviceTypes: () => [...marketplaceKeys.all, "service-types"] as const,
 };
 
