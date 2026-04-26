@@ -6,6 +6,7 @@ import {
   useCreateContractRequestMutation,
   usePreviewContractRequestMutation,
 } from "~/modules/contract-requests/queries";
+import { normalizeContractRequestPreview } from "~/modules/contract-requests/normalize-preview";
 import type {
   ContractRequestItem,
   CreateContractRequestPayload,
@@ -151,6 +152,22 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     ) ??
     profile.services[0] ??
     null;
+
+  const canComputePreview = useMemo(
+    () =>
+      Boolean(
+        selectedService &&
+          formState.selectedAvailableDate &&
+          formState.selectedTimeSlot &&
+          formState.locationAddress.trim().length > 0,
+      ),
+    [
+      selectedService,
+      formState.locationAddress,
+      formState.selectedAvailableDate,
+      formState.selectedTimeSlot,
+    ],
+  );
 
   const calendarDays = useMemo(
     () => buildHireMonthDays(profile, displayedMonth, formState.selectedAvailableDate),
@@ -315,7 +332,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
       try {
         const result = await previewMutation.mutateAsync(payload);
         if (previewRequestSeq.current === currentRequest) {
-          setPreviewResult(result);
+          setPreviewResult(normalizeContractRequestPreview(result));
         }
       } catch (error) {
         if (previewRequestSeq.current !== currentRequest) {
@@ -364,6 +381,7 @@ export function useCreatorHireFlow(profile: CreatorProfile) {
     calendarDays,
     canGoToPreviousMonth,
     availabilityTimeSlots,
+    canComputePreview,
     canSubmit,
     companyAddress,
     displayedMonth,

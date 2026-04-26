@@ -88,6 +88,7 @@ export type OpenOfferListItemViewModel = {
   subtitle: string;
   description: string;
   address: string;
+  /** Centavos BRL (valor bruto da oferta / total). */
   amount: number;
   createdAt: string | null;
   updatedAt: string | null;
@@ -121,6 +122,7 @@ export type HubPrimaryAction = "review_applications" | "view_details";
  * View model do hub da empresa — não é DTO de domínio genérico.
  * Campos como title/address já chegam com fallbacks de UI aplicados pelo backend.
  * creatorId/Name/AvatarUrl são null para kind='open_offer' (sem creator único).
+ * `amount` está em centavos (igual `companyTotalAmountCents` no contrato / total pago).
  */
 export type CompanyHubItem = {
   id: string;

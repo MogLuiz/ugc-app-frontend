@@ -3,6 +3,8 @@ export type CreatorProfileService = {
   jobTypeId: string;
   name: string;
   description?: string | null;
+  /** Sempre o valor faturado (preview/contrato) em centavos, alinhado ao backend. */
+  basePriceCents: number;
   price: number;
   durationMinutes: number;
   mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
@@ -101,6 +103,7 @@ export type CreatorProfileDetailsResponse = {
     mode: "PRESENTIAL" | "REMOTE" | "HYBRID";
     durationMinutes: number;
     basePrice: number;
+    basePriceCents: number;
     currency: string;
   }>;
   portfolio: {

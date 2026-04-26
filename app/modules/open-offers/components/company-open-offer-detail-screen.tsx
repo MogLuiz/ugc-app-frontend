@@ -5,11 +5,18 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { EmptyState } from "~/components/ui/empty-state";
 import { HttpError } from "~/lib/http/errors";
-import { formatCurrency, formatDateShort, formatDuration } from "~/modules/contract-requests/utils";
+import {
+  formatCurrency,
+  formatDateShort,
+  formatDuration,
+} from "~/modules/contract-requests/utils";
 import { LEGAL_DOCUMENTS } from "~/modules/legal/legal-documents";
 import { LEGAL_TERM_VERSIONS } from "~/modules/legal/legal.constants";
 import { useLegalAcceptanceStatusQuery } from "~/modules/legal/legal.queries";
-import { useCancelOpenOfferMutation, useSelectOpenOfferCreatorMutation } from "../mutations";
+import {
+  useCancelOpenOfferMutation,
+  useSelectOpenOfferCreatorMutation,
+} from "../mutations";
 import { isOpenOfferExpired } from "../helpers";
 import { OpenOfferConfirmModal } from "./open-offer-confirm-modal";
 import type { OpenOfferDetail } from "../types";
@@ -19,7 +26,10 @@ function statusMeta(item: OpenOfferDetail) {
     return { label: "Cancelada", className: "bg-rose-100 text-rose-700" };
   }
   if (item.status === "FILLED") {
-    return { label: "Preenchida", className: "bg-emerald-100 text-emerald-700" };
+    return {
+      label: "Preenchida",
+      className: "bg-emerald-100 text-emerald-700",
+    };
   }
   if (item.status === "EXPIRED" || isOpenOfferExpired(item.expiresAt)) {
     return { label: "Expirada", className: "bg-slate-200 text-slate-700" };
@@ -27,26 +37,38 @@ function statusMeta(item: OpenOfferDetail) {
   return { label: "Aberta", className: "bg-[#895af6]/10 text-[#6a36d5]" };
 }
 
-export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }) {
+export function CompanyOpenOfferDetailScreen({
+  item,
+}: {
+  item: OpenOfferDetail;
+}) {
   const navigate = useNavigate();
   const cancelMutation = useCancelOpenOfferMutation();
   const selectMutation = useSelectOpenOfferCreatorMutation();
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
-  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<
+    string | null
+  >(null);
   const [hiringTermsAccepted, setHiringTermsAccepted] = useState(false);
   const hiringTermsStatusQuery = useLegalAcceptanceStatusQuery(
     "COMPANY_HIRING",
-    Boolean(selectedApplicationId)
+    Boolean(selectedApplicationId),
   );
 
-  const canCancel = item.status === "OPEN" && !isOpenOfferExpired(item.expiresAt);
+  const canCancel =
+    item.status === "OPEN" && !isOpenOfferExpired(item.expiresAt);
   const currentStatus = statusMeta(item);
   const selectedApplication = useMemo(
-    () => item.applications.find((application) => application.id === selectedApplicationId) ?? null,
-    [item.applications, selectedApplicationId]
+    () =>
+      item.applications.find(
+        (application) => application.id === selectedApplicationId,
+      ) ?? null,
+    [item.applications, selectedApplicationId],
   );
-  const hasCurrentHiringAcceptance = hiringTermsStatusQuery.data?.accepted === true;
-  const shouldShowHiringTermsCheckbox = Boolean(selectedApplication) && !hasCurrentHiringAcceptance;
+  const hasCurrentHiringAcceptance =
+    hiringTermsStatusQuery.data?.accepted === true;
+  const shouldShowHiringTermsCheckbox =
+    Boolean(selectedApplication) && !hasCurrentHiringAcceptance;
   const canConfirmSelection =
     Boolean(selectedApplication) &&
     !hiringTermsStatusQuery.isLoading &&
@@ -59,7 +81,11 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
       setCancelModalOpen(false);
       void navigate("/ofertas");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível cancelar a oferta.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível cancelar a oferta.",
+      );
     }
   }
 
@@ -87,7 +113,11 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
         toast.error("Creator com agenda ocupada, escolha outro.");
         return;
       }
-      toast.error(error instanceof Error ? error.message : "Não foi possível selecionar o creator.");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível selecionar o creator.",
+      );
     }
   }
 
@@ -120,7 +150,9 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                 <h1 className="mt-4 text-3xl font-black tracking-[-0.04em] text-slate-900">
                   {item.jobType?.name ?? "Oferta"}
                 </h1>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{item.description}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  {item.description}
+                </p>
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -145,12 +177,14 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
             <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               <div className="rounded-[24px] bg-[#f6f5f8] p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-                  Valor bruto
+                  Valor
                 </p>
                 <p className="mt-2 text-2xl font-black text-[#6a36d5]">
                   {formatCurrency(item.serviceGrossAmountCents / 100, "BRL")}
                 </p>
-                <p className="mt-2 text-sm text-slate-500">Transporte calculado apenas na seleção</p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Transporte calculado apenas na seleção
+                </p>
               </div>
               <div className="rounded-[24px] bg-[#f6f5f8] p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
@@ -173,7 +207,9 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                 <p className="mt-2 text-base font-bold text-slate-900">
                   {formatDuration(item.durationMinutes) ?? "Duração a combinar"}
                 </p>
-                <p className="mt-1 text-sm text-slate-500">{item.jobFormattedAddress ?? "Local a combinar"}</p>
+                <p className="mt-1 text-sm text-slate-500">
+                  {item.jobFormattedAddress ?? "Local a combinar"}
+                </p>
               </div>
               <div className="rounded-[24px] bg-[#f6f5f8] p-4">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">
@@ -202,11 +238,13 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                   Creators interessados
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Selecione um creator para gerar o contrato e seguir para a operação.
+                  Selecione um creator para gerar o contrato e seguir para a
+                  operação.
                 </p>
               </div>
               <div className="text-sm font-semibold text-slate-500">
-                {item.applications.length} candidatura{item.applications.length === 1 ? "" : "s"}
+                {item.applications.length} candidatura
+                {item.applications.length === 1 ? "" : "s"}
               </div>
             </div>
 
@@ -234,7 +272,9 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                           />
                         ) : (
                           <div className="flex size-14 items-center justify-center rounded-2xl bg-[#895af6]/10 text-lg font-black text-[#6a36d5]">
-                            {(application.creator.name ?? "C").charAt(0).toUpperCase()}
+                            {(application.creator.name ?? "C")
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
                         )}
                         <div>
@@ -242,7 +282,9 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                             {application.creator.name ?? "Creator"}
                           </h3>
                           <p className="mt-1 text-sm text-slate-500">
-                            Rating: {application.creator.rating?.toFixed(1) ?? "Sem avaliação"}
+                            Rating:{" "}
+                            {application.creator.rating?.toFixed(1) ??
+                              "Sem avaliação"}
                           </p>
                         </div>
                       </div>
@@ -308,7 +350,9 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
               <input
                 type="checkbox"
                 checked={hiringTermsAccepted}
-                onChange={(event) => setHiringTermsAccepted(event.target.checked)}
+                onChange={(event) =>
+                  setHiringTermsAccepted(event.target.checked)
+                }
                 disabled={hiringTermsStatusQuery.isLoading}
                 className="mt-1 h-4 w-4 rounded border-slate-300"
               />

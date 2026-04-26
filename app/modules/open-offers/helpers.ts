@@ -31,8 +31,9 @@ export function formatOfferExpiry(expiresInMs: number | null) {
   return `Expira em ${totalDays} dia${totalDays > 1 ? "s" : ""}`;
 }
 
-export function formatOfferMoney(value: number) {
-  return formatCurrency(value, "BRL");
+/** `valueCents`: centavos de BRL (ex.: `companyTotalAmountCents` / `amount` do hub). */
+export function formatOfferMoney(valueCents: number) {
+  return formatCurrency(valueCents / 100, "BRL");
 }
 
 // ─── Address helpers ──────────────────────────────────────────────────────────

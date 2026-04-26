@@ -47,16 +47,20 @@ function mapCreatorDetailToProfile(data: CreatorProfileDetailsResponse): Creator
   );
   const services = data.services
     .filter((service) => service.mode === "PRESENTIAL")
-    .map((service) => ({
-      id: service.jobTypeId,
-      jobTypeId: service.jobTypeId,
-      name: service.name,
-      description: service.description ?? null,
-      price: Math.round(service.basePrice),
-      durationMinutes: service.durationMinutes,
-      mode: service.mode,
-      currency: service.currency,
-    }));
+    .map((service) => {
+      const basePriceCents = service.basePriceCents;
+      return {
+        id: service.jobTypeId,
+        jobTypeId: service.jobTypeId,
+        name: service.name,
+        description: service.description ?? null,
+        basePriceCents,
+        price: basePriceCents / 100,
+        durationMinutes: service.durationMinutes,
+        mode: service.mode,
+        currency: service.currency,
+      };
+    });
 
   const ageYearsRaw = data.ageYears;
   const ageYears =

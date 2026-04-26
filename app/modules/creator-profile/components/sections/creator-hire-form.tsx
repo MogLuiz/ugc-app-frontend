@@ -84,7 +84,10 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                           isSelected ? "text-[#895af6]" : "text-[#111827]",
                         )}
                       >
-                        {formatCurrency(service.price, service.currency)}
+                        {formatCurrency(
+                          service.basePriceCents / 100,
+                          service.currency,
+                        )}
                       </span>
                       <span
                         className={cn(
@@ -317,18 +320,39 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                 <div className="flex items-center justify-between">
                   <span className="text-[#64748b]">Serviço</span>
                   <span className="font-semibold text-[#0f172a]">
-                    {formatCurrency(
-                      flow.selectedService.price,
-                      flow.selectedService.currency,
-                    )}
+                    {flow.previewResult
+                      ? formatCurrency(
+                          flow.previewResult.serviceGrossAmountCents / 100,
+                          flow.previewResult.currency ?? "BRL",
+                        )
+                      : formatCurrency(
+                          flow.selectedService.basePriceCents / 100,
+                          flow.selectedService.currency,
+                        )}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[#64748b]">Transporte</span>
                   <span className="font-semibold text-[#0f172a]">
-                    {flow.previewResult
-                      ? flow.previewResult.transport.formatted
-                      : "—"}
+                    {flow.isPreviewLoading && flow.canComputePreview
+                      ? "…"
+                      : (() => {
+                          const pr = flow.previewResult;
+                          if (!pr) {
+                            return "—";
+                          }
+                          const feeCents = pr.transportFeeAmountCents;
+                          if (typeof feeCents === "number" && Number.isFinite(feeCents)) {
+                            return formatCurrency(
+                              feeCents / 100,
+                              pr.currency ?? "BRL",
+                            );
+                          }
+                          if (pr.transport?.formatted) {
+                            return pr.transport.formatted;
+                          }
+                          return "—";
+                        })()}
                   </span>
                 </div>
                 <div className="mt-1 flex items-center justify-between border-t border-dashed border-[#dbe3ef] pt-2">
@@ -336,18 +360,20 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                     Total
                   </span>
                   <span className="text-[15px] font-bold text-[#895af6]">
-                    {flow.previewResult
-                      ? formatCurrency(
-                          flow.previewResult.companyTotalAmountCents / 100,
-                          flow.previewResult.currency,
-                        )
-                      : formatCurrency(
-                          flow.selectedService.price,
-                          flow.selectedService.currency,
-                        )}
+                    {flow.isPreviewLoading && flow.canComputePreview
+                      ? "…"
+                      : flow.previewResult
+                        ? formatCurrency(
+                            flow.previewResult.companyTotalAmountCents / 100,
+                            flow.previewResult.currency ?? "BRL",
+                          )
+                        : formatCurrency(
+                            flow.selectedService.basePriceCents / 100,
+                            flow.selectedService.currency,
+                          )}
                   </span>
                 </div>
-                {flow.previewResult?.transport.isMinimumApplied ? (
+                {flow.previewResult?.transport?.isMinimumApplied ? (
                   <p className="pt-1 text-[11px] text-[#64748b]">
                     Taxa minima de deslocamento aplicada.
                   </p>
@@ -359,6 +385,14 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                 {flow.isPreviewLoading ? (
                   <p className="pt-1 text-[11px] text-[#64748b]">
                     Recalculando distancia e transporte...
+                  </p>
+                ) : null}
+                {!flow.previewResult &&
+                !flow.isPreviewLoading &&
+                !flow.canComputePreview ? (
+                  <p className="pt-1 text-[11px] text-[#64748b]">
+                    O valor do transporte aparece após informar o endereço do
+                    serviço, a data e o horário.
                   </p>
                 ) : null}
                 {flow.previewError ? (

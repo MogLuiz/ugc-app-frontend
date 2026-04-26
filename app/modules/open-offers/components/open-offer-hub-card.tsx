@@ -1,17 +1,25 @@
 import { CalendarDays, ChevronRight, Clock3, MapPin } from "lucide-react";
 import { Link } from "react-router";
 import { cn } from "~/lib/utils";
-import { formatDateShort, formatDuration } from "~/modules/contract-requests/utils";
+import {
+  formatDateShort,
+  formatDuration,
+} from "~/modules/contract-requests/utils";
 import { formatOfferMoney } from "../helpers";
 import type { OpenOfferListItemViewModel } from "../types";
 
 function ApplicationsToReviewBadge({ count }: { count: number }) {
   if (count <= 0) return null;
-  const label = count === 1 ? "1 candidatura para avaliar" : `${count} candidaturas para avaliar`;
+  const label =
+    count === 1
+      ? "1 candidatura para avaliar"
+      : `${count} candidaturas para avaliar`;
   return (
     <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 ring-1 ring-inset ring-amber-200">
       <span className="size-2 shrink-0 rounded-full bg-amber-500" aria-hidden />
-      <span className="text-[12px] font-bold leading-none text-amber-700">{label}</span>
+      <span className="text-[12px] font-bold leading-none text-amber-700">
+        {label}
+      </span>
     </div>
   );
 }
@@ -29,14 +37,18 @@ export function OpenOfferHubCard({
   item: OpenOfferListItemViewModel;
   onClick?: () => void;
 }) {
-  const dateLabel = item.startsAt ? formatDateShort(item.startsAt) : "Data a combinar";
+  const dateLabel = item.startsAt
+    ? formatDateShort(item.startsAt)
+    : "Data a combinar";
   const timeLabel = item.startsAt
     ? new Date(item.startsAt).toLocaleTimeString("pt-BR", {
         hour: "2-digit",
         minute: "2-digit",
       })
     : "Horário a combinar";
-  const durationLabel = item.durationMinutes ? formatDuration(item.durationMinutes) : null;
+  const durationLabel = item.durationMinutes
+    ? formatDuration(item.durationMinutes)
+    : null;
 
   return (
     <article
@@ -48,7 +60,7 @@ export function OpenOfferHubCard({
           <span
             className={cn(
               "inline-flex rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.18em]",
-              labelClass(item.visualLabel)
+              labelClass(item.visualLabel),
             )}
           >
             {item.visualLabel}
@@ -56,12 +68,14 @@ export function OpenOfferHubCard({
           <h3 className="mt-3 text-lg font-black tracking-[-0.02em] text-slate-900">
             {item.title}
           </h3>
-          <ApplicationsToReviewBadge count={item.applicationsToReviewCount ?? 0} />
+          <ApplicationsToReviewBadge
+            count={item.applicationsToReviewCount ?? 0}
+          />
         </div>
 
         <div className="shrink-0 text-right">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Valor bruto
+            Valor
           </p>
           <p className="mt-2 text-2xl font-black text-[#6a36d5]">
             {formatOfferMoney(item.amount)}
@@ -70,7 +84,9 @@ export function OpenOfferHubCard({
       </div>
 
       <div className="mt-4 rounded-[22px] bg-[#f6f5f8] p-4">
-        <p className="break-words text-sm leading-6 text-slate-700">{item.description}</p>
+        <p className="break-words text-sm leading-6 text-slate-700">
+          {item.description}
+        </p>
       </div>
 
       <div className="mt-4 grid min-w-0 gap-3 text-sm text-slate-600 sm:grid-cols-2">
@@ -82,7 +98,9 @@ export function OpenOfferHubCard({
         </div>
         <div className="flex min-w-0 items-center gap-2">
           <Clock3 className="size-4 shrink-0 text-[#895af6]" />
-          <span className="min-w-0">{durationLabel ?? "Duração a combinar"}</span>
+          <span className="min-w-0">
+            {durationLabel ?? "Duração a combinar"}
+          </span>
         </div>
         <div className="flex min-w-0 items-start gap-2 sm:col-span-2">
           <MapPin className="mt-0.5 size-4 shrink-0 text-[#895af6]" />
@@ -101,7 +119,9 @@ export function OpenOfferHubCard({
             to={item.href}
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
           >
-            {(item.applicationsToReviewCount ?? 0) > 0 ? "Avaliar candidaturas" : "Ver detalhes"}
+            {(item.applicationsToReviewCount ?? 0) > 0
+              ? "Avaliar candidaturas"
+              : "Ver detalhes"}
             <ChevronRight className="size-4" />
           </Link>
         ) : null}
