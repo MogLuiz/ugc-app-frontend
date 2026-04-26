@@ -84,7 +84,7 @@ export function adaptHubInvites(items: CreatorHubItem[]): CreatorInviteVm[] {
       companyName: item.company.name,
       campaignTitle: item.title,
       proposedDateDisplay,
-      paymentDisplay: formatBrlCompact(item.totalAmount ?? 0),
+      paymentDisplay: formatBrlCompact((item.totalAmount ?? 0) / 100),
       distanceDisplay: null,
     };
   });

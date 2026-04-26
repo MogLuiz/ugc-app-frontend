@@ -88,11 +88,11 @@ function CheckoutScreen() {
             </div>
 
             <PaymentSummary
-              grossAmountCents={paymentData.grossAmountCents}
-              platformFeeCents={paymentData.platformFeeCents}
-              creatorBaseAmountCents={paymentData.creatorBaseAmountCents}
-              transportFeeCents={paymentData.transportFeeCents}
-              creatorNetAmountCents={paymentData.creatorNetAmountCents}
+              serviceGrossAmountCents={paymentData.serviceGrossAmountCents}
+              platformFeeAmountCents={paymentData.platformFeeAmountCents}
+              transportFeeAmountCents={paymentData.transportFeeAmountCents}
+              creatorPayoutAmountCents={paymentData.creatorPayoutAmountCents}
+              companyTotalAmountCents={paymentData.companyTotalAmountCents}
               currency={paymentData.currency}
               creditAppliedCents={paymentData.creditAppliedCents}
               remainderCents={paymentData.remainderCents}
@@ -102,7 +102,7 @@ function CheckoutScreen() {
               publicKey={paymentData.publicKey}
               preferenceId={paymentData.preferenceId}
               paymentId={paymentData.paymentId}
-              grossAmountCents={paymentData.remainderCents ?? paymentData.grossAmountCents}
+              grossAmountCents={paymentData.remainderCents ?? paymentData.companyTotalAmountCents}
               onPaymentSubmitted={() => {
                 void navigate(`/pagamento/aguardando?paymentId=${paymentData.paymentId}`);
               }}

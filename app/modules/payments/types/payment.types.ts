@@ -24,15 +24,16 @@ export type InitiatePaymentResponse = {
   paymentId: string;
   preferenceId: string;
   publicKey: string;
-  grossAmountCents: number;
-  platformFeeCents: number;
-  creatorBaseAmountCents: number;
-  transportFeeCents: number;
-  creatorNetAmountCents: number;
+  serviceGrossAmountCents: number;
+  platformFeeAmountCents: number;
+  creatorNetServiceAmountCents: number;
+  transportFeeAmountCents: number;
+  creatorPayoutAmountCents: number;
+  companyTotalAmountCents: number;
   currency: string;
   /** Crédito de saldo aplicado (em centavos). */
   creditAppliedCents: number;
-  /** Valor efetivamente cobrado no gateway (gross - credit). */
+  /** Valor efetivamente cobrado no gateway (companyTotal - credit). */
   remainderCents: number;
   /** true quando 100% coberto por crédito — não exibir Brick. */
   alreadyPaid: boolean;
@@ -59,16 +60,16 @@ export type BalanceTransaction = {
 export type Payment = {
   id: string;
   contractRequestId: string;
-  grossAmountCents: number;
-  platformFeeCents: number;
-  creatorBaseAmountCents: number;
-  transportFeeCents: number;
-  creatorNetAmountCents: number;
+  serviceGrossAmountCents: number;
+  platformFeeAmountCents: number;
+  creatorNetServiceAmountCents: number;
+  transportFeeAmountCents: number;
+  creatorPayoutAmountCents: number;
+  companyTotalAmountCents: number;
   creditAppliedCents: number;
   currency: string;
   status: PaymentStatus;
   payoutStatus: PayoutStatus;
-  /** null em pagamentos antigos sem settlement ainda registrado. */
   settlementStatus: SettlementStatus | null;
   gatewayName: string;
   paymentMethod: string | null;
@@ -90,8 +91,8 @@ export type CreatorPayout = {
   createdAt: string;
   updatedAt: string;
   payment?: {
-    grossAmountCents: number;
-    platformFeeCents: number;
+    creatorNetServiceAmountCents: number;
+    transportFeeAmountCents: number;
     contractRequestId: string;
     gatewayName: string;
   };

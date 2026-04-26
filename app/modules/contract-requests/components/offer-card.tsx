@@ -34,8 +34,7 @@ export function OfferCard({
   const jobTypeName = item.jobTypeName ?? "Serviço";
   const durationLabel = formatDuration(item.durationMinutes ?? 0, true);
   const hasValidDuration = durationLabel != null;
-  /** Fonte única de valor: totalAmount (contrato); fallback totalPrice para compat */
-  const amount = item.totalAmount ?? item.totalPrice;
+  const amount = item.creatorPayoutAmountCents / 100;
   const initials =
     companyName.length >= 2
       ? companyName.slice(0, 2).toUpperCase()
@@ -185,21 +184,23 @@ export function OfferCard({
           </div>
         </div>
 
-        {/* Financial block */}
+        {/* Financial block — creator view */}
         <div className="rounded-2xl bg-[#f6f5f8] p-4 lg:p-6">
           <div className="space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-slate-600">Serviço</span>
               <span className="font-medium text-slate-900">
-                {formatCurrency(item.creatorBasePrice, item.currency)}
+                {formatCurrency(item.creatorNetServiceAmountCents / 100, item.currency)}
               </span>
             </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-600">Transporte</span>
-              <span className="font-medium text-slate-900">
-                {item.transport?.formatted ?? formatCurrency(item.transportFee, item.currency)}
-              </span>
-            </div>
+            {(item.transportFeeAmountCents ?? 0) > 0 && (
+              <div className="flex justify-between text-xs">
+                <span className="text-slate-600">Transporte</span>
+                <span className="font-medium text-slate-900">
+                  {item.transport?.formatted ?? formatCurrency(item.transportFeeAmountCents / 100, item.currency)}
+                </span>
+              </div>
+            )}
           </div>
           <div className="mt-4 flex items-center justify-between border-t border-slate-200/50 pt-4">
             <span className="text-[10px] font-black uppercase tracking-wider text-slate-600">

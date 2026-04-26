@@ -191,7 +191,7 @@ export function OpportunityDetailScreen({ id }: OpportunityDetailScreenProps) {
                       Valor do projeto
                     </div>
                     <div className="text-4xl font-bold text-slate-900">
-                      {formatAmount(opportunity.offeredAmount)}
+                      {formatAmount(opportunity.creatorNetServiceAmountCents / 100)}
                     </div>
                   </div>
 
@@ -386,7 +386,7 @@ export function OpportunityDetailScreen({ id }: OpportunityDetailScreenProps) {
       </div>
 
       <MobileApplyBar
-        value={opportunity.offeredAmount}
+        value={opportunity.creatorNetServiceAmountCents / 100}
         hasApplied={hasApplied}
         canApply={canApply}
         hasMinimumPortfolio={hasPortfolio}

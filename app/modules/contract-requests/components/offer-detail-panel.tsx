@@ -48,20 +48,19 @@ function InfoCell({
   );
 }
 
-/** Card de pagamento — reutilizável na sidebar desktop. */
+/** Card de pagamento (creator view) — mostra apenas o que o creator recebe. */
 export function OfferPaymentCard({ item }: { item: ContractRequestItem }) {
-  const amount = item.totalAmount ?? item.totalPrice;
-  const hasTransport = (item.transportFee ?? 0) > 0;
+  const hasTransport = (item.transportFeeAmountCents ?? 0) > 0;
 
   return (
     <div className="overflow-hidden rounded-2xl bg-slate-900 p-6 shadow-[0px_20px_25px_-5px_rgba(15,23,42,0.1)]">
       <div className="mb-4 flex items-end justify-between">
         <div>
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.8px] text-slate-400">
-            Pagamento Total
+            Total a Receber
           </p>
           <p className="text-3xl font-black tracking-tight text-white">
-            {formatCurrency(amount, item.currency)}
+            {formatCurrency(item.creatorPayoutAmountCents / 100, item.currency)}
           </p>
         </div>
         <span className="rounded-full bg-[rgba(137,90,246,0.2)] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.8px] text-[#d0bcff]">
@@ -73,7 +72,7 @@ export function OfferPaymentCard({ item }: { item: ContractRequestItem }) {
         <div className="flex justify-between text-xs">
           <span className="text-slate-400">Serviço</span>
           <span className="font-medium text-slate-200">
-            {formatCurrency(item.creatorBasePrice, item.currency)}
+            {formatCurrency(item.creatorNetServiceAmountCents / 100, item.currency)}
           </span>
         </div>
         {hasTransport && (
@@ -81,7 +80,7 @@ export function OfferPaymentCard({ item }: { item: ContractRequestItem }) {
             <span className="text-slate-400">Transporte</span>
             <span className="font-medium text-slate-200">
               {item.transport?.formatted ??
-                formatCurrency(item.transportFee, item.currency)}
+                formatCurrency(item.transportFeeAmountCents / 100, item.currency)}
             </span>
           </div>
         )}

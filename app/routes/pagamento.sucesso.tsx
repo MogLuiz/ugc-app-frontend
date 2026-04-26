@@ -35,7 +35,7 @@ function PaymentSuccessScreen() {
               {new Intl.NumberFormat("pt-BR", {
                 style: "currency",
                 currency: payment.currency,
-              }).format(payment.grossAmountCents / 100)}
+              }).format(payment.companyTotalAmountCents / 100)}
             </span>
           </div>
         </div>

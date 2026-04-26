@@ -50,7 +50,7 @@ export function OpportunityCard({ opportunity }: OpportunityCardProps) {
             Cache
           </p>
           <p className="mt-1 text-2xl font-black text-[#6a36d5]">
-            {formatAmount(opportunity.offeredAmount)}
+            {formatAmount(opportunity.creatorNetServiceAmountCents / 100)}
           </p>
         </div>
       </div>

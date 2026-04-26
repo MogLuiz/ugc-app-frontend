@@ -26,7 +26,7 @@ function formatTime(value: string) {
 export function OfferListCard({ item, isActive = false, onClick }: OfferListCardProps) {
   const companyName = item.companyName ?? "Empresa";
   const jobTypeName = item.jobTypeName ?? "Serviço";
-  const amount = item.totalAmount ?? item.totalPrice;
+  const amount = item.creatorPayoutAmountCents / 100;
   const distance = item.creatorDistance?.formatted;
 
   const initials = companyName

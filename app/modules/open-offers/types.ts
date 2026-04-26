@@ -25,11 +25,12 @@ export type OpenOfferItem = {
   jobFormattedAddress: string | null;
   jobLatitude?: number | null;
   jobLongitude?: number | null;
-  offeredAmount: number;
+  serviceGrossAmountCents: number;
+  platformFeeBpsSnapshot: number;
+  platformFeeAmountCents: number;
+  creatorNetServiceAmountCents: number;
   expiresAt: string;
   status: OpenOfferStatus;
-  platformFeeRateSnapshot: number;
-  minimumOfferedAmountSnapshot?: number;
   applicationsToReviewCount?: number;
   createdAt: string;
   updatedAt?: string;

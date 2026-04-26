@@ -31,14 +31,6 @@ export function PayoutDetailSheet({ payout, open, onClose }: Props) {
   const ref = payout.id.slice(-8).toUpperCase();
   const payment = payout.payment;
   const contractRequestId = payment?.contractRequestId;
-
-  const creatorBaseAmountCents = payment
-    ? payment.grossAmountCents - payment.platformFeeCents - (payout.amountCents - (payment.grossAmountCents - payment.platformFeeCents - /* transport */ 0))
-    : null;
-
-  // Derivar serviço e deslocamento a partir dos campos disponíveis
-  // creatorNetAmountCents = payout.amountCents (invariante)
-  // Não temos breakdown granular no payout, mas payment aninhado tem grossAmountCents e platformFeeCents
   const totalToReceive = payout.amountCents;
 
   return (
@@ -74,13 +66,15 @@ export function PayoutDetailSheet({ payout, open, onClose }: Props) {
               {payment ? (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Valor do contrato</span>
-                    <span className="text-slate-800">{formatCents(payment.grossAmountCents, payout.currency)}</span>
+                    <span className="text-slate-500">Serviço</span>
+                    <span className="text-slate-800">{formatCents(payment.creatorNetServiceAmountCents, payout.currency)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Taxa da plataforma</span>
-                    <span className="text-slate-500">− {formatCents(payment.platformFeeCents, payout.currency)}</span>
-                  </div>
+                  {payment.transportFeeAmountCents > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Transporte</span>
+                      <span className="text-slate-800">{formatCents(payment.transportFeeAmountCents, payout.currency)}</span>
+                    </div>
+                  )}
                   <div className="border-t border-slate-200 pt-2 flex justify-between">
                     <span className="font-semibold text-slate-900">Total a receber</span>
                     <span className="font-bold text-slate-900">{formatCents(totalToReceive, payout.currency)}</span>

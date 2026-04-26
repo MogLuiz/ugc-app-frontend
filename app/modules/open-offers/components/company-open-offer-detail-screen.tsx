@@ -148,7 +148,7 @@ export function CompanyOpenOfferDetailScreen({ item }: { item: OpenOfferDetail }
                   Valor bruto
                 </p>
                 <p className="mt-2 text-2xl font-black text-[#6a36d5]">
-                  {formatCurrency(item.offeredAmount, "BRL")}
+                  {formatCurrency(item.serviceGrossAmountCents / 100, "BRL")}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">Transporte calculado apenas na seleção</p>
               </div>

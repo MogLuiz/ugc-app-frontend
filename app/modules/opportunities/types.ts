@@ -8,10 +8,10 @@ export type OpportunityListItem = {
   startsAt: string;
   durationMinutes: number;
   jobFormattedAddress: string | null;
-  offeredAmount: number;
+  serviceGrossAmountCents: number;
+  creatorNetServiceAmountCents: number;
   /** Prazo para candidaturas (expiresAt da oferta) */
   expiresAt: string;
-  platformFeeRateSnapshot: number;
   jobType: { id: string; name: string } | null;
   createdAt: string;
   updatedAt: string;

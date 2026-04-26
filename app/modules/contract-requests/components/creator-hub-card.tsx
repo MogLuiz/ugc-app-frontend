@@ -159,7 +159,7 @@ export function CreatorHubCard({
             Valor
           </p>
           <p className="mt-1 text-2xl font-black text-[#6a36d5]">
-            {formatOfferMoney(item.totalAmount, item.currency)}
+            {formatOfferMoney(item.totalAmount != null ? item.totalAmount / 100 : null, item.currency)}
           </p>
         </div>
       </div>

@@ -18,13 +18,13 @@ export function FinanceiroSummaryCards({ balance, payments, refundRequests, onRe
 
   const totalPaid = (payments ?? [])
     .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + p.grossAmountCents, 0);
+    .reduce((sum, p) => sum + p.companyTotalAmountCents, 0);
   const paidCount = (payments ?? []).filter((p) => p.status === "paid").length;
 
   const pendingPayments = (payments ?? []).filter(
     (p) => p.status === "pending" || p.status === "processing" || p.status === "authorized"
   );
-  const pendingTotal = pendingPayments.reduce((sum, p) => sum + p.grossAmountCents, 0);
+  const pendingTotal = pendingPayments.reduce((sum, p) => sum + p.companyTotalAmountCents, 0);
 
   const pendingRefunds = (refundRequests ?? []).filter((r) => r.status === "PENDING");
   const pendingRefundTotal = pendingRefunds.reduce((sum, r) => sum + r.amountCents, 0);

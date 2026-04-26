@@ -55,7 +55,7 @@ export function PaymentListItem({ payment, onTap }: Props) {
 
       <div className="text-right shrink-0">
         <p className="text-sm font-semibold text-slate-900">
-          {formatCents(payment.grossAmountCents, payment.currency)}
+          {formatCents(payment.companyTotalAmountCents, payment.currency)}
         </p>
         {hasCredit && (
           <p className="text-xs text-green-600 mt-0.5">

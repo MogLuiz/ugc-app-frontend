@@ -58,7 +58,7 @@ export function CompanyContractRequestDetailScreen({
   const durationMinutes = item.job?.durationMinutes ?? item.durationMinutes;
   const durationLabel = formatDuration(durationMinutes) ?? "Duração a combinar";
   const locationLabel = resolveLocation(item);
-  const amount = item.pricing?.totalAmount ?? item.totalAmount ?? item.totalPrice;
+  const amount = item.companyTotalAmountCents / 100;
   const statusMeta = getContractRequestStatusMeta(item.status);
   const canChat =
     (item.status === "ACCEPTED" || item.status === "IN_PROGRESS") &&
@@ -245,16 +245,18 @@ export function CompanyContractRequestDetailScreen({
                   <div className="flex items-center justify-between">
                     <span className="text-slate-400">Serviço</span>
                     <span className="font-semibold text-slate-100">
-                      {formatCurrency(item.creatorBasePrice, item.currency)}
+                      {formatCurrency(item.serviceGrossAmountCents / 100, item.currency)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-slate-400">Transporte</span>
-                    <span className="font-semibold text-slate-100">
-                      {item.transport?.formatted ??
-                        formatCurrency(item.transportFee, item.currency)}
-                    </span>
-                  </div>
+                  {(item.transportFeeAmountCents ?? 0) > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Transporte</span>
+                      <span className="font-semibold text-slate-100">
+                        {item.transport?.formatted ??
+                          formatCurrency(item.transportFeeAmountCents / 100, item.currency)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </section>
             </div>

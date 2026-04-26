@@ -338,7 +338,7 @@ export function CreatorHireForm({ profile, flow }: CreatorHireFormProps) {
                   <span className="text-[15px] font-bold text-[#895af6]">
                     {flow.previewResult
                       ? formatCurrency(
-                          flow.previewResult.totalAmount,
+                          flow.previewResult.companyTotalAmountCents / 100,
                           flow.previewResult.currency,
                         )
                       : formatCurrency(

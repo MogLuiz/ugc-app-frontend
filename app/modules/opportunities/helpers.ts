@@ -92,7 +92,7 @@ export function sortOpportunities(
 
   switch (sort) {
     case "value":
-      return copy.sort((a, b) => b.offeredAmount - a.offeredAmount);
+      return copy.sort((a, b) => b.creatorNetServiceAmountCents - a.creatorNetServiceAmountCents);
 
     case "distance":
       return copy.sort((a, b) => a.distanceKm - b.distanceKm);

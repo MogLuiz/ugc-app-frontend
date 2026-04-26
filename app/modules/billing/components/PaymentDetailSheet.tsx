@@ -71,14 +71,14 @@ export function PaymentDetailSheet({ payment, open, onClose }: Props) {
 
           {/* Breakdown */}
           <PaymentSummary
-            grossAmountCents={payment.grossAmountCents}
-            platformFeeCents={payment.platformFeeCents}
-            creatorBaseAmountCents={payment.creatorBaseAmountCents}
-            transportFeeCents={payment.transportFeeCents}
-            creatorNetAmountCents={payment.creatorNetAmountCents}
+            serviceGrossAmountCents={payment.serviceGrossAmountCents}
+            platformFeeAmountCents={payment.platformFeeAmountCents}
+            transportFeeAmountCents={payment.transportFeeAmountCents}
+            creatorPayoutAmountCents={payment.creatorPayoutAmountCents}
+            companyTotalAmountCents={payment.companyTotalAmountCents}
             currency={payment.currency}
             creditAppliedCents={payment.creditAppliedCents}
-            remainderCents={payment.grossAmountCents - payment.creditAppliedCents}
+            remainderCents={payment.companyTotalAmountCents - payment.creditAppliedCents}
           />
 
           {/* Método de pagamento */}
