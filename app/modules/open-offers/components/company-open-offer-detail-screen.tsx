@@ -107,7 +107,7 @@ export function CompanyOpenOfferDetailScreen({
       toast.success("Creator selecionado com sucesso.");
       setSelectedApplicationId(null);
       setHiringTermsAccepted(false);
-      void navigate(`/campanha/${result.contractRequestId}`);
+      void navigate(`/pagamento/${result.contractRequestId}`);
     } catch (error) {
       if (error instanceof HttpError && error.status === 409) {
         toast.error("Creator com agenda ocupada, escolha outro.");

@@ -7,17 +7,18 @@ function PaymentPendingScreen() {
   const [searchParams] = useSearchParams();
   const paymentId = searchParams.get("paymentId") ?? "";
   const navigate = useNavigate();
-  const { data: payment } = usePaymentQuery(paymentId, !!paymentId);
+  const { data: payment, isFetching } = usePaymentQuery(paymentId, !!paymentId);
 
-  // Redireciona automaticamente quando o status mudar para paid ou failed
+  // Redireciona apenas com dado fresco (isFetching=false) para evitar
+  // redirecionamentos baseados em cache stale de tentativas anteriores.
   useEffect(() => {
-    if (!payment) return;
+    if (!payment || isFetching) return;
     if (payment.status === "paid" || payment.status === "authorized") {
       void navigate(`/pagamento/sucesso?paymentId=${paymentId}`);
     } else if (payment.status === "failed" || payment.status === "canceled") {
       void navigate(`/pagamento/falhou?paymentId=${paymentId}`);
     }
-  }, [payment, paymentId, navigate]);
+  }, [payment?.status, isFetching, paymentId, navigate]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 space-y-6">

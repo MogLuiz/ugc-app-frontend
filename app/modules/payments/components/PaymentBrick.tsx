@@ -88,7 +88,7 @@ export function PaymentBrick({
               };
             };
 
-            await processPayment(paymentId, {
+            const result = await processPayment(paymentId, {
               token: formData.token ?? "",
               paymentMethodId: formData.payment_method_id,
               issuerId: formData.issuer_id ?? null,
@@ -103,7 +103,11 @@ export function PaymentBrick({
                 : null,
             });
 
-            onPaymentSubmitted?.();
+            if (result.status === "failed" || result.status === "canceled") {
+              onError?.(new Error(result.status));
+            } else {
+              onPaymentSubmitted?.();
+            }
           } catch (err) {
             console.error("PaymentBrick submit failed", {
               paymentId,
