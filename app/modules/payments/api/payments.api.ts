@@ -31,10 +31,11 @@ export async function getPayment(
 }
 
 export type ProcessPaymentInput = {
-  token: string;
+  /** Token do cartão (obrigatório para cartão, null/undefined para PIX). */
+  token?: string | null;
   paymentMethodId: string;
   issuerId: string | null;
-  installments: number;
+  installments?: number;
   transactionAmount: number;
   payerEmail: string;
   payerDocument: { type: string; number: string } | null;

@@ -77,6 +77,13 @@ export type Payment = {
   paidAt: string | null;
   createdAt: string;
   updatedAt: string;
+  paymentType: 'card' | 'pix' | 'credit' | null;
+  /** Código EMV copia-e-cola do PIX. */
+  pixCopyPaste: string | null;
+  /** QR code como base64 PNG. */
+  pixQrCodeBase64: string | null;
+  /** ISO string de expiração do QR PIX. */
+  pixExpiresAt: string | null;
 };
 
 export type CreatorPayout = {

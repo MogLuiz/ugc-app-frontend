@@ -2,6 +2,12 @@ import { initMercadoPago, Payment } from "@mercadopago/sdk-react";
 import { useEffect, useRef } from "react";
 import { processPayment } from "../api/payments.api";
 
+export type PixSubmittedData = {
+  pixCopyPaste: string;
+  pixQrCodeBase64: string | null;
+  pixExpiresAt: string | null;
+};
+
 type PaymentBrickProps = {
   publicKey: string;
   preferenceId: string;
@@ -9,6 +15,8 @@ type PaymentBrickProps = {
   /** Valor total em centavos — necessário para o Brick calcular parcelamentos */
   grossAmountCents: number;
   onPaymentSubmitted?: () => void;
+  /** Chamado após submit PIX bem-sucedido, com dados do QR code. */
+  onPixSubmitted?: (data: PixSubmittedData) => void;
   onError?: (error: unknown) => void;
 };
 
@@ -23,11 +31,13 @@ function getErrorMessage(error: unknown): string {
 /**
  * Wrapper do Mercado Pago Payment Brick.
  *
- * Para pagamentos com cartão: o Brick coleta os dados, onSubmit envia para o
- * backend via POST /payments/:id/process, que cria o pagamento no MP.
+ * Para cartão: o Brick coleta os dados, onSubmit envia para o backend via
+ * POST /payments/:id/process e chama onPaymentSubmitted.
  *
- * O status final é sempre determinado pelo webhook (backend), nunca pelo
- * retorno do onSubmit.
+ * Para PIX: o Brick coleta email/CPF, onSubmit cria o pagamento PIX no backend
+ * e chama onPixSubmitted com os dados do QR code para exibição inline.
+ *
+ * O status final é sempre determinado pelo webhook (backend).
  */
 export function PaymentBrick({
   publicKey,
@@ -35,6 +45,7 @@ export function PaymentBrick({
   paymentId,
   grossAmountCents,
   onPaymentSubmitted,
+  onPixSubmitted,
   onError,
 }: PaymentBrickProps) {
   const initialized = useRef(false);
@@ -88,8 +99,10 @@ export function PaymentBrick({
               };
             };
 
+            const isPix = formData.payment_method_id === "pix";
+
             const result = await processPayment(paymentId, {
-              token: formData.token ?? "",
+              token: formData.token ?? null,
               paymentMethodId: formData.payment_method_id,
               issuerId: formData.issuer_id ?? null,
               installments: formData.installments ?? 1,
@@ -102,6 +115,19 @@ export function PaymentBrick({
                   }
                 : null,
             });
+
+            if (isPix) {
+              if (result.pixCopyPaste) {
+                onPixSubmitted?.({
+                  pixCopyPaste: result.pixCopyPaste,
+                  pixQrCodeBase64: result.pixQrCodeBase64 ?? null,
+                  pixExpiresAt: result.pixExpiresAt ?? null,
+                });
+              } else {
+                onError?.(new Error("Dados PIX indisponíveis"));
+              }
+              return;
+            }
 
             if (result.status === "failed" || result.status === "canceled") {
               onError?.(new Error(result.status));

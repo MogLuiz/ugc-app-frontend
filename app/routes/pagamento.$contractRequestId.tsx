@@ -4,8 +4,10 @@ import { AppSidebar } from "~/components/app-sidebar";
 import { AuthGuard } from "~/components/auth-guard";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { PaymentBrick } from "~/modules/payments/components/PaymentBrick";
+import type { PixSubmittedData } from "~/modules/payments/components/PaymentBrick";
+import { PixQrPanel } from "~/modules/payments/components/PixQrPanel";
 import { PaymentSummary } from "~/modules/payments/components/PaymentSummary";
-import { useInitiatePaymentMutation } from "~/modules/payments/api/payments.queries";
+import { useInitiatePaymentMutation, usePaymentQuery } from "~/modules/payments/api/payments.queries";
 import type { InitiatePaymentResponse } from "~/modules/payments/types/payment.types";
 
 function CheckoutScreen() {
@@ -13,13 +15,19 @@ function CheckoutScreen() {
   const navigate = useNavigate();
   const initiateMutation = useInitiatePaymentMutation();
   const [paymentData, setPaymentData] = useState<InitiatePaymentResponse | null>(null);
+  const [pixData, setPixData] = useState<PixSubmittedData | null>(null);
+
+  // Polling ativo apenas enquanto o PIX está aguardando pagamento
+  const { data: paymentStatus } = usePaymentQuery(
+    paymentData?.paymentId ?? "",
+    !!pixData && !!paymentData?.paymentId,
+  );
 
   useEffect(() => {
     if (!contractRequestId) return;
     initiateMutation.mutate(contractRequestId, {
       onSuccess: (data) => {
         if (data.alreadyPaid) {
-          // 100% coberto por crédito — pular Brick e ir direto para sucesso
           void navigate(`/pagamento/sucesso?paymentId=${data.paymentId}`);
           return;
         }
@@ -29,9 +37,21 @@ function CheckoutScreen() {
         void navigate("/dashboard");
       },
     });
-    // Executar apenas uma vez ao montar
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contractRequestId]);
+
+  // Redireciona quando webhook confirma o PIX
+  useEffect(() => {
+    if (!pixData || !paymentStatus || !paymentData) return;
+    if (paymentStatus.status === "paid" || paymentStatus.status === "authorized") {
+      void navigate(`/pagamento/sucesso?paymentId=${paymentData.paymentId}`);
+    } else if (
+      paymentStatus.status === "failed" ||
+      paymentStatus.status === "canceled"
+    ) {
+      void navigate(`/pagamento/falhou?paymentId=${paymentData.paymentId}`);
+    }
+  }, [paymentStatus?.status, pixData, paymentData, navigate]);
 
   if (initiateMutation.isPending) {
     return (
@@ -98,18 +118,40 @@ function CheckoutScreen() {
               remainderCents={paymentData.remainderCents}
             />
 
-            <PaymentBrick
-              publicKey={paymentData.publicKey}
-              preferenceId={paymentData.preferenceId}
-              paymentId={paymentData.paymentId}
-              grossAmountCents={paymentData.remainderCents ?? paymentData.companyTotalAmountCents}
-              onPaymentSubmitted={() => {
-                void navigate(`/pagamento/aguardando?paymentId=${paymentData.paymentId}`);
-              }}
-              onError={() => {
-                void navigate(`/pagamento/falhou?paymentId=${paymentData.paymentId}`);
-              }}
-            />
+            {pixData ? (
+              <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+                <PixQrPanel
+                  contractRequestId={contractRequestId!}
+                  pixCopyPaste={pixData.pixCopyPaste}
+                  pixQrCodeBase64={pixData.pixQrCodeBase64}
+                  pixExpiresAt={pixData.pixExpiresAt}
+                  onRequestNewPix={() => {
+                    // Reset para mostrar o Brick novamente
+                    setPixData(null);
+                  }}
+                />
+              </div>
+            ) : (
+              <PaymentBrick
+                publicKey={paymentData.publicKey}
+                preferenceId={paymentData.preferenceId}
+                paymentId={paymentData.paymentId}
+                grossAmountCents={
+                  paymentData.remainderCents ?? paymentData.companyTotalAmountCents
+                }
+                onPaymentSubmitted={() => {
+                  void navigate(
+                    `/pagamento/aguardando?paymentId=${paymentData.paymentId}`,
+                  );
+                }}
+                onPixSubmitted={setPixData}
+                onError={() => {
+                  void navigate(
+                    `/pagamento/falhou?paymentId=${paymentData.paymentId}`,
+                  );
+                }}
+              />
+            )}
           </div>
         </div>
       </main>
