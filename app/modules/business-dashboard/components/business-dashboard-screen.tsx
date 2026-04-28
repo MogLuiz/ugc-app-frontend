@@ -13,6 +13,7 @@ import {
   BusinessDashboardRecommendedCreators,
   BusinessDashboardStats,
 } from "./sections";
+import { BusinessDashboardPendingPaymentBanner } from "./business-dashboard-pending-payment-banner";
 
 export function BusinessDashboardScreen() {
   const controller = useBusinessDashboardController();
@@ -33,6 +34,8 @@ export function BusinessDashboardScreen() {
             greetingName={controller.viewModel.greetingName}
             subtitle={controller.viewModel.subtitle}
           />
+
+          <BusinessDashboardPendingPaymentBanner />
 
           <BusinessDashboardStats stats={controller.viewModel.metrics} />
 

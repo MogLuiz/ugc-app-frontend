@@ -123,6 +123,7 @@ export type HubPrimaryAction = "review_applications" | "view_details";
  * Campos como title/address já chegam com fallbacks de UI aplicados pelo backend.
  * creatorId/Name/AvatarUrl são null para kind='open_offer' (sem creator único).
  * `amount` está em centavos (igual `companyTotalAmountCents` no contrato / total pago).
+ * paymentId/paymentStatus/pixExpiresAt são populados apenas para itens em awaitingPayment.
  */
 export type CompanyHubItem = {
   id: string;
@@ -154,12 +155,20 @@ export type CompanyHubItem = {
   contractRequestId: string | null;
   createdAt: string;
   updatedAt: string | null;
+  /** ID do Payment associado. Null se Payment ainda não foi criado. Populado apenas em awaitingPayment. */
+  paymentId: string | null;
+  /** Status do Payment no domínio de pagamentos (ex: 'pending', 'failed'). Null se sem Payment. */
+  paymentStatus: string | null;
+  /** Expiração do PIX. Null se não for PIX ou ainda não expirou. Populado apenas em awaitingPayment. */
+  pixExpiresAt: string | null;
 };
 
 export type CompanyOffersHubResponse = {
   pending: {
     openOffers: CompanyHubItem[];
     directInvites: CompanyHubItem[];
+    /** Contratos criados mas ainda não pagos pela empresa. */
+    awaitingPayment: CompanyHubItem[];
   };
   inProgress: CompanyHubItem[];
   finalized: {

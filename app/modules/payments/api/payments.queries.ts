@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { paymentKeys } from "~/lib/query/query-keys";
+import { openOfferKeys, paymentKeys } from "~/lib/query/query-keys";
 import type { UpdateCreatorPayoutSettingsInput } from "../types/payment.types";
 import {
   getCompanyPayments,
@@ -19,6 +19,10 @@ export function useInitiatePaymentMutation() {
     onSuccess: (data) => {
       void queryClient.invalidateQueries({
         queryKey: paymentKeys.detail(data.paymentId),
+      });
+      // Atualiza o hub para refletir o novo Payment criado nos itens de awaitingPayment
+      void queryClient.invalidateQueries({
+        queryKey: openOfferKeys.all,
       });
     },
   });

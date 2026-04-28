@@ -4,6 +4,7 @@ import {
   CheckCircle,
   ChevronRight,
   Clock3,
+  CreditCard,
   MapPin,
   Star,
 } from "lucide-react";
@@ -13,6 +14,10 @@ import {
   formatDateShort,
   formatDuration,
 } from "~/modules/contract-requests/utils";
+import {
+  getPaymentResumeState,
+  type PaymentResumeState,
+} from "~/modules/payments/utils/payment-resume-state";
 import { formatOfferMoney } from "../helpers";
 import type { CompanyHubItem } from "../types";
 
@@ -54,6 +59,34 @@ function ReviewStatusBadge({ pending }: { pending: boolean | null }) {
   );
 }
 
+function PendingPaymentChip({ state }: { state: PaymentResumeState }) {
+  if (state.kind === "none") return null;
+  const isDanger = state.severity === "danger";
+  return (
+    <div
+      className={cn(
+        "mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 ring-1 ring-inset",
+        isDanger
+          ? "bg-rose-50 ring-rose-200"
+          : "bg-amber-50 ring-amber-200",
+      )}
+    >
+      <CreditCard
+        className={cn("size-3.5 shrink-0", isDanger ? "text-rose-500" : "text-amber-500")}
+        aria-hidden
+      />
+      <span
+        className={cn(
+          "text-[12px] font-bold leading-none",
+          isDanger ? "text-rose-700" : "text-amber-700",
+        )}
+      >
+        {state.label}
+      </span>
+    </div>
+  );
+}
+
 function resolveHref(item: CompanyHubItem): string {
   if (item.contractRequestId) return `/ofertas/${item.contractRequestId}`;
   if (item.offerId) return `/ofertas/${item.offerId}`;
@@ -84,6 +117,9 @@ export function CompanyHubCard({
   const navigate = useNavigate();
   const href = resolveHref(item);
 
+  const paymentState = getPaymentResumeState(item);
+  const hasPendingPayment = paymentState.kind !== "none";
+
   const isAwaiting = item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION";
   const isDispute = item.legacyStatus === "COMPLETION_DISPUTE";
 
@@ -100,28 +136,41 @@ export function CompanyHubCard({
     ? formatDuration(item.durationMinutes)
     : null;
 
-  const ctaLabel =
-    item.primaryAction === "review_applications"
+  const ctaLabel = hasPendingPayment
+    ? paymentState.ctaLabel
+    : item.primaryAction === "review_applications"
       ? "Avaliar candidaturas"
       : isAwaiting
         ? "Confirmar serviço"
         : "Ver detalhes";
 
-  const subtitleColorClass = isAwaiting
-    ? "text-amber-600"
-    : isDispute
+  const ctaHref = hasPendingPayment && paymentState.resumeUrl
+    ? paymentState.resumeUrl
+    : href;
+
+  const subtitleColorClass = hasPendingPayment
+    ? paymentState.severity === "danger"
       ? "text-rose-600"
-      : "text-slate-400";
+      : "text-amber-600"
+    : isAwaiting
+      ? "text-amber-600"
+      : isDispute
+        ? "text-rose-600"
+        : "text-slate-400";
 
   return (
     <article
       className={cn(
         "w-full min-w-0 max-w-full cursor-pointer rounded-[28px] border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md lg:p-6",
-        isAwaiting
-          ? "border-amber-200"
-          : isDispute
-            ? "border-rose-200"
-            : "border-slate-200",
+        hasPendingPayment && paymentState.severity === "danger"
+          ? "border-rose-200"
+          : hasPendingPayment
+            ? "border-amber-200"
+            : isAwaiting
+              ? "border-amber-200"
+              : isDispute
+                ? "border-rose-200"
+                : "border-slate-200",
       )}
       onClick={() => navigate(href, { state: { fromHub: true } })}
     >
@@ -130,6 +179,7 @@ export function CompanyHubCard({
           <h3 className="text-lg font-black tracking-[-0.02em] text-slate-900">
             {item.title}
           </h3>
+          <PendingPaymentChip state={paymentState} />
           <ApplicationsToReviewBadge count={item.applicationsToReviewCount} />
           <ReviewStatusBadge pending={item.myReviewPending} />
         </div>
@@ -215,7 +265,7 @@ export function CompanyHubCard({
           {subtitle}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {isAwaiting && (
+          {(isAwaiting || hasPendingPayment) && (
             <button
               type="button"
               className="inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
@@ -231,15 +281,19 @@ export function CompanyHubCard({
             type="button"
             className={cn(
               "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-white",
-              isAwaiting
-                ? "bg-amber-500 hover:bg-amber-600"
-                : isDispute
-                  ? "bg-rose-600 hover:bg-rose-700"
-                  : "bg-slate-900 hover:bg-slate-800",
+              hasPendingPayment && paymentState.severity === "danger"
+                ? "bg-rose-600 hover:bg-rose-700"
+                : hasPendingPayment
+                  ? "bg-amber-500 hover:bg-amber-600"
+                  : isAwaiting
+                    ? "bg-amber-500 hover:bg-amber-600"
+                    : isDispute
+                      ? "bg-rose-600 hover:bg-rose-700"
+                      : "bg-slate-900 hover:bg-slate-800",
             )}
             onClick={(e) => {
               e.stopPropagation();
-              navigate(href, { state: { fromHub: true } });
+              navigate(ctaHref, { state: { fromHub: true } });
             }}
           >
             {ctaLabel}

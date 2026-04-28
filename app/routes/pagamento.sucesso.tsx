@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { AuthGuard } from "~/components/auth-guard";
+import { openOfferKeys, contractRequestKeys } from "~/lib/query/query-keys";
 import { PaymentStatusBadge } from "~/modules/payments/components/PaymentStatusBadge";
 import { usePaymentQuery } from "~/modules/payments/api/payments.queries";
 
@@ -7,6 +10,14 @@ function PaymentSuccessScreen() {
   const [searchParams] = useSearchParams();
   const paymentId = searchParams.get("paymentId") ?? "";
   const { data: payment, isLoading } = usePaymentQuery(paymentId, !!paymentId);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (payment?.status === "paid") {
+      void queryClient.invalidateQueries({ queryKey: openOfferKeys.all });
+      void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
+    }
+  }, [payment?.status, queryClient]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen px-4 space-y-6">

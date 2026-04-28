@@ -1,4 +1,4 @@
-import { CalendarDays, CheckCircle, ChevronLeft, MapPin, MessageCircle, Star } from "lucide-react";
+import { AlertCircle, CalendarDays, CheckCircle, ChevronLeft, CreditCard, MapPin, MessageCircle, Star } from "lucide-react";
 import { Link } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "~/components/app-sidebar";
@@ -14,7 +14,54 @@ import {
 import { ConfirmCompletionBanner } from "~/modules/contract-requests/components/ConfirmCompletionBanner";
 import { ReviewForm } from "~/modules/contract-requests/components/ReviewForm";
 import { useContractReviewsQuery } from "~/modules/contract-requests/queries";
+import { useCompanyOffersHubQuery } from "~/modules/open-offers/queries";
+import { getPaymentResumeState, type PaymentResumeState } from "~/modules/payments/utils/payment-resume-state";
 import { openOfferKeys } from "~/lib/query/query-keys";
+import { cn } from "~/lib/utils";
+
+function PendingPaymentSection({ state }: { state: PaymentResumeState }) {
+  if (state.kind === "none" || !state.resumeUrl) return null;
+  const isDanger = state.severity === "danger";
+  return (
+    <section
+      className={cn(
+        "rounded-[24px] px-5 py-4 ring-1 ring-inset",
+        isDanger ? "bg-rose-50 ring-rose-200" : "bg-amber-50 ring-amber-200",
+      )}
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          {isDanger ? (
+            <AlertCircle className="mt-0.5 size-5 shrink-0 text-rose-600" aria-hidden />
+          ) : (
+            <CreditCard className="mt-0.5 size-5 shrink-0 text-amber-600" aria-hidden />
+          )}
+          <div className="min-w-0">
+            <p className={cn("text-sm font-bold", isDanger ? "text-rose-900" : "text-amber-900")}>
+              {state.label}
+            </p>
+            <p className={cn("mt-0.5 text-sm", isDanger ? "text-rose-700" : "text-amber-700")}>
+              {state.kind === "failed"
+                ? "Seu pagamento não foi aprovado. Tente novamente para confirmar a contratação."
+                : state.kind === "expired"
+                  ? "O código PIX expirou. Gere um novo para concluir o pagamento."
+                  : "Finalize o pagamento para que o creator receba e possa aceitar sua contratação."}
+            </p>
+          </div>
+        </div>
+        <Link
+          to={state.resumeUrl}
+          className={cn(
+            "inline-flex shrink-0 items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold text-white transition-colors",
+            isDanger ? "bg-rose-600 hover:bg-rose-700" : "bg-amber-500 hover:bg-amber-600",
+          )}
+        >
+          {state.ctaLabel}
+        </Link>
+      </div>
+    </section>
+  );
+}
 
 function resolveLocation(item: ContractRequestItem) {
   const city = item.location?.city;
@@ -40,6 +87,14 @@ export function CompanyContractRequestDetailScreen({
 }) {
   const queryClient = useQueryClient();
   const isCompleted = item.status === "COMPLETED" || item.legacyStatus === "COMPLETED";
+
+  const { data: hub } = useCompanyOffersHubQuery();
+  const hubPaymentItem = hub?.pending.awaitingPayment?.find(
+    (h) => h.contractRequestId === item.id,
+  ) ?? null;
+  const paymentState = getPaymentResumeState(
+    hubPaymentItem ?? { legacyStatus: item.status, contractRequestId: item.id },
+  );
 
   const reviewsQuery = useContractReviewsQuery(item.id, isCompleted);
   const alreadyReviewed =
@@ -99,8 +154,7 @@ export function CompanyContractRequestDetailScreen({
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row">
-                {(item.status === "PENDING_PAYMENT" ||
-                  (item.status === "ACCEPTED" && item.paymentStatus === "PENDING")) ? (
+                {item.status === "ACCEPTED" && item.paymentStatus === "PENDING" ? (
                   <Link
                     to={`/pagamento/${item.id}`}
                     className="inline-flex items-center justify-center rounded-full bg-orange-500 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-600"
@@ -126,6 +180,8 @@ export function CompanyContractRequestDetailScreen({
               </div>
             </div>
           </header>
+
+          <PendingPaymentSection state={paymentState} />
 
           {item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION" && (
             <ConfirmCompletionBanner item={item} viewerRole="COMPANY" onUpdate={onUpdate} />

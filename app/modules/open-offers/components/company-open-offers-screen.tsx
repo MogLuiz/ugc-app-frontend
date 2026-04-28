@@ -6,6 +6,7 @@ import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { OffersEmptyState } from "~/modules/contract-requests/components/offers-empty-state";
 import { cn } from "~/lib/utils";
 import type { CompanyCampaignsLocationState } from "~/modules/contract-requests/company-campaigns-location-state";
+import { getPaymentResumeState } from "~/modules/payments/utils/payment-resume-state";
 import { useCompanyOffersHubQuery } from "../queries";
 import { formatOfferExpiry, getRemainingMs } from "../helpers";
 import type { CompanyHubItem } from "../types";
@@ -148,6 +149,7 @@ export function CompanyOpenOffersScreen() {
     ? [
         ...hub.pending.openOffers,
         ...hub.pending.directInvites,
+        ...(hub.pending.awaitingPayment ?? []),
         ...hub.inProgress,
         ...hub.finalized.completed,
         ...hub.finalized.cancelled,
@@ -204,7 +206,10 @@ export function CompanyOpenOffersScreen() {
   ]);
 
   const tabCounts: Record<OffersTabId, number> = {
-    OPEN: (hub?.pending.openOffers.length ?? 0) + (hub?.pending.directInvites.length ?? 0),
+    OPEN:
+      (hub?.pending.openOffers.length ?? 0) +
+      (hub?.pending.directInvites.length ?? 0) +
+      (hub?.pending.awaitingPayment?.length ?? 0),
     IN_PROGRESS: hub?.inProgress.length ?? 0,
     FINALIZED:
       (hub?.finalized.completed.length ?? 0) +
@@ -270,8 +275,9 @@ export function CompanyOpenOffersScreen() {
     if (resolvedTab === "OPEN") {
       const openOfferItems = hub?.pending.openOffers ?? [];
       const directInviteItems = hub?.pending.directInvites ?? [];
+      const awaitingPaymentItems = hub?.pending.awaitingPayment ?? [];
 
-      if (openOfferItems.length === 0 && directInviteItems.length === 0) {
+      if (openOfferItems.length === 0 && directInviteItems.length === 0 && awaitingPaymentItems.length === 0) {
         return (
           <CompanyOffersEmptySection
             title="Nenhuma oferta pendente no momento"
@@ -291,6 +297,28 @@ export function CompanyOpenOffersScreen() {
 
       return (
         <div className="min-w-0 space-y-6">
+          {awaitingPaymentItems.length > 0 && (
+            <section className="min-w-0 space-y-4">
+              <div>
+                <h2 className="text-lg font-black text-slate-900">Aguardando pagamento</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Finalize o pagamento para confirmar as contratações abaixo.
+                </p>
+              </div>
+              <div className="grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+                {awaitingPaymentItems.map((item) => {
+                  const paymentState = getPaymentResumeState(item);
+                  return (
+                    <CompanyHubCard
+                      key={`${item.kind}:${item.id}`}
+                      item={item}
+                      subtitle={paymentState.label || "Aguardando pagamento"}
+                    />
+                  );
+                })}
+              </div>
+            </section>
+          )}
           {openOfferItems.length > 0 && (
             <HubSection
               title="Ofertas abertas"
