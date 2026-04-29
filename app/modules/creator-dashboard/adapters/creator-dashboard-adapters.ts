@@ -10,6 +10,7 @@ import type {
   CreatorInviteVm,
   CreatorKpiCardVm,
   CreatorUpcomingCampaignVm,
+  PendingActionVm,
 } from "../types";
 import type { CreatorActivityApi } from "../service";
 import type { CreatorHubItem } from "~/modules/contract-requests/creator-hub.types";
@@ -90,25 +91,26 @@ export function adaptHubInvites(items: CreatorHubItem[]): CreatorInviteVm[] {
   });
 }
 
+export function isAwaitingConfirmation(item: CreatorHubItem): boolean {
+  return (
+    item.displayStatus === "AWAITING_CONFIRMATION" ||
+    item.primaryAction === "CONFIRM_OR_DISPUTE" ||
+    item.canConfirmCompletion === true
+  );
+}
+
 export function adaptHubUpcoming(
   items: CreatorHubItem[],
   now: Date,
 ): CreatorUpcomingCampaignVm[] {
   return items
-    .filter((item) => item.startsAt != null)
+    .filter((item) => item.startsAt != null && !isAwaitingConfirmation(item))
     .sort((a, b) => new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime())
     .slice(0, 3)
     .map((item) => {
       const recordingAt = new Date(item.startsAt!);
       const safe = Number.isNaN(recordingAt.getTime()) ? now : recordingAt;
-      const statusBadge =
-        item.displayStatus === "AWAITING_CONFIRMATION"
-          ? "Concluída"
-          : item.displayStatus === "IN_DISPUTE"
-            ? "Pendente"
-            : "Confirmada";
-      const primaryAction =
-        item.displayStatus === "AWAITING_CONFIRMATION" ? "CONFIRM_OR_DISPUTE" : "VIEW";
+      const statusBadge = item.displayStatus === "IN_DISPUTE" ? "Pendente" : "Confirmada";
       return {
         id: item.id,
         campaignName: item.title,
@@ -117,16 +119,56 @@ export function adaptHubUpcoming(
         dayBanner: getDayUrgencyBanner(safe),
         dateBadge: formatRecordingMonthDayUpper(safe),
         timeDisplay: formatRecordingTimeLabel(safe),
-        locationDisplay:
-          item.displayStatus === "AWAITING_CONFIRMATION"
-            ? null
-            : (item.address ?? item.locationDisplay),
+        locationDisplay: item.address ?? item.locationDisplay,
         durationDisplay: "",
         statusBadge,
-        primaryAction,
         href: `/ofertas/${item.id}`,
       };
     });
+}
+
+function formatDayMonth(isoDate: string | null): string | null {
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
+
+export function adaptPendingActions(
+  inProgress: CreatorHubItem[],
+  completed: CreatorHubItem[],
+): PendingActionVm[] {
+  const confirmItems: PendingActionVm[] = inProgress
+    .filter(isAwaitingConfirmation)
+    .map((item) => {
+      const dayMonth = formatDayMonth(item.startsAt);
+      return {
+        id: item.id,
+        kind: "confirm_completion" as const,
+        companyName: item.company.name,
+        companyLogoUrl: item.company.logoUrl,
+        title: item.title,
+        jobTypeName: item.jobTypeName ?? null,
+        dateLabel: dayMonth ? `Realizado em ${dayMonth}` : null,
+      };
+    });
+
+  const reviewItems: PendingActionVm[] = completed
+    .filter((item) => item.myReviewPending === true)
+    .map((item) => {
+      const dayMonth = formatDayMonth(item.finalizedAt ?? item.startsAt);
+      return {
+        id: item.id,
+        kind: "review_company" as const,
+        companyName: item.company.name,
+        companyLogoUrl: item.company.logoUrl,
+        title: item.title,
+        jobTypeName: item.jobTypeName ?? null,
+        dateLabel: dayMonth ? `Concluído em ${dayMonth}` : null,
+      };
+    });
+
+  return [...confirmItems, ...reviewItems];
 }
 
 

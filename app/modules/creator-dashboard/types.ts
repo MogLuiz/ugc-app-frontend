@@ -30,8 +30,17 @@ export type CreatorUpcomingCampaignVm = {
   locationDisplay: string | null;
   durationDisplay: string;
   statusBadge: string;
-  primaryAction: "CONFIRM_OR_DISPUTE" | "VIEW";
   href: string;
+};
+
+export type PendingActionVm = {
+  id: string;
+  kind: "confirm_completion" | "review_company";
+  companyName: string;
+  companyLogoUrl: string | null;
+  title: string;
+  jobTypeName: string | null;
+  dateLabel: string | null;
 };
 
 export type CreatorActivityItemVm = {

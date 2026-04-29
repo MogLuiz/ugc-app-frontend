@@ -4,10 +4,10 @@ import { CreatorBottomNav } from "~/components/layout/creator-bottom-nav";
 import { useCreatorDashboardController } from "../hooks/use-creator-dashboard-controller";
 import {
   CreatorDashboardHeader,
-  CreatorDashboardPendingReviews,
   CreatorKPICards,
   CreatorTipsCard,
   NearbyCampaignsSection,
+  PendingActionsSection,
   PendingInvitesSection,
   RecentActivitySection,
   UpcomingCampaignsSection,
@@ -23,7 +23,7 @@ export function CreatorDashboardScreen() {
         <AppSidebar variant="creator" />
       </div>
 
-      <main className="flex min-w-0 flex-1 flex-col gap-6 pb-24 pt-4 lg:gap-8 lg:p-8 lg:pt-8">
+      <main className="flex min-w-0 flex-1 flex-col gap-6 pb-32 pt-4 lg:gap-8 lg:p-8 lg:pt-8">
         <AppHeader title={viewModel.creatorName} mobileBehavior="inline" />
         <div className="flex min-w-0 flex-1 flex-col gap-6 px-4 lg:gap-8 lg:px-0">
           <CreatorDashboardHeader creatorName={viewModel.creatorName} />
@@ -39,16 +39,15 @@ export function CreatorDashboardScreen() {
 
           <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)] lg:gap-8">
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
-              <NearbyCampaignsSection />
+              <PendingActionsSection
+                items={viewModel.pendingActions}
+                hasOverflow={viewModel.hasPendingActionsOverflow}
+              />
               <PendingInvitesSection
                 items={viewModel.invites}
                 isLoading={viewModel.isInvitesLoading}
                 errorMessage={viewModel.invitesErrorMessage}
                 isRefreshing={viewModel.isInvitesRefreshing}
-              />
-              <CreatorDashboardPendingReviews
-                items={viewModel.pendingReviews}
-                hasOverflow={viewModel.hasPendingReviewsOverflow}
               />
               <UpcomingCampaignsSection
                 items={viewModel.upcoming}
@@ -56,6 +55,7 @@ export function CreatorDashboardScreen() {
                 errorMessage={viewModel.upcomingErrorMessage}
                 isRefreshing={viewModel.isUpcomingRefreshing}
               />
+              <NearbyCampaignsSection />
             </div>
 
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">

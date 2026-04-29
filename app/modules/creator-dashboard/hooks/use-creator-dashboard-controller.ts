@@ -5,6 +5,7 @@ import {
   adaptCreatorKpis,
   adaptHubInvites,
   adaptHubUpcoming,
+  adaptPendingActions,
 } from "../adapters/creator-dashboard-adapters";
 import {
   useCreatorActivitySourceQuery,
@@ -13,28 +14,6 @@ import {
 // TODO: substituir por endpoint agregado GET /payouts/summary?month=X quando disponível.
 import { useMyPayoutsQuery } from "~/modules/payments/api/payments.queries";
 import { useCreatorOffersHubQuery } from "~/modules/contract-requests/queries";
-import type { CreatorHubItem } from "~/modules/contract-requests/creator-hub.types";
-
-export type CreatorDashboardPendingReviewItem = {
-  id: string;
-  title: string;
-  companyName: string;
-  companyLogoUrl: string | null;
-  completedLabel: string;
-};
-
-function adaptPendingReview(item: CreatorHubItem): CreatorDashboardPendingReviewItem {
-  const d = item.finalizedAt ? new Date(item.finalizedAt) : null;
-  return {
-    id: item.id,
-    title: item.title,
-    companyName: item.company.name,
-    companyLogoUrl: item.company.logoUrl,
-    completedLabel: d
-      ? `Concluído em ${d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`
-      : "Trabalho concluído",
-  };
-}
 
 function getQueryErrorMessage(error: unknown, fallback: string) {
   if (!error) return null;
@@ -85,11 +64,11 @@ export function useCreatorDashboardController() {
       : [];
     const invites = hub ? adaptHubInvites(hub.pending.invites) : [];
     const upcoming = hub ? adaptHubUpcoming(hub.inProgress, now) : [];
-    const allPendingReviews = hub
-      ? hub.finalized.completed.filter((c) => c.myReviewPending === true).map(adaptPendingReview)
+    const allPendingActions = hub
+      ? adaptPendingActions(hub.inProgress, hub.finalized.completed)
       : [];
-    const pendingReviews = allPendingReviews.slice(0, 3);
-    const hasPendingReviewsOverflow = allPendingReviews.length > 3;
+    const pendingActions = allPendingActions.slice(0, 3);
+    const hasPendingActionsOverflow = allPendingActions.length > 3;
     const activityItems = activityQuery.data
       ? adaptCreatorActivity(activityQuery.data)
       : [];
@@ -99,8 +78,8 @@ export function useCreatorDashboardController() {
       kpis,
       invites,
       upcoming,
-      pendingReviews,
-      hasPendingReviewsOverflow,
+      pendingActions,
+      hasPendingActionsOverflow,
       activityItems,
       isKpiLoading: (hubQuery.isLoading && !hub) || (payoutsQuery.isLoading && !payoutsQuery.data),
       isKpiRefreshing: hubQuery.isFetching,
