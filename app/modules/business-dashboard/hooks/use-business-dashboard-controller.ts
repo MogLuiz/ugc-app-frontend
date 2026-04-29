@@ -16,6 +16,9 @@ import {
   getRelativeActivityLabel,
 } from "../utils";
 import type {
+  BusinessPendingApplicationVm,
+  BusinessPendingConfirmVm,
+  BusinessPendingReviewVm,
   CompanyDashboardActivityItem,
   CompanyDashboardCampaignItem,
   CompanyDashboardPendingItem,
@@ -153,6 +156,67 @@ function mapPendingItem(item: CompanyHubItem): CompanyDashboardPendingItem {
   };
 }
 
+function formatDayMonthCompany(isoDate: string | null): string | null {
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
+
+function adaptPendingConfirmItems(inProgress: CompanyHubItem[]): BusinessPendingConfirmVm[] {
+  return (inProgress ?? [])
+    .filter((item) => item.actionRequiredByCompany === true)
+    .map((item) => {
+      const dayMonth = formatDayMonthCompany(item.startsAt);
+      return {
+        id: item.contractRequestId ?? item.id,
+        creatorName: item.creatorName ?? "Creator",
+        creatorAvatarUrl: item.creatorAvatarUrl ?? null,
+        title: item.title,
+        dateLabel: dayMonth ? `Realizado em ${dayMonth}` : null,
+        contestDeadlineAt: item.contestDeadlineAt ?? null,
+      };
+    });
+}
+
+function adaptPendingReviewItems(completed: CompanyHubItem[]): BusinessPendingReviewVm[] {
+  return (completed ?? [])
+    .filter((item) => item.myReviewPending === true)
+    .slice(0, 3)
+    .map((item) => {
+      const contractRequestId = item.contractRequestId ?? item.id;
+      let completedLabel: string;
+      if (item.completedAt) {
+        const d = new Date(item.completedAt);
+        completedLabel = `Concluído em ${d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+      } else if (item.startsAt) {
+        const d = new Date(item.startsAt);
+        completedLabel = `Realizado em ${d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}`;
+      } else {
+        completedLabel = "Trabalho concluído";
+      }
+      return {
+        id: contractRequestId,
+        contractRequestId,
+        creatorName: item.creatorName ?? "Creator",
+        creatorAvatarUrl: item.creatorAvatarUrl ?? null,
+        title: item.title,
+        completedLabel,
+      };
+    });
+}
+
+function adaptPendingApplicationItems(openOffers: CompanyHubItem[]): BusinessPendingApplicationVm[] {
+  return (openOffers ?? [])
+    .filter((item) => (item.applicationsToReviewCount ?? 0) > 0)
+    .map((item) => ({
+      id: item.offerId ?? item.id,
+      title: item.title,
+      applicationsCount: item.applicationsToReviewCount,
+      expiresAt: item.expiresAt ?? null,
+    }));
+}
+
 function compareActiveCampaigns(
   a: CompanyDashboardCampaignItem,
   b: CompanyDashboardCampaignItem
@@ -214,11 +278,16 @@ export function useBusinessDashboardController() {
     }
 
     const activeCampaignsRaw = (hub?.inProgress ?? [])
+      .filter((item) => !item.actionRequiredByCompany)
       .map((item) => {
         const mapped = mapCampaignItem(item);
         return { ...mapped, progressSummary: buildProgressSummary(mapped) };
       })
       .sort(compareActiveCampaigns);
+
+    const pendingConfirmItems = adaptPendingConfirmItems(hub?.inProgress ?? []);
+    const pendingReviewItems = adaptPendingReviewItems(hub?.finalized?.completed ?? []);
+    const pendingApplicationItems = adaptPendingApplicationItems(hub?.pending?.openOffers ?? []);
 
     const pendingRequestsRaw = (hub?.pending.directInvites ?? [])
       .slice()
@@ -307,6 +376,9 @@ export function useBusinessDashboardController() {
       pendingRequests: pendingRequestsRaw,
       pendingReviews: pendingReviewsRaw,
       hasPendingReviewsOverflow: allPendingReviewsHub.length > 3,
+      pendingConfirmItems,
+      pendingReviewItems,
+      pendingApplicationItems,
       recommendedCreators: recommendedCreatorsRaw,
       mapHighlights: creators.slice(0, 2).map((c) => c.location),
       recentActivity,

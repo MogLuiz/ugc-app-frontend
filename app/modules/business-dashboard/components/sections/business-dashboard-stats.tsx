@@ -8,7 +8,7 @@ function MetricIcon({ metric }: { metric: CompanyDashboardMetric }) {
     return <BriefcaseBusiness className="size-5 text-[#895af6] sm:text-[#6a36d5]" />;
   }
   if (metric.id === "pending-applications") {
-    return <Clock3 className="size-5 text-amber-500" />;
+    return <Clock3 className="size-5 text-[#6a36d5]" />;
   }
   if (metric.id === "upcoming-recordings") {
     return <CalendarDays className="size-5 text-sky-600" />;

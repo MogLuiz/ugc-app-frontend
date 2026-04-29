@@ -1,4 +1,5 @@
 export { BusinessDashboardHeader } from "./business-dashboard-header";
+export { BusinessDashboardPendingActions } from "./business-dashboard-pending-actions";
 export { BusinessDashboardStats } from "./business-dashboard-stats";
 export { BusinessDashboardExploreHero } from "./business-dashboard-explore-hero";
 export { BusinessDashboardPendingRequests } from "./business-dashboard-pending-requests";

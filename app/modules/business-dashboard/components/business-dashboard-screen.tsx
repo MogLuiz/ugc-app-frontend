@@ -7,8 +7,8 @@ import {
   BusinessDashboardExploreHero,
   BusinessDashboardHeader,
   BusinessDashboardMapNearby,
+  BusinessDashboardPendingActions,
   BusinessDashboardPendingRequests,
-  BusinessDashboardPendingReviews,
   BusinessDashboardRecentActivity,
   BusinessDashboardRecommendedCreators,
   BusinessDashboardStats,
@@ -39,6 +39,14 @@ export function BusinessDashboardScreen() {
 
           <BusinessDashboardStats stats={controller.viewModel.metrics} />
 
+          <BusinessDashboardPendingActions
+            confirmItems={controller.viewModel.pendingConfirmItems}
+            reviewItems={controller.viewModel.pendingReviewItems}
+            applicationItems={controller.viewModel.pendingApplicationItems}
+            isLoading={controller.viewModel.isCampaignsLoading}
+            errorMessage={controller.viewModel.campaignsErrorMessage}
+          />
+
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(300px,1fr)] lg:gap-8">
             {/* Left column — operational content */}
             <div className="flex min-w-0 flex-col gap-6 lg:gap-8">
@@ -62,11 +70,6 @@ export function BusinessDashboardScreen() {
                 getCreatorFallbackInitials={
                   controller.actions.getCreatorFallbackInitials
                 }
-              />
-
-              <BusinessDashboardPendingReviews
-                items={controller.viewModel.pendingReviews}
-                hasOverflow={controller.viewModel.hasPendingReviewsOverflow}
               />
 
               <BusinessDashboardExploreHero />

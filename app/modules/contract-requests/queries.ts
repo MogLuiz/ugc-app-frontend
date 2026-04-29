@@ -1,7 +1,7 @@
 // Fluxo oficial da empresa evolui em `open-offers`.
 // Este módulo permanece ativo porque ainda sustenta creator e handoffs compatíveis.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { contractRequestKeys, creatorDashboardKeys, creatorHubKeys } from "~/lib/query/query-keys";
+import { contractRequestKeys, creatorDashboardKeys, creatorHubKeys, openOfferKeys } from "~/lib/query/query-keys";
 import {
   acceptContractRequest,
   cancelContractRequest,
@@ -138,6 +138,7 @@ export function useConfirmCompletionMutation() {
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.all });
       void queryClient.invalidateQueries({ queryKey: contractRequestKeys.detail(contractRequestId) });
       void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
+      void queryClient.invalidateQueries({ queryKey: openOfferKeys.companyHub() });
     },
   });
 }
@@ -174,6 +175,7 @@ export function useSubmitReviewMutation(contractRequestId: string) {
         queryKey: contractRequestKeys.reviews(contractRequestId),
       });
       void queryClient.invalidateQueries({ queryKey: creatorHubKeys.all });
+      void queryClient.invalidateQueries({ queryKey: openOfferKeys.companyHub() });
     },
   });
 }

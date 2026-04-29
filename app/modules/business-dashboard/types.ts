@@ -77,14 +77,43 @@ export type CompanyDashboardActivityItem = {
   href?: string;
 };
 
+export type BusinessPendingConfirmVm = {
+  id: string;
+  creatorName: string;
+  creatorAvatarUrl: string | null;
+  title: string;
+  dateLabel: string | null;
+  contestDeadlineAt: string | null;
+};
+
+export type BusinessPendingReviewVm = {
+  id: string;
+  contractRequestId: string;
+  creatorName: string;
+  creatorAvatarUrl: string | null;
+  title: string;
+  completedLabel: string;
+};
+
+export type BusinessPendingApplicationVm = {
+  id: string;
+  title: string;
+  applicationsCount: number;
+  expiresAt: string | null;
+};
+
 export type CompanyDashboardViewModel = {
   greetingName: string;
   subtitle: string;
   metrics: CompanyDashboardMetric[];
   activeCampaigns: CompanyDashboardCampaignItem[];
   pendingRequests: CompanyDashboardPendingItem[];
+  /** @deprecated migrado para pendingActions — manter apenas para seção legada se existir */
   pendingReviews: CompanyDashboardPendingReviewItem[];
   hasPendingReviewsOverflow: boolean;
+  pendingConfirmItems: BusinessPendingConfirmVm[];
+  pendingReviewItems: BusinessPendingReviewVm[];
+  pendingApplicationItems: BusinessPendingApplicationVm[];
   recommendedCreators: CompanyDashboardRecommendedCreator[];
   /** Regiões derivadas dos creators do marketplace (ex.: chip Belo Horizonte/MG). */
   mapHighlights: string[];

@@ -49,7 +49,7 @@ export function BusinessDashboardPendingReviews({
               <button
                 type="button"
                 onClick={() => navigate(`/ofertas/${item.contractRequestId}`)}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-[32px] bg-amber-500 py-3 text-xs font-bold text-white shadow-sm transition hover:bg-amber-600"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[32px] bg-[#6a36d5] py-3 text-xs font-bold text-white shadow-sm transition hover:bg-[#5b2fc4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6a36d5]/50"
               >
                 <Star className="size-3.5 fill-white" aria-hidden />
                 Avaliar creator
