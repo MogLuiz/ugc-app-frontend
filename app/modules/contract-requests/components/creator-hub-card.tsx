@@ -2,7 +2,7 @@ import { AlertCircle, CalendarDays, ChevronRight, Clock, MapPin, Star } from "lu
 import { useNavigate } from "react-router";
 import { cn } from "~/lib/utils";
 import { formatDateShort } from "../utils";
-import type { CreatorHubItem, CreatorHubDisplayStatus } from "../creator-hub.types";
+import type { CreatorHubItem, CreatorHubDisplayStatus, CreatorPerspectiveStatus } from "../creator-hub.types";
 
 function formatOfferMoney(amount: number | null, currency = "BRL"): string {
   if (amount == null) return "—";
@@ -21,46 +21,55 @@ function formatExpiryCountdown(iso: string): string {
 }
 
 function resolveSubtitle(item: CreatorHubItem): string {
-  switch (item.displayStatus) {
-    case "PENDING_INVITE":
+  switch (item.creatorPerspectiveStatus) {
+    case "INVITE_PENDING":
       if (item.effectiveExpiresAt) return formatExpiryCountdown(item.effectiveExpiresAt);
       return "Aguardando resposta";
-    case "APPLICATION_PENDING":
+    case "AVAILABLE_OPPORTUNITY":
       return "Candidatura enviada · Aguardando seleção";
-    case "ACCEPTED":
+    case "UPCOMING_WORK":
       return item.startsAt ? `Trabalho em ${formatDateShort(item.startsAt)}` : "Trabalho aceito";
-    case "AWAITING_CONFIRMATION":
-      return "Aguardando confirmação de conclusão";
-    case "IN_DISPUTE":
+    case "CREATOR_CONFIRMATION_REQUIRED":
+      return "Confirme se o trabalho foi realizado";
+    case "AWAITING_COMPANY_CONFIRMATION":
+      return "Aguardando confirmação da empresa";
+    case "AWAITING_AUTO_COMPLETION":
+      return "Conclusão automática em andamento";
+    case "COMPLETION_DISPUTE":
       return "Disputa em andamento";
+    case "REVIEW_COMPANY_REQUIRED":
+      return item.finalizedAt ? `Concluído em ${formatDateShort(item.finalizedAt)}` : "Concluído";
     case "COMPLETED":
       return item.finalizedAt ? `Concluído em ${formatDateShort(item.finalizedAt)}` : "Concluído";
-    case "REJECTED":
-      return "Proposta recusada";
     case "CANCELLED":
-      return "Trabalho cancelado";
+      return item.displayStatus === "REJECTED" ? "Proposta recusada" : "Trabalho cancelado";
     case "EXPIRED":
-      return item.kind === "open_offer_application" ? "Oportunidade encerrada" : "Convite expirado";
-    case "APPLICATION_NOT_SELECTED":
-      return "Não selecionado para esta oportunidade";
-    case "APPLICATION_WITHDRAWN":
-      return "Candidatura cancelada";
+      return item.kind === "open_offer_application" ? "Oportunidade encerrada" :
+        item.displayStatus === "APPLICATION_NOT_SELECTED" ? "Não selecionado para esta oportunidade" :
+        item.displayStatus === "APPLICATION_WITHDRAWN" ? "Candidatura cancelada" :
+        "Convite expirado";
     default:
       return "";
   }
 }
 
-function borderClass(status: CreatorHubDisplayStatus): string {
-  if (status === "AWAITING_CONFIRMATION") return "border-amber-200";
-  if (status === "IN_DISPUTE") return "border-rose-200";
+function borderClass(perspectiveStatus: CreatorPerspectiveStatus): string {
+  if (perspectiveStatus === "CREATOR_CONFIRMATION_REQUIRED") return "border-amber-200";
+  if (perspectiveStatus === "AWAITING_COMPANY_CONFIRMATION") return "border-amber-100";
+  if (perspectiveStatus === "COMPLETION_DISPUTE") return "border-rose-200";
   return "border-slate-200";
 }
 
-function subtitleColorClass(status: CreatorHubDisplayStatus): string {
-  if (status === "AWAITING_CONFIRMATION") return "text-amber-600";
-  if (status === "IN_DISPUTE") return "text-rose-600";
-  if (status === "EXPIRED" || status === "REJECTED" || status === "APPLICATION_NOT_SELECTED")
-    return "text-slate-400";
+function subtitleColorClass(perspectiveStatus: CreatorPerspectiveStatus): string {
+  if (
+    perspectiveStatus === "CREATOR_CONFIRMATION_REQUIRED" ||
+    perspectiveStatus === "AWAITING_COMPANY_CONFIRMATION"
+  ) return "text-amber-600";
+  if (perspectiveStatus === "COMPLETION_DISPUTE") return "text-rose-600";
+  if (
+    perspectiveStatus === "EXPIRED" ||
+    perspectiveStatus === "CANCELLED"
+  ) return "text-slate-400";
   return "text-slate-500";
 }
 
@@ -115,12 +124,13 @@ export function CreatorHubCard({
   const navigate = useNavigate();
   const href = resolveNavigateTo(item);
   const subtitle = resolveSubtitle(item);
-  const isAwaiting = item.displayStatus === "AWAITING_CONFIRMATION";
-  const isDispute = item.displayStatus === "IN_DISPUTE";
+  const isConfirmationRequired = item.creatorPerspectiveStatus === "CREATOR_CONFIRMATION_REQUIRED";
+  const isAwaitingCompany = item.creatorPerspectiveStatus === "AWAITING_COMPANY_CONFIRMATION";
+  const isDispute = item.creatorPerspectiveStatus === "COMPLETION_DISPUTE";
   const showAddress =
-    (item.displayStatus === "PENDING_INVITE" ||
-      item.displayStatus === "APPLICATION_PENDING" ||
-      item.displayStatus === "ACCEPTED") &&
+    (item.creatorPerspectiveStatus === "INVITE_PENDING" ||
+      item.creatorPerspectiveStatus === "AVAILABLE_OPPORTUNITY" ||
+      item.creatorPerspectiveStatus === "UPCOMING_WORK") &&
     item.address &&
     item.address !== "Local a combinar";
 
@@ -133,7 +143,7 @@ export function CreatorHubCard({
       className={cn(
         "w-full min-w-0 max-w-full rounded-[28px] border bg-white p-5 shadow-sm transition lg:p-6",
         href ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-md" : "cursor-default",
-        borderClass(item.displayStatus)
+        borderClass(item.creatorPerspectiveStatus)
       )}
       onClick={handleCardClick}
     >
@@ -196,13 +206,25 @@ export function CreatorHubCard({
         </div>
       )}
 
-      {/* Awaiting confirmation notice */}
-      {isAwaiting && (
+      {/* Confirmation required notice */}
+      {isConfirmationRequired && (
         <div className="mt-3 rounded-[14px] bg-amber-50 px-3 py-2 ring-1 ring-inset ring-amber-200">
           <div className="flex items-center gap-2">
             <AlertCircle className="size-3.5 shrink-0 text-amber-600" aria-hidden />
             <span className="text-xs font-semibold text-amber-700">
               Confirme se o trabalho foi realizado
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Awaiting company notice */}
+      {isAwaitingCompany && (
+        <div className="mt-3 rounded-[14px] bg-amber-50 px-3 py-2 ring-1 ring-inset ring-amber-100">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="size-3.5 shrink-0 text-amber-500" aria-hidden />
+            <span className="text-xs font-semibold text-amber-600">
+              Aguardando confirmação da empresa
             </span>
           </div>
         </div>
@@ -225,34 +247,35 @@ export function CreatorHubCard({
         <span
           className={cn(
             "min-w-0 text-xs font-semibold uppercase tracking-[0.16em]",
-            subtitleColorClass(item.displayStatus)
+            subtitleColorClass(item.creatorPerspectiveStatus)
           )}
         >
           {subtitle}
         </span>
 
         <div className="flex shrink-0 items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          {item.primaryAction === "ACCEPT_OR_REJECT" && (
-            <>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                onClick={() => onReject?.(item.id)}
-              >
-                Recusar
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 rounded-full bg-[#895af6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7a4de0]"
-                onClick={() => onAccept?.(item.id)}
-              >
-                Aceitar
-                <ChevronRight className="size-4" />
-              </button>
-            </>
+          {item.availableActions.includes("reject_invite") && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              onClick={() => onReject?.(item.id)}
+            >
+              Recusar
+            </button>
           )}
 
-          {item.primaryAction === "CONFIRM_OR_DISPUTE" && href && (
+          {item.availableActions.includes("accept_invite") && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#895af6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7a4de0]"
+              onClick={() => onAccept?.(item.id)}
+            >
+              Aceitar
+              <ChevronRight className="size-4" />
+            </button>
+          )}
+
+          {item.availableActions.includes("confirm_completion") && href && (
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600"
@@ -263,7 +286,7 @@ export function CreatorHubCard({
             </button>
           )}
 
-          {item.primaryAction === "LEAVE_REVIEW" && href && (
+          {item.availableActions.includes("review_company") && href && (
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
@@ -274,7 +297,7 @@ export function CreatorHubCard({
             </button>
           )}
 
-          {item.primaryAction === "VIEW" && href && (
+          {item.primaryAction === "view_details" && href && (
             <button
               type="button"
               className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"

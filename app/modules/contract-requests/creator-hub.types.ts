@@ -16,11 +16,34 @@ export type CreatorHubItemKind =
   | "open_offer_application"
   | "contract";
 
-export type CreatorHubPrimaryAction =
-  | "ACCEPT_OR_REJECT"
-  | "CONFIRM_OR_DISPUTE"
-  | "LEAVE_REVIEW"
-  | "VIEW";
+export type CreatorPerspectiveStatus =
+  | "INVITE_PENDING"
+  | "AVAILABLE_OPPORTUNITY"
+  | "UPCOMING_WORK"
+  | "CREATOR_CONFIRMATION_REQUIRED"
+  | "AWAITING_COMPANY_CONFIRMATION"
+  | "AWAITING_AUTO_COMPLETION"
+  | "COMPLETION_DISPUTE"
+  | "REVIEW_COMPANY_REQUIRED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "EXPIRED";
+
+export type CreatorHubAction =
+  | "accept_invite"
+  | "reject_invite"
+  | "confirm_completion"
+  | "contest_completion"
+  | "review_company"
+  | "view_details"
+  | "open_chat";
+
+export type CreatorCompletionConfirmation = {
+  companyConfirmed: boolean;
+  creatorConfirmed: boolean;
+  contestDeadlineAt: string | null;
+  autoCompletionAt: string | null;
+};
 
 export type CreatorHubItem = {
   id: string;
@@ -49,8 +72,13 @@ export type CreatorHubItem = {
   address: string;
   locationDisplay: string | null;
 
-  primaryAction: CreatorHubPrimaryAction;
+  /** Estado semântico calculado pelo backend; use este campo para decisões de UI. */
+  creatorPerspectiveStatus: CreatorPerspectiveStatus;
+  primaryAction: CreatorHubAction;
+  availableActions: CreatorHubAction[];
   actionRequired: boolean;
+  /** Campos de confirmação bilateral. Presente em AWAITING/DISPUTE/COMPLETED; null nos demais. */
+  completionConfirmation: CreatorCompletionConfirmation | null;
 
   canAccept: boolean;
   canReject: boolean;

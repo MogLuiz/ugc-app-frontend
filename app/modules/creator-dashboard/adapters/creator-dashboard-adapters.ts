@@ -91,12 +91,9 @@ export function adaptHubInvites(items: CreatorHubItem[]): CreatorInviteVm[] {
   });
 }
 
-export function isAwaitingConfirmation(item: CreatorHubItem): boolean {
-  return (
-    item.displayStatus === "AWAITING_CONFIRMATION" ||
-    item.primaryAction === "CONFIRM_OR_DISPUTE" ||
-    item.canConfirmCompletion === true
-  );
+/** True quando o creator precisa confirmar a conclusão do serviço. */
+export function isCreatorConfirmationRequired(item: CreatorHubItem): boolean {
+  return item.creatorPerspectiveStatus === "CREATOR_CONFIRMATION_REQUIRED";
 }
 
 export function adaptHubUpcoming(
@@ -104,13 +101,13 @@ export function adaptHubUpcoming(
   now: Date,
 ): CreatorUpcomingCampaignVm[] {
   return items
-    .filter((item) => item.startsAt != null && !isAwaitingConfirmation(item))
+    .filter((item) => item.startsAt != null && item.creatorPerspectiveStatus === "UPCOMING_WORK")
     .sort((a, b) => new Date(a.startsAt!).getTime() - new Date(b.startsAt!).getTime())
     .slice(0, 3)
     .map((item) => {
       const recordingAt = new Date(item.startsAt!);
       const safe = Number.isNaN(recordingAt.getTime()) ? now : recordingAt;
-      const statusBadge = item.displayStatus === "IN_DISPUTE" ? "Pendente" : "Confirmada";
+      const statusBadge = item.creatorPerspectiveStatus === "COMPLETION_DISPUTE" ? "Pendente" : "Confirmada";
       return {
         id: item.id,
         campaignName: item.title,
@@ -139,7 +136,7 @@ export function adaptPendingActions(
   completed: CreatorHubItem[],
 ): PendingActionVm[] {
   const confirmItems: PendingActionVm[] = inProgress
-    .filter(isAwaitingConfirmation)
+    .filter(isCreatorConfirmationRequired)
     .map((item) => {
       const dayMonth = formatDayMonth(item.startsAt);
       return {
@@ -154,7 +151,7 @@ export function adaptPendingActions(
     });
 
   const reviewItems: PendingActionVm[] = completed
-    .filter((item) => item.myReviewPending === true)
+    .filter((item) => item.creatorPerspectiveStatus === "REVIEW_COMPANY_REQUIRED")
     .map((item) => {
       const dayMonth = formatDayMonth(item.finalizedAt ?? item.startsAt);
       return {

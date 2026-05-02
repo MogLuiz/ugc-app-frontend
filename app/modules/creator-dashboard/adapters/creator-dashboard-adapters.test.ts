@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   adaptHubUpcoming,
   adaptPendingActions,
-  isAwaitingConfirmation,
+  isCreatorConfirmationRequired,
 } from "./creator-dashboard-adapters";
 import type { CreatorHubItem } from "~/modules/contract-requests/creator-hub.types";
 
@@ -23,8 +23,11 @@ function makeItem(overrides: Partial<CreatorHubItem> = {}): CreatorHubItem {
     openOfferId: null,
     address: "São Paulo, SP",
     locationDisplay: null,
-    primaryAction: "VIEW",
+    creatorPerspectiveStatus: "UPCOMING_WORK",
+    primaryAction: "view_details",
+    availableActions: ["view_details"],
     actionRequired: false,
+    completionConfirmation: null,
     canAccept: false,
     canReject: false,
     canCancel: false,
@@ -36,29 +39,56 @@ function makeItem(overrides: Partial<CreatorHubItem> = {}): CreatorHubItem {
 }
 
 const NOW = new Date("2030-01-01T00:00:00.000Z");
+const FUTURE_DEADLINE = new Date(NOW.getTime() + 24 * 60 * 60_000).toISOString();
 
-// ─── isAwaitingConfirmation ───────────────────────────────────────────────────
+// ─── isCreatorConfirmationRequired ───────────────────────────────────────────
 
-describe("isAwaitingConfirmation", () => {
-  it("retorna true para displayStatus AWAITING_CONFIRMATION", () => {
-    expect(isAwaitingConfirmation(makeItem({ displayStatus: "AWAITING_CONFIRMATION" }))).toBe(true);
-  });
-
-  it("retorna true para primaryAction CONFIRM_OR_DISPUTE", () => {
-    expect(isAwaitingConfirmation(makeItem({ primaryAction: "CONFIRM_OR_DISPUTE" }))).toBe(true);
-  });
-
-  it("retorna true para canConfirmCompletion === true", () => {
-    expect(isAwaitingConfirmation(makeItem({ canConfirmCompletion: true }))).toBe(true);
-  });
-
-  it("retorna false para item ACCEPTED sem nenhuma flag de confirmação", () => {
-    expect(isAwaitingConfirmation(makeItem())).toBe(false);
-  });
-
-  it("retorna false para item IN_DISPUTE sem canConfirmCompletion", () => {
+describe("isCreatorConfirmationRequired", () => {
+  it("retorna true para CREATOR_CONFIRMATION_REQUIRED", () => {
     expect(
-      isAwaitingConfirmation(makeItem({ displayStatus: "IN_DISPUTE", primaryAction: "VIEW" })),
+      isCreatorConfirmationRequired(
+        makeItem({
+          creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+          primaryAction: "confirm_completion",
+          availableActions: ["confirm_completion", "contest_completion", "view_details"],
+          actionRequired: true,
+          canConfirmCompletion: true,
+          canDispute: true,
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("retorna false para AWAITING_COMPANY_CONFIRMATION (creator já confirmou)", () => {
+    expect(
+      isCreatorConfirmationRequired(
+        makeItem({
+          creatorPerspectiveStatus: "AWAITING_COMPANY_CONFIRMATION",
+          actionRequired: false,
+          completionConfirmation: {
+            creatorConfirmed: true,
+            companyConfirmed: false,
+            contestDeadlineAt: FUTURE_DEADLINE,
+            autoCompletionAt: FUTURE_DEADLINE,
+          },
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("retorna false para UPCOMING_WORK", () => {
+    expect(isCreatorConfirmationRequired(makeItem())).toBe(false);
+  });
+
+  it("retorna false para AWAITING_AUTO_COMPLETION", () => {
+    expect(
+      isCreatorConfirmationRequired(makeItem({ creatorPerspectiveStatus: "AWAITING_AUTO_COMPLETION" })),
+    ).toBe(false);
+  });
+
+  it("retorna false para REVIEW_COMPANY_REQUIRED", () => {
+    expect(
+      isCreatorConfirmationRequired(makeItem({ creatorPerspectiveStatus: "REVIEW_COMPANY_REQUIRED" })),
     ).toBe(false);
   });
 });
@@ -66,18 +96,35 @@ describe("isAwaitingConfirmation", () => {
 // ─── adaptHubUpcoming ─────────────────────────────────────────────────────────
 
 describe("adaptHubUpcoming", () => {
-  it("exclui item com displayStatus AWAITING_CONFIRMATION", () => {
-    const items = [makeItem({ displayStatus: "AWAITING_CONFIRMATION" })];
+  it("inclui apenas itens com UPCOMING_WORK e startsAt preenchido", () => {
+    const items = [makeItem()];
+    expect(adaptHubUpcoming(items, NOW)).toHaveLength(1);
+  });
+
+  it("exclui CREATOR_CONFIRMATION_REQUIRED (ação pendente do creator)", () => {
+    const items = [
+      makeItem({
+        creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+        primaryAction: "confirm_completion",
+        availableActions: ["confirm_completion", "contest_completion", "view_details"],
+        actionRequired: true,
+      }),
+    ];
     expect(adaptHubUpcoming(items, NOW)).toHaveLength(0);
   });
 
-  it("exclui item com primaryAction CONFIRM_OR_DISPUTE", () => {
-    const items = [makeItem({ primaryAction: "CONFIRM_OR_DISPUTE" })];
+  it("exclui AWAITING_COMPANY_CONFIRMATION (não é upcoming)", () => {
+    const items = [
+      makeItem({
+        creatorPerspectiveStatus: "AWAITING_COMPANY_CONFIRMATION",
+        actionRequired: false,
+      }),
+    ];
     expect(adaptHubUpcoming(items, NOW)).toHaveLength(0);
   });
 
-  it("exclui item com canConfirmCompletion === true", () => {
-    const items = [makeItem({ canConfirmCompletion: true })];
+  it("exclui AWAITING_AUTO_COMPLETION", () => {
+    const items = [makeItem({ creatorPerspectiveStatus: "AWAITING_AUTO_COMPLETION" })];
     expect(adaptHubUpcoming(items, NOW)).toHaveLength(0);
   });
 
@@ -86,16 +133,9 @@ describe("adaptHubUpcoming", () => {
     expect(adaptHubUpcoming(items, NOW)).toHaveLength(0);
   });
 
-  it("inclui item ACCEPTED com startsAt válido", () => {
-    const items = [makeItem()];
-    const result = adaptHubUpcoming(items, NOW);
-    expect(result).toHaveLength(1);
-    expect(result[0]?.id).toBe("item-1");
-  });
-
-  it("inclui item IN_DISPUTE sem canConfirmCompletion", () => {
-    const items = [makeItem({ displayStatus: "IN_DISPUTE", primaryAction: "VIEW" })];
-    expect(adaptHubUpcoming(items, NOW)).toHaveLength(1);
+  it("exclui COMPLETION_DISPUTE (não é upcoming)", () => {
+    const items = [makeItem({ creatorPerspectiveStatus: "COMPLETION_DISPUTE" })];
+    expect(adaptHubUpcoming(items, NOW)).toHaveLength(0);
   });
 
   it("ordena por startsAt crescente", () => {
@@ -118,13 +158,8 @@ describe("adaptHubUpcoming", () => {
     expect(adaptHubUpcoming(items, NOW)).toHaveLength(3);
   });
 
-  it("statusBadge é 'Pendente' para IN_DISPUTE", () => {
-    const items = [makeItem({ displayStatus: "IN_DISPUTE", primaryAction: "VIEW" })];
-    expect(adaptHubUpcoming(items, NOW)[0]?.statusBadge).toBe("Pendente");
-  });
-
-  it("statusBadge é 'Confirmada' para ACCEPTED", () => {
-    const items = [makeItem({ displayStatus: "ACCEPTED" })];
+  it("statusBadge é 'Confirmada' para UPCOMING_WORK", () => {
+    const items = [makeItem()];
     expect(adaptHubUpcoming(items, NOW)[0]?.statusBadge).toBe("Confirmada");
   });
 });
@@ -136,10 +171,17 @@ describe("adaptPendingActions", () => {
     expect(adaptPendingActions([], [])).toHaveLength(0);
   });
 
-  it("inclui apenas itens de inProgress que satisfazem isAwaitingConfirmation", () => {
+  it("inclui CREATOR_CONFIRMATION_REQUIRED em ações pendentes", () => {
     const inProgress = [
-      makeItem({ id: "confirm-1", displayStatus: "AWAITING_CONFIRMATION" }),
-      makeItem({ id: "normal-1", displayStatus: "ACCEPTED" }),
+      makeItem({
+        id: "confirm-1",
+        creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+        primaryAction: "confirm_completion",
+        availableActions: ["confirm_completion", "contest_completion", "view_details"],
+        actionRequired: true,
+        canConfirmCompletion: true,
+      }),
+      makeItem({ id: "upcoming-1" }),
     ];
     const result = adaptPendingActions(inProgress, []);
     expect(result).toHaveLength(1);
@@ -147,11 +189,39 @@ describe("adaptPendingActions", () => {
     expect(result[0]?.kind).toBe("confirm_completion");
   });
 
-  it("inclui apenas itens de completed com myReviewPending === true", () => {
+  it("não inclui AWAITING_COMPANY_CONFIRMATION em ações pendentes", () => {
+    const inProgress = [
+      makeItem({
+        id: "waiting-1",
+        creatorPerspectiveStatus: "AWAITING_COMPANY_CONFIRMATION",
+        actionRequired: false,
+        completionConfirmation: {
+          creatorConfirmed: true,
+          companyConfirmed: false,
+          contestDeadlineAt: FUTURE_DEADLINE,
+          autoCompletionAt: FUTURE_DEADLINE,
+        },
+      }),
+    ];
+    const result = adaptPendingActions(inProgress, []);
+    expect(result).toHaveLength(0);
+  });
+
+  it("inclui REVIEW_COMPANY_REQUIRED em ações pendentes", () => {
     const completed = [
-      makeItem({ id: "review-1", displayStatus: "COMPLETED", myReviewPending: true }),
-      makeItem({ id: "reviewed-1", displayStatus: "COMPLETED", myReviewPending: false }),
-      makeItem({ id: "reviewed-2", displayStatus: "COMPLETED", myReviewPending: null }),
+      makeItem({
+        id: "review-1",
+        creatorPerspectiveStatus: "REVIEW_COMPANY_REQUIRED",
+        myReviewPending: true,
+        primaryAction: "review_company",
+        availableActions: ["review_company", "view_details"],
+        actionRequired: true,
+      }),
+      makeItem({
+        id: "reviewed-1",
+        creatorPerspectiveStatus: "COMPLETED",
+        myReviewPending: false,
+      }),
     ];
     const result = adaptPendingActions([], completed);
     expect(result).toHaveLength(1);
@@ -159,9 +229,37 @@ describe("adaptPendingActions", () => {
     expect(result[0]?.kind).toBe("review_company");
   });
 
+  it("não inclui COMPLETED (já avaliado) em ações pendentes", () => {
+    const completed = [
+      makeItem({
+        id: "done-1",
+        creatorPerspectiveStatus: "COMPLETED",
+        myReviewPending: false,
+      }),
+    ];
+    expect(adaptPendingActions([], completed)).toHaveLength(0);
+  });
+
   it("coloca confirm_completion antes de review_company", () => {
-    const inProgress = [makeItem({ id: "confirm-1", displayStatus: "AWAITING_CONFIRMATION" })];
-    const completed = [makeItem({ id: "review-1", displayStatus: "COMPLETED", myReviewPending: true })];
+    const inProgress = [
+      makeItem({
+        id: "c1",
+        creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+        primaryAction: "confirm_completion",
+        availableActions: ["confirm_completion", "contest_completion", "view_details"],
+        actionRequired: true,
+      }),
+    ];
+    const completed = [
+      makeItem({
+        id: "r1",
+        creatorPerspectiveStatus: "REVIEW_COMPANY_REQUIRED",
+        myReviewPending: true,
+        primaryAction: "review_company",
+        availableActions: ["review_company", "view_details"],
+        actionRequired: true,
+      }),
+    ];
     const result = adaptPendingActions(inProgress, completed);
     expect(result[0]?.kind).toBe("confirm_completion");
     expect(result[1]?.kind).toBe("review_company");
@@ -171,7 +269,10 @@ describe("adaptPendingActions", () => {
     const inProgress = [
       makeItem({
         id: "c1",
-        displayStatus: "AWAITING_CONFIRMATION",
+        creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+        primaryAction: "confirm_completion",
+        availableActions: ["confirm_completion", "contest_completion", "view_details"],
+        actionRequired: true,
         startsAt: "2030-04-12T10:00:00.000Z",
       }),
     ];
@@ -183,8 +284,11 @@ describe("adaptPendingActions", () => {
     const completed = [
       makeItem({
         id: "r1",
-        displayStatus: "COMPLETED",
+        creatorPerspectiveStatus: "REVIEW_COMPANY_REQUIRED",
         myReviewPending: true,
+        primaryAction: "review_company",
+        availableActions: ["review_company", "view_details"],
+        actionRequired: true,
         finalizedAt: "2030-04-08T10:00:00.000Z",
         startsAt: "2030-03-01T10:00:00.000Z",
       }),
@@ -195,9 +299,55 @@ describe("adaptPendingActions", () => {
 
   it("dateLabel é null quando não há data disponível", () => {
     const inProgress = [
-      makeItem({ id: "c1", displayStatus: "AWAITING_CONFIRMATION", startsAt: null }),
+      makeItem({
+        id: "c1",
+        creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+        primaryAction: "confirm_completion",
+        availableActions: ["confirm_completion", "contest_completion", "view_details"],
+        actionRequired: true,
+        startsAt: null,
+      }),
     ];
     const result = adaptPendingActions(inProgress, []);
     expect(result[0]?.dateLabel).toBeNull();
+  });
+});
+
+// ─── Invariante: não-duplicação entre seções ─────────────────────────────────
+
+describe("não-duplicação entre seções da dashboard", () => {
+  it("CREATOR_CONFIRMATION_REQUIRED aparece em Ações pendentes e não em Próximos", () => {
+    const item = makeItem({
+      creatorPerspectiveStatus: "CREATOR_CONFIRMATION_REQUIRED",
+      primaryAction: "confirm_completion",
+      availableActions: ["confirm_completion", "contest_completion", "view_details"],
+      actionRequired: true,
+      canConfirmCompletion: true,
+    });
+    expect(isCreatorConfirmationRequired(item)).toBe(true);
+    expect(adaptHubUpcoming([item], NOW)).toHaveLength(0);
+  });
+
+  it("AWAITING_COMPANY_CONFIRMATION não aparece em nenhuma seção de ação", () => {
+    const item = makeItem({
+      creatorPerspectiveStatus: "AWAITING_COMPANY_CONFIRMATION",
+      actionRequired: false,
+      completionConfirmation: {
+        creatorConfirmed: true,
+        companyConfirmed: false,
+        contestDeadlineAt: FUTURE_DEADLINE,
+        autoCompletionAt: FUTURE_DEADLINE,
+      },
+    });
+    expect(isCreatorConfirmationRequired(item)).toBe(false);
+    expect(adaptPendingActions([item], [])).toHaveLength(0);
+    expect(adaptHubUpcoming([item], NOW)).toHaveLength(0);
+  });
+
+  it("UPCOMING_WORK aparece apenas em Próximos trabalhos", () => {
+    const item = makeItem();
+    expect(isCreatorConfirmationRequired(item)).toBe(false);
+    expect(adaptPendingActions([item], [])).toHaveLength(0);
+    expect(adaptHubUpcoming([item], NOW)).toHaveLength(1);
   });
 });
