@@ -81,7 +81,7 @@ export function BusinessDashboardCampaignsInProgress({
   return (
     <section className="flex flex-col gap-4">
       <SectionHeader
-        title="Campanhas em andamento"
+        title="Próximos trabalhos"
         description="Próximas gravações e logística."
         ctaLabel="Ver todas"
         ctaTo="/ofertas?tab=IN_PROGRESS"

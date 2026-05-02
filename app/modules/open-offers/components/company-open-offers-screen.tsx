@@ -228,14 +228,18 @@ export function CompanyOpenOffersScreen() {
   }
 
   function inProgressSubtitle(item: CompanyHubItem): string {
-    if (item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION") return "Aguardando sua confirmação";
-    if (item.legacyStatus === "COMPLETION_DISPUTE") return "Conclusão em disputa";
-    if (item.legacyStatus === "ACCEPTED") {
-      const startsAtMs = item.startsAt ? new Date(item.startsAt).getTime() : null;
-      if (startsAtMs !== null && now >= startsAtMs) return "Em execução agora";
-      return "Contrato agendado";
+    switch (item.companyPerspectiveStatus) {
+      case "COMPANY_CONFIRMATION_REQUIRED": return "Aguardando sua confirmação";
+      case "AWAITING_CREATOR_CONFIRMATION": return "Aguardando confirmação do creator";
+      case "AWAITING_AUTO_COMPLETION": return "Conclusão automática em andamento";
+      case "COMPLETION_DISPUTE": return "Conclusão em disputa";
+      case "UPCOMING_WORK": {
+        const startsAtMs = item.startsAt ? new Date(item.startsAt).getTime() : null;
+        if (startsAtMs !== null && now >= startsAtMs) return "Em execução agora";
+        return "Contrato agendado";
+      }
+      default: return "Operação em andamento";
     }
-    return "Operação em andamento";
   }
 
   function cancelledSubtitle(item: CompanyHubItem): string {

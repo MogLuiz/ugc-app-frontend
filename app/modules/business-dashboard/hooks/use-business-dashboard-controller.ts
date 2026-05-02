@@ -9,13 +9,17 @@ import type { CompanyHubItem } from "~/modules/open-offers/types";
 import { useMarketplaceCreatorsQuery } from "~/modules/marketplace/queries";
 import {
   buildActivityFeed,
+  formatContestDeadlineLabel,
   formatDurationLabel,
   formatRecordingDateLabel,
   formatRecordingTimeLabel,
   getDayUrgencyBanner,
   getRelativeActivityLabel,
+  isAwaitingCreatorConfirmationItem,
+  isUpcomingBusinessCampaignItem,
 } from "../utils";
 import type {
+  BusinessAwaitingCreatorConfirmVm,
   BusinessPendingApplicationVm,
   BusinessPendingConfirmVm,
   BusinessPendingReviewVm,
@@ -89,14 +93,17 @@ function mapCampaignItem(item: CompanyHubItem): CompanyDashboardCampaignItem {
   const base = getOperationalDisplay(status, recordingInstant);
 
   const operationalStatusLabel =
-    item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION"
+    item.companyPerspectiveStatus === "COMPANY_CONFIRMATION_REQUIRED"
       ? "Aguardando confirmação"
-      : item.legacyStatus === "COMPLETION_DISPUTE"
-        ? "Conclusão em disputa"
-        : base.label;
+      : item.companyPerspectiveStatus === "AWAITING_CREATOR_CONFIRMATION"
+        ? "Aguardando creator"
+        : item.companyPerspectiveStatus === "COMPLETION_DISPUTE"
+          ? "Conclusão em disputa"
+          : base.label;
 
   const operationalStatusVariant: OperationalStatusVariant =
-    item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION"
+    item.companyPerspectiveStatus === "COMPANY_CONFIRMATION_REQUIRED" ||
+    item.companyPerspectiveStatus === "AWAITING_CREATOR_CONFIRMATION"
       ? "awaiting_confirmation"
       : base.variant;
 
@@ -165,7 +172,7 @@ function formatDayMonthCompany(isoDate: string | null): string | null {
 
 function adaptPendingConfirmItems(inProgress: CompanyHubItem[]): BusinessPendingConfirmVm[] {
   return (inProgress ?? [])
-    .filter((item) => item.actionRequiredByCompany === true)
+    .filter((item) => item.companyPerspectiveStatus === "COMPANY_CONFIRMATION_REQUIRED")
     .map((item) => {
       const dayMonth = formatDayMonthCompany(item.startsAt);
       return {
@@ -174,7 +181,7 @@ function adaptPendingConfirmItems(inProgress: CompanyHubItem[]): BusinessPending
         creatorAvatarUrl: item.creatorAvatarUrl ?? null,
         title: item.title,
         dateLabel: dayMonth ? `Realizado em ${dayMonth}` : null,
-        contestDeadlineAt: item.contestDeadlineAt ?? null,
+        contestDeadlineAt: item.completionConfirmation?.contestDeadlineAt ?? null,
       };
     });
 }
@@ -215,6 +222,26 @@ function adaptPendingApplicationItems(openOffers: CompanyHubItem[]): BusinessPen
       applicationsCount: item.applicationsToReviewCount,
       expiresAt: item.expiresAt ?? null,
     }));
+}
+
+function adaptAwaitingCreatorConfirmItems(
+  inProgress: CompanyHubItem[],
+): BusinessAwaitingCreatorConfirmVm[] {
+  return (inProgress ?? [])
+    .filter((item) => isAwaitingCreatorConfirmationItem(item))
+    .map((item) => {
+      const dayMonth = formatDayMonthCompany(item.startsAt);
+      return {
+        id: item.contractRequestId ?? item.id,
+        creatorName: item.creatorName ?? "Creator",
+        creatorAvatarUrl: item.creatorAvatarUrl ?? null,
+        title: item.title,
+        dateLabel: dayMonth ? `Realizado em ${dayMonth}` : null,
+        deadlineLabel: formatContestDeadlineLabel(
+          item.completionConfirmation?.contestDeadlineAt ?? null,
+        ),
+      };
+    });
 }
 
 function compareActiveCampaigns(
@@ -278,7 +305,7 @@ export function useBusinessDashboardController() {
     }
 
     const activeCampaignsRaw = (hub?.inProgress ?? [])
-      .filter((item) => !item.actionRequiredByCompany)
+      .filter((item) => isUpcomingBusinessCampaignItem(item))
       .map((item) => {
         const mapped = mapCampaignItem(item);
         return { ...mapped, progressSummary: buildProgressSummary(mapped) };
@@ -288,6 +315,7 @@ export function useBusinessDashboardController() {
     const pendingConfirmItems = adaptPendingConfirmItems(hub?.inProgress ?? []);
     const pendingReviewItems = adaptPendingReviewItems(hub?.finalized?.completed ?? []);
     const pendingApplicationItems = adaptPendingApplicationItems(hub?.pending?.openOffers ?? []);
+    const awaitingCreatorConfirmItems = adaptAwaitingCreatorConfirmItems(hub?.inProgress ?? []);
 
     const pendingRequestsRaw = (hub?.pending.directInvites ?? [])
       .slice()
@@ -379,6 +407,7 @@ export function useBusinessDashboardController() {
       pendingConfirmItems,
       pendingReviewItems,
       pendingApplicationItems,
+      awaitingCreatorConfirmItems,
       recommendedCreators: recommendedCreatorsRaw,
       mapHighlights: creators.slice(0, 2).map((c) => c.location),
       recentActivity,

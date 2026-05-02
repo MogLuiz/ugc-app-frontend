@@ -116,7 +116,30 @@ export type HubDisplayStatus =
 
 export type HubItemKind = "open_offer" | "direct_invite" | "contract";
 
-export type HubPrimaryAction = "review_applications" | "view_details";
+export type CompanyPerspectiveStatus =
+  | "UPCOMING_WORK"
+  | "COMPANY_CONFIRMATION_REQUIRED"
+  | "AWAITING_CREATOR_CONFIRMATION"
+  | "AWAITING_AUTO_COMPLETION"
+  | "COMPLETION_DISPUTE"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "EXPIRED"
+  | "PENDING_PAYMENT"
+  | "REVIEW_REQUIRED"
+  | "OPEN";
+
+export type CompanyHubAction =
+  | "review_applications"
+  | "confirm_completion"
+  | "dispute_completion"
+  | "view_details";
+
+export type CompletionConfirmation = {
+  companyConfirmedAt: string | null;
+  creatorConfirmedAt: string | null;
+  contestDeadlineAt: string | null;
+};
 
 /**
  * View model do hub da empresa — não é DTO de domínio genérico.
@@ -138,13 +161,16 @@ export type CompanyHubItem = {
   displayStatus: HubDisplayStatus;
   expiresAt: string | null;
   effectiveExpiresAt: string | null;
-  /** Prazo de 72h para confirmar ou contestar. Presente apenas em AWAITING_COMPLETION_CONFIRMATION. */
-  contestDeadlineAt: string | null;
   /** Data de conclusão (quando o contrato transitou para COMPLETED). Null para não-COMPLETED. */
   completedAt: string | null;
-  /** True quando a empresa ainda não confirmou e o prazo está ativo. */
-  actionRequiredByCompany: boolean;
-  primaryAction: HubPrimaryAction;
+  /** Estado semântico calculado pelo backend; use este campo para decisões de UI. */
+  companyPerspectiveStatus: CompanyPerspectiveStatus;
+  /** True quando companyPerspectiveStatus === 'COMPANY_CONFIRMATION_REQUIRED'. */
+  companyActionRequired: boolean;
+  primaryAction: CompanyHubAction;
+  availableActions: CompanyHubAction[];
+  /** Campos de confirmação bilateral. Presente em AWAITING/DISPUTE/COMPLETED; null nos demais. */
+  completionConfirmation: CompletionConfirmation | null;
   applicationsToReviewCount: number;
   /** true = avaliação pendente, false = já avaliada, null = não é COMPLETED */
   myReviewPending: boolean | null;

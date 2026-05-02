@@ -1,7 +1,41 @@
 import type { ContractRequestItem } from "~/modules/contract-requests/types";
 import type { ConversationListItem } from "~/modules/chat/types";
+import type { CompanyHubItem } from "~/modules/open-offers/types";
 
 const ACTIVITY_DEDUPE_WINDOW_MS = 90_000;
+
+/** Retorna true para itens que devem aparecer em "Em confirmação final". */
+export function isAwaitingCreatorConfirmationItem(item: CompanyHubItem): boolean {
+  return item.companyPerspectiveStatus === "AWAITING_CREATOR_CONFIRMATION";
+}
+
+/**
+ * Retorna rótulo de prazo neutro para exibição.
+ * < 24h → "Conclusão automática em Xh"
+ * ≥ 24h → "Conclusão automática até DD/MM às HH:mm"
+ */
+export function formatContestDeadlineLabel(
+  isoDate: string | null,
+  now: Date = new Date(),
+): string | null {
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+  const diffMs = d.getTime() - now.getTime();
+  if (diffMs <= 0) return null;
+  const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+  if (diffHours < 24) {
+    return `Conclusão automática em ${diffHours}h`;
+  }
+  const datePart = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  const timePart = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return `Conclusão automática até ${datePart} às ${timePart}`;
+}
+
+/** Retorna true para itens que devem aparecer em "Próximos trabalhos". */
+export function isUpcomingBusinessCampaignItem(item: CompanyHubItem): boolean {
+  return item.companyPerspectiveStatus === "UPCOMING_WORK";
+}
 
 export type ActivityKind = "chat_message" | "campaign_accepted" | "campaign_completed" | "campaign_created";
 

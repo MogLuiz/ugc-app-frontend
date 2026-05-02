@@ -3,6 +3,7 @@ import { AppHeader } from "~/components/layout/app-header";
 import { BusinessBottomNav } from "~/components/layout/business-bottom-nav";
 import { useBusinessDashboardController } from "../hooks/use-business-dashboard-controller";
 import {
+  BusinessDashboardAwaitingCreator,
   BusinessDashboardCampaignsInProgress,
   BusinessDashboardExploreHero,
   BusinessDashboardHeader,
@@ -43,6 +44,12 @@ export function BusinessDashboardScreen() {
             confirmItems={controller.viewModel.pendingConfirmItems}
             reviewItems={controller.viewModel.pendingReviewItems}
             applicationItems={controller.viewModel.pendingApplicationItems}
+            isLoading={controller.viewModel.isCampaignsLoading}
+            errorMessage={controller.viewModel.campaignsErrorMessage}
+          />
+
+          <BusinessDashboardAwaitingCreator
+            items={controller.viewModel.awaitingCreatorConfirmItems}
             isLoading={controller.viewModel.isCampaignsLoading}
             errorMessage={controller.viewModel.campaignsErrorMessage}
           />

@@ -102,6 +102,17 @@ export type BusinessPendingApplicationVm = {
   expiresAt: string | null;
 };
 
+export type BusinessAwaitingCreatorConfirmVm = {
+  id: string;
+  creatorName: string;
+  creatorAvatarUrl: string | null;
+  title: string;
+  /** "Realizado em 29/04" */
+  dateLabel: string | null;
+  /** "Conclusão automática em 2h" ou "Conclusão automática até 02/05 às 19:00" */
+  deadlineLabel: string | null;
+};
+
 export type CompanyDashboardViewModel = {
   greetingName: string;
   subtitle: string;
@@ -114,6 +125,7 @@ export type CompanyDashboardViewModel = {
   pendingConfirmItems: BusinessPendingConfirmVm[];
   pendingReviewItems: BusinessPendingReviewVm[];
   pendingApplicationItems: BusinessPendingApplicationVm[];
+  awaitingCreatorConfirmItems: BusinessAwaitingCreatorConfirmVm[];
   recommendedCreators: CompanyDashboardRecommendedCreator[];
   /** Regiões derivadas dos creators do marketplace (ex.: chip Belo Horizonte/MG). */
   mapHighlights: string[];

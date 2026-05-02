@@ -120,8 +120,8 @@ export function CompanyHubCard({
   const paymentState = getPaymentResumeState(item);
   const hasPendingPayment = paymentState.kind !== "none";
 
-  const isAwaiting = item.legacyStatus === "AWAITING_COMPLETION_CONFIRMATION";
-  const isDispute = item.legacyStatus === "COMPLETION_DISPUTE";
+  const isAwaiting = item.companyPerspectiveStatus === "COMPANY_CONFIRMATION_REQUIRED";
+  const isDispute = item.companyPerspectiveStatus === "COMPLETION_DISPUTE";
 
   const dateLabel = item.startsAt
     ? formatDateShort(item.startsAt)
@@ -140,7 +140,7 @@ export function CompanyHubCard({
     ? paymentState.ctaLabel
     : item.primaryAction === "review_applications"
       ? "Avaliar candidaturas"
-      : isAwaiting
+      : item.primaryAction === "confirm_completion"
         ? "Confirmar serviço"
         : "Ver detalhes";
 
@@ -223,13 +223,13 @@ export function CompanyHubCard({
         </div>
       </div>
 
-      {isAwaiting && item.contestDeadlineAt && (
+      {isAwaiting && item.completionConfirmation?.contestDeadlineAt && (
         <div className="mt-4 rounded-[16px] bg-amber-50 px-4 py-3 ring-1 ring-inset ring-amber-200">
           <div className="flex items-start gap-2">
             <AlertCircle
               className={cn(
                 "mt-0.5 size-4 shrink-0",
-                isDeadlineUrgent(item.contestDeadlineAt)
+                isDeadlineUrgent(item.completionConfirmation.contestDeadlineAt)
                   ? "text-rose-500"
                   : "text-amber-500",
               )}
@@ -239,12 +239,12 @@ export function CompanyHubCard({
               <p
                 className={cn(
                   "text-xs font-semibold",
-                  isDeadlineUrgent(item.contestDeadlineAt)
+                  isDeadlineUrgent(item.completionConfirmation.contestDeadlineAt)
                     ? "text-rose-700"
                     : "text-amber-700",
                 )}
               >
-                Prazo: {formatDeadline(item.contestDeadlineAt)}
+                Prazo: {formatDeadline(item.completionConfirmation.contestDeadlineAt)}
               </p>
               <p className="text-xs text-amber-600">
                 Se não houver contestação até o prazo, o serviço será concluído
