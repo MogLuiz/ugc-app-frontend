@@ -209,6 +209,10 @@ export function setStoredRole(role: UserRole): void {
   localStorage.setItem(ROLE_STORAGE_KEY, role);
 }
 
+export function clearStoredRole(): void {
+  localStorage.removeItem(ROLE_STORAGE_KEY);
+}
+
 export async function getSession(signal?: AbortSignal): Promise<SessionResponse> {
   const supabase = getSupabaseClient();
   const {
@@ -268,6 +272,7 @@ export async function getSession(signal?: AbortSignal): Promise<SessionResponse>
 export async function logout(): Promise<void> {
   const supabase = getSupabaseClient();
   await supabase.auth.signOut();
+  clearStoredRole();
 }
 
 export async function bootstrapUser(

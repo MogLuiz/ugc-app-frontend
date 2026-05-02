@@ -1,15 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { forgotPassword } from "./service";
+import { forgotPassword, logout } from "./service";
 
-const { mockResetPasswordForEmail, mockGetResetPasswordRedirectUrl } = vi.hoisted(() => ({
+const {
+  mockResetPasswordForEmail,
+  mockGetResetPasswordRedirectUrl,
+  mockSignOut,
+} = vi.hoisted(() => ({
   mockResetPasswordForEmail: vi.fn(),
   mockGetResetPasswordRedirectUrl: vi.fn(),
+  mockSignOut: vi.fn(),
 }));
 
 vi.mock("~/lib/supabase", () => ({
   getSupabaseClient: () => ({
     auth: {
       resetPasswordForEmail: mockResetPasswordForEmail,
+      signOut: mockSignOut,
     },
   }),
 }));
@@ -25,6 +31,7 @@ vi.mock("~/lib/env", async () => {
 describe("forgotPassword", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it("uses the reset password redirect helper when calling supabase", async () => {
@@ -55,5 +62,15 @@ describe("forgotPassword", () => {
     await expect(forgotPassword("user@example.com")).rejects.toThrow(
       "provider error"
     );
+  });
+
+  it("calls supabase signOut and clears stored role on logout", async () => {
+    localStorage.setItem("ugc_role", "creator");
+    mockSignOut.mockResolvedValue(undefined);
+
+    await logout();
+
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
+    expect(localStorage.getItem("ugc_role")).toBeNull();
   });
 });
